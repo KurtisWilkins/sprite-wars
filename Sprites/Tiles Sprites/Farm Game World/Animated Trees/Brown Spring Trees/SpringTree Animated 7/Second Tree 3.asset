@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13b75c95f34a00d4e8c04f76b73312e6, type: 3}
+  m_Name: Second Tree 3
+  m_EditorClassIdentifier: 
+  m_AnimatedSprites:
+  - {fileID: 239988847, guid: 63a55e710e7cc9f4683b4922413f8412, type: 3}
+  - {fileID: -897100223, guid: 63a55e710e7cc9f4683b4922413f8412, type: 3}
+  - {fileID: -729055829, guid: 63a55e710e7cc9f4683b4922413f8412, type: 3}
+  - {fileID: 1194307689, guid: 63a55e710e7cc9f4683b4922413f8412, type: 3}
+  - {fileID: -360385470, guid: 63a55e710e7cc9f4683b4922413f8412, type: 3}
+  - {fileID: 1482080443, guid: 63a55e710e7cc9f4683b4922413f8412, type: 3}
+  - {fileID: 1818636283, guid: 63a55e710e7cc9f4683b4922413f8412, type: 3}
+  - {fileID: 986149909, guid: 63a55e710e7cc9f4683b4922413f8412, type: 3}
+  m_MinSpeed: 5
+  m_MaxSpeed: 5
+  m_AnimationStartTime: 0
+  m_AnimationStartFrame: 0
+  m_TileColliderType: 1
