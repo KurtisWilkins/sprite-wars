@@ -1,4 +1,5 @@
 ## EventBus — Global signal hub for decoupled communication between systems.
+## All signals here are emitted/connected by external systems — UNUSED_SIGNAL warnings are expected.
 extends Node
 
 # Battle signals
