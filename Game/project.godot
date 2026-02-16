@@ -1,0 +1,39 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; but it can also be edited by hand with care.
+
+config_version=5
+
+[application]
+
+config/name="Sprite Wars"
+config/description="2D mobile auto-battler/RPG featuring grid-based combat, 24 Sprite races with 3 evolution stages each, 160 abilities, 14 element types, and 30+ temple regions."
+run/main_scene="res://Scenes/MainMenu.tscn"
+config/features=PackedStringArray("4.2", "Mobile")
+config/icon="res://icon.svg"
+
+[autoload]
+
+GameManager="*res://Autoloads/GameManager.gd"
+BattleManager="*res://Autoloads/BattleManager.gd"
+AudioManager="*res://Autoloads/AudioManager.gd"
+SaveManager="*res://Autoloads/SaveManager.gd"
+QuestManager="*res://Autoloads/QuestManager.gd"
+EventBus="*res://Autoloads/EventBus.gd"
+
+[display]
+
+window/size/viewport_width=1080
+window/size/viewport_height=1920
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+
+renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true
