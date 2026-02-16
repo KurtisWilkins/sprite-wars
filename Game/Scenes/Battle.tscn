@@ -1,0 +1,87 @@
+[gd_scene load_steps=3 format=3 uid="uid://battle_scene"]
+
+[ext_resource type="Script" path="res://Scripts/UI/Battle/BattleUI.gd" id="1"]
+[ext_resource type="Script" path="res://Scripts/UI/Battle/GridDisplay.gd" id="2"]
+
+[node name="Battle" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="BattleBackground" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch_mode = 6
+
+[node name="GridContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("2")
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="TopBar" type="HBoxContainer" parent="UILayer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 80.0
+
+[node name="TurnOrderBar" type="HBoxContainer" parent="UILayer/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SpeedButton" type="Button" parent="UILayer/TopBar"]
+layout_mode = 2
+custom_minimum_size = Vector2(80, 60)
+text = "1x"
+
+[node name="BottomBar" type="VBoxContainer" parent="UILayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -300.0
+
+[node name="AbilityBar" type="HBoxContainer" parent="UILayer/BottomBar"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 120)
+
+[node name="ActionButtons" type="HBoxContainer" parent="UILayer/BottomBar"]
+layout_mode = 2
+alignment = 1
+
+[node name="AutoBtn" type="Button" parent="UILayer/BottomBar/ActionButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 60)
+text = "Auto"
+
+[node name="CatchBtn" type="Button" parent="UILayer/BottomBar/ActionButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 60)
+text = "Catch"
+
+[node name="RunBtn" type="Button" parent="UILayer/BottomBar/ActionButtons"]
+layout_mode = 2
+custom_minimum_size = Vector2(120, 60)
+text = "Run"
+
+[node name="EventFeed" type="VBoxContainer" parent="UILayer"]
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -200.0
+offset_bottom = 200.0
+
+[node name="FloatingDamageLayer" type="CanvasLayer" parent="."]
+layer = 15
