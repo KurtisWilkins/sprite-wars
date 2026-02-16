@@ -145,6 +145,10 @@ static func _validate_abilities(abilities: Array, element_chart: Dictionary) -> 
 		if ability.get("ability_name", "").is_empty():
 			errors.append("Ability %d: missing ability_name" % aid)
 
+		var elem: String = ability.get("element_type", "")
+		if not elem.is_empty() and elem != "None" and elem not in valid_elements:
+			errors.append("Ability %d: invalid element_type '%s'" % [aid, elem])
+
 		var power: int = ability.get("base_power", 0)
 		if power < 0 or power > 250:
 			errors.append("Ability %d: base_power %d out of range (0-250)" % [aid, power])
