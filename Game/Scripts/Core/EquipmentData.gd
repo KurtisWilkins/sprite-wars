@@ -81,9 +81,7 @@ const VALID_SOURCES: PackedStringArray = PackedStringArray([
 	"shop", "temple_drop", "quest_reward", "boss_drop",
 ])
 
-const STAT_KEYS: PackedStringArray = PackedStringArray([
-	"hp", "atk", "def", "spd", "sp_atk", "sp_def",
-])
+const STAT_KEYS := ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]
 
 ## Rarity-based sell price multipliers (relative to a base price).
 const RARITY_SELL_MULTIPLIER: Dictionary = {

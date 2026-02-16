@@ -68,9 +68,7 @@ const VALID_CLASSES: PackedStringArray = PackedStringArray([
 
 ## ── Constants ─────────────────────────────────────────────────────────────────
 
-const STAT_KEYS: PackedStringArray = PackedStringArray([
-	"hp", "atk", "def", "spd", "sp_atk", "sp_def",
-])
+const STAT_KEYS := ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]
 
 
 ## ── Helpers ───────────────────────────────────────────────────────────────────
