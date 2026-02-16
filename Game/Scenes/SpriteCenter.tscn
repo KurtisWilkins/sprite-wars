@@ -1,0 +1,69 @@
+[gd_scene load_steps=5 format=3 uid="uid://sprite_center"]
+
+[ext_resource type="Script" path="res://Scripts/World/SpriteCenter.gd" id="1"]
+[ext_resource type="Script" path="res://Scripts/UI/Screens/StorageScreen.gd" id="2"]
+[ext_resource type="Script" path="res://Scripts/UI/Screens/RegistryScreen.gd" id="3"]
+[ext_resource type="Script" path="res://Scripts/World/ShopSystem.gd" id="4"]
+
+[node name="SpriteCenter" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.12, 0.08, 0.06, 1)
+
+[node name="TabBar" type="TabBar" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 60.0
+tab_count = 4
+tab_0/title = "Heal"
+tab_1/title = "Storage"
+tab_2/title = "Registry"
+tab_3/title = "Shop"
+
+[node name="ContentArea" type="Control" parent="."]
+layout_mode = 1
+anchor_top = 0.04
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="HealPanel" type="VBoxContainer" parent="ContentArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="StoragePanel" type="PanelContainer" parent="ContentArea"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("2")
+
+[node name="RegistryPanel" type="PanelContainer" parent="ContentArea"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("3")
+
+[node name="ShopPanel" type="PanelContainer" parent="ContentArea"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("4")
