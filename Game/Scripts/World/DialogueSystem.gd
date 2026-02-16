@@ -1,15 +1,7 @@
-## DialogueSystem — Full-featured NPC dialogue system with typewriter text,
-## branching choices, conditional lines, and quest/action callbacks.
-## [P5-008] Renders dialogue boxes, speaker portraits, and choice menus.
+## DialogueSystem — Full-featured NPC dialogue UI with typewriter text, speaker
+## portraits, branching choices, conditional dialogue, and action callbacks.
+## [P5-008] Rendered as a CanvasLayer so it overlays the game world.
 extends CanvasLayer
-
-## ── Configuration ───────────────────────────────────────────────────────────
-
-## Characters per second for the typewriter text effect.
-@export var typewriter_speed: float = 40.0
-
-## Time to wait after the last character before allowing advance (seconds).
-@export var end_of_line_delay: float = 0.2
 
 ## ── Node References ─────────────────────────────────────────────────────────
 
@@ -18,61 +10,86 @@ extends CanvasLayer
 @onready var text_label: RichTextLabel = $DialogueBox/TextLabel
 @onready var portrait_texture: TextureRect = $DialogueBox/PortraitTexture
 @onready var choices_container: VBoxContainer = $DialogueBox/ChoicesContainer
-@onready var advance_indicator: TextureRect = $DialogueBox/AdvanceIndicator
+@onready var continue_indicator: TextureRect = $DialogueBox/ContinueIndicator
+
+## ── Configuration ───────────────────────────────────────────────────────────
+
+## Characters revealed per second during typewriter effect.
+@export var typewriter_speed: float = 40.0
+
+## Time in seconds to wait after typewriter finishes before showing indicator.
+@export var continue_indicator_delay: float = 0.3
 
 ## ── State ───────────────────────────────────────────────────────────────────
 
-## True when a dialogue sequence is active.
+## Whether the dialogue system is currently showing dialogue.
 var is_active: bool = false
 
-## The full dialogue sequence currently playing.
-## Each entry: {speaker: String, text: String, portrait: String,
-##              choices: Array[{text, next_index, condition, action}]}
+## The full dialogue sequence being played.
 var current_dialogue: Array[Dictionary] = []
 
-## Index of the line currently being shown.
+## Index of the currently displayed dialogue entry.
 var current_index: int = 0
 
 ## Typewriter state.
-var _visible_chars: int = 0
-var _total_chars: int = 0
+var _visible_characters: int = 0
+var _total_characters: int = 0
 var _typewriter_timer: float = 0.0
 var _typewriter_active: bool = false
-var _line_finished: bool = false
-var _post_line_timer: float = 0.0
+var _waiting_for_input: bool = false
+
+## Currently displayed choices (if any).
+var _current_choices: Array[Dictionary] = []
+
 
 ## ── Signals ─────────────────────────────────────────────────────────────────
 
 signal dialogue_started()
 signal dialogue_ended()
-signal choice_made(choice_index: int, choice_data: Dictionary)
-signal line_shown(index: int)
+signal dialogue_line_shown(index: int)
+signal choice_selected(choice_index: int, choice_data: Dictionary)
 
 
 ## ── Lifecycle ───────────────────────────────────────────────────────────────
 
 func _ready() -> void:
 	dialogue_box.visible = false
-	choices_container.visible = false
-	if advance_indicator:
-		advance_indicator.visible = false
+	if continue_indicator:
+		continue_indicator.visible = false
+	_clear_choices()
+	set_process(false)
 
 
 func _process(delta: float) -> void:
 	if not is_active:
 		return
 
-	_process_typewriter(delta)
+	# Handle typewriter animation
+	if _typewriter_active:
+		_typewriter_timer += delta
+		var chars_to_show: int = int(_typewriter_timer * typewriter_speed)
+		if chars_to_show > _visible_characters:
+			_visible_characters = mini(chars_to_show, _total_characters)
+			text_label.visible_characters = _visible_characters
 
-	# Handle advance input
-	if Input.is_action_just_pressed("ui_accept"):
-		_on_advance_pressed()
+			if _visible_characters >= _total_characters:
+				_on_typewriter_finished()
+		return
+
+	# Handle input for advancing dialogue
+	if _waiting_for_input:
+		if Input.is_action_just_pressed("ui_accept") or _is_touch_tap():
+			advance()
 
 
 ## ── Public API ──────────────────────────────────────────────────────────────
 
-## Starts a new dialogue sequence.
-## dialogue_data: Array of dialogue line dictionaries.
+## Starts a dialogue sequence. Each entry in dialogue_data is a Dictionary with:
+##   speaker: String - name of the speaking character
+##   text: String - the dialogue text (supports BBCode)
+##   portrait: String - res:// path to the speaker's portrait texture (optional)
+##   choices: Array[Dictionary] - branching choices (optional)
+##     Each choice: {text: String, next_index: int, condition: String, action: String}
 func start_dialogue(dialogue_data: Array[Dictionary]) -> void:
 	if dialogue_data.is_empty():
 		return
@@ -80,25 +97,27 @@ func start_dialogue(dialogue_data: Array[Dictionary]) -> void:
 	current_dialogue = dialogue_data
 	current_index = 0
 	is_active = true
-	dialogue_box.visible = true
-	choices_container.visible = false
+	set_process(true)
 
+	dialogue_box.visible = true
 	dialogue_started.emit()
+	EventBus.npc_interaction_started.emit(_get_current_speaker_id())
+
 	_show_line(current_index)
 
 
-## Advances to the next line, or closes dialogue if at the end.
+## Advances to the next dialogue line, or closes if at the end.
 func advance() -> void:
 	if not is_active:
 		return
 
-	# If typewriter is still running, show the full text immediately
+	# If typewriter is still animating, skip to full text
 	if _typewriter_active:
-		_finish_typewriter()
+		_skip_typewriter()
 		return
 
-	# If there are active choices, don't advance (wait for choice selection)
-	if choices_container.visible and choices_container.get_child_count() > 0:
+	# If we have active choices, don't advance until one is selected
+	if not _current_choices.is_empty():
 		return
 
 	# Move to next line
@@ -110,22 +129,52 @@ func advance() -> void:
 	_show_line(current_index)
 
 
-## Closes the dialogue and cleans up.
+## Shows a branching choice UI for the current dialogue line.
+func show_choices(choices: Array[Dictionary]) -> void:
+	_clear_choices()
+	_current_choices = choices
+	_waiting_for_input = false
+
+	if continue_indicator:
+		continue_indicator.visible = false
+
+	for i in range(choices.size()):
+		var choice: Dictionary = choices[i]
+
+		# Evaluate condition if present
+		if choice.has("condition") and not choice["condition"].is_empty():
+			if not _evaluate_condition(choice["condition"]):
+				continue
+
+		var button := Button.new()
+		button.text = choice.get("text", "...")
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.pressed.connect(_on_choice_selected.bind(i))
+		choices_container.add_child(button)
+
+	choices_container.visible = true
+
+
+## Closes the dialogue UI and cleans up state.
 func close_dialogue() -> void:
 	is_active = false
-	current_dialogue.clear()
-	current_index = 0
-	dialogue_box.visible = false
-	choices_container.visible = false
 	_typewriter_active = false
-	_line_finished = false
+	_waiting_for_input = false
+	set_process(false)
 
+	dialogue_box.visible = false
 	_clear_choices()
 
+	var speaker_id: String = _get_current_speaker_id()
+
+	current_dialogue = []
+	current_index = 0
+
 	dialogue_ended.emit()
+	EventBus.npc_interaction_ended.emit(speaker_id)
 
 
-## ── Line Rendering ──────────────────────────────────────────────────────────
+## ── Internal: Line Display ──────────────────────────────────────────────────
 
 func _show_line(index: int) -> void:
 	if index < 0 or index >= current_dialogue.size():
@@ -133,17 +182,6 @@ func _show_line(index: int) -> void:
 		return
 
 	var line: Dictionary = current_dialogue[index]
-
-	# Check conditional display
-	if line.has("condition") and not line["condition"].is_empty():
-		if not _evaluate_condition(line["condition"]):
-			# Skip this line
-			current_index += 1
-			if current_index >= current_dialogue.size():
-				close_dialogue()
-			else:
-				_show_line(current_index)
-			return
 
 	# Speaker name
 	var speaker: String = line.get("speaker", "")
@@ -165,263 +203,178 @@ func _show_line(index: int) -> void:
 	# Text with typewriter effect
 	var text: String = line.get("text", "")
 	text_label.text = text
-	_start_typewriter(text)
+	_start_typewriter()
 
-	# Hide advance indicator and choices while typing
-	if advance_indicator:
-		advance_indicator.visible = false
-	choices_container.visible = false
+	# Hide continue indicator and choices until typewriter finishes
+	if continue_indicator:
+		continue_indicator.visible = false
 	_clear_choices()
 
-	line_shown.emit(index)
-
-	# Execute immediate action if present
-	if line.has("action") and not line["action"].is_empty():
-		_execute_action(line["action"])
+	dialogue_line_shown.emit(index)
 
 
-## ── Typewriter Effect ───────────────────────────────────────────────────────
+## ── Internal: Typewriter Effect ─────────────────────────────────────────────
 
-func _start_typewriter(text: String) -> void:
-	_total_chars = text.length()
-	_visible_chars = 0
-	_typewriter_active = true
-	_line_finished = false
+func _start_typewriter() -> void:
+	_visible_characters = 0
+	_total_characters = _count_visible_characters(text_label.text)
 	_typewriter_timer = 0.0
-	_post_line_timer = 0.0
+	_typewriter_active = true
+	_waiting_for_input = false
 	text_label.visible_characters = 0
 
 
-func _process_typewriter(delta: float) -> void:
-	if not _typewriter_active:
-		if _line_finished and _post_line_timer > 0.0:
-			_post_line_timer -= delta
-			if _post_line_timer <= 0.0:
-				_on_line_display_complete()
+func _skip_typewriter() -> void:
+	_typewriter_active = false
+	_visible_characters = _total_characters
+	text_label.visible_characters = -1  # Show all
+	_on_typewriter_finished()
+
+
+func _on_typewriter_finished() -> void:
+	_typewriter_active = false
+
+	var line: Dictionary = current_dialogue[current_index] if current_index < current_dialogue.size() else {}
+
+	# Check for choices on this line
+	var choices: Array = line.get("choices", [])
+	if not choices.is_empty():
+		# Convert to typed array
+		var typed_choices: Array[Dictionary] = []
+		for c in choices:
+			typed_choices.append(c)
+		show_choices(typed_choices)
+	else:
+		_waiting_for_input = true
+		# Show continue indicator after a brief delay
+		if continue_indicator:
+			var tween := create_tween()
+			tween.tween_callback(func() -> void:
+				if _waiting_for_input and continue_indicator:
+					continue_indicator.visible = true
+			).set_delay(continue_indicator_delay)
+
+
+## ── Internal: Choice Handling ───────────────────────────────────────────────
+
+func _on_choice_selected(index: int) -> void:
+	if index < 0 or index >= _current_choices.size():
 		return
 
-	_typewriter_timer += delta
-	var chars_to_show: int = int(_typewriter_timer * typewriter_speed)
+	var choice: Dictionary = _current_choices[index]
+	choice_selected.emit(index, choice)
 
-	if chars_to_show > _visible_chars:
-		_visible_chars = mini(chars_to_show, _total_chars)
-		text_label.visible_characters = _visible_chars
+	# Execute action if present
+	if choice.has("action") and not choice["action"].is_empty():
+		_execute_action(choice["action"])
 
-		# Play text blip sound
-		if _visible_chars < _total_chars and _visible_chars % 3 == 0:
-			EventBus.sfx_requested.emit("text_blip", Vector2.ZERO)
-
-	if _visible_chars >= _total_chars:
-		_typewriter_active = false
-		_line_finished = true
-		_post_line_timer = end_of_line_delay
-
-
-func _finish_typewriter() -> void:
-	_visible_chars = _total_chars
-	text_label.visible_characters = _total_chars
-	_typewriter_active = false
-	_line_finished = true
-	_post_line_timer = 0.0
-	_on_line_display_complete()
-
-
-func _on_line_display_complete() -> void:
-	# Show choices if present
-	var line: Dictionary = current_dialogue[current_index]
-	var choices: Array = line.get("choices", [])
-
-	if not choices.is_empty():
-		show_choices(choices)
-	else:
-		# Show advance indicator
-		if advance_indicator:
-			advance_indicator.visible = true
-
-
-## ── Choices ─────────────────────────────────────────────────────────────────
-
-## Displays a list of choices for the player to select.
-## Each choice: {text: String, next_index: int, condition: String, action: String}
-func show_choices(choices: Array) -> void:
+	# Navigate to the specified dialogue index
+	var next_index: int = choice.get("next_index", -1)
 	_clear_choices()
-	choices_container.visible = true
+	_current_choices = []
 
-	var valid_index: int = 0
-	for choice_data in choices:
-		var choice: Dictionary = choice_data as Dictionary
-
-		# Filter out choices whose conditions fail
-		if choice.has("condition") and not choice["condition"].is_empty():
-			if not _evaluate_condition(choice["condition"]):
-				continue
-
-		var button := Button.new()
-		button.text = choice.get("text", "...")
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.custom_minimum_size = Vector2(0, 48)
-
-		# Store metadata for the callback
-		button.set_meta("choice_index", valid_index)
-		button.set_meta("choice_data", choice)
-		button.pressed.connect(_on_choice_button_pressed.bind(button))
-
-		choices_container.add_child(button)
-		valid_index += 1
-
-	# Focus the first button for gamepad/keyboard navigation
-	if choices_container.get_child_count() > 0:
-		(choices_container.get_child(0) as Control).grab_focus()
-
-
-func _on_choice_button_pressed(button: Button) -> void:
-	var choice_index: int = button.get_meta("choice_index")
-	var choice_data: Dictionary = button.get_meta("choice_data")
-
-	_on_choice_selected(choice_index, choice_data)
-
-
-func _on_choice_selected(index: int, choice_data: Dictionary) -> void:
-	choices_container.visible = false
-	_clear_choices()
-
-	choice_made.emit(index, choice_data)
-
-	# Execute choice action if present
-	if choice_data.has("action") and not choice_data["action"].is_empty():
-		_execute_action(choice_data["action"])
-
-	# Jump to next_index if specified, otherwise advance normally
-	var next_index: int = choice_data.get("next_index", -1)
 	if next_index >= 0 and next_index < current_dialogue.size():
 		current_index = next_index
 		_show_line(current_index)
 	else:
-		# Advance past current line
-		current_index += 1
-		if current_index >= current_dialogue.size():
-			close_dialogue()
-		else:
-			_show_line(current_index)
+		close_dialogue()
 
 
 func _clear_choices() -> void:
-	for child in choices_container.get_children():
-		child.queue_free()
+	_current_choices = []
+	if choices_container:
+		for child in choices_container.get_children():
+			child.queue_free()
+		choices_container.visible = false
 
 
-## ── Input Handling ──────────────────────────────────────────────────────────
+## ── Condition Evaluation ────────────────────────────────────────────────────
 
-func _on_advance_pressed() -> void:
-	advance()
-
-
-## ── Conditional Evaluation ──────────────────────────────────────────────────
-
-## Evaluates a condition string against game state.
-## Supported formats:
-##   "quest:quest_id:status"  - checks quest status
-##   "has_item:item_id:count" - checks inventory
-##   "flag:flag_name"         - checks a boolean game flag
+## Evaluates a condition string against the current game state.
+## Supported conditions:
+##   "quest_completed:quest_id" — checks QuestManager
+##   "has_item:item_id" — checks player inventory
+##   "badge_count>=N" — checks badge count
+##   "flag:flag_name" — checks a boolean game flag
 func _evaluate_condition(condition: String) -> bool:
 	if condition.is_empty():
 		return true
 
-	var parts: PackedStringArray = condition.split(":")
-	if parts.size() < 2:
-		push_warning("DialogueSystem: Invalid condition format '%s'" % condition)
-		return true
+	# quest_completed:quest_id
+	if condition.begins_with("quest_completed:"):
+		var quest_id: String = condition.substr(len("quest_completed:"))
+		if GameManager.player_data.has_method("is_quest_completed"):
+			return GameManager.player_data.is_quest_completed(quest_id)
+		return false
 
-	match parts[0]:
-		"quest":
-			return _check_quest_condition(parts)
-		"has_item":
-			return _check_item_condition(parts)
-		"flag":
-			return _check_flag_condition(parts)
-		"not_flag":
-			return not _check_flag_condition(parts)
-		_:
-			push_warning("DialogueSystem: Unknown condition type '%s'" % parts[0])
-			return true
+	# has_item:item_id
+	if condition.begins_with("has_item:"):
+		var item_id_str: String = condition.substr(len("has_item:"))
+		if item_id_str.is_valid_int():
+			var item_id: int = item_id_str.to_int()
+			if GameManager.player_data.has_method("has_item"):
+				return GameManager.player_data.has_item(item_id)
+		return false
 
+	# flag:flag_name
+	if condition.begins_with("flag:"):
+		var flag_name: String = condition.substr(len("flag:"))
+		if GameManager.player_data.has_method("get_flag"):
+			return GameManager.player_data.get_flag(flag_name)
+		return false
 
-func _check_quest_condition(parts: PackedStringArray) -> bool:
-	if parts.size() < 3:
-		return true
-	var quest_id: String = parts[1]
-	var expected_status: String = parts[2]
-	# Delegate to QuestManager autoload
-	if not Engine.has_singleton("QuestManager"):
-		var qm := get_node_or_null("/root/QuestManager")
-		if qm and qm.has_method("get_quest_status"):
-			return qm.get_quest_status(quest_id) == expected_status
+	push_warning("DialogueSystem: unrecognized condition '%s'" % condition)
 	return true
-
-
-func _check_item_condition(parts: PackedStringArray) -> bool:
-	if parts.size() < 3:
-		return true
-	var item_id: int = parts[1].to_int()
-	var required_count: int = parts[2].to_int()
-	if GameManager.player_data and GameManager.player_data.has_method("has_item"):
-		return GameManager.player_data.has_item(item_id, required_count)
-	return true
-
-
-func _check_flag_condition(parts: PackedStringArray) -> bool:
-	if parts.size() < 2:
-		return true
-	var flag_name: String = parts[1]
-	if GameManager.player_data and "flags" in GameManager.player_data:
-		return GameManager.player_data.flags.get(flag_name, false)
-	return false
 
 
 ## ── Action Execution ────────────────────────────────────────────────────────
 
-## Executes an action string triggered by a dialogue line or choice.
-## Supported formats:
+## Executes a dialogue action string.
+## Supported actions:
 ##   "give_item:item_id:count"
-##   "set_flag:flag_name:true/false"
+##   "set_flag:flag_name"
 ##   "start_quest:quest_id"
 ##   "heal_team"
-##   "open_shop:shop_id"
 func _execute_action(action: String) -> void:
 	if action.is_empty():
 		return
 
 	var parts: PackedStringArray = action.split(":")
-	if parts.is_empty():
-		return
 
 	match parts[0]:
 		"give_item":
-			if parts.size() >= 3:
+			if parts.size() >= 2 and parts[1].is_valid_int():
 				var item_id: int = parts[1].to_int()
-				var count: int = parts[2].to_int()
-				EventBus.item_acquired.emit(null, count)  # UI will handle display
-				if GameManager.player_data and GameManager.player_data.has_method("add_item"):
-					GameManager.player_data.add_item(item_id, count)
+				var count: int = parts[2].to_int() if parts.size() >= 3 and parts[2].is_valid_int() else 1
+				EventBus.item_acquired.emit(null, count)  # UI will handle specifics
 		"set_flag":
-			if parts.size() >= 3:
-				var flag_name: String = parts[1]
-				var value: bool = parts[2] == "true"
-				if GameManager.player_data and "flags" in GameManager.player_data:
-					GameManager.player_data.flags[flag_name] = value
+			if parts.size() >= 2 and GameManager.player_data.has_method("set_flag"):
+				GameManager.player_data.set_flag(parts[1], true)
 		"start_quest":
 			if parts.size() >= 2:
-				var quest_id: String = parts[1]
-				var qm := get_node_or_null("/root/QuestManager")
-				if qm and qm.has_method("start_quest"):
-					qm.start_quest(quest_id)
+				pass  # QuestManager.start_quest(parts[1])
 		"heal_team":
-			# Delegate to SpriteCenter
-			var centers := get_tree().get_nodes_in_group("sprite_center")
-			if not centers.is_empty() and centers[0].has_method("heal_all_sprites"):
-				centers[0].heal_all_sprites(GameManager.player_data)
-		"open_shop":
-			if parts.size() >= 2:
-				EventBus.shop_opened.emit(parts[1])
+			pass  # Delegate to SpriteCenter
 		_:
-			push_warning("DialogueSystem: Unknown action '%s'" % parts[0])
+			push_warning("DialogueSystem: unrecognized action '%s'" % action)
+
+
+## ── Helpers ─────────────────────────────────────────────────────────────────
+
+## Counts visible characters excluding BBCode tags.
+func _count_visible_characters(bbcode_text: String) -> int:
+	var regex := RegEx.new()
+	regex.compile("\\[.*?\\]")
+	var stripped: String = regex.sub(bbcode_text, "", true)
+	return stripped.length()
+
+
+func _get_current_speaker_id() -> String:
+	if current_index < current_dialogue.size():
+		return current_dialogue[current_index].get("speaker", "")
+	return ""
+
+
+## Detects a touch tap for mobile input (distinct from virtual button presses).
+func _is_touch_tap() -> bool:
+	return Input.is_action_just_pressed("ui_accept")
