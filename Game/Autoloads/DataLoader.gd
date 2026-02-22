@@ -209,3 +209,59 @@ func validate_all() -> Array[String]:
 	errors.append_array(SpriteDataValidator.validate_all(races, evolutions, element_chart, abilities, learnsets))
 	errors.append_array(AbilityDataValidator.validate_all(abilities, status_effects, learnsets))
 	return errors
+
+
+# ===========================================================================
+# ASSET-AWARE LOOKUPS
+# Bridge between game data and visual assets via AssetRegistry.
+# ===========================================================================
+
+## Get the sprite path for a specific race at a specific evolution stage.
+func get_race_sprite(race_id: int, stage: int = 1) -> String:
+	var form_id := race_id * 3 - 3 + stage
+	return AssetRegistry.get_character_sprite(form_id)
+
+## Get the element icon path for a given element name.
+func get_element_icon(element_name: String) -> String:
+	return AssetRegistry.get_element_icon(element_name)
+
+## Get the ability icon path for a given ability_id.
+func get_ability_icon(ability_id: int) -> String:
+	return AssetRegistry.get_ability_icon(ability_id)
+
+## Get the ability data and its icon path together.
+func get_ability_with_icon(ability_id: int) -> Dictionary:
+	var data := get_ability(ability_id)
+	if not data.is_empty():
+		data["icon_path"] = AssetRegistry.get_ability_icon(ability_id)
+	return data
+
+## Get the equipment icon path, using element-themed weapon sprites when available.
+func get_equipment_icon(equipment_id: int) -> String:
+	var eq := get_equipment(equipment_id)
+	if eq.is_empty():
+		return AssetRegistry.FALLBACK_ICON
+	# Use the icon_path from EquipmentDatabase if it exists
+	var stored_path: String = eq.get("icon_path", "")
+	if not stored_path.is_empty():
+		return stored_path
+	# Fall back to AssetRegistry slot-based lookup
+	var slot: String = eq.get("slot_type", "weapon")
+	var element: String = eq.get("element_synergy", "")
+	return AssetRegistry.get_equipment_icon(equipment_id, slot, element)
+
+## Get consumable icon path for a given item_id.
+func get_consumable_icon(item_id: int) -> String:
+	return AssetRegistry.get_consumable_icon(item_id)
+
+## Get crystal icon path for a given item_id.
+func get_crystal_icon(item_id: int) -> String:
+	return AssetRegistry.get_crystal_icon(item_id)
+
+## Get battle background path based on area type.
+func get_battle_background(area_type: String) -> String:
+	return AssetRegistry.get_battle_background(area_type)
+
+## Get music track paths (intro + loop) for a given track key.
+func get_music_pair(track_key: String) -> Dictionary:
+	return AssetRegistry.get_music_pair(track_key)
