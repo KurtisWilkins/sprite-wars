@@ -1,0 +1,13 @@
+{
+    "name": "sprite-wars-web",
+    "version": "0.1.0",
+    "description": "Sprite Wars - 2D auto-battler RPG web game",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "dev": "node server.js"
+    },
+    "keywords": ["game", "rpg", "auto-battler", "2d", "sprites"],
+    "license": "UNLICENSED",
+    "private": true
+}
