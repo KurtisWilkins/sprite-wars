@@ -67,9 +67,7 @@ extends Resource
 
 ## ── Constants ─────────────────────────────────────────────────────────────────
 
-const STAT_KEYS: PackedStringArray = PackedStringArray([
-	"hp", "atk", "def", "spd", "sp_atk", "sp_def",
-])
+const STAT_KEYS := ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]
 
 const MAX_IV: int = 31
 const MAX_EQUIPPED_ABILITIES: int = 4

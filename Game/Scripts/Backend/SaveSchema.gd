@@ -34,9 +34,7 @@ const REQUIRED_KEYS: PackedStringArray = PackedStringArray([
 
 
 ## ── Stat / Slot Constants (mirrors Core scripts) ────────────────────────────────
-const STAT_KEYS: PackedStringArray = PackedStringArray([
-	"hp", "atk", "def", "spd", "sp_atk", "sp_def",
-])
+const STAT_KEYS := ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]
 
 const EQUIPMENT_SLOTS: PackedStringArray = PackedStringArray([
 	"weapon", "helmet", "chest", "legs", "boots",
