@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Sprite Wars</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <img src="../Sprites/Images/Logo.png" alt="Sprite Wars" class="logo" id="logo-img">
+            <h1 class="game-title">Sprite Wars</h1>
+            <div id="login-form" class="auth-form">
+                <input type="text" id="username-input" placeholder="Username" autocomplete="username">
+                <input type="password" id="password-input" placeholder="Password" autocomplete="current-password">
+                <button id="login-btn" class="btn btn-primary">Login</button>
+                <button id="register-btn" class="btn btn-secondary">Create Account</button>
+                <button id="guest-btn" class="btn btn-tertiary">Play as Guest</button>
+            </div>
+            <div id="register-form" class="auth-form hidden">
+                <input type="text" id="reg-username" placeholder="Choose Username" autocomplete="username">
+                <input type="email" id="reg-email" placeholder="Email (optional)">
+                <input type="password" id="reg-password" placeholder="Password" autocomplete="new-password">
+                <input type="password" id="reg-confirm" placeholder="Confirm Password" autocomplete="new-password">
+                <button id="do-register-btn" class="btn btn-primary">Create Account</button>
+                <button id="back-login-btn" class="btn btn-secondary">Back to Login</button>
+            </div>
+            <p class="version-text">v0.1.0 Web</p>
+        </div>
+    </div>
+
+    <!-- Game Canvas Container -->
+    <div id="game-container" class="screen">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- UI Overlay Layer -->
+        <div id="ui-overlay">
+            <!-- Top HUD -->
+            <div id="top-hud" class="hud-bar hidden">
+                <div class="hud-left">
+                    <span id="player-name" class="hud-text"></span>
+                    <span id="player-level" class="hud-text"></span>
+                </div>
+                <div class="hud-right">
+                    <span id="gold-display" class="hud-text">0g</span>
+                    <button id="menu-btn" class="hud-btn">☰</button>
+                </div>
+            </div>
+
+            <!-- Notification Area -->
+            <div id="notification-area"></div>
+
+            <!-- Dialogue Box -->
+            <div id="dialogue-box" class="hidden">
+                <div id="dialogue-speaker"></div>
+                <div id="dialogue-text"></div>
+                <div id="dialogue-choices"></div>
+                <div id="dialogue-advance">▼</div>
+            </div>
+
+            <!-- Battle UI -->
+            <div id="battle-hud" class="hidden">
+                <div id="turn-order-bar"></div>
+                <div id="battle-info-panel"></div>
+                <div id="ability-bar"></div>
+                <div id="battle-log"></div>
+            </div>
+
+            <!-- Screen Panels (menus, inventory, etc.) -->
+            <div id="screen-panel" class="hidden"></div>
+        </div>
+
+        <!-- Transition Overlay -->
+        <div id="transition-overlay" class="hidden"></div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="hidden">
+            <div class="loading-spinner"></div>
+            <div id="loading-text">Loading...</div>
+            <div id="loading-bar-container">
+                <div id="loading-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts - ES Modules -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
