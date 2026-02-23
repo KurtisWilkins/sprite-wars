@@ -102,6 +102,13 @@ export class DeploymentScene extends Scene {
         this._hoveredCell = null;
         this._detailSprite = null;
 
+        // Preload fallback character sprite sheets
+        this._charSheets = {};
+        this.engine.assets.loadImage('Sprites/Characters/Character 2.png')
+            .then(img => { this._charSheets.player = img; }).catch(() => {});
+        this.engine.assets.loadImage('Sprites/Characters/Character 3.png')
+            .then(img => { this._charSheets.enemy = img; }).catch(() => {});
+
         // Auto-deploy first 7 sprites in default positions
         this._autoDeployDefault();
 
@@ -288,17 +295,28 @@ export class DeploymentScene extends Scene {
         const centerY = cellY + GRID_CELL_SIZE / 2;
         const size = GRID_CELL_SIZE - 8;
 
-        // Draw colored circle with element
-        const elemTypes = raceData ? (raceData.elementTypes || []) : [];
-        const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#6688cc';
-
-        ctx.fillStyle = elemColor;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-        ctx.fill();
+        // Try to draw character sprite
+        const sheet = this._charSheets && this._charSheets.player;
+        if (sheet && sheet.complete) {
+            // Character 2.png is 96x64, 4 cols x 2 rows, each frame 24x32
+            const fw = 24, fh = 32;
+            const col = 0; // idle frame
+            ctx.drawImage(sheet, col * fw, 0, fw, fh,
+                cellX + 4, cellY + 2, size, size);
+        } else {
+            // Fallback: colored circle with element
+            const elemTypes = raceData ? (raceData.elementTypes || []) : [];
+            const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#6688cc';
+            ctx.fillStyle = elemColor;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
 
         ctx.strokeStyle = '#3399ff';
         ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
         ctx.stroke();
 
         // Name/Level
@@ -323,18 +341,32 @@ export class DeploymentScene extends Scene {
         const centerY = cellY + GRID_CELL_SIZE / 2;
         const size = GRID_CELL_SIZE - 8;
 
-        const elemTypes = raceData ? (raceData.elementTypes || []) : [];
-        const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#cc5555';
-
-        ctx.fillStyle = elemColor;
-        ctx.globalAlpha = 0.7;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1.0;
+        // Try to draw character sprite
+        const sheet = this._charSheets && this._charSheets.enemy;
+        if (sheet && sheet.complete) {
+            // Character 3.png is 96x64, 4 cols x 2 rows, each frame 24x32
+            const fw = 24, fh = 32;
+            const col = 0; // idle frame
+            ctx.globalAlpha = 0.7;
+            ctx.drawImage(sheet, col * fw, 0, fw, fh,
+                cellX + 4, cellY + 2, size, size);
+            ctx.globalAlpha = 1.0;
+        } else {
+            // Fallback: colored circle with element
+            const elemTypes = raceData ? (raceData.elementTypes || []) : [];
+            const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#cc5555';
+            ctx.fillStyle = elemColor;
+            ctx.globalAlpha = 0.7;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
 
         ctx.strokeStyle = '#cc3333';
         ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
         ctx.stroke();
 
         // Show a "?" or the name if scouted

@@ -153,6 +153,10 @@ export class OverworldScene extends Scene {
         this._hudBagBtnHandler = null;
         this._hudAdminBtnHandler = null;
 
+        // Mobile controls handlers (stored for cleanup)
+        this._mobileControlHandlers = [];
+        this._mobileActiveTouches = new Set();
+
         // Throttled position logging
         this._lastPosLogTime = 0;
     }
@@ -163,7 +167,7 @@ export class OverworldScene extends Scene {
         // Load player sprite
         try {
             this._player.spriteImg = await this.engine.assets.loadImage(
-                'Sprites/Characters/player_overworld.png'
+                'Sprites/Characters/Character 1.png'
             );
         } catch (_) {
             this._player.spriteImg = null;
@@ -283,6 +287,9 @@ export class OverworldScene extends Scene {
             this.engine.assets.resolvePath('Audio/Music/OverworldTheme.wav')
         );
 
+        // Show mobile controls and wire up touch events
+        this._setupMobileControls();
+
         eventBus.emit(GameEvents.SCREEN_OPENED, 'overworld');
     }
 
@@ -329,6 +336,9 @@ export class OverworldScene extends Scene {
         // Hide admin log panel
         this._adminLog.hide();
 
+        // Hide mobile controls and remove touch event listeners
+        this._teardownMobileControls();
+
         eventBus.emit(GameEvents.SCREEN_CLOSED, 'overworld');
     }
 
@@ -367,15 +377,22 @@ export class OverworldScene extends Scene {
             type: npcDef.type || 'talk', // talk, shop, quest, heal
         }));
 
-        // Load NPC sprites
+        // Load shared NPC sprite sheet
+        let npcSheet = null;
+        try {
+            npcSheet = await this.engine.assets.loadImage('Sprites/Characters/NPCs_UPDATED.png');
+        } catch (_) {
+            npcSheet = null;
+        }
+
+        // Assign NPC sprites from the shared sheet
+        // NPCs_UPDATED.png is 68x270, 4 cols x 15 rows, each frame ~17x18
+        const npcTypeToRow = { talk: 0, heal: 3, shop: 6, quest: 9 };
         for (const npc of this._npcs) {
-            try {
-                npc.spriteImg = await this.engine.assets.loadImage(
-                    `Sprites/Characters/npc_${npc.type}.png`
-                );
-            } catch (_) {
-                npc.spriteImg = null;
-            }
+            npc.spriteSheet = npcSheet;
+            npc.spriteRow = npcTypeToRow[npc.type] ?? 0;
+            npc.spriteFrameW = 17;
+            npc.spriteFrameH = 18;
         }
 
         // Set up area transitions
@@ -913,13 +930,33 @@ export class OverworldScene extends Scene {
 
         const mapWidth = this._mapData ? this._mapData.width : DEFAULT_MAP_WIDTH;
 
-        // Draw tilemap layers
+        // ── PASS 1: Draw floor tile (tile 0) at every visible position ──
+        // This ensures no black gaps between decorative tiles
+        for (let y = startRow; y <= endRow; y++) {
+            for (let x = startCol; x <= endCol; x++) {
+                const worldX = x * TILE_SIZE;
+                const worldY = y * TILE_SIZE;
+
+                if (this._tilesetImg) {
+                    renderer.drawTile(
+                        this._tilesetImg, 0, TILE_SIZE,
+                        worldX, worldY, TILE_DRAW_SIZE
+                    );
+                } else {
+                    // Fallback: grass/stone floor color (tile 0)
+                    const floorColor = this._getTileFallbackColor(0);
+                    renderer.drawRect(worldX, worldY, TILE_DRAW_SIZE, TILE_DRAW_SIZE, floorColor);
+                }
+            }
+        }
+
+        // ── PASS 2: Draw decorative/object tiles on top (skip tile 0 since it's the floor) ──
         if (this._mapData && this._mapData.layers) {
             for (const layer of this._mapData.layers) {
                 for (let y = startRow; y <= endRow; y++) {
                     for (let x = startCol; x <= endCol; x++) {
                         const tileIndex = layer[y * mapWidth + x];
-                        if (tileIndex === undefined) continue;
+                        if (tileIndex === undefined || tileIndex === 0) continue; // Skip floor tiles
 
                         const worldX = x * TILE_SIZE;
                         const worldY = y * TILE_SIZE;
@@ -1648,12 +1685,15 @@ export class OverworldScene extends Scene {
         const halfSize = PLAYER_SIZE / 2;
 
         if (this._player.spriteImg && this._player.spriteImg.complete) {
-            // Sprite sheet: 4 columns (frames) x 4 rows (directions: down, left, right, up)
+            // Sprite sheet: 4 columns (frames) x 8 rows
+            // Rows 0-3: idle (down, left, right, up)
+            // Rows 4-7: walk (down, left, right, up)
             const dirRow = { down: 0, left: 1, right: 2, up: 3 };
-            const row = dirRow[this._player.facing] || 0;
-            const col = this._player.moving ? this._player.animFrame : 0;
-            const sw = this._player.spriteImg.width / 4;
-            const sh = this._player.spriteImg.height / 4;
+            const baseRow = dirRow[this._player.facing] || 0;
+            const row = this._player.moving ? baseRow + 4 : baseRow;
+            const col = this._player.animFrame % 4;
+            const sw = this._player.spriteImg.width / 4;   // 30
+            const sh = this._player.spriteImg.height / 8;   // 32
             renderer.drawSprite(
                 this._player.spriteImg,
                 col * sw, row * sh, sw, sh,
@@ -1675,7 +1715,16 @@ export class OverworldScene extends Scene {
     _renderNpc(renderer, npc) {
         const halfSize = 12;
 
-        if (npc.spriteImg && npc.spriteImg.complete) {
+        if (npc.spriteSheet && npc.spriteSheet.complete) {
+            // Draw from NPC sprite sheet
+            const sx = 0; // Use first column (facing down)
+            const sy = npc.spriteRow * npc.spriteFrameH;
+            renderer.drawSprite(
+                npc.spriteSheet,
+                sx, sy, npc.spriteFrameW, npc.spriteFrameH,
+                npc.x - halfSize, npc.y - halfSize, halfSize * 2, halfSize * 2
+            );
+        } else if (npc.spriteImg && npc.spriteImg.complete) {
             renderer.drawImage(npc.spriteImg, npc.x - halfSize, npc.y - halfSize, halfSize * 2, halfSize * 2);
         } else {
             // Fallback: colored circle by type
@@ -1733,5 +1782,135 @@ export class OverworldScene extends Scene {
 
     _formatRegionName(regionId) {
         return regionId.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+
+    // ── Mobile Controls ───────────────────────────────────────────────────
+
+    _setupMobileControls() {
+        const mobileControls = document.getElementById('mobile-controls');
+        if (!mobileControls) return;
+
+        // Show mobile controls
+        mobileControls.classList.remove('hidden');
+
+        // D-pad touch handling
+        const dpadBtns = document.querySelectorAll('.dpad-btn[data-dir]');
+        const dirMap = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
+        this._mobileActiveTouches = new Set();
+
+        const updateDpad = () => {
+            let dx = 0, dy = 0;
+            for (const dir of this._mobileActiveTouches) {
+                dx += dirMap[dir].x;
+                dy += dirMap[dir].y;
+            }
+            this.engine.input.setVirtualDpadDirection(dx, dy);
+        };
+
+        for (const btn of dpadBtns) {
+            const onTouchStart = (e) => {
+                e.preventDefault();
+                this._mobileActiveTouches.add(btn.dataset.dir);
+                btn.style.background = 'rgba(255, 255, 255, 0.3)';
+                updateDpad();
+            };
+            const onTouchEnd = (e) => {
+                e.preventDefault();
+                this._mobileActiveTouches.delete(btn.dataset.dir);
+                btn.style.background = '';
+                updateDpad();
+            };
+            const onTouchCancel = (e) => {
+                this._mobileActiveTouches.delete(btn.dataset.dir);
+                btn.style.background = '';
+                updateDpad();
+            };
+
+            btn.addEventListener('touchstart', onTouchStart, { passive: false });
+            btn.addEventListener('touchend', onTouchEnd, { passive: false });
+            btn.addEventListener('touchcancel', onTouchCancel);
+
+            // Also support mouse events for desktop testing
+            const onMouseDown = (e) => {
+                e.preventDefault();
+                this._mobileActiveTouches.add(btn.dataset.dir);
+                btn.style.background = 'rgba(255, 255, 255, 0.3)';
+                updateDpad();
+            };
+            const onMouseUp = (e) => {
+                this._mobileActiveTouches.delete(btn.dataset.dir);
+                btn.style.background = '';
+                updateDpad();
+            };
+            const onMouseLeave = (e) => {
+                this._mobileActiveTouches.delete(btn.dataset.dir);
+                btn.style.background = '';
+                updateDpad();
+            };
+
+            btn.addEventListener('mousedown', onMouseDown);
+            btn.addEventListener('mouseup', onMouseUp);
+            btn.addEventListener('mouseleave', onMouseLeave);
+
+            // Store handlers for cleanup
+            this._mobileControlHandlers.push(
+                { el: btn, event: 'touchstart', handler: onTouchStart },
+                { el: btn, event: 'touchend', handler: onTouchEnd },
+                { el: btn, event: 'touchcancel', handler: onTouchCancel },
+                { el: btn, event: 'mousedown', handler: onMouseDown },
+                { el: btn, event: 'mouseup', handler: onMouseUp },
+                { el: btn, event: 'mouseleave', handler: onMouseLeave }
+            );
+        }
+
+        // Interact button ("A") touch handling
+        const interactBtn = document.getElementById('mobile-interact-btn');
+        if (interactBtn) {
+            const onInteractTouchStart = (e) => {
+                e.preventDefault();
+                interactBtn.style.background = 'rgba(232, 160, 53, 0.5)';
+                interactBtn.style.borderColor = 'rgba(232, 160, 53, 0.8)';
+                this.engine.input.triggerVirtualButton('Space');
+            };
+            const onInteractTouchEnd = (e) => {
+                e.preventDefault();
+                interactBtn.style.background = '';
+                interactBtn.style.borderColor = '';
+            };
+            const onInteractClick = (e) => {
+                e.preventDefault();
+                this.engine.input.triggerVirtualButton('Space');
+            };
+
+            interactBtn.addEventListener('touchstart', onInteractTouchStart, { passive: false });
+            interactBtn.addEventListener('touchend', onInteractTouchEnd, { passive: false });
+            interactBtn.addEventListener('click', onInteractClick);
+
+            this._mobileControlHandlers.push(
+                { el: interactBtn, event: 'touchstart', handler: onInteractTouchStart },
+                { el: interactBtn, event: 'touchend', handler: onInteractTouchEnd },
+                { el: interactBtn, event: 'click', handler: onInteractClick }
+            );
+        }
+    }
+
+    _teardownMobileControls() {
+        // Hide mobile controls
+        const mobileControls = document.getElementById('mobile-controls');
+        if (mobileControls) {
+            mobileControls.classList.add('hidden');
+        }
+
+        // Remove all stored event listeners
+        for (const { el, event, handler } of this._mobileControlHandlers) {
+            el.removeEventListener(event, handler);
+        }
+        this._mobileControlHandlers = [];
+
+        // Reset the virtual d-pad direction
+        this._mobileActiveTouches = new Set();
+        if (this.engine && this.engine.input) {
+            this.engine.input.setVirtualDpadDirection(0, 0);
+        }
     }
 }

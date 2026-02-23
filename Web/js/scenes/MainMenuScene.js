@@ -116,6 +116,10 @@ export class MainMenuScene extends Scene {
             this.engine.assets.resolvePath('Audio/Music/TitleTheme.wav')
         );
 
+        // Hide mobile controls during main menu (they belong to the overworld)
+        const mobileControls = document.getElementById('mobile-controls');
+        if (mobileControls) mobileControls.classList.add('hidden');
+
         // Listen for settings changes
         this._unsubs.push(
             eventBus.on(GameEvents.SETTINGS_CHANGED, () => {

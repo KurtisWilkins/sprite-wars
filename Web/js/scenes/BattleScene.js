@@ -178,6 +178,14 @@ export class BattleScene extends Scene {
                 .catch(() => {});
         }
 
+        // Preload fallback character sheets
+        this._fallbackPlayerSheet = null;
+        this._fallbackEnemySheet = null;
+        this.engine.assets.loadImage('Sprites/Characters/Character 2.png')
+            .then(img => { this._fallbackPlayerSheet = img; }).catch(() => {});
+        this.engine.assets.loadImage('Sprites/Characters/Character 3.png')
+            .then(img => { this._fallbackEnemySheet = img; }).catch(() => {});
+
         // Preload sprite images for all units before battle renders
         this._preloadUnitSprites([...this._playerTeamData, ...this._enemyTeamData]);
 
@@ -432,20 +440,31 @@ export class BattleScene extends Scene {
                 cache.x = cellX;
                 cache.y = cellY;
 
-                // Draw sprite (image or fallback circle)
+                // Draw sprite (image or fallback character sheet or fallback circle)
                 if (cache.spriteImg && cache.spriteImg.complete) {
                     renderer.drawImageRaw(cache.spriteImg, spriteX, spriteY, SPRITE_SIZE, SPRITE_SIZE);
                 } else {
-                    // Fallback: colored circle with element color
-                    const elemColor = ELEMENT_COLORS[unit.elementTypes[0]] || '#888888';
-                    ctx.fillStyle = elemColor;
-                    ctx.beginPath();
-                    ctx.arc(centerX, spriteY + SPRITE_SIZE / 2, SPRITE_SIZE / 2 - 2, 0, Math.PI * 2);
-                    ctx.fill();
+                    // Try fallback character sheet
+                    const sheet = unit.team === 0 ? this._fallbackPlayerSheet : this._fallbackEnemySheet;
+                    if (sheet && sheet.complete) {
+                        // 96x64, 4 cols x 2 rows, 24x32 per frame
+                        const fw = 24, fh = 32;
+                        ctx.drawImage(sheet, 0, 0, fw, fh,
+                            spriteX, spriteY, SPRITE_SIZE, SPRITE_SIZE);
+                    } else {
+                        // Final fallback: colored circle
+                        const elemColor = ELEMENT_COLORS[unit.elementTypes[0]] || '#888888';
+                        ctx.fillStyle = elemColor;
+                        ctx.beginPath();
+                        ctx.arc(centerX, spriteY + SPRITE_SIZE / 2, SPRITE_SIZE / 2 - 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
 
                     // Team indicator border
                     ctx.strokeStyle = unit.team === 0 ? '#3399ff' : '#ff3333';
                     ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(centerX, spriteY + SPRITE_SIZE / 2, SPRITE_SIZE / 2 - 2, 0, Math.PI * 2);
                     ctx.stroke();
 
                     // Level text on the sprite
