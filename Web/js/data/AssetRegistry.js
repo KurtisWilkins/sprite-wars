@@ -869,4 +869,4 @@ class AssetRegistry {
 // Export as a singleton instance for global access (mirrors GDScript autoload)
 const assetRegistry = new AssetRegistry();
 export default assetRegistry;
-export { AssetRegistry };
+export { assetRegistry, AssetRegistry };
