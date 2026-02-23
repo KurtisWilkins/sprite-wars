@@ -51,10 +51,36 @@
                     <span id="player-name" class="hud-text"></span>
                     <span id="player-level" class="hud-text"></span>
                 </div>
+                <div class="hud-center">
+                    <button id="hud-sprites-btn" class="hud-action-btn" title="Sprites (I)">
+                        <span class="hud-action-icon">🐾</span>
+                        <span class="hud-action-label">Sprites</span>
+                    </button>
+                    <button id="hud-bag-btn" class="hud-action-btn" title="Bag (B)">
+                        <span class="hud-action-icon">🎒</span>
+                        <span class="hud-action-label">Bag</span>
+                    </button>
+                    <button id="hud-admin-btn" class="hud-action-btn hud-admin-only hidden" title="Admin Log (`)">
+                        <span class="hud-action-icon">📋</span>
+                        <span class="hud-action-label">Log</span>
+                    </button>
+                </div>
                 <div class="hud-right">
                     <span id="gold-display" class="hud-text">0g</span>
                     <button id="menu-btn" class="hud-btn">☰</button>
                 </div>
+            </div>
+
+            <!-- Admin Log Panel -->
+            <div id="admin-log-panel" class="hidden">
+                <div class="admin-log-header">
+                    <span class="admin-log-title">Admin Log</span>
+                    <div class="admin-log-controls">
+                        <button id="admin-log-clear" class="admin-log-btn">Clear</button>
+                        <button id="admin-log-close" class="admin-log-btn">✕</button>
+                    </div>
+                </div>
+                <div id="admin-log-content"></div>
             </div>
 
             <!-- Notification Area -->

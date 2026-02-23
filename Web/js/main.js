@@ -264,21 +264,20 @@ async function startGame(user) {
         const { BattleScene } = await import('./scenes/BattleScene.js');
         const { DeploymentScene } = await import('./scenes/DeploymentScene.js');
         const { SpriteCenterScene } = await import('./scenes/SpriteCenterScene.js');
+        const { BagScene } = await import('./scenes/BagScene.js');
 
         engine.scenes.register('main_menu', MainMenuScene);
         engine.scenes.register('overworld', OverworldScene);
         engine.scenes.register('battle', BattleScene);
         engine.scenes.register('deployment', DeploymentScene);
         engine.scenes.register('sprite_center', SpriteCenterScene);
+        engine.scenes.register('bag', BagScene);
 
         // Initialize game state
         engine.gameManager.init(user);
 
-        // Load save data if exists
-        const saveData = engine.saveManager.loadSave(0);
-        if (saveData) {
-            engine.gameManager.loadFromSave(saveData);
-        }
+        // Load save data if exists (loadGame internally calls saveManager.loadSave)
+        engine.gameManager.loadGame(0);
 
         loadingBar.style.width = '100%';
         loadingText.textContent = 'Ready!';

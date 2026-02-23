@@ -9,6 +9,65 @@
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 
+// ── Admin Log ─────────────────────────────────────────────────────────────
+class AdminLog {
+    constructor() {
+        this._entries = [];
+        this._maxEntries = 500;
+        this._visible = false;
+        this._panel = document.getElementById('admin-log-panel');
+        this._content = document.getElementById('admin-log-content');
+
+        // Wire clear/close buttons
+        document.getElementById('admin-log-clear')?.addEventListener('click', () => this.clear());
+        document.getElementById('admin-log-close')?.addEventListener('click', () => this.hide());
+    }
+
+    log(message, level = 'info') {
+        const now = new Date();
+        const time = now.toLocaleTimeString('en-US', { hour12: false });
+        const entry = { time, message, level };
+        this._entries.push(entry);
+        if (this._entries.length > this._maxEntries) {
+            this._entries.shift();
+        }
+        this._appendDOM(entry);
+    }
+
+    _appendDOM(entry) {
+        if (!this._content) return;
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        div.innerHTML = `<span class="log-time">[${entry.time}]</span><span class="log-${entry.level}">${entry.message}</span>`;
+        this._content.appendChild(div);
+        this._content.scrollTop = this._content.scrollHeight;
+    }
+
+    show() {
+        this._visible = true;
+        if (this._panel) this._panel.classList.remove('hidden');
+        // Show admin button in HUD
+        const adminBtn = document.getElementById('hud-admin-btn');
+        if (adminBtn) adminBtn.classList.remove('hidden');
+    }
+
+    hide() {
+        this._visible = false;
+        if (this._panel) this._panel.classList.add('hidden');
+    }
+
+    toggle() {
+        if (this._visible) this.hide(); else this.show();
+    }
+
+    clear() {
+        this._entries = [];
+        if (this._content) this._content.innerHTML = '';
+    }
+
+    get isVisible() { return this._visible; }
+}
+
 // ── Map Constants ──────────────────────────────────────────────────────────
 const TILE_SIZE = 32;
 const TILE_DRAW_SIZE = 32;
@@ -85,6 +144,17 @@ export class OverworldScene extends Scene {
         // Debug overlay (toggle with Ctrl+G)
         this._debugMode = false;
         this._debugHoveredTile = null;
+
+        // Admin log
+        this._adminLog = new AdminLog();
+
+        // HUD button handlers (stored for cleanup)
+        this._hudSpritesBtnHandler = null;
+        this._hudBagBtnHandler = null;
+        this._hudAdminBtnHandler = null;
+
+        // Throttled position logging
+        this._lastPosLogTime = 0;
     }
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
@@ -153,6 +223,61 @@ export class OverworldScene extends Scene {
             menuBtn.addEventListener('click', this._menuHandler);
         }
 
+        // Wire HUD action buttons
+        const spriteBtn = document.getElementById('hud-sprites-btn');
+        if (spriteBtn) {
+            this._hudSpritesBtnHandler = () => this._openSpriteCenter();
+            spriteBtn.addEventListener('click', this._hudSpritesBtnHandler);
+        }
+
+        const bagBtn = document.getElementById('hud-bag-btn');
+        if (bagBtn) {
+            this._hudBagBtnHandler = () => this._openBag();
+            bagBtn.addEventListener('click', this._hudBagBtnHandler);
+        }
+
+        const adminBtn = document.getElementById('hud-admin-btn');
+        if (adminBtn) {
+            this._hudAdminBtnHandler = () => this._toggleAdminLog();
+            adminBtn.addEventListener('click', this._hudAdminBtnHandler);
+        }
+
+        // Admin log event subscriptions
+        const logEvents = [
+            [GameEvents.BATTLE_STARTED, 'event', 'Battle started'],
+            [GameEvents.BATTLE_ENDED, 'event', 'Battle ended'],
+            [GameEvents.ENCOUNTER_TRIGGERED, 'event', 'Wild encounter triggered'],
+            [GameEvents.NPC_INTERACTED, 'info', data => `NPC interaction: ${data?.name || 'unknown'}`],
+            [GameEvents.SCENE_CHANGED, 'info', data => `Scene changed: ${data || 'unknown'}`],
+            [GameEvents.ITEM_OBTAINED, 'info', data => `Item obtained: ${data?.name || data}`],
+            [GameEvents.ITEM_USED, 'info', data => `Item used: ${data?.name || data}`],
+            [GameEvents.GOLD_CHANGED, 'info', amount => `Gold: ${amount}g`],
+            [GameEvents.TEAM_CHANGED, 'info', 'Team roster changed'],
+            [GameEvents.EQUIPMENT_CHANGED, 'info', 'Equipment changed'],
+            [GameEvents.QUEST_STARTED, 'event', data => `Quest started: ${data?.name || data}`],
+            [GameEvents.QUEST_COMPLETED, 'event', data => `Quest completed: ${data?.name || data}`],
+            [GameEvents.GAME_SAVED, 'admin', data => `Game saved (slot ${data?.slot ?? '?'}, ${data?.auto ? 'auto' : 'manual'})`],
+            [GameEvents.GAME_LOADED, 'admin', 'Game data loaded'],
+            [GameEvents.LEVEL_UP, 'event', data => `Level up! ${data?.name || ''} → Lv.${data?.level || '?'}`],
+            [GameEvents.EVOLUTION_COMPLETE, 'event', data => `Evolution: ${data?.from || '?'} → ${data?.to || '?'}`],
+            [GameEvents.SCREEN_OPENED, 'info', screen => `Screen opened: ${screen}`],
+            [GameEvents.SCREEN_CLOSED, 'info', screen => `Screen closed: ${screen}`],
+        ];
+
+        for (const [event, level, msgOrFn] of logEvents) {
+            this._unsubs.push(
+                eventBus.on(event, (data) => {
+                    const msg = typeof msgOrFn === 'function' ? msgOrFn(data) : msgOrFn;
+                    this._adminLog.log(msg, level);
+                })
+            );
+        }
+
+        // Log initial state
+        this._adminLog.log(`Entered overworld — Region: ${this._currentRegion}`, 'admin');
+        this._adminLog.log(`Player: ${this._gameData.playerName || 'Trainer'}, Gold: ${this._gameData.gold || 0}`, 'admin');
+        this._adminLog.log(`Team size: ${(this._gameData.team || []).length}`, 'admin');
+
         // Play overworld music
         this.engine.audio.playMusic(
             this.engine.assets.resolvePath('Audio/Music/OverworldTheme.wav')
@@ -181,6 +306,28 @@ export class OverworldScene extends Scene {
             menuBtn.removeEventListener('click', this._menuHandler);
             this._menuHandler = null;
         }
+
+        // Remove HUD button handlers
+        const spriteBtn = document.getElementById('hud-sprites-btn');
+        if (spriteBtn && this._hudSpritesBtnHandler) {
+            spriteBtn.removeEventListener('click', this._hudSpritesBtnHandler);
+            this._hudSpritesBtnHandler = null;
+        }
+
+        const bagBtn = document.getElementById('hud-bag-btn');
+        if (bagBtn && this._hudBagBtnHandler) {
+            bagBtn.removeEventListener('click', this._hudBagBtnHandler);
+            this._hudBagBtnHandler = null;
+        }
+
+        const adminBtn = document.getElementById('hud-admin-btn');
+        if (adminBtn && this._hudAdminBtnHandler) {
+            adminBtn.removeEventListener('click', this._hudAdminBtnHandler);
+            this._hudAdminBtnHandler = null;
+        }
+
+        // Hide admin log panel
+        this._adminLog.hide();
 
         eventBus.emit(GameEvents.SCREEN_CLOSED, 'overworld');
     }
@@ -731,6 +878,14 @@ export class OverworldScene extends Scene {
         // Update renderer camera for tile/sprite drawing
         this.engine.renderer.setCamera(Math.round(this._camera.x), Math.round(this._camera.y));
 
+        // Throttled position logging for admin log
+        if (this._adminLog.isVisible && Date.now() - this._lastPosLogTime > 2000) {
+            const pgx = Math.floor(this._player.x / TILE_SIZE);
+            const pgy = Math.floor(this._player.y / TILE_SIZE);
+            this._adminLog.log(`Player at (${pgx}, ${pgy})`, 'info');
+            this._lastPosLogTime = Date.now();
+        }
+
         super.update(dt);
     }
 
@@ -871,6 +1026,16 @@ export class OverworldScene extends Scene {
             this._openSpriteCenter();
         }
 
+        // Open Bag
+        if (input.isKeyJustPressed('KeyB')) {
+            this._openBag();
+        }
+
+        // Toggle Admin Log
+        if (input.isKeyJustPressed('Backquote')) {
+            this._toggleAdminLog();
+        }
+
         // Open pause menu
         if (input.isKeyJustPressed('Escape')) {
             this._openPauseMenu();
@@ -889,6 +1054,11 @@ export class OverworldScene extends Scene {
                          !!input.ctrlKey || !!input.ctrl;
         if (input.isKeyJustPressed('KeyG') && ctrlHeld) {
             this._debugMode = !this._debugMode;
+            const adminBtnEl = document.getElementById('hud-admin-btn');
+            if (adminBtnEl) {
+                if (this._debugMode) adminBtnEl.classList.remove('hidden');
+                else adminBtnEl.classList.add('hidden');
+            }
         }
 
         // Update debug hovered tile from pointer position
@@ -1033,6 +1203,10 @@ export class OverworldScene extends Scene {
     }
 
     _transitionToRegion(regionId, spawnPoint) {
+        const fromRegion = this._currentRegion;
+        const toRegion = regionId;
+        this._adminLog.log(`Region transition: ${fromRegion} → ${toRegion}`, 'admin');
+
         this.engine.audio.playSFX(
             this.engine.assets.resolvePath('Audio/Sounds/area_transition.ogg'), 0.7
         );
@@ -1214,6 +1388,17 @@ export class OverworldScene extends Scene {
         this.engine.scenes.pushScene('sprite_center', {
             gameData: this._gameData,
         });
+    }
+
+    _openBag() {
+        if (this._dialogueActive) return;
+        this.engine.scenes.pushScene('bag', {
+            gameData: this._gameData,
+        });
+    }
+
+    _toggleAdminLog() {
+        this._adminLog.toggle();
     }
 
     _openSettings() {

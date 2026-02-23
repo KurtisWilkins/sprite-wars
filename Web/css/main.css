@@ -256,6 +256,133 @@ html, body {
     cursor: pointer;
 }
 
+/* === HUD Action Buttons (center) === */
+.hud-center {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hud-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-bright);
+    padding: 4px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.hud-action-btn:hover, .hud-action-btn:active {
+    background: rgba(255,255,255,0.18);
+    border-color: var(--primary);
+}
+
+.hud-action-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.hud-action-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+}
+
+.hud-admin-only {
+    border-color: rgba(255, 100, 100, 0.3);
+}
+
+.hud-admin-only:hover {
+    border-color: #ff6644;
+}
+
+/* === Admin Log Panel === */
+#admin-log-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: rgba(10, 10, 20, 0.92);
+    border-top: 2px solid var(--primary-dark);
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+    font-family: var(--font-pixel);
+}
+
+.admin-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 12px;
+    background: rgba(0,0,0,0.5);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+}
+
+.admin-log-title {
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.admin-log-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.admin-log-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-dim);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    font-family: var(--font-pixel);
+}
+
+.admin-log-btn:hover {
+    background: rgba(255,255,255,0.15);
+    color: var(--text-bright);
+}
+
+#admin-log-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 12px;
+    font-size: 0.72rem;
+    line-height: 1.5;
+    color: var(--text-dim);
+}
+
+#admin-log-content .log-entry {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    padding: 2px 0;
+}
+
+#admin-log-content .log-time {
+    color: var(--text-dim);
+    margin-right: 8px;
+}
+
+#admin-log-content .log-event { color: #66ccff; }
+#admin-log-content .log-warn  { color: #ffcc44; }
+#admin-log-content .log-error { color: #ff4444; }
+#admin-log-content .log-info  { color: #88cc88; }
+#admin-log-content .log-admin { color: var(--primary); }
+
 /* === Notification Area === */
 #notification-area {
     position: absolute;

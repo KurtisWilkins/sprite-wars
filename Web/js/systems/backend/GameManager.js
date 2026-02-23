@@ -17,12 +17,13 @@ function createDefaultPlayerData() {
         team: [],
         storage: [],
         inventory: {
-            consumables: [],
-            crystals: [],
-            equipment: [],
-            key_items: [],
-            materials: [],
+            101: 5,  // Small Potion x5
+            111: 2,  // Antidote x2
+            201: 10, // Basic Crystal x10
         },
+        equipmentInventory: [
+            1001, // Iron Sword
+        ],
         completedTempleIds: [],
         completedQuestIds: [],
         spriteRegistry: {},
