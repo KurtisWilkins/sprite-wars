@@ -1,0 +1,27 @@
+# Godot game project (not needed for web deployment)
+Game/
+
+# Project management docs
+ProjectManagement/
+
+# Design document
+*.docx
+
+# Utility scripts
+Delete_meta.py
+
+# Apache config (not used on Vercel)
+Web/.htaccess
+
+# Netlify config (not used on Vercel)
+Web/netlify.toml
+
+# Local dev server (not used on Vercel)
+Web/server.js
+Web/package.json
+
+# Nested Vercel config (root vercel.json is used instead)
+Web/vercel.json
+
+# Agent config
+CLAUDE.md
