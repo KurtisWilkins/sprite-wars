@@ -6,6 +6,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Sprite Wars</title>
+    <script>
+        // Try to lock to landscape on mobile devices
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {});
+        }
+    </script>
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>

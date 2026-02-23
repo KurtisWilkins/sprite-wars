@@ -1,6 +1,6 @@
 /* ============================================
    Sprite Wars - Web Game Stylesheet
-   Mobile-first responsive design (1080x1920 base)
+   Mobile-first responsive design (landscape 960x540 base)
    ============================================ */
 
 /* === Reset & Base === */
@@ -93,10 +93,12 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
-    padding: 32px;
-    max-width: 400px;
+    gap: 12px;
+    padding: 24px 32px;
+    max-width: 480px;
     width: 90%;
+    max-height: 100vh;
+    overflow-y: auto;
 }
 
 .logo {
@@ -771,4 +773,38 @@ html, body {
 
 @media (min-width: 768px) {
     .login-container { max-width: 450px; }
+}
+
+/* Landscape orientation lock */
+@media (orientation: portrait) {
+    #game-container {
+        transform: rotate(0deg);
+    }
+}
+
+@media (orientation: landscape) {
+    #game-container {
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .login-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 720px;
+        gap: 16px;
+    }
+
+    .login-container .logo {
+        width: 120px;
+    }
+
+    .login-container .game-title {
+        font-size: 2rem;
+    }
+
+    .login-container .auth-form {
+        max-width: 320px;
+    }
 }

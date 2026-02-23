@@ -81,6 +81,10 @@ export class OverworldScene extends Scene {
         // Map-edge boundaries
         this._mapPixelWidth = 0;
         this._mapPixelHeight = 0;
+
+        // Debug overlay (toggle with Ctrl+G)
+        this._debugMode = false;
+        this._debugHoveredTile = null;
     }
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
@@ -99,10 +103,12 @@ export class OverworldScene extends Scene {
     }
 
     enter(data) {
-        this._gameData = data.gameData || data.saveData || {};
+        // Pull game data from GameManager first (canonical source), fall back to passed data
+        const gm = this.engine.gameManager;
+        this._gameData = (gm && gm.playerData) ? gm.playerData : (data.gameData || data.saveData || {});
 
         // Determine starting region
-        this._currentRegion = this._gameData.currentRegion || 'starter_town';
+        this._currentRegion = this._gameData.currentAreaId || this._gameData.currentRegion || 'starter_town';
 
         // Load the region
         this._loadRegion(this._currentRegion, data.spawnPoint || null);
@@ -307,7 +313,9 @@ export class OverworldScene extends Scene {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  STARTER TOWN — 24x24 hand-crafted overworld map
+    //  STARTER TOWN (Willowshade) — 24x24 hand-crafted overworld map
+    //  Designed with Pokemon fan-game principles: organic tree borders,
+    //  clear exits with visual cues, inside-out town layout, no encounters.
     // ══════════════════════════════════════════════════════════════════════
     _buildStarterTownMap() {
         const w = 24;
@@ -324,61 +332,60 @@ export class OverworldScene extends Scene {
 
         // prettier-ignore
         const ground = [
-            // Row 0  — north border: dense forest
-            6, 6, 7, 6, 6, 7, 6, 7, 6, 6, 7, 6, 6, 7, 6, 6, 7, 6, 7, 6, 6, 7, 6, 6,
-            // Row 1  — forest with a few clearings
-            6, 7, 8, 0, 7, 6, 8, 0, 7, 6, 8, 0, 0, 8, 6, 7, 0, 8, 6, 7, 8, 0, 7, 6,
-            // Row 2  — forest edge, path begins heading south
-            7, 0, 0, 8, 0, 7, 0, 0, 8, 7, 0, 2, 2, 0, 7, 8, 0, 0, 7, 0, 0, 8, 0, 7,
-            // Row 3  — transition: trees thin out, path continues
-            6, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 2, 2, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 6,
-            // Row 4  — west pond area + vertical path
-            9, 0, 0, 0, 4, 4, 5, 0, 0, 13, 13, 3, 3, 13, 13, 0, 0, 0, 0, 0, 0, 0, 0, 9,
-            // Row 5  — pond continues, path goes east-west
-            0, 0, 0, 5, 4, 4, 5, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 11,11,11, 0, 0, 0, 0,
-            // Row 6  — pond edge, healer building area
-            0, 0, 0, 5, 4, 5, 0, 0, 15, 0, 1, 0, 0, 1, 0, 0, 0, 10, 0, 10, 0, 0, 0, 0,
-            // Row 7  — open area, path continues
-            0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 10,12, 10, 0, 0, 0, 0,
-            // Row 8  — west fence, path intersection row
-            0, 13, 0, 0, 0, 0, 0, 11,11,11, 3, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-            // Row 9  — shop building area + path
-            0, 13, 0, 0, 0, 0, 0, 10, 0, 10, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-            // Row 10 — shop door + path + fountain row approaches
-            0, 0, 0, 0, 17, 0, 0, 10,12, 10, 2, 0, 0, 2, 0, 0, 16, 0, 0, 0, 1, 0, 0, 0,
-            // Row 11 — main east-west avenue + fountain
-            0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 3, 1, 18, 1, 3, 1, 1, 1, 1, 1, 3, 1, 1, 19,
-            // Row 12 — main east-west avenue (south side of square)
-            0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 3, 1, 18, 1, 3, 1, 1, 1, 1, 1, 3, 1, 1, 19,
-            // Row 13 — path + town hall building
-            0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 11,11,11,11, 1, 0, 0, 0,
-            // Row 14 — path continues south
-            0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 10, 0, 0, 10, 1, 0, 0, 0,
-            // Row 15 — south buildings + path
-            0, 0, 0, 11,11,11, 0, 0, 0, 13, 3, 1, 1, 3, 13, 0, 10,12, 0, 10, 1, 0, 8, 0,
-            // Row 16 — south building doors
-            0, 0, 0, 10, 0, 10, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 13, 0, 0, 13, 0, 0, 0, 0,
-            // Row 17 — more south area
-            0, 0, 0, 10,12, 10, 0, 17, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0,
-            // Row 18 — open grassy area south
-            0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 0, 8, 0,
-            // Row 19 — fence row before south exit
-            0, 0, 0, 0, 0, 8, 0, 0, 13, 13, 3, 1, 1, 3, 13, 13, 0, 0, 8, 0, 0, 0, 0, 0,
-            // Row 20 — path to south transition
-            0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0,
-            // Row 21 — approaching south exit
-            0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0,
-            // Row 22 — south exit path
-            9, 0, 0, 0, 0, 0, 8, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 9,
-            // Row 23 — south border
-            9, 9, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 9, 9,
+            // Row 0  — north border: solid dense forest (full tree row, no void)
+            6, 7, 6, 6, 7, 6, 7, 6, 6, 7, 6, 7, 6, 6, 7, 6, 6, 7, 6, 7, 6, 6, 7, 6,
+            // Row 1  — thick forest border with irregular inner edge
+            6, 6, 7, 6, 6, 7, 6, 0, 0, 6, 7, 6, 7, 6, 0, 0, 7, 6, 7, 6, 6, 7, 6, 6,
+            // Row 2  — forest thins: NE pond begins, clearings appear
+            7, 6, 0, 0, 8, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 5, 5, 5, 0, 0, 8, 6, 7,
+            // Row 3  — pond area NE, Player's House roof SW
+            6, 7, 0, 11,11,11, 0, 0, 8, 0, 0, 0, 0, 0, 8, 5, 4, 4, 5, 0, 0, 0, 7, 6,
+            // Row 4  — Player's House walls + door, pond continues
+            6, 0, 0, 10, 0, 10, 0, 0, 0, 0, 0, 2, 0, 0, 0, 5, 4, 4, 5, 0, 8, 0, 0, 7,
+            // Row 5  — Player's House door faces east path, pond edge
+            7, 0, 0, 10,12, 10, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 6,
+            // Row 6  — path from house connects south, Healer Hut roof NW area
+            6, 0, 8, 0, 1, 1, 1, 1, 0, 11,11, 3, 0, 0, 8, 0, 0, 0, 0, 0, 0, 8, 0, 7,
+            // Row 7  — Healer Hut walls + door, path continues
+            7, 0, 0, 0, 0, 0, 0, 1, 0, 10,12, 2, 0, 0, 0, 0, 0, 0, 0, 13,13,13, 0, 6,
+            // Row 8  — open area, vertical path toward town center
+            6, 0, 0, 8, 0, 0, 0, 1, 0, 10,10, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+            // Row 9  — approaching town square from north, decorative house W
+            7, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 11,11,11, 0, 0, 0, 0, 0, 0, 6,
+            // Row 10 — decorative house roof E, path widens to square
+            6, 0, 11,11, 0, 0, 17, 1, 1, 1, 1, 3, 1, 1, 10, 0, 10, 0, 0, 17, 0, 15, 9, 7,
+            // Row 11 — town square: fountain row, main E-W avenue, east exit
+            7, 0, 10,10, 0, 17, 1, 1, 3, 1, 18, 3, 18, 1, 3, 1, 1, 1, 1, 1, 1, 9,19, 6,
+            // Row 12 — town square south row, east exit (stairs + rocks)
+            6, 0, 0, 0, 0, 0, 1, 1, 3, 1, 17, 3, 17, 1, 3, 1, 1, 1, 1, 1, 1, 9,19, 7,
+            // Row 13 — Shop roof + path south from square
+            7, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 0, 6,
+            // Row 14 — Shop building (east of center), path continues
+            6, 0, 0, 8, 0, 0, 0, 0, 2, 0, 11,11,11, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+            // Row 15 — Shop walls + door, fences along path
+            7, 0, 0, 0, 13, 13, 0, 0, 2, 0, 10, 0, 10, 0, 2, 0, 0, 0, 0, 0, 8, 0, 7, 6,
+            // Row 16 — Shop door faces west path, Prof Lab roof begins
+            6, 0, 0, 0, 0, 0, 0, 1, 3, 1, 10,12, 10, 0, 2, 0, 11,11,11,11, 0, 0, 0, 7,
+            // Row 17 — Prof Lab walls (largest building, 4 wide)
+            7, 0, 8, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 10, 0, 0, 10, 0, 0, 7, 6,
+            // Row 18 — Prof Lab door faces north path, path widens toward south exit
+            6, 0, 0, 0, 0, 0, 0, 0, 2, 0, 13, 0, 13, 0, 2, 0, 10, 0, 0, 10, 0, 0, 0, 7,
+            // Row 19 — fence guides path south, path begins widening from 2 to 4
+            7, 6, 0, 0, 8, 0, 0, 13, 3, 1, 1, 1, 1, 1, 3, 1, 1, 12, 1, 1, 0, 0, 6, 6,
+            // Row 20 — widening path toward south exit (2 -> 3 wide)
+            6, 7, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 7, 6, 7,
+            // Row 21 — path widens to 4 tiles, signs on each side
+            7, 6, 0, 8, 0, 0, 0, 15, 2, 0, 1, 1, 1, 1, 0, 0, 15, 0, 8, 0, 0, 6, 7, 6,
+            // Row 22 — south exit approach: tree gap 4 tiles wide + path
+            6, 7, 6, 0, 0, 0, 7, 6, 0, 0, 1, 1, 1, 1, 0, 0, 6, 7, 0, 0, 0, 7, 6, 7,
+            // Row 23 — south border: trees except 4-tile south exit gap
+            6, 7, 6, 7, 6, 7, 6, 6, 7, 6, 0, 0, 0, 0, 6, 7, 6, 6, 7, 6, 7, 6, 7, 6,
         ];
 
         // Collision map: 1 = solid, 0 = passable
-        // Solid tiles: trees (6,7), water (4), rocks (9), house walls (10),
-        //              house roofs (11), fences (13), water edges (5 when blocking)
-        // Passable: grass (0), paths (1,2,3), flowers (8), doors (12), bridge (14),
-        //           signs (15), chests (16), lamps (17), fountain (18), stairs (19)
+        // Solid: trees(6,7), water(4), water-edge(5), rocks(9), walls(10), roofs(11), fences(13)
+        // Passable: grass(0), paths(1,2,3), flowers(8), doors(12), bridge(14),
+        //           signs(15), chests(16), lamps(17), fountain(18), stairs(19)
         const collision = ground.map(tile => {
             switch (tile) {
                 case 4:  // water
@@ -402,12 +409,12 @@ export class OverworldScene extends Scene {
             tileset: 'Sprites/Tilesets/Overworld.png',
             layers: [ground],
             collisionMap: collision,
-            defaultSpawn: { x: 11, y: 18 },
+            defaultSpawn: { x: 11, y: 11 },  // Center of town, near fountain
             npcs: [
                 {
                     id: 'elder',
                     name: 'Temple Elder',
-                    gridX: 12,
+                    gridX: 10,
                     gridY: 10,
                     type: 'talk',
                     facing: 'down',
@@ -423,8 +430,8 @@ export class OverworldScene extends Scene {
                 {
                     id: 'healer',
                     name: 'Healer Mira',
-                    gridX: 18,
-                    gridY: 6,
+                    gridX: 8,
+                    gridY: 7,
                     type: 'heal',
                     facing: 'down',
                     dialogue: [
@@ -436,10 +443,10 @@ export class OverworldScene extends Scene {
                 {
                     id: 'shopkeeper',
                     name: 'Merchant Grin',
-                    gridX: 8,
-                    gridY: 9,
+                    gridX: 9,
+                    gridY: 16,
                     type: 'shop',
-                    facing: 'right',
+                    facing: 'left',
                     dialogue: [
                         'Looking to buy supplies? You have come to the right place!',
                         'I stock potions, crystals, and other essentials.',
@@ -449,47 +456,61 @@ export class OverworldScene extends Scene {
                 {
                     id: 'quest_guide',
                     name: 'Scout Renn',
-                    gridX: 22,
+                    gridX: 20,
                     gridY: 11,
                     type: 'quest',
                     facing: 'left',
                     dialogue: [
-                        'The cave entrance to the east leads to the Blazecore Sanctum.',
+                        'Blazecore Sanctum is through that cave!',
                         'Fire-type Sprites lurk within. Their guardian is formidable.',
                         'I have seen trainers rush in unprepared... it never ends well.',
                         'If you bring me a Fire Gem, I can teach your Sprites fire resistance!',
                     ],
                 },
+                {
+                    id: 'mom',
+                    name: 'Mom',
+                    gridX: 3,
+                    gridY: 6,
+                    type: 'talk',
+                    facing: 'right',
+                    dialogue: [
+                        'Be careful out there!',
+                        'Remember to heal your Sprites at Mira\'s hut if they get hurt.',
+                        'I\'ll always be here if you need me.',
+                    ],
+                },
             ],
             transitions: [
-                // East side: leads to fire_temple
+                // East side: cave entrance leads to fire_temple
                 {
-                    gridX: 23,
+                    gridX: 22,
                     gridY: 11,
-                    width: 1,
+                    width: 2,
                     height: 2,
                     targetRegion: 'fire_temple',
                     targetSpawn: { x: 1, y: 12 },
                 },
-                // South side: leads to starter_route
+                // South side: 4-tile-wide exit to starter_route
                 {
-                    gridX: 9,
+                    gridX: 10,
                     gridY: 23,
-                    width: 6,
+                    width: 4,
                     height: 1,
                     targetRegion: 'starter_route',
                     targetSpawn: { x: 12, y: 1 },
                 },
             ],
-            encounterZones: [
-                // Light encounters only in the northern forest area
-                { x1: 0, y1: 0, x2: 23, y2: 3, encounterRate: 0.08, minLevel: 1, maxLevel: 3 },
-            ],
+            // No encounters inside town -- encounters only outside
+            encounterZones: [],
         };
     }
 
     // ══════════════════════════════════════════════════════════════════════
     //  FIRE TEMPLE (Blazecore Sanctum) — 24x24 cave/dungeon map
+    //  Pokemon-style dungeon: west entrance corridor -> T-junction,
+    //  north boss arena, south treasure room with lava, side rooms,
+    //  rest alcove with healer. All edges are cave wall (10).
     // ══════════════════════════════════════════════════════════════════════
     _buildFireTempleMap() {
         const w = 24;
@@ -506,57 +527,57 @@ export class OverworldScene extends Scene {
 
         // prettier-ignore
         const ground = [
-            // Row 0  — solid cave wall (north border / boss arena top)
+            // Row 0  — solid cave wall (north border)
             10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
-            // Row 1  — boss arena north wall with torches
-            10,10,10,10,10,10, 0,17, 0, 0, 0, 0, 0, 0, 0, 0,17, 0,10,10,10,10,10,10,
-            // Row 2  — boss arena open space
-            10,10,10,10,10,10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,10,10,10,10,10,10,
-            // Row 3  — boss arena with altar
-            10,10,10,10,10,10, 0, 0, 0, 0, 0,18, 18, 0, 0, 0, 0, 0,10,10,10,10,10,10,
-            // Row 4  — boss arena floor
-            10,10,10,10,10,10, 0, 0, 0,13, 0, 0, 0, 0,13, 0, 0, 0,10,10,10,10,10,10,
-            // Row 5  — boss arena south wall + corridor entrance
-            10,10,10,10,10,10,10,10,10,10,10,12, 12,10,10,10,10,10,10,10,10,10,10,10,
-            // Row 6  — narrow corridor heading south
-            10,10,10,10,10,10,10,10,10,10, 0, 0, 0, 0,10,10,10,10,10,10,10,10,10,10,
-            // Row 7  — corridor with torch
-            10,10,10,10,10,10,10,10,10,10, 0,17, 0, 0,10,10,10,10,10,10,10,10,10,10,
-            // Row 8  — corridor opens to east chamber
-            10,10,10,10,10,10,10,10,10,10, 0, 0,12, 0, 0, 0, 0,17, 0,10,10,10,10,10,
-            // Row 9  — east lava chamber
-            10,10,10,10,10,10,10,10,10,10, 0, 0, 0, 5, 4, 4, 5, 0, 0,10,10,10,10,10,
-            // Row 10 — east chamber with lava pool
-            10,10,10,10,10,10,10,10,10,10, 0, 0, 0, 5, 4, 4, 5, 0,16,10,10,10,10,10,
-            // Row 11 — chamber south + corridor continues
-            10,10,10,10,10,10,10,10,10,10, 0,17, 0, 0, 5, 5, 0, 0, 0,10,10,10,10,10,
-            // Row 12 — main east-west corridor (connects to entrance)
-            19, 0, 0, 0, 0, 1, 1, 1,17, 1, 3, 1, 1, 1, 0, 0, 0, 0, 0,10,10,10,10,10,
-            // Row 13 — corridor with south branch
-            10,10,10,10, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0,10,10,10,10,10,10,10,10,10,10,
-            // Row 14 — south corridor with west puzzle room
-            10,10,10,10, 0,17, 0, 0,10,10, 2, 0,10,10,10,10,10,10,10,10,10,10,10,10,
-            // Row 15 — west puzzle room entrance
-            10,10,10,10,12, 0, 0,13,10,10, 2, 0,10,10,10,10,10,10,10,10,10,10,10,10,
-            // Row 16 — west puzzle room
-            10, 0, 0, 0, 0, 0,15, 0,10,10, 2, 0,10,10,10,10,10,10,10,10,10,10,10,10,
-            // Row 17 — puzzle room with chest + rune
-            10, 0,16, 0, 0, 0, 0,17,10,10, 2, 0, 0, 0,12, 0, 0,17, 0,10,10,10,10,10,
-            // Row 18 — puzzle room south wall
-            10, 0, 0,15, 0,13, 0, 0,10,10, 0, 0,10, 0, 0, 0, 0, 0, 0,10,10,10,10,10,
-            // Row 19 — corridor continues south
-            10,10,10,10,10,10,10,10,10,10, 0, 0,10, 0, 5, 4, 4, 5, 0,10,10,10,10,10,
-            // Row 20 — south rest area approach
-            10,10,10,10,10,10,10,10,10, 0, 0,17,10, 0, 5, 4, 4, 5, 0,10,10,10,10,10,
-            // Row 21 — south rest area
-            10,10,10,10,10,10,10,10,10, 0,18, 0,10, 0, 0, 5, 5, 0, 0,10,10,10,10,10,
-            // Row 22 — rest area with healer NPC spot
-            10,10,10,10,10,10,10,10,10, 0, 0,17,10, 0, 0, 0, 0, 0,16,10,10,10,10,10,
-            // Row 23 — south border
+            // Row 1  — boss arena: north wall with corner pillars + torches
+            10,10,10,10,10,10,10,13,17, 0, 0, 0, 0, 0, 0,17,13,10,10,10,10,10,10,10,
+            // Row 2  — boss arena: open floor
+            10,10,10,10,10,10,10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,10,10,10,10,10,10,10,
+            // Row 3  — boss arena: altar at center-north
+            10,10,10,10,10,10,10, 0, 0, 0, 0,18, 0, 0, 0, 0, 0,10,10,10,10,10,10,10,
+            // Row 4  — boss arena: open floor with torches
+            10,10,10,10,10,10,10, 0,17, 0, 0, 0, 0, 0, 0,17, 0,10,10,10,10,10,10,10,
+            // Row 5  — boss arena: south wall with 2-tile boss door (archway)
+            10,10,10,10,10,10,10,13, 0, 0, 0, 0, 0, 0, 0, 0,13,10,10,10,10,10,10,10,
+            // Row 6  — boss door corridor: pillars flank 2-tile archway
+            10,10,10,10,10,10,10,10,10,10,13,12,12,13,10,10,10,10,10,10,10,10,10,10,
+            // Row 7  — north corridor: narrow 2-wide heading south from boss door
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 2, 0,10,10,10,10,10,10,10,10,10,10,
+            // Row 8  — north corridor with torch
+            10,10,10,10,10,10,10,10,10,17, 0, 2, 2, 0,17,10,10,10,10,10,10,10,10,10,
+            // Row 9  — corridor approaching T-junction, east side room opens
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 2, 0, 0, 0, 0, 0,10,10,10,10,10,10,
+            // Row 10 — T-junction row: east side room (encounter room)
+            10,10,10,10,10,10,10,10,10,10, 0, 3, 3, 1, 1,17, 0, 0,10,10,10,10,10,10,
+            // Row 11 — main E-W corridor: west entrance archway with torches
+            10,17,12,12, 1, 1, 1,17, 1, 1, 1, 3, 3, 0, 0, 0, 0, 0,10,10,10,10,10,10,
+            // Row 12 — main E-W corridor continues (2-tile-high corridor)
+            10,17,12,12, 1, 1, 1, 1, 1,17, 1, 3, 3, 1, 1, 0, 0,10,10,10,10,10,10,10,
+            // Row 13 — south branch begins from T-junction
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 2, 0,10,10,10,10,10,10,10,10,10,10,
+            // Row 14 — south corridor with west side room entrance
+            10,10,10,10,10, 0, 0, 0,12, 0, 0, 2, 2, 0,10,10,10,10,10,10,10,10,10,10,
+            // Row 15 — west side room (encounter room with rubble)
+            10,10,10,10,10, 0,17, 8, 0, 0,17, 2, 2, 0,10,10,10,10,10,10,10,10,10,10,
+            // Row 16 — side room continues, south corridor goes down
+            10,10,10,10,10, 0, 0, 8, 0,10,10, 2, 2,10,10,10,10,10,10,10,10,10,10,10,
+            // Row 17 — south corridor: opens to treasure room + rest alcove
+            10,10,10,10,10,10,10,10,10,10, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0,10,10,10,10,
+            // Row 18 — treasure room: lava with proper edge borders
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 0, 0, 5, 5, 5, 0, 0, 0,10,10,10,10,
+            // Row 19 — treasure room: lava pool center, chest beyond
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 0, 5, 4, 4, 5, 0,17, 0,10,10,10,10,
+            // Row 20 — treasure room: lava pool south edge, chest
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 0, 5, 4, 4, 5, 0, 0, 0,10,10,10,10,
+            // Row 21 — treasure room south + rest alcove (west side)
+            10,10,10, 0, 0,17, 0, 0,10,10, 0, 0, 0, 0, 5, 5, 5, 0,16, 0,10,10,10,10,
+            // Row 22 — rest alcove: altar + healer NPC position
+            10,10,10, 0,18, 0,17, 0,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
+            // Row 23 — south border: solid cave wall
             10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
         ];
 
-        // Collision: walls (10,11), lava (4), stalagmites (6,7), rocks (9), pillars (13)
+        // Collision: walls(10,11), lava(4), lava-edge(5), stalagmites(6,7), rocks(9), pillars(13)
         const collision = ground.map(tile => {
             switch (tile) {
                 case 4:  // lava
@@ -580,15 +601,15 @@ export class OverworldScene extends Scene {
             tileset: 'Sprites/Tilesets/Cave.png',
             layers: [ground],
             collisionMap: collision,
-            defaultSpawn: { x: 1, y: 12 },
+            defaultSpawn: { x: 3, y: 11 },  // Just inside the west entrance
             npcs: [
                 {
                     id: 'temple_guard',
                     name: 'Fire Acolyte',
-                    gridX: 11,
-                    gridY: 7,
+                    gridX: 8,
+                    gridY: 11,
                     type: 'talk',
-                    facing: 'down',
+                    facing: 'left',
                     dialogue: [
                         'You dare enter the Blazecore Sanctum?',
                         'The guardian awaits at the northern chamber.',
@@ -599,8 +620,8 @@ export class OverworldScene extends Scene {
                 {
                     id: 'temple_healer',
                     name: 'Ember Priestess',
-                    gridX: 10,
-                    gridY: 21,
+                    gridX: 4,
+                    gridY: 22,
                     type: 'heal',
                     facing: 'up',
                     dialogue: [
@@ -611,23 +632,27 @@ export class OverworldScene extends Scene {
                 },
             ],
             transitions: [
-                // West side exit: back to starter_town
+                // West entrance: archway back to starter_town (2 tiles high)
                 {
-                    gridX: 0,
-                    gridY: 12,
+                    gridX: 1,
+                    gridY: 11,
                     width: 1,
-                    height: 1,
+                    height: 2,
                     targetRegion: 'starter_town',
-                    targetSpawn: { x: 22, y: 11 },
+                    targetSpawn: { x: 21, y: 11 },
                 },
             ],
             encounterZones: [
-                // Corridor encounters (moderate rate)
-                { x1: 1, y1: 6, x2: 18, y2: 11, encounterRate: 0.18, minLevel: 3, maxLevel: 7 },
-                // South chambers (slightly higher level)
-                { x1: 1, y1: 13, x2: 18, y2: 22, encounterRate: 0.20, minLevel: 4, maxLevel: 8 },
-                // Boss arena (scripted, lower random rate)
-                { x1: 6, y1: 1, x2: 17, y2: 5, encounterRate: 0.05, minLevel: 6, maxLevel: 10 },
+                // Main corridors (moderate encounter rate)
+                { x1: 4, y1: 7, x2: 17, y2: 13, encounterRate: 0.18, minLevel: 3, maxLevel: 7 },
+                // Side rooms (slightly higher)
+                { x1: 5, y1: 14, x2: 8, y2: 16, encounterRate: 0.20, minLevel: 4, maxLevel: 8 },
+                { x1: 13, y1: 9, x2: 17, y2: 11, encounterRate: 0.20, minLevel: 4, maxLevel: 8 },
+                // Treasure room corridor (higher level)
+                { x1: 10, y1: 17, x2: 19, y2: 21, encounterRate: 0.15, minLevel: 5, maxLevel: 9 },
+                // Boss arena (scripted-feel, low random rate, high level)
+                { x1: 7, y1: 1, x2: 16, y2: 6, encounterRate: 0.05, minLevel: 7, maxLevel: 12 },
+                // Rest alcove: NO encounters (excluded by not covering rows 21-22, cols 3-7)
             ],
         };
     }
@@ -798,6 +823,11 @@ export class OverworldScene extends Scene {
             baseline: 'top',
         });
 
+        // Debug overlay (Ctrl+G)
+        if (this._debugMode) {
+            this._renderDebugOverlay(renderer);
+        }
+
         super.render(renderer);
     }
 
@@ -849,6 +879,26 @@ export class OverworldScene extends Scene {
         // Quick save
         if (input.isKeyJustPressed('F5')) {
             this._quickSave();
+        }
+
+        // Debug overlay toggle (Ctrl+G)
+        // Support multiple input API patterns for Ctrl detection
+        const ctrlHeld = (input.isKeyDown ? input.isKeyDown('Control') : false) ||
+                         (input.isKeyDown ? input.isKeyDown('ControlLeft') : false) ||
+                         (input.isKeyDown ? input.isKeyDown('ControlRight') : false) ||
+                         !!input.ctrlKey || !!input.ctrl;
+        if (input.isKeyJustPressed('KeyG') && ctrlHeld) {
+            this._debugMode = !this._debugMode;
+        }
+
+        // Update debug hovered tile from pointer position
+        if (this._debugMode && input.pointerPos) {
+            const worldX = input.pointerPos.x + this._camera.x;
+            const worldY = input.pointerPos.y + this._camera.y;
+            this._debugHoveredTile = {
+                x: Math.floor(worldX / TILE_SIZE),
+                y: Math.floor(worldY / TILE_SIZE),
+            };
         }
 
         // Swipe handling for mobile virtual dpad
@@ -1220,6 +1270,189 @@ export class OverworldScene extends Scene {
         localStorage.setItem('sprite_wars_save_0', JSON.stringify(saveData));
         eventBus.emit(GameEvents.GAME_SAVED, saveData);
         eventBus.emit(GameEvents.NOTIFICATION, 'Game saved!');
+    }
+
+    // ── Debug Overlay ────────────────────────────────────────────────────
+
+    _renderDebugOverlay(renderer) {
+        const ctx = renderer.ctx;
+        const camX = Math.round(this._camera.x);
+        const camY = Math.round(this._camera.y);
+        const mapWidth = this._mapData ? this._mapData.width : DEFAULT_MAP_WIDTH;
+        const mapHeight = this._mapData ? this._mapData.height : DEFAULT_MAP_HEIGHT;
+        const screenW = this.engine.designWidth;
+        const screenH = this.engine.designHeight;
+
+        // Determine visible tile range
+        const startCol = Math.max(0, Math.floor(camX / TILE_SIZE));
+        const startRow = Math.max(0, Math.floor(camY / TILE_SIZE));
+        const endCol = Math.min(mapWidth - 1, Math.ceil((camX + screenW) / TILE_SIZE));
+        const endRow = Math.min(mapHeight - 1, Math.ceil((camY + screenH) / TILE_SIZE));
+
+        // Save context state for screen-space drawing
+        ctx.save();
+
+        // ── 1. Grid lines: semi-transparent white at every tile boundary ──
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.lineWidth = 1;
+        for (let x = startCol; x <= endCol + 1; x++) {
+            const screenX = x * TILE_SIZE - camX;
+            ctx.beginPath();
+            ctx.moveTo(screenX, startRow * TILE_SIZE - camY);
+            ctx.lineTo(screenX, (endRow + 1) * TILE_SIZE - camY);
+            ctx.stroke();
+        }
+        for (let y = startRow; y <= endRow + 1; y++) {
+            const screenY = y * TILE_SIZE - camY;
+            ctx.beginPath();
+            ctx.moveTo(startCol * TILE_SIZE - camX, screenY);
+            ctx.lineTo((endCol + 1) * TILE_SIZE - camX, screenY);
+            ctx.stroke();
+        }
+
+        // ── 2. Tile ID overlay + 3. Collision overlay ──
+        if (this._mapData && this._mapData.layers && this._mapData.layers[0]) {
+            const ground = this._mapData.layers[0];
+            const collisionMap = this._mapData.collisionMap;
+            ctx.font = '8px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let y = startRow; y <= endRow; y++) {
+                for (let x = startCol; x <= endCol; x++) {
+                    const idx = y * mapWidth + x;
+                    const screenX = x * TILE_SIZE - camX;
+                    const screenY = y * TILE_SIZE - camY;
+
+                    // Collision overlay: semi-transparent red tint on solid tiles
+                    if (collisionMap && collisionMap[idx] === 1) {
+                        ctx.fillStyle = 'rgba(255, 0, 0, 0.25)';
+                        ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                    }
+
+                    // Tile ID number in small red text
+                    const tileId = ground[idx];
+                    if (tileId !== undefined) {
+                        ctx.fillStyle = '#ff3333';
+                        ctx.fillText(String(tileId), screenX + TILE_SIZE / 2, screenY + TILE_SIZE / 2);
+                    }
+                }
+            }
+        }
+
+        // ── 5. Transition zone highlights: semi-transparent blue rectangles ──
+        ctx.fillStyle = 'rgba(50, 100, 255, 0.35)';
+        ctx.strokeStyle = 'rgba(100, 150, 255, 0.8)';
+        ctx.lineWidth = 2;
+        for (const t of this._transitions) {
+            const sx = t.x - camX;
+            const sy = t.y - camY;
+            ctx.fillRect(sx, sy, t.w, t.h);
+            ctx.strokeRect(sx, sy, t.w, t.h);
+        }
+
+        // ── 6. NPC markers: small green dots on NPC tiles ──
+        ctx.fillStyle = '#00ff44';
+        for (const npc of this._npcs) {
+            const npcScreenX = npc.x - camX;
+            const npcScreenY = npc.y - camY;
+            ctx.beginPath();
+            ctx.arc(npcScreenX, npcScreenY - 16, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // ── 7. Spawn point marker: yellow X on default spawn tile ──
+        if (this._mapData && this._mapData.defaultSpawn) {
+            const sp = this._mapData.defaultSpawn;
+            const spX = sp.x * TILE_SIZE + TILE_SIZE / 2 - camX;
+            const spY = sp.y * TILE_SIZE + TILE_SIZE / 2 - camY;
+            ctx.strokeStyle = '#ffff00';
+            ctx.lineWidth = 3;
+            const armLen = TILE_SIZE / 3;
+            ctx.beginPath();
+            ctx.moveTo(spX - armLen, spY - armLen);
+            ctx.lineTo(spX + armLen, spY + armLen);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(spX + armLen, spY - armLen);
+            ctx.lineTo(spX - armLen, spY + armLen);
+            ctx.stroke();
+        }
+
+        // ── 4. Coordinate display bar at bottom of screen ──
+        const barHeight = 20;
+        const barY = screenH - barHeight;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+        ctx.fillRect(0, barY, screenW, barHeight);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '11px monospace';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+
+        if (this._debugHoveredTile) {
+            const tx = this._debugHoveredTile.x;
+            const ty = this._debugHoveredTile.y;
+            let tileId = '?';
+            if (this._mapData && this._mapData.layers && this._mapData.layers[0] &&
+                tx >= 0 && ty >= 0 && tx < mapWidth && ty < mapHeight) {
+                tileId = this._mapData.layers[0][ty * mapWidth + tx];
+            }
+            ctx.fillText(`Tile: (${tx}, ${ty}) = ${tileId}`, 8, barY + barHeight / 2);
+        } else {
+            ctx.fillText('Tile: (-, -)', 8, barY + barHeight / 2);
+        }
+
+        // Also show player grid position on the right side of the bar
+        const pgx = Math.floor(this._player.x / TILE_SIZE);
+        const pgy = Math.floor(this._player.y / TILE_SIZE);
+        ctx.textAlign = 'right';
+        ctx.fillText(`Player: (${pgx}, ${pgy})  Region: ${this._currentRegion}`, screenW - 8, barY + barHeight / 2);
+
+        // ── Tile placement rules panel (top-right corner) ──
+        const panelLines = [
+            'TILE RULES:',
+            'Water(4) needs edge(5) border',
+            'Trees(6,7) form borders only',
+            'Doors(12) must face paths(1-3)',
+            'Signs(15) next to paths(1-3)',
+            'Lamps(17) on paths/intersections',
+            'Fountain(18) on intersection(3)',
+        ];
+        const lineHeight = 13;
+        const panelPadX = 6;
+        const panelPadY = 4;
+        const panelW = 210;
+        const panelH = panelLines.length * lineHeight + panelPadY * 2;
+        const panelX = screenW - panelW - 8;
+        const panelY = 8;
+
+        // Panel background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(panelX, panelY, panelW, panelH);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(panelX, panelY, panelW, panelH);
+
+        // Panel text
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        for (let i = 0; i < panelLines.length; i++) {
+            ctx.fillStyle = i === 0 ? '#ffcc44' : '#cccccc';
+            ctx.fillText(panelLines[i], panelX + panelPadX, panelY + panelPadY + i * lineHeight);
+        }
+
+        // ── "DEBUG" label in top-left ──
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(8, 8, 58, 18);
+        ctx.fillStyle = '#ff4444';
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText('DEBUG', 14, 12);
+
+        ctx.restore();
     }
 
     // ── Rendering Helpers ──────────────────────────────────────────────────
