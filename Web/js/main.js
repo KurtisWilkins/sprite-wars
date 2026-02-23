@@ -275,7 +275,7 @@ async function startGame(user) {
         engine.gameManager.init(user);
 
         // Load save data if exists
-        const saveData = engine.saveManager.loadGame(user.username);
+        const saveData = engine.saveManager.loadSave(0);
         if (saveData) {
             engine.gameManager.loadFromSave(saveData);
         }
