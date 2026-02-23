@@ -13,7 +13,7 @@ function createDefaultPlayerData() {
     return {
         playerName: '',
         playTimeSeconds: 0,
-        gold: 0,
+        gold: 100,
         team: [],
         storage: [],
         inventory: {
@@ -52,6 +52,58 @@ function createStarterSprite() {
             speed: 10,
             specialAttack: 14,
             specialDefense: 9,
+        },
+        equipment: {},
+    };
+}
+
+function _createWaterStarter() {
+    return {
+        instanceId: 2,
+        raceId: 2,
+        formId: 4,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 55,
+        maxHp: 55,
+        elementTypes: ['Water'],
+        abilities: [
+            { abilityId: 12, name: 'Water Burst', element: 'Water', power: 30, targetingType: 'single' },
+            { abilityId: 2, name: 'Tackle', element: 'Normal', power: 25, targetingType: 'single' },
+        ],
+        stats: {
+            attack: 9,
+            defense: 12,
+            speed: 8,
+            specialAttack: 11,
+            specialDefense: 13,
+        },
+        equipment: {},
+    };
+}
+
+function _createNatureStarter() {
+    return {
+        instanceId: 3,
+        raceId: 3,
+        formId: 7,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 52,
+        maxHp: 52,
+        elementTypes: ['Nature'],
+        abilities: [
+            { abilityId: 23, name: 'Vine Whip', element: 'Nature', power: 28, targetingType: 'single' },
+            { abilityId: 2, name: 'Tackle', element: 'Normal', power: 25, targetingType: 'single' },
+        ],
+        stats: {
+            attack: 10,
+            defense: 10,
+            speed: 9,
+            specialAttack: 13,
+            specialDefense: 11,
         },
         equipment: {},
     };
@@ -138,7 +190,7 @@ export class GameManager {
     startNewGame() {
         this.playerData = createDefaultPlayerData();
         this.playerData.playerName = 'Trainer';
-        this.playerData.team = [createStarterSprite()];
+        this.playerData.team = [createStarterSprite(), _createWaterStarter(), _createNatureStarter()];
         this.currentAreaId = 'starter_town';
         this.gameTimeSeconds = 0;
         this.isInBattle = false;

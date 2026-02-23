@@ -28,15 +28,15 @@ const DIR = {
 };
 
 // ── Default region map data (used when no external map loaded) ─────────────
-const DEFAULT_MAP_WIDTH = 30;
-const DEFAULT_MAP_HEIGHT = 20;
+const DEFAULT_MAP_WIDTH = 24;
+const DEFAULT_MAP_HEIGHT = 24;
 
 export class OverworldScene extends Scene {
     constructor(engine) {
         super(engine);
 
         // Region / map state
-        this._currentRegion = 'verdant_temple';
+        this._currentRegion = 'starter_town';
         this._mapData = null;      // { width, height, layers[], collisionMap[], npcs[], transitions[], encounterZones[] }
         this._tilesetImg = null;
 
@@ -102,7 +102,7 @@ export class OverworldScene extends Scene {
         this._gameData = data.gameData || data.saveData || {};
 
         // Determine starting region
-        this._currentRegion = this._gameData.currentRegion || 'verdant_temple';
+        this._currentRegion = this._gameData.currentRegion || 'starter_town';
 
         // Load the region
         this._loadRegion(this._currentRegion, data.spawnPoint || null);
@@ -257,76 +257,377 @@ export class OverworldScene extends Scene {
     }
 
     _generateFallbackMap(regionId) {
+        // Dispatch to dedicated map builders for hand-crafted regions
+        switch (regionId) {
+            case 'starter_town':
+                return this._buildStarterTownMap();
+            case 'fire_temple':
+                return this._buildFireTempleMap();
+            default:
+                return this._buildGenericFallbackMap(regionId);
+        }
+    }
+
+    // ── Generic fallback for unknown regions ──────────────────────────────
+    _buildGenericFallbackMap(regionId) {
         const w = DEFAULT_MAP_WIDTH;
         const h = DEFAULT_MAP_HEIGHT;
-
-        // Create a basic grass map with walls along edges
         const ground = [];
         const collision = [];
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
                 const isEdge = x === 0 || y === 0 || x === w - 1 || y === h - 1;
-                ground.push(isEdge ? 1 : 0); // 1 = wall tile, 0 = grass tile
+                ground.push(isEdge ? 6 : 0);
                 collision.push(isEdge ? 1 : 0);
             }
         }
-
-        // Scatter some decorative tiles (trees, rocks)
+        // Scatter decorative tiles avoiding spawn
         for (let i = 0; i < 20; i++) {
             const rx = 2 + Math.floor(Math.random() * (w - 4));
             const ry = 2 + Math.floor(Math.random() * (h - 4));
             const idx = ry * w + rx;
-            // Avoid spawn area
-            if (Math.abs(rx - 5) < 3 && Math.abs(ry - 10) < 3) continue;
-            ground[idx] = 2; // tree/decoration tile
-            collision[idx] = 1; // solid
+            if (Math.abs(rx - 12) < 3 && Math.abs(ry - 12) < 3) continue;
+            ground[idx] = Math.random() < 0.5 ? 6 : 9;
+            collision[idx] = 1;
         }
-
         return {
             id: regionId,
             width: w,
             height: h,
-            tileset: 'Sprites/Tilesets/verdant_tileset.png',
+            tileset: 'Sprites/Tilesets/Overworld.png',
             layers: [ground],
             collisionMap: collision,
-            defaultSpawn: { x: 5, y: 10 },
+            defaultSpawn: { x: 12, y: 12 },
+            npcs: [],
+            transitions: [],
+            encounterZones: [
+                { x1: 1, y1: 1, x2: w - 2, y2: h - 2, encounterRate: 0.15, minLevel: 1, maxLevel: 5 },
+            ],
+        };
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  STARTER TOWN — 24x24 hand-crafted overworld map
+    // ══════════════════════════════════════════════════════════════════════
+    _buildStarterTownMap() {
+        const w = 24;
+        const h = 24;
+
+        //  Tile index legend:
+        //  0  = grass            1  = path (horiz)     2  = path (vert)
+        //  3  = path intersection 4 = water            5  = water edge
+        //  6  = tree (dark)      7  = tree (light)     8  = flowers/bush
+        //  9  = rock/boulder    10  = house wall      11  = house roof
+        // 12  = house door      13  = fence           14  = bridge
+        // 15  = sign post       16  = chest/crate     17  = lamp post
+        // 18  = well/fountain   19  = stairs/cave entrance
+
+        // prettier-ignore
+        const ground = [
+            // Row 0  — north border: dense forest
+            6, 6, 7, 6, 6, 7, 6, 7, 6, 6, 7, 6, 6, 7, 6, 6, 7, 6, 7, 6, 6, 7, 6, 6,
+            // Row 1  — forest with a few clearings
+            6, 7, 8, 0, 7, 6, 8, 0, 7, 6, 8, 0, 0, 8, 6, 7, 0, 8, 6, 7, 8, 0, 7, 6,
+            // Row 2  — forest edge, path begins heading south
+            7, 0, 0, 8, 0, 7, 0, 0, 8, 7, 0, 2, 2, 0, 7, 8, 0, 0, 7, 0, 0, 8, 0, 7,
+            // Row 3  — transition: trees thin out, path continues
+            6, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 2, 2, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 6,
+            // Row 4  — west pond area + vertical path
+            9, 0, 0, 0, 4, 4, 5, 0, 0, 13, 13, 3, 3, 13, 13, 0, 0, 0, 0, 0, 0, 0, 0, 9,
+            // Row 5  — pond continues, path goes east-west
+            0, 0, 0, 5, 4, 4, 5, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 11,11,11, 0, 0, 0, 0,
+            // Row 6  — pond edge, healer building area
+            0, 0, 0, 5, 4, 5, 0, 0, 15, 0, 1, 0, 0, 1, 0, 0, 0, 10, 0, 10, 0, 0, 0, 0,
+            // Row 7  — open area, path continues
+            0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 10,12, 10, 0, 0, 0, 0,
+            // Row 8  — west fence, path intersection row
+            0, 13, 0, 0, 0, 0, 0, 11,11,11, 3, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+            // Row 9  — shop building area + path
+            0, 13, 0, 0, 0, 0, 0, 10, 0, 10, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+            // Row 10 — shop door + path + fountain row approaches
+            0, 0, 0, 0, 17, 0, 0, 10,12, 10, 2, 0, 0, 2, 0, 0, 16, 0, 0, 0, 1, 0, 0, 0,
+            // Row 11 — main east-west avenue + fountain
+            0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 3, 1, 18, 1, 3, 1, 1, 1, 1, 1, 3, 1, 1, 19,
+            // Row 12 — main east-west avenue (south side of square)
+            0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 3, 1, 18, 1, 3, 1, 1, 1, 1, 1, 3, 1, 1, 19,
+            // Row 13 — path + town hall building
+            0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 11,11,11,11, 1, 0, 0, 0,
+            // Row 14 — path continues south
+            0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 10, 0, 0, 10, 1, 0, 0, 0,
+            // Row 15 — south buildings + path
+            0, 0, 0, 11,11,11, 0, 0, 0, 13, 3, 1, 1, 3, 13, 0, 10,12, 0, 10, 1, 0, 8, 0,
+            // Row 16 — south building doors
+            0, 0, 0, 10, 0, 10, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 13, 0, 0, 13, 0, 0, 0, 0,
+            // Row 17 — more south area
+            0, 0, 0, 10,12, 10, 0, 17, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0,
+            // Row 18 — open grassy area south
+            0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 0, 8, 0,
+            // Row 19 — fence row before south exit
+            0, 0, 0, 0, 0, 8, 0, 0, 13, 13, 3, 1, 1, 3, 13, 13, 0, 0, 8, 0, 0, 0, 0, 0,
+            // Row 20 — path to south transition
+            0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0,
+            // Row 21 — approaching south exit
+            0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0,
+            // Row 22 — south exit path
+            9, 0, 0, 0, 0, 0, 8, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 0, 0, 9,
+            // Row 23 — south border
+            9, 9, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 9, 9,
+        ];
+
+        // Collision map: 1 = solid, 0 = passable
+        // Solid tiles: trees (6,7), water (4), rocks (9), house walls (10),
+        //              house roofs (11), fences (13), water edges (5 when blocking)
+        // Passable: grass (0), paths (1,2,3), flowers (8), doors (12), bridge (14),
+        //           signs (15), chests (16), lamps (17), fountain (18), stairs (19)
+        const collision = ground.map(tile => {
+            switch (tile) {
+                case 4:  // water
+                case 5:  // water edge
+                case 6:  // tree dark
+                case 7:  // tree light
+                case 9:  // rock/boulder
+                case 10: // house wall
+                case 11: // house roof
+                case 13: // fence
+                    return 1;
+                default:
+                    return 0;
+            }
+        });
+
+        return {
+            id: 'starter_town',
+            width: w,
+            height: h,
+            tileset: 'Sprites/Tilesets/Overworld.png',
+            layers: [ground],
+            collisionMap: collision,
+            defaultSpawn: { x: 11, y: 18 },
             npcs: [
                 {
                     id: 'elder',
                     name: 'Temple Elder',
-                    gridX: 8,
-                    gridY: 6,
+                    gridX: 12,
+                    gridY: 10,
                     type: 'talk',
+                    facing: 'down',
                     dialogue: [
-                        'Welcome to the Verdant Temple.',
-                        'Wild Sprites roam these grounds.',
-                        'Build your team and challenge the temple guardians!',
+                        'Welcome to Willowshade, young trainer!',
+                        'This humble town sits at the edge of the wild lands.',
+                        'Many aspiring Sprite tamers begin their journey here.',
+                        'Head east through the cave entrance to reach the Blazecore Sanctum.',
+                        'But be warned -- the Fire Sprites there are fierce!',
+                        'Build your team and grow stronger before challenging the temple guardian.',
                     ],
                 },
                 {
                     id: 'healer',
-                    name: 'Healer',
-                    gridX: 12,
-                    gridY: 8,
+                    name: 'Healer Mira',
+                    gridX: 18,
+                    gridY: 6,
                     type: 'heal',
+                    facing: 'down',
                     dialogue: [
-                        'Let me restore your Sprites to full health.',
-                        'Your team has been healed!',
+                        'Oh dear, your Sprites look exhausted!',
+                        'Rest here a moment... Let me tend to them.',
+                        'There we go -- all healed up! Good luck out there!',
+                    ],
+                },
+                {
+                    id: 'shopkeeper',
+                    name: 'Merchant Grin',
+                    gridX: 8,
+                    gridY: 9,
+                    type: 'shop',
+                    facing: 'right',
+                    dialogue: [
+                        'Looking to buy supplies? You have come to the right place!',
+                        'I stock potions, crystals, and other essentials.',
+                        'Come back any time -- my door is always open!',
+                    ],
+                },
+                {
+                    id: 'quest_guide',
+                    name: 'Scout Renn',
+                    gridX: 22,
+                    gridY: 11,
+                    type: 'quest',
+                    facing: 'left',
+                    dialogue: [
+                        'The cave entrance to the east leads to the Blazecore Sanctum.',
+                        'Fire-type Sprites lurk within. Their guardian is formidable.',
+                        'I have seen trainers rush in unprepared... it never ends well.',
+                        'If you bring me a Fire Gem, I can teach your Sprites fire resistance!',
                     ],
                 },
             ],
             transitions: [
+                // East side: leads to fire_temple
                 {
-                    gridX: 14,
-                    gridY: 0,
-                    width: 2,
+                    gridX: 23,
+                    gridY: 11,
+                    width: 1,
+                    height: 2,
+                    targetRegion: 'fire_temple',
+                    targetSpawn: { x: 1, y: 12 },
+                },
+                // South side: leads to starter_route
+                {
+                    gridX: 9,
+                    gridY: 23,
+                    width: 6,
                     height: 1,
-                    targetRegion: 'crystal_caverns',
-                    targetSpawn: { x: 7, y: 18 },
+                    targetRegion: 'starter_route',
+                    targetSpawn: { x: 12, y: 1 },
                 },
             ],
             encounterZones: [
-                { x1: 2, y1: 2, x2: 28, y2: 18, encounterRate: 0.15, minLevel: 1, maxLevel: 5 },
+                // Light encounters only in the northern forest area
+                { x1: 0, y1: 0, x2: 23, y2: 3, encounterRate: 0.08, minLevel: 1, maxLevel: 3 },
+            ],
+        };
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  FIRE TEMPLE (Blazecore Sanctum) — 24x24 cave/dungeon map
+    // ══════════════════════════════════════════════════════════════════════
+    _buildFireTempleMap() {
+        const w = 24;
+        const h = 24;
+
+        // Cave tileset indices (repurposed for dungeon):
+        //  0  = stone floor       1  = path (horiz)     2  = path (vert)
+        //  3  = path intersection  4  = lava pool       5  = lava edge
+        //  6  = stalagmite (tall) 7  = stalagmite (sm)  8  = moss/rubble
+        //  9  = rock/boulder     10  = cave wall        11  = cave wall (top)
+        // 12  = archway/door     13  = pillar           14  = bridge (over lava)
+        // 15  = sign/rune stone  16  = chest/crate      17  = torch/brazier
+        // 18  = altar/shrine     19  = stairs/exit
+
+        // prettier-ignore
+        const ground = [
+            // Row 0  — solid cave wall (north border / boss arena top)
+            10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
+            // Row 1  — boss arena north wall with torches
+            10,10,10,10,10,10, 0,17, 0, 0, 0, 0, 0, 0, 0, 0,17, 0,10,10,10,10,10,10,
+            // Row 2  — boss arena open space
+            10,10,10,10,10,10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,10,10,10,10,10,10,
+            // Row 3  — boss arena with altar
+            10,10,10,10,10,10, 0, 0, 0, 0, 0,18, 18, 0, 0, 0, 0, 0,10,10,10,10,10,10,
+            // Row 4  — boss arena floor
+            10,10,10,10,10,10, 0, 0, 0,13, 0, 0, 0, 0,13, 0, 0, 0,10,10,10,10,10,10,
+            // Row 5  — boss arena south wall + corridor entrance
+            10,10,10,10,10,10,10,10,10,10,10,12, 12,10,10,10,10,10,10,10,10,10,10,10,
+            // Row 6  — narrow corridor heading south
+            10,10,10,10,10,10,10,10,10,10, 0, 0, 0, 0,10,10,10,10,10,10,10,10,10,10,
+            // Row 7  — corridor with torch
+            10,10,10,10,10,10,10,10,10,10, 0,17, 0, 0,10,10,10,10,10,10,10,10,10,10,
+            // Row 8  — corridor opens to east chamber
+            10,10,10,10,10,10,10,10,10,10, 0, 0,12, 0, 0, 0, 0,17, 0,10,10,10,10,10,
+            // Row 9  — east lava chamber
+            10,10,10,10,10,10,10,10,10,10, 0, 0, 0, 5, 4, 4, 5, 0, 0,10,10,10,10,10,
+            // Row 10 — east chamber with lava pool
+            10,10,10,10,10,10,10,10,10,10, 0, 0, 0, 5, 4, 4, 5, 0,16,10,10,10,10,10,
+            // Row 11 — chamber south + corridor continues
+            10,10,10,10,10,10,10,10,10,10, 0,17, 0, 0, 5, 5, 0, 0, 0,10,10,10,10,10,
+            // Row 12 — main east-west corridor (connects to entrance)
+            19, 0, 0, 0, 0, 1, 1, 1,17, 1, 3, 1, 1, 1, 0, 0, 0, 0, 0,10,10,10,10,10,
+            // Row 13 — corridor with south branch
+            10,10,10,10, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0,10,10,10,10,10,10,10,10,10,10,
+            // Row 14 — south corridor with west puzzle room
+            10,10,10,10, 0,17, 0, 0,10,10, 2, 0,10,10,10,10,10,10,10,10,10,10,10,10,
+            // Row 15 — west puzzle room entrance
+            10,10,10,10,12, 0, 0,13,10,10, 2, 0,10,10,10,10,10,10,10,10,10,10,10,10,
+            // Row 16 — west puzzle room
+            10, 0, 0, 0, 0, 0,15, 0,10,10, 2, 0,10,10,10,10,10,10,10,10,10,10,10,10,
+            // Row 17 — puzzle room with chest + rune
+            10, 0,16, 0, 0, 0, 0,17,10,10, 2, 0, 0, 0,12, 0, 0,17, 0,10,10,10,10,10,
+            // Row 18 — puzzle room south wall
+            10, 0, 0,15, 0,13, 0, 0,10,10, 0, 0,10, 0, 0, 0, 0, 0, 0,10,10,10,10,10,
+            // Row 19 — corridor continues south
+            10,10,10,10,10,10,10,10,10,10, 0, 0,10, 0, 5, 4, 4, 5, 0,10,10,10,10,10,
+            // Row 20 — south rest area approach
+            10,10,10,10,10,10,10,10,10, 0, 0,17,10, 0, 5, 4, 4, 5, 0,10,10,10,10,10,
+            // Row 21 — south rest area
+            10,10,10,10,10,10,10,10,10, 0,18, 0,10, 0, 0, 5, 5, 0, 0,10,10,10,10,10,
+            // Row 22 — rest area with healer NPC spot
+            10,10,10,10,10,10,10,10,10, 0, 0,17,10, 0, 0, 0, 0, 0,16,10,10,10,10,10,
+            // Row 23 — south border
+            10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
+        ];
+
+        // Collision: walls (10,11), lava (4), stalagmites (6,7), rocks (9), pillars (13)
+        const collision = ground.map(tile => {
+            switch (tile) {
+                case 4:  // lava
+                case 5:  // lava edge
+                case 6:  // stalagmite tall
+                case 7:  // stalagmite small
+                case 9:  // rock
+                case 10: // cave wall
+                case 11: // cave wall top
+                case 13: // pillar
+                    return 1;
+                default:
+                    return 0;
+            }
+        });
+
+        return {
+            id: 'fire_temple',
+            width: w,
+            height: h,
+            tileset: 'Sprites/Tilesets/Cave.png',
+            layers: [ground],
+            collisionMap: collision,
+            defaultSpawn: { x: 1, y: 12 },
+            npcs: [
+                {
+                    id: 'temple_guard',
+                    name: 'Fire Acolyte',
+                    gridX: 11,
+                    gridY: 7,
+                    type: 'talk',
+                    facing: 'down',
+                    dialogue: [
+                        'You dare enter the Blazecore Sanctum?',
+                        'The guardian awaits at the northern chamber.',
+                        'Only those who master Fire can survive here.',
+                        'Beware the lava pools -- they scorch anything nearby.',
+                    ],
+                },
+                {
+                    id: 'temple_healer',
+                    name: 'Ember Priestess',
+                    gridX: 10,
+                    gridY: 21,
+                    type: 'heal',
+                    facing: 'up',
+                    dialogue: [
+                        'The flames spare those who show respect.',
+                        'Rest here and regain your strength.',
+                        'Your Sprites have been restored by sacred fire.',
+                    ],
+                },
+            ],
+            transitions: [
+                // West side exit: back to starter_town
+                {
+                    gridX: 0,
+                    gridY: 12,
+                    width: 1,
+                    height: 1,
+                    targetRegion: 'starter_town',
+                    targetSpawn: { x: 22, y: 11 },
+                },
+            ],
+            encounterZones: [
+                // Corridor encounters (moderate rate)
+                { x1: 1, y1: 6, x2: 18, y2: 11, encounterRate: 0.18, minLevel: 3, maxLevel: 7 },
+                // South chambers (slightly higher level)
+                { x1: 1, y1: 13, x2: 18, y2: 22, encounterRate: 0.20, minLevel: 4, maxLevel: 8 },
+                // Boss arena (scripted, lower random rate)
+                { x1: 6, y1: 1, x2: 17, y2: 5, encounterRate: 0.05, minLevel: 6, maxLevel: 10 },
             ],
         };
     }
@@ -988,11 +1289,26 @@ export class OverworldScene extends Scene {
 
     _getTileFallbackColor(tileIndex) {
         switch (tileIndex) {
-            case 0: return '#2d5a1e'; // grass
-            case 1: return '#5a4a3a'; // wall/stone
-            case 2: return '#1a4a1a'; // tree/decoration
-            case 3: return '#3a6aaa'; // water
-            case 4: return '#8a7a5a'; // path
+            case 0:  return '#2d5a1e'; // grass / stone floor
+            case 1:  return '#8a7a5a'; // path horizontal
+            case 2:  return '#8a7a5a'; // path vertical
+            case 3:  return '#9a8a6a'; // path intersection
+            case 4:  return '#2244aa'; // water / lava
+            case 5:  return '#3366bb'; // water edge / lava edge
+            case 6:  return '#1a3a0e'; // tree (dark)
+            case 7:  return '#2a5a1e'; // tree (light)
+            case 8:  return '#44882e'; // flowers/bush
+            case 9:  return '#5a5a5a'; // rock/boulder
+            case 10: return '#6a5040'; // house wall / cave wall
+            case 11: return '#8a3030'; // house roof / cave wall top
+            case 12: return '#5a3020'; // house door / archway
+            case 13: return '#7a6a50'; // fence / pillar
+            case 14: return '#6a5a3a'; // bridge
+            case 15: return '#8a8a50'; // sign post / rune
+            case 16: return '#aa8030'; // chest/crate
+            case 17: return '#ccaa30'; // lamp post / torch
+            case 18: return '#60a0c0'; // well/fountain / altar
+            case 19: return '#3a3a3a'; // stairs/cave entrance
             default: return '#2d5a1e';
         }
     }
