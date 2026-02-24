@@ -178,12 +178,12 @@ export class BattleScene extends Scene {
                 .catch(() => {});
         }
 
-        // Preload fallback character sheets
+        // Preload fallback character sheets (Characters ASAI: 128x128, 4x4, 32x32 frames)
         this._fallbackPlayerSheet = null;
         this._fallbackEnemySheet = null;
-        this.engine.assets.loadImage('Sprites/Characters/Character 2.png')
+        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png')
             .then(img => { this._fallbackPlayerSheet = img; }).catch(() => {});
-        this.engine.assets.loadImage('Sprites/Characters/Character 3.png')
+        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/Skeleton1.png')
             .then(img => { this._fallbackEnemySheet = img; }).catch(() => {});
 
         // Preload sprite images for all units before battle renders
@@ -447,8 +447,8 @@ export class BattleScene extends Scene {
                     // Try fallback character sheet
                     const sheet = unit.team === 0 ? this._fallbackPlayerSheet : this._fallbackEnemySheet;
                     if (sheet && sheet.complete) {
-                        // 96x64, 4 cols x 2 rows, 24x32 per frame
-                        const fw = 24, fh = 32;
+                        // Characters ASAI: 128x128, 4 cols x 4 rows, 32x32 per frame
+                        const fw = 32, fh = 32;
                         ctx.drawImage(sheet, 0, 0, fw, fh,
                             spriteX, spriteY, SPRITE_SIZE, SPRITE_SIZE);
                     } else {

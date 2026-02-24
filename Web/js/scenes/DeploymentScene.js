@@ -102,11 +102,11 @@ export class DeploymentScene extends Scene {
         this._hoveredCell = null;
         this._detailSprite = null;
 
-        // Preload fallback character sprite sheets
+        // Preload fallback character sprite sheets (Characters ASAI: 128x128, 4x4, 32x32 frames)
         this._charSheets = {};
-        this.engine.assets.loadImage('Sprites/Characters/Character 2.png')
+        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png')
             .then(img => { this._charSheets.player = img; }).catch(() => {});
-        this.engine.assets.loadImage('Sprites/Characters/Character 3.png')
+        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/Skeleton1.png')
             .then(img => { this._charSheets.enemy = img; }).catch(() => {});
 
         // Auto-deploy first 7 sprites in default positions
@@ -298,8 +298,8 @@ export class DeploymentScene extends Scene {
         // Try to draw character sprite
         const sheet = this._charSheets && this._charSheets.player;
         if (sheet && sheet.complete) {
-            // Character 2.png is 96x64, 4 cols x 2 rows, each frame 24x32
-            const fw = 24, fh = 32;
+            // Characters ASAI: 128x128, 4 cols x 4 rows, each frame 32x32
+            const fw = 32, fh = 32;
             const col = 0; // idle frame
             ctx.drawImage(sheet, col * fw, 0, fw, fh,
                 cellX + 4, cellY + 2, size, size);
@@ -344,8 +344,8 @@ export class DeploymentScene extends Scene {
         // Try to draw character sprite
         const sheet = this._charSheets && this._charSheets.enemy;
         if (sheet && sheet.complete) {
-            // Character 3.png is 96x64, 4 cols x 2 rows, each frame 24x32
-            const fw = 24, fh = 32;
+            // Characters ASAI: 128x128, 4 cols x 4 rows, each frame 32x32
+            const fw = 32, fh = 32;
             const col = 0; // idle frame
             ctx.globalAlpha = 0.7;
             ctx.drawImage(sheet, col * fw, 0, fw, fh,

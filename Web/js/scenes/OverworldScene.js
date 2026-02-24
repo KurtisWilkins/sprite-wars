@@ -164,10 +164,10 @@ export class OverworldScene extends Scene {
     // ── Lifecycle ──────────────────────────────────────────────────────────
 
     async init() {
-        // Load player sprite
+        // Load player sprite (Characters ASAI: 128x128, 4 cols x 4 rows, 32x32 per frame)
         try {
             this._player.spriteImg = await this.engine.assets.loadImage(
-                'Sprites/Characters/Character 1.png'
+                'Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png'
             );
         } catch (_) {
             this._player.spriteImg = null;
@@ -372,27 +372,26 @@ export class OverworldScene extends Scene {
             x: (npcDef.gridX || 5) * TILE_SIZE + TILE_SIZE / 2,
             y: (npcDef.gridY || 5) * TILE_SIZE + TILE_SIZE / 2,
             spriteImg: null,
+            spritePath: npcDef.spritePath || null,
             dialogue: npcDef.dialogue || ['...'],
             facing: npcDef.facing || 'down',
             type: npcDef.type || 'talk', // talk, shop, quest, heal
         }));
 
-        // Load shared NPC sprite sheet
-        let npcSheet = null;
-        try {
-            npcSheet = await this.engine.assets.loadImage('Sprites/Characters/NPCs_UPDATED.png');
-        } catch (_) {
-            npcSheet = null;
-        }
-
-        // Assign NPC sprites from the shared sheet
-        // NPCs_UPDATED.png is 68x270, 4 cols x 15 rows, each frame ~17x18
-        const npcTypeToRow = { talk: 0, heal: 3, shop: 6, quest: 9 };
+        // Load individual NPC sprites (Characters ASAI: 128x128, 4 cols x 4 rows, 32x32 per frame)
         for (const npc of this._npcs) {
-            npc.spriteSheet = npcSheet;
-            npc.spriteRow = npcTypeToRow[npc.type] ?? 0;
-            npc.spriteFrameW = 17;
-            npc.spriteFrameH = 18;
+            npc.spriteSheet = null;
+            npc.spriteFrameW = 32;
+            npc.spriteFrameH = 32;
+            npc.spriteCols = 4;
+            npc.spriteRows = 4;
+            if (npc.spritePath) {
+                try {
+                    npc.spriteSheet = await this.engine.assets.loadImage(npc.spritePath);
+                } catch (_) {
+                    npc.spriteSheet = null;
+                }
+            }
         }
 
         // Set up area transitions
@@ -464,7 +463,14 @@ export class OverworldScene extends Scene {
             id: regionId,
             width: w,
             height: h,
-            tileset: 'Sprites/Tilesets/Overworld.png',
+            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png',
+            tilesetTileSize: 16,
+            tileIndexMap: {
+                0: 171, 1: 173, 2: 174, 3: 175, 4: 199, 5: 198,
+                6: 103, 7: 104, 8: 136, 9: 36, 10: 117, 11: 85,
+                12: 149, 13: 78, 14: 206, 15: 178, 16: 242, 17: 179,
+                18: 143, 19: 7,
+            },
             layers: [ground],
             collisionMap: collision,
             defaultSpawn: { x: 12, y: 12 },
@@ -570,7 +576,31 @@ export class OverworldScene extends Scene {
             id: 'starter_town',
             width: w,
             height: h,
-            tileset: 'Sprites/Tilesets/Overworld.png',
+            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png',
+            tilesetTileSize: 16,
+            // Map logical tile indices (0-19) to actual positions in RA_Overworld.png (32 cols)
+            tileIndexMap: {
+                0: 171,  // grass
+                1: 173,  // path (horiz)
+                2: 174,  // path (vert)
+                3: 175,  // path intersection
+                4: 199,  // water
+                5: 198,  // water edge
+                6: 103,  // tree (dark)
+                7: 104,  // tree (light)
+                8: 136,  // flowers/bush
+                9: 36,   // rock/boulder
+                10: 117, // house wall
+                11: 85,  // house roof
+                12: 149, // house door
+                13: 78,  // fence
+                14: 206, // bridge
+                15: 178, // sign post
+                16: 242, // chest/crate
+                17: 179, // lamp post
+                18: 143, // well/fountain
+                19: 7,   // stairs/cave entrance
+            },
             layers: [ground],
             collisionMap: collision,
             defaultSpawn: { x: 11, y: 11 },  // Center of town, near fountain
@@ -582,6 +612,7 @@ export class OverworldScene extends Scene {
                     gridY: 10,
                     type: 'talk',
                     facing: 'down',
+                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/PRIEST (1).png',
                     dialogue: [
                         'Welcome to Willowshade, young trainer!',
                         'This humble town sits at the edge of the wild lands.',
@@ -598,6 +629,7 @@ export class OverworldScene extends Scene {
                     gridY: 7,
                     type: 'heal',
                     facing: 'down',
+                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/NUN1 (1).png',
                     dialogue: [
                         'Oh dear, your Sprites look exhausted!',
                         'Rest here a moment... Let me tend to them.',
@@ -611,6 +643,7 @@ export class OverworldScene extends Scene {
                     gridY: 16,
                     type: 'shop',
                     facing: 'left',
+                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/Merchant 1.png',
                     dialogue: [
                         'Looking to buy supplies? You have come to the right place!',
                         'I stock potions, crystals, and other essentials.',
@@ -624,6 +657,7 @@ export class OverworldScene extends Scene {
                     gridY: 11,
                     type: 'quest',
                     facing: 'left',
+                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/Viking1.png',
                     dialogue: [
                         'Blazecore Sanctum is through that cave!',
                         'Fire-type Sprites lurk within. Their guardian is formidable.',
@@ -638,6 +672,7 @@ export class OverworldScene extends Scene {
                     gridY: 6,
                     type: 'talk',
                     facing: 'right',
+                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/NOBLELADY1 (1).png',
                     dialogue: [
                         'Be careful out there!',
                         'Remember to heal your Sprites at Mira\'s hut if they get hurt.',
@@ -762,7 +797,31 @@ export class OverworldScene extends Scene {
             id: 'fire_temple',
             width: w,
             height: h,
-            tileset: 'Sprites/Tilesets/Cave.png',
+            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Caverns/Sprites/RA_Cavern.png',
+            tilesetTileSize: 16,
+            // Map logical tile indices (0-19) to positions in RA_Cavern.png (32 cols)
+            tileIndexMap: {
+                0: 165,  // stone floor
+                1: 165,  // path (horiz) - same as floor in cave
+                2: 165,  // path (vert)
+                3: 165,  // path intersection
+                4: 74,   // lava pool
+                5: 73,   // lava edge
+                6: 32,   // stalagmite (tall)
+                7: 33,   // stalagmite (small)
+                8: 101,  // moss/rubble
+                9: 38,   // rock/boulder
+                10: 0,   // cave wall
+                11: 1,   // cave wall (top)
+                12: 99,  // archway/door
+                13: 64,  // pillar
+                14: 166, // bridge (over lava)
+                15: 133, // rune stone
+                16: 199, // chest/crate
+                17: 103, // torch/brazier
+                18: 131, // altar/shrine
+                19: 67,  // stairs/exit
+            },
             layers: [ground],
             collisionMap: collision,
             defaultSpawn: { x: 3, y: 11 },  // Just inside the west entrance
@@ -774,6 +833,7 @@ export class OverworldScene extends Scene {
                     gridY: 11,
                     type: 'talk',
                     facing: 'left',
+                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/Cultist1.png',
                     dialogue: [
                         'You dare enter the Blazecore Sanctum?',
                         'The guardian awaits at the northern chamber.',
@@ -788,6 +848,7 @@ export class OverworldScene extends Scene {
                     gridY: 22,
                     type: 'heal',
                     facing: 'up',
+                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/NUN3 (2).png',
                     dialogue: [
                         'The flames spare those who show respect.',
                         'Rest here and regain your strength.',
@@ -930,16 +991,21 @@ export class OverworldScene extends Scene {
 
         const mapWidth = this._mapData ? this._mapData.width : DEFAULT_MAP_WIDTH;
 
+        // Tileset config: source tile size (16 for Rogue Adventure) and tile index mapping
+        const tsTileSize = (this._mapData && this._mapData.tilesetTileSize) || TILE_SIZE;
+        const tileMap = this._mapData && this._mapData.tileIndexMap;
+
         // ── PASS 1: Draw floor tile (tile 0) at every visible position ──
         // This ensures no black gaps between decorative tiles
+        const floorMapped = tileMap ? tileMap[0] : 0;
         for (let y = startRow; y <= endRow; y++) {
             for (let x = startCol; x <= endCol; x++) {
                 const worldX = x * TILE_SIZE;
                 const worldY = y * TILE_SIZE;
 
-                if (this._tilesetImg) {
+                if (this._tilesetImg && floorMapped !== undefined && floorMapped >= 0) {
                     renderer.drawTile(
-                        this._tilesetImg, 0, TILE_SIZE,
+                        this._tilesetImg, floorMapped, tsTileSize,
                         worldX, worldY, TILE_DRAW_SIZE
                     );
                 } else {
@@ -961,9 +1027,10 @@ export class OverworldScene extends Scene {
                         const worldX = x * TILE_SIZE;
                         const worldY = y * TILE_SIZE;
 
-                        if (this._tilesetImg) {
+                        const mappedIndex = tileMap ? tileMap[tileIndex] : tileIndex;
+                        if (this._tilesetImg && mappedIndex !== undefined && mappedIndex >= 0) {
                             renderer.drawTile(
-                                this._tilesetImg, tileIndex, TILE_SIZE,
+                                this._tilesetImg, mappedIndex, tsTileSize,
                                 worldX, worldY, TILE_DRAW_SIZE
                             );
                         } else {
@@ -1685,15 +1752,14 @@ export class OverworldScene extends Scene {
         const halfSize = PLAYER_SIZE / 2;
 
         if (this._player.spriteImg && this._player.spriteImg.complete) {
-            // Sprite sheet: 4 columns (frames) x 8 rows
-            // Rows 0-3: idle (down, left, right, up)
-            // Rows 4-7: walk (down, left, right, up)
+            // Characters ASAI sprite sheet: 128x128, 4 columns x 4 rows, 32x32 per frame
+            // Row 0: down, Row 1: left, Row 2: right, Row 3: up
+            // Use frame 0 for idle, animate through 4 frames for walking
             const dirRow = { down: 0, left: 1, right: 2, up: 3 };
-            const baseRow = dirRow[this._player.facing] || 0;
-            const row = this._player.moving ? baseRow + 4 : baseRow;
-            const col = this._player.animFrame % 4;
-            const sw = this._player.spriteImg.width / 4;   // 30
-            const sh = this._player.spriteImg.height / 8;   // 32
+            const row = dirRow[this._player.facing] || 0;
+            const col = this._player.moving ? (this._player.animFrame % 4) : 0;
+            const sw = this._player.spriteImg.width / 4;   // 32
+            const sh = this._player.spriteImg.height / 4;  // 32
             renderer.drawSprite(
                 this._player.spriteImg,
                 col * sw, row * sh, sw, sh,
@@ -1716,12 +1782,16 @@ export class OverworldScene extends Scene {
         const halfSize = 12;
 
         if (npc.spriteSheet && npc.spriteSheet.complete) {
-            // Draw from NPC sprite sheet
-            const sx = 0; // Use first column (facing down)
-            const sy = npc.spriteRow * npc.spriteFrameH;
+            // Individual ASAI sprite sheet: 128x128, 4 cols x 4 rows, 32x32 per frame
+            // Row 0: down, Row 1: left, Row 2: right, Row 3: up
+            const dirRow = { down: 0, left: 1, right: 2, up: 3 };
+            const row = dirRow[npc.facing] || 0;
+            const col = 0; // idle frame
+            const fw = npc.spriteFrameW;
+            const fh = npc.spriteFrameH;
             renderer.drawSprite(
                 npc.spriteSheet,
-                sx, sy, npc.spriteFrameW, npc.spriteFrameH,
+                col * fw, row * fh, fw, fh,
                 npc.x - halfSize, npc.y - halfSize, halfSize * 2, halfSize * 2
             );
         } else if (npc.spriteImg && npc.spriteImg.complete) {
