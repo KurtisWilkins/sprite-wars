@@ -815,6 +815,7 @@ html, body {
     z-index: 500;
     opacity: 0;
     transition: opacity 0.4s;
+    pointer-events: none;
 }
 
 #transition-overlay.fade-in {
