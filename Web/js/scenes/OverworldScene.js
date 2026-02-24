@@ -430,6 +430,8 @@ export class OverworldScene extends Scene {
         switch (regionId) {
             case 'starter_town':
                 return this._buildStarterTownMap();
+            case 'starter_route':
+                return this._buildStarterRouteMap();
             case 'fire_temple':
                 return this._buildFireTempleMap();
             default:
@@ -483,227 +485,237 @@ export class OverworldScene extends Scene {
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    //  STARTER TOWN (Willowshade) — 24x24 hand-crafted overworld map
-    //  Designed with Pokemon fan-game principles: organic tree borders,
-    //  clear exits with visual cues, inside-out town layout, no encounters.
+    //  STARTER TOWN (Willowshade) — 48x48 large overworld village
+    //  Districts: Residential NW, Lake NE, Healer W, Town Square center,
+    //  Training E, Merchant SW, Lab SE. No encounters inside town.
     // ══════════════════════════════════════════════════════════════════════
     _buildStarterTownMap() {
-        const w = 24;
-        const h = 24;
+        const w = 48;
+        const h = 48;
 
-        //  Tile index legend:
-        //  0  = grass            1  = path (horiz)     2  = path (vert)
-        //  3  = path intersection 4 = water            5  = water edge
-        //  6  = tree (dark)      7  = tree (light)     8  = flowers/bush
-        //  9  = rock/boulder    10  = house wall      11  = house roof
-        // 12  = house door      13  = fence           14  = bridge
-        // 15  = sign post       16  = chest/crate     17  = lamp post
-        // 18  = well/fountain   19  = stairs/cave entrance
+        // Tile legend: 0=grass 1=pathH 2=pathV 3=cross 4=water 5=waterEdge
+        // 6=treeDark 7=treeLight 8=flowers 9=rock 10=wall 11=roof
+        // 12=door 13=fence 14=bridge 15=sign 16=chest 17=lamp 18=fountain 19=stairs
 
-        // prettier-ignore
-        const ground = [
-            // Row 0  — north border: solid dense forest (full tree row, no void)
-            6, 7, 6, 6, 7, 6, 7, 6, 6, 7, 6, 7, 6, 6, 7, 6, 6, 7, 6, 7, 6, 6, 7, 6,
-            // Row 1  — thick forest border with irregular inner edge
-            6, 6, 7, 6, 6, 7, 6, 0, 0, 6, 7, 6, 7, 6, 0, 0, 7, 6, 7, 6, 6, 7, 6, 6,
-            // Row 2  — forest thins: NE pond begins, clearings appear
-            7, 6, 0, 0, 8, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 5, 5, 5, 0, 0, 8, 6, 7,
-            // Row 3  — pond area NE, Player's House roof SW
-            6, 7, 0, 11,11,11, 0, 0, 8, 0, 0, 0, 0, 0, 8, 5, 4, 4, 5, 0, 0, 0, 7, 6,
-            // Row 4  — Player's House walls + door, pond continues
-            6, 0, 0, 10, 0, 10, 0, 0, 0, 0, 0, 2, 0, 0, 0, 5, 4, 4, 5, 0, 8, 0, 0, 7,
-            // Row 5  — Player's House door faces east path, pond edge
-            7, 0, 0, 10,12, 10, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 6,
-            // Row 6  — path from house connects south, Healer Hut roof NW area
-            6, 0, 8, 0, 1, 1, 1, 1, 0, 11,11, 3, 0, 0, 8, 0, 0, 0, 0, 0, 0, 8, 0, 7,
-            // Row 7  — Healer Hut walls + door, path continues
-            7, 0, 0, 0, 0, 0, 0, 1, 0, 10,12, 2, 0, 0, 0, 0, 0, 0, 0, 13,13,13, 0, 6,
-            // Row 8  — open area, vertical path toward town center
-            6, 0, 0, 8, 0, 0, 0, 1, 0, 10,10, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-            // Row 9  — approaching town square from north, decorative house W
-            7, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 11,11,11, 0, 0, 0, 0, 0, 0, 6,
-            // Row 10 — decorative house roof E, path widens to square
-            6, 0, 11,11, 0, 0, 17, 1, 1, 1, 1, 3, 1, 1, 10, 0, 10, 0, 0, 17, 0, 15, 9, 7,
-            // Row 11 — town square: fountain row, main E-W avenue, east exit
-            7, 0, 10,10, 0, 17, 1, 1, 3, 1, 18, 3, 18, 1, 3, 1, 1, 1, 1, 1, 1, 9,19, 6,
-            // Row 12 — town square south row, east exit (stairs + rocks)
-            6, 0, 0, 0, 0, 0, 1, 1, 3, 1, 17, 3, 17, 1, 3, 1, 1, 1, 1, 1, 1, 9,19, 7,
-            // Row 13 — Shop roof + path south from square
-            7, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 0, 6,
-            // Row 14 — Shop building (east of center), path continues
-            6, 0, 0, 8, 0, 0, 0, 0, 2, 0, 11,11,11, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-            // Row 15 — Shop walls + door, fences along path
-            7, 0, 0, 0, 13, 13, 0, 0, 2, 0, 10, 0, 10, 0, 2, 0, 0, 0, 0, 0, 8, 0, 7, 6,
-            // Row 16 — Shop door faces west path, Prof Lab roof begins
-            6, 0, 0, 0, 0, 0, 0, 1, 3, 1, 10,12, 10, 0, 2, 0, 11,11,11,11, 0, 0, 0, 7,
-            // Row 17 — Prof Lab walls (largest building, 4 wide)
-            7, 0, 8, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 10, 0, 0, 10, 0, 0, 7, 6,
-            // Row 18 — Prof Lab door faces north path, path widens toward south exit
-            6, 0, 0, 0, 0, 0, 0, 0, 2, 0, 13, 0, 13, 0, 2, 0, 10, 0, 0, 10, 0, 0, 0, 7,
-            // Row 19 — fence guides path south, path begins widening from 2 to 4
-            7, 6, 0, 0, 8, 0, 0, 13, 3, 1, 1, 1, 1, 1, 3, 1, 1, 12, 1, 1, 0, 0, 6, 6,
-            // Row 20 — widening path toward south exit (2 -> 3 wide)
-            6, 7, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 7, 6, 7,
-            // Row 21 — path widens to 4 tiles, signs on each side
-            7, 6, 0, 8, 0, 0, 0, 15, 2, 0, 1, 1, 1, 1, 0, 0, 15, 0, 8, 0, 0, 6, 7, 6,
-            // Row 22 — south exit approach: tree gap 4 tiles wide + path
-            6, 7, 6, 0, 0, 0, 7, 6, 0, 0, 1, 1, 1, 1, 0, 0, 6, 7, 0, 0, 0, 7, 6, 7,
-            // Row 23 — south border: trees except 4-tile south exit gap
-            6, 7, 6, 7, 6, 7, 6, 6, 7, 6, 0, 0, 0, 0, 6, 7, 6, 6, 7, 6, 7, 6, 7, 6,
-        ];
+        const ground = new Array(w * h).fill(0);
+        const S = (x, y, t) => { if (x >= 0 && x < w && y >= 0 && y < h) ground[y * w + x] = t; };
+        const F = (x1, y1, x2, y2, t) => { for (let y = y1; y <= y2; y++) for (let x = x1; x <= x2; x++) S(x, y, t); };
+        const hP = (x1, x2, y) => { for (let x = x1; x <= x2; x++) S(x, y, 1); };
+        const vP = (x, y1, y2) => { for (let y = y1; y <= y2; y++) S(x, y, 2); };
+        const X = (x, y) => S(x, y, 3);
 
-        // Collision map: 1 = solid, 0 = passable
-        // Solid: trees(6,7), water(4), water-edge(5), rocks(9), walls(10), roofs(11), fences(13)
-        // Passable: grass(0), paths(1,2,3), flowers(8), doors(12), bridge(14),
-        //           signs(15), chests(16), lamps(17), fountain(18), stairs(19)
-        const collision = ground.map(tile => {
-            switch (tile) {
-                case 4:  // water
-                case 5:  // water edge
-                case 6:  // tree dark
-                case 7:  // tree light
-                case 9:  // rock/boulder
-                case 10: // house wall
-                case 11: // house roof
-                case 13: // fence
-                    return 1;
-                default:
-                    return 0;
-            }
-        });
+        // ── FOREST BORDERS (2 thick, mixed trees) ───────────────────────
+        for (let y = 0; y <= 1; y++) for (let x = 0; x < w; x++) S(x, y, (x+y)%3===0?7:6);
+        for (let y = h-2; y < h; y++) for (let x = 0; x < w; x++) S(x, y, (x+y)%3===0?7:6);
+        for (let x = 0; x <= 1; x++) for (let y = 0; y < h; y++) S(x, y, (x+y)%3===0?7:6);
+        for (let x = w-2; x < w; x++) for (let y = 0; y < h; y++) S(x, y, (x+y)%3===0?7:6);
+        for (let x = 0; x < w; x++) { if (x%5<2) S(x,2,6); if ((x+2)%7<2) S(x,h-3,7); }
+        for (let y = 0; y < h; y++) { if (y%5<2) S(2,y,6); if ((y+2)%7<2) S(w-3,y,7); }
+
+        // ── MAIN ROADS ──────────────────────────────────────────────────
+        hP(3,44,24); hP(3,44,25); vP(24,3,44); vP(25,3,44);
+        X(24,24); X(25,24); X(24,25); X(25,25);
+        hP(5,43,12); hP(5,43,36); vP(12,5,43); vP(36,5,43);
+        X(12,12); X(24,12); X(25,12); X(36,12);
+        X(12,24); X(12,25); X(36,24); X(36,25);
+        X(12,36); X(24,36); X(25,36); X(36,36);
+
+        // ── RESIDENTIAL NW (cols 3-22, rows 3-11) ──────────────────────
+        F(5,4,8,4,11); F(5,5,5,6,10); F(8,5,8,6,10);
+        S(6,5,0); S(7,5,0); S(6,6,12); S(7,6,0);
+        S(4,5,8); S(4,6,8); S(9,5,8); S(9,7,8);
+        vP(6,7,11); X(6,12);
+        F(14,4,17,4,11); F(14,5,14,6,10); F(17,5,17,6,10);
+        S(15,5,0); S(16,5,0); S(15,6,12); S(16,6,0);
+        S(13,5,8); S(18,6,8); vP(15,7,11); X(15,12);
+        F(20,4,22,4,11); S(20,5,10); S(22,5,10); S(21,5,12);
+        F(3,3,3,11,13); F(3,3,10,3,13);
+        S(6,9,17); S(15,9,17); S(10,6,17);
+
+        // ── LAKE NE (cols 28-44, rows 3-14) ────────────────────────────
+        F(31,5,42,10,4);
+        F(30,5,30,10,5); F(43,5,43,10,5); F(31,4,42,4,5); F(31,11,42,11,5);
+        S(30,4,5); S(43,4,5); S(30,11,5); S(43,11,5);
+        S(36,7,0); S(37,7,0); S(36,8,0); S(37,8,16);
+        F(34,11,35,11,14); hP(34,35,12);
+        S(29,7,14); S(29,8,14);
+        S(28,3,7); S(29,3,6); S(30,3,7); S(44,3,6); S(43,3,7);
+        S(28,12,7); S(29,12,6);
+        S(28,5,8); S(28,9,8); S(44,6,8); S(44,9,8);
+        hP(26,33,8); X(36,8); S(28,8,15);
+
+        // ── HEALER W (cols 3-11, rows 16-23) ───────────────────────────
+        F(5,17,8,17,11); F(5,18,5,19,10); F(8,18,8,19,10);
+        S(6,18,0); S(7,18,0); S(6,19,0); S(7,19,12);
+        F(4,16,9,16,8); S(4,17,8); S(9,17,8); S(4,18,8); S(9,18,8);
+        S(4,20,8); S(5,20,8); S(8,20,8); S(9,20,8);
+        vP(7,20,24); X(7,24); hP(8,11,20); X(12,20);
+        S(4,22,9); S(5,22,9); S(6,22,9);
+        S(4,23,8); S(5,23,8); S(6,23,8); S(6,20,17);
+
+        // ── TOWN SQUARE (cols 17-31, rows 20-29) ───────────────────────
+        F(18,21,30,28,1);
+        S(23,24,18); S(26,24,18); S(23,25,18); S(26,25,18);
+        S(18,21,17); S(30,21,17); S(18,28,17); S(30,28,17);
+        S(21,23,17); S(28,23,17); S(21,26,17); S(28,26,17);
+        S(17,24,15); S(31,24,15);
+        S(19,22,8); S(20,22,8); S(29,22,8); S(30,22,8);
+        S(19,27,8); S(20,27,8); S(29,27,8); S(30,27,8);
+        X(24,21); X(25,21); X(24,28); X(25,28);
+
+        // ── TRAINING E (cols 38-44, rows 18-28) ────────────────────────
+        F(38,18,44,18,13); F(38,28,44,28,13); F(38,18,38,28,13); F(44,18,44,28,13);
+        S(38,23,12); S(38,24,12); F(39,19,43,27,0);
+        S(40,20,9); S(43,20,9); S(40,26,9); S(43,26,9); S(42,23,16);
+        hP(37,38,23); hP(37,38,24); X(36,23); X(36,24);
+        S(37,22,17); S(37,25,17);
+
+        // ── MERCHANT SW (cols 3-16, rows 30-42) ────────────────────────
+        F(4,31,7,31,11); F(4,32,4,33,10); F(7,32,7,33,10);
+        S(5,32,0); S(6,32,0); S(5,33,12); S(6,33,0);
+        F(10,31,13,31,11); F(10,32,10,33,10); F(13,32,13,33,10);
+        S(11,32,0); S(12,32,0); S(11,33,0); S(12,33,12);
+        F(4,37,16,37,13); F(4,40,16,40,13);
+        F(5,38,7,38,16); F(9,38,11,38,16); F(13,38,15,38,16); F(4,39,16,39,1);
+        F(4,42,7,42,11); F(4,43,4,44,10); F(7,43,7,44,10);
+        S(5,43,0); S(6,43,12); S(5,44,0); S(6,44,0);
+        vP(8,34,36); X(8,36); hP(5,11,34); hP(5,11,36); X(8,34); X(12,34);
+        S(3,37,17); S(3,40,17); S(17,37,17);
+
+        // ── PROFESSOR LAB SE (cols 30-43, rows 30-40) ──────────────────
+        F(32,31,39,31,11); F(32,32,39,32,11);
+        F(32,33,32,35,10); F(39,33,39,35,10); F(33,33,38,33,10); F(33,34,38,34,0);
+        S(35,35,12); S(36,35,12); S(34,35,10); S(37,35,10);
+        S(33,35,10); S(38,35,10); S(32,35,10); S(39,35,10);
+        F(32,37,39,37,13); F(32,39,39,39,13);
+        S(35,37,12); S(36,37,12); F(33,38,38,38,8); S(35,38,18);
+        S(34,36,15); vP(35,35,36); vP(36,35,36); X(35,36); X(36,36);
+        hP(26,34,34); S(31,35,17); S(40,35,17);
+
+        // ── EXITS ───────────────────────────────────────────────────────
+        S(45,24,19); S(45,25,19); S(46,24,9); S(46,25,9);
+        S(47,24,0); S(47,25,0); S(44,23,15); S(44,26,9); S(45,23,9); S(45,26,9);
+        for (let x=21;x<=28;x++){S(x,h-2,0);S(x,h-1,0);}
+        hP(22,27,44); hP(22,27,45);
+        S(20,44,7); S(21,44,6); S(28,44,6); S(29,44,7);
+        S(20,45,6); S(21,45,7); S(28,45,7); S(29,45,6);
+        S(21,43,17); S(28,43,17); S(20,43,15);
+
+        // ── DETAILS ─────────────────────────────────────────────────────
+        for (const [tx,ty] of [[3,14],[4,14],[3,15],[10,3],[11,3],[19,3],[20,3],[3,28],[3,29],[4,29],[44,14],[43,14],[44,15],[43,30],[44,30],[44,31],[3,44],[4,44],[3,43],[10,44],[11,44],[38,44],[39,44],[44,42],[44,43],[27,3],[26,3],[22,3],[23,3],[20,14],[21,14]])
+            if (ground[ty*w+tx]===0) S(tx,ty,(tx+ty)%2?6:7);
+        for (const [fx,fy] of [[16,8],[17,8],[16,10],[30,14],[31,14],[32,14],[15,30],[16,30],[17,30],[42,14],[42,15],[19,42],[20,42],[29,42],[30,42],[14,19],[15,19],[33,16],[34,16],[35,16],[40,14],[41,14]])
+            if (ground[fy*w+fx]===0) S(fx,fy,8);
+        for (const [rx,ry] of [[3,13],[44,13],[3,35],[44,35],[10,2],[38,2],[10,45],[38,45]])
+            if (ground[ry*w+rx]===0) S(rx,ry,9);
+
+        const collision = ground.map(t=>[4,5,6,7,9,10,11,13].includes(t)?1:0);
 
         return {
-            id: 'starter_town',
-            width: w,
-            height: h,
+            id: 'starter_town', width: w, height: h,
             tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png',
             tilesetTileSize: 16,
-            // Map logical tile indices (0-19) to actual positions in RA_Overworld.png (32 cols)
-            tileIndexMap: {
-                0: 171,  // grass
-                1: 173,  // path (horiz)
-                2: 174,  // path (vert)
-                3: 175,  // path intersection
-                4: 199,  // water
-                5: 198,  // water edge
-                6: 103,  // tree (dark)
-                7: 104,  // tree (light)
-                8: 136,  // flowers/bush
-                9: 36,   // rock/boulder
-                10: 117, // house wall
-                11: 85,  // house roof
-                12: 149, // house door
-                13: 78,  // fence
-                14: 206, // bridge
-                15: 178, // sign post
-                16: 242, // chest/crate
-                17: 179, // lamp post
-                18: 143, // well/fountain
-                19: 7,   // stairs/cave entrance
-            },
+            tileIndexMap: { 0:171,1:173,2:174,3:175,4:199,5:198,6:103,7:104,8:136,9:36,10:117,11:85,12:149,13:78,14:206,15:178,16:242,17:179,18:143,19:7 },
             layers: [ground],
             collisionMap: collision,
-            defaultSpawn: { x: 11, y: 11 },  // Center of town, near fountain
+            defaultSpawn: { x: 24, y: 24 },
             npcs: [
-                {
-                    id: 'elder',
-                    name: 'Temple Elder',
-                    gridX: 10,
-                    gridY: 10,
-                    type: 'talk',
-                    facing: 'down',
-                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/PRIEST (1).png',
-                    dialogue: [
-                        'Welcome to Willowshade, young trainer!',
-                        'This humble town sits at the edge of the wild lands.',
-                        'Many aspiring Sprite tamers begin their journey here.',
-                        'Head east through the cave entrance to reach the Blazecore Sanctum.',
-                        'But be warned -- the Fire Sprites there are fierce!',
-                        'Build your team and grow stronger before challenging the temple guardian.',
-                    ],
-                },
-                {
-                    id: 'healer',
-                    name: 'Healer Mira',
-                    gridX: 8,
-                    gridY: 7,
-                    type: 'heal',
-                    facing: 'down',
-                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/NUN1 (1).png',
-                    dialogue: [
-                        'Oh dear, your Sprites look exhausted!',
-                        'Rest here a moment... Let me tend to them.',
-                        'There we go -- all healed up! Good luck out there!',
-                    ],
-                },
-                {
-                    id: 'shopkeeper',
-                    name: 'Merchant Grin',
-                    gridX: 9,
-                    gridY: 16,
-                    type: 'shop',
-                    facing: 'left',
-                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/Merchant 1.png',
-                    dialogue: [
-                        'Looking to buy supplies? You have come to the right place!',
-                        'I stock potions, crystals, and other essentials.',
-                        'Come back any time -- my door is always open!',
-                    ],
-                },
-                {
-                    id: 'quest_guide',
-                    name: 'Scout Renn',
-                    gridX: 20,
-                    gridY: 11,
-                    type: 'quest',
-                    facing: 'left',
-                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/Viking1.png',
-                    dialogue: [
-                        'Blazecore Sanctum is through that cave!',
-                        'Fire-type Sprites lurk within. Their guardian is formidable.',
-                        'I have seen trainers rush in unprepared... it never ends well.',
-                        'If you bring me a Fire Gem, I can teach your Sprites fire resistance!',
-                    ],
-                },
-                {
-                    id: 'mom',
-                    name: 'Mom',
-                    gridX: 3,
-                    gridY: 6,
-                    type: 'talk',
-                    facing: 'right',
-                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/NOBLELADY1 (1).png',
-                    dialogue: [
-                        'Be careful out there!',
-                        'Remember to heal your Sprites at Mira\'s hut if they get hurt.',
-                        'I\'ll always be here if you need me.',
-                    ],
-                },
+                { id:'elder', name:'Temple Elder', gridX:24, gridY:23, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/PRIEST (1).png', dialogue:['Welcome to Willowshade, young trainer!','Our town has grown into a fine settlement.','Head east through the cave to reach the Blazecore Sanctum.','Or venture south through the gate to explore the Verdant Route.','Build your team and grow stronger before challenging the temple guardian.'] },
+                { id:'healer', name:'Healer Mira', gridX:7, gridY:20, type:'heal', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/NUN1 (1).png', dialogue:['Oh dear, your Sprites look exhausted!','Rest here a moment... Let me tend to them.','There we go -- all healed up! Good luck out there!'] },
+                { id:'shopkeeper', name:'Merchant Grin', gridX:8, gridY:35, type:'shop', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Merchant 1.png', dialogue:['Looking to buy supplies? You have come to the right place!','I stock potions, crystals, and other essentials.','Come back any time -- my door is always open!'] },
+                { id:'quest_guide', name:'Scout Renn', gridX:41, gridY:23, type:'quest', facing:'left', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Viking1.png', dialogue:['Blazecore Sanctum is through the cave to the east!','Fire-type Sprites lurk within. Their guardian is formidable.','I train here every day to prepare for the challenge.','If you bring me a Fire Gem, I can teach your Sprites fire resistance!'] },
+                { id:'mom', name:'Mom', gridX:6, gridY:7, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/NOBLELADY1 (1).png', dialogue:['Be careful out there, dear!','Remember to heal your Sprites at Mira\'s hut if they get hurt.','I\'ll always be here if you need me.'] },
+                { id:'professor', name:'Professor Elm', gridX:35, gridY:35, type:'talk', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/ExpertWizard1.png', dialogue:['Ah, a new trainer! Welcome to my laboratory!','I study the bond between Sprites and their tamers.','There are 24 known Sprite races, each with three evolution stages.','That is 72 distinct forms to discover!','Head south to the Verdant Route for your first encounters.'] },
+                { id:'fisherman', name:'Old Fisher Tom', gridX:29, gridY:8, type:'talk', facing:'right', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png', dialogue:['The lake here is home to some rare Water-type Sprites.','I have been fishing these waters for thirty years.','Legend says there is a treasure on the small island out there...'] },
+                { id:'guard', name:'Gate Guard Hal', gridX:24, gridY:43, type:'talk', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Viking3.png', dialogue:['Beyond this gate lies the Verdant Route.','Wild Sprites roam freely out there. Make sure you are prepared!','Stock up on potions before heading out.'] },
+                { id:'blacksmith', name:'Smith Doran', gridX:6, gridY:42, type:'shop', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Miner_leader.png', dialogue:['Need equipment? I forge the finest gear in Willowshade.','Bring me raw materials and I can craft something special.'] },
+                { id:'child', name:'Little Pip', gridX:22, gridY:26, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Theif 1.png', dialogue:['I am going to be the greatest Sprite tamer ever!','My dad says I am too young to leave town though...','Have you seen the big fountain? It is my favorite spot!'] },
             ],
             transitions: [
-                // East side: cave entrance leads to fire_temple
-                {
-                    gridX: 22,
-                    gridY: 11,
-                    width: 2,
-                    height: 2,
-                    targetRegion: 'fire_temple',
-                    targetSpawn: { x: 1, y: 12 },
-                },
-                // South side: 4-tile-wide exit to starter_route
-                {
-                    gridX: 10,
-                    gridY: 23,
-                    width: 4,
-                    height: 1,
-                    targetRegion: 'starter_route',
-                    targetSpawn: { x: 12, y: 1 },
-                },
+                { gridX:45, gridY:24, width:2, height:2, targetRegion:'fire_temple', targetSpawn:{x:1,y:12} },
+                { gridX:22, gridY:46, width:6, height:2, targetRegion:'starter_route', targetSpawn:{x:16,y:1} },
             ],
-            // No encounters inside town -- encounters only outside
             encounterZones: [],
         };
     }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  STARTER ROUTE (Verdant Route) — 32x24 outdoor route with encounters
+    //  Connects Willowshade (north) to future areas (south/east).
+    //  Tall grass, winding paths, a few trainers, natural obstacles.
+    // ══════════════════════════════════════════════════════════════════════
+    _buildStarterRouteMap() {
+        const w = 32; const h = 24;
+        const ground = new Array(w * h).fill(0);
+        const S = (x, y, t) => { if (x>=0&&x<w&&y>=0&&y<h) ground[y*w+x]=t; };
+        const F = (x1,y1,x2,y2,t) => { for(let y=y1;y<=y2;y++) for(let x=x1;x<=x2;x++) S(x,y,t); };
+        const hP = (x1,x2,y) => { for(let x=x1;x<=x2;x++) S(x,y,1); };
+        const vP = (x,y1,y2) => { for(let y=y1;y<=y2;y++) S(x,y,2); };
+        const X = (x,y) => S(x,y,3);
+
+        // Borders
+        for(let x=0;x<w;x++){S(x,0,(x%3===0)?7:6);S(x,h-1,(x%3===0)?7:6);}
+        for(let y=0;y<h;y++){S(0,y,(y%3===0)?7:6);S(w-1,y,(y%3===0)?7:6);}
+
+        // North entrance (from town)
+        S(15,0,0); S(16,0,0); S(17,0,0); S(18,0,0);
+        vP(16,0,5); vP(17,0,5);
+
+        // Main path: north to south with bend
+        vP(16,5,11); vP(17,5,11);
+        X(16,11); X(17,11);
+        hP(17,24,11); hP(17,24,12);
+        X(24,11); X(24,12);
+        vP(24,12,22); vP(25,12,22);
+
+        // Tall grass patches (encounter zones) — use flowers(8) as tall grass
+        F(3,3,8,8,8); F(20,3,27,8,8); F(3,14,10,20,8); F(26,16,29,21,8);
+
+        // Trees as obstacles
+        S(10,4,6); S(11,4,7); S(12,5,6); S(10,7,7);
+        S(13,14,6); S(14,15,7); S(13,17,6);
+        S(22,15,7); S(23,16,6); S(22,19,7);
+
+        // Water feature (small pond)
+        F(5,10,8,11,4); S(4,10,5); S(9,10,5); S(4,11,5); S(9,11,5);
+        S(5,9,5); S(6,9,5); S(7,9,5); S(8,9,5);
+        S(5,12,5); S(6,12,5); S(7,12,5); S(8,12,5);
+
+        // Rocks
+        S(15,8,9); S(28,10,9); S(2,15,9); S(12,20,9);
+
+        // Signs
+        S(15,3,15); S(23,14,15);
+
+        // Lamps
+        S(15,6,17); S(25,14,17);
+
+        const collision = ground.map(t=>[4,5,6,7,9,10,11,13].includes(t)?1:0);
+
+        return {
+            id: 'starter_route', width: w, height: h,
+            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png',
+            tilesetTileSize: 16,
+            tileIndexMap: { 0:171,1:173,2:174,3:175,4:199,5:198,6:103,7:104,8:136,9:36,10:117,11:85,12:149,13:78,14:206,15:178,16:242,17:179,18:143,19:7 },
+            layers: [ground],
+            collisionMap: collision,
+            defaultSpawn: { x: 16, y: 1 },
+            npcs: [
+                { id:'ranger', name:'Ranger Kai', gridX:14, gridY:6, type:'talk', facing:'right', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Viking2.png', dialogue:['The tall grass here is full of wild Sprites!','Walk carefully and be ready for battle.','Stronger Sprites appear further along the route.'] },
+                { id:'trainer1', name:'Bug Catcher Tim', gridX:6, gridY:5, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Farmer 3.png', dialogue:['I love catching Bug-type Sprites!','They may be weak, but they evolve fast!'] },
+            ],
+            transitions: [
+                { gridX:15, gridY:0, width:4, height:1, targetRegion:'starter_town', targetSpawn:{x:24,y:44} },
+            ],
+            encounterZones: [
+                { x1:3, y1:3, x2:8, y2:8, encounterRate:0.15, minLevel:2, maxLevel:5 },
+                { x1:20, y1:3, x2:27, y2:8, encounterRate:0.15, minLevel:2, maxLevel:5 },
+                { x1:3, y1:14, x2:10, y2:20, encounterRate:0.18, minLevel:3, maxLevel:7 },
+                { x1:26, y1:16, x2:29, y2:21, encounterRate:0.20, minLevel:4, maxLevel:8 },
+            ],
+        };
+    }
+
 
     // ══════════════════════════════════════════════════════════════════════
     //  FIRE TEMPLE (Blazecore Sanctum) — 24x24 cave/dungeon map
@@ -864,7 +876,7 @@ export class OverworldScene extends Scene {
                     width: 1,
                     height: 2,
                     targetRegion: 'starter_town',
-                    targetSpawn: { x: 21, y: 11 },
+                    targetSpawn: { x: 44, y: 24 },
                 },
             ],
             encounterZones: [
