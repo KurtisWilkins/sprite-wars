@@ -143,6 +143,7 @@ export class SceneManager {
         overlay.classList.remove('fade-in');
         overlay.classList.add('fade-out');
         await this._wait(duration);
+        overlay.classList.remove('fade-out');
         overlay.classList.add('hidden');
     }
 

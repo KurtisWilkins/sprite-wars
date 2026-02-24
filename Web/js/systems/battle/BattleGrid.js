@@ -1,7 +1,7 @@
 /**
  * BattleGrid -- [P3-001] Grid-based battlefield for Sprite Wars.
- * 6 columns x 8 rows total (4 rows per side). Team 0 (player) occupies
- * rows 0-3, team 1 (enemy) occupies rows 4-7.
+ * 7 columns x 9 rows total (5 player rows + 4 enemy rows). Team 0 (player)
+ * occupies rows 0-4, team 1 (enemy) occupies rows 5-8.
  *
  * Ported from Game/Scripts/Battle/BattleGrid.gd
  */
@@ -9,15 +9,15 @@
 export class BattleGrid {
     // -- Constants ----------------------------------------------------------------
 
-    static GRID_WIDTH = 6;
-    static GRID_HEIGHT_PER_SIDE = 4;
-    static TOTAL_HEIGHT = 8; // 4 rows per side
+    static GRID_WIDTH = 7;
+    static GRID_HEIGHT_PER_SIDE = 5;
+    static TOTAL_HEIGHT = 9; // 5 player rows + 4 enemy rows
 
     // Team row boundaries (inclusive).
     static PLAYER_ROW_MIN = 0;
-    static PLAYER_ROW_MAX = 3;
-    static ENEMY_ROW_MIN = 4;
-    static ENEMY_ROW_MAX = 7;
+    static PLAYER_ROW_MAX = 4;
+    static ENEMY_ROW_MIN = 5;
+    static ENEMY_ROW_MAX = 8;
 
     // -- State --------------------------------------------------------------------
 

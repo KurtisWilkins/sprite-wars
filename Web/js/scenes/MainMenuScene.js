@@ -9,9 +9,9 @@ import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 
 // ── Constants ──────────────────────────────────────────────────────────────
-const LOGO_Y = 160;
-const TITLE_Y = 290;
-const SUBTITLE_Y = 330;
+const LOGO_Y = 80;
+const TITLE_Y = 170;
+const SUBTITLE_Y = 200;
 const VERSION_TEXT = 'v0.1.0 Web';
 
 const BG_COLOR = '#0d0d1e';
@@ -27,9 +27,9 @@ const BUTTON_DEFS = [
 ];
 
 const BUTTON_WIDTH = 240;
-const BUTTON_HEIGHT = 44;
-const BUTTON_SPACING = 14;
-const BUTTON_START_Y = 400;
+const BUTTON_HEIGHT = 38;
+const BUTTON_SPACING = 10;
+const BUTTON_START_Y = 260;
 
 export class MainMenuScene extends Scene {
     constructor(engine) {
@@ -115,6 +115,10 @@ export class MainMenuScene extends Scene {
         this.engine.audio.playMusic(
             this.engine.assets.resolvePath('Audio/Music/TitleTheme.wav')
         );
+
+        // Hide mobile controls during main menu (they belong to the overworld)
+        const mobileControls = document.getElementById('mobile-controls');
+        if (mobileControls) mobileControls.classList.add('hidden');
 
         // Listen for settings changes
         this._unsubs.push(
@@ -349,23 +353,16 @@ export class MainMenuScene extends Scene {
     }
 
     _startNewGame() {
-        // Initialize fresh game state
-        const newGameData = {
-            playerName: 'Trainer',
-            gold: 500,
-            team: [],
-            collection: [],
-            currentRegion: 'verdant_temple',
-            questLog: [],
-            playTime: 0,
-            newGame: true,
-        };
+        // Use GameManager to create properly initialized game state
+        // (includes 3 starter sprites, inventory, correct starting area)
+        this.engine.gameManager.startNewGame();
+        const playerData = this.engine.gameManager.playerData;
 
-        eventBus.emit(GameEvents.GAME_LOADED, newGameData);
+        eventBus.emit(GameEvents.GAME_LOADED, playerData);
 
         this.engine.audio.stopMusic(400);
         this.engine.scenes.changeTo('overworld', {
-            gameData: newGameData,
+            gameData: playerData,
             fromNewGame: true,
         });
     }

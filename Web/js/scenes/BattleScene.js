@@ -20,6 +20,7 @@ import { TurnOrderSystem } from '../systems/battle/TurnOrderSystem.js';
 import { BattleAI } from '../systems/battle/BattleAI.js';
 import { StatusEffectSystem } from '../systems/battle/StatusEffectSystem.js';
 import { AbilityExecutor } from '../systems/battle/AbilityExecutor.js';
+import { AssetRegistry } from '../data/AssetRegistry.js';
 
 // ── Layout Constants ────────────────────────────────────────────────────────
 const GRID_PADDING_X = 24;
@@ -176,6 +177,17 @@ export class BattleScene extends Scene {
                 .then(img => { this._bgImage = img; })
                 .catch(() => {});
         }
+
+        // Preload fallback character sheets (Characters ASAI: 128x128, 4x4, 32x32 frames)
+        this._fallbackPlayerSheet = null;
+        this._fallbackEnemySheet = null;
+        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png')
+            .then(img => { this._fallbackPlayerSheet = img; }).catch(() => {});
+        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/Skeleton1.png')
+            .then(img => { this._fallbackEnemySheet = img; }).catch(() => {});
+
+        // Preload sprite images for all units before battle renders
+        this._preloadUnitSprites([...this._playerTeamData, ...this._enemyTeamData]);
 
         // Build DOM overlays
         this._createDOMOverlays();
@@ -416,31 +428,43 @@ export class BattleScene extends Scene {
                 if (!cache) {
                     cache = { spriteImg: null, x: cellX, y: cellY };
                     this._unitRenderCache.set(unit, cache);
-                    // Attempt to load sprite image
+                    // Attempt to load sprite image using AssetRegistry lookup
                     const inst = unit.spriteInstance;
-                    if (inst && inst.spriteAsset) {
-                        this.engine.assets.loadImage(inst.spriteAsset)
-                            .then(img => { cache.spriteImg = img; })
+                    const spritePath = this._getSpritePathForInstance(inst);
+                    if (spritePath) {
+                        this.engine.assets.loadImage(spritePath)
+                            .then(img => { if (img) cache.spriteImg = img; })
                             .catch(() => {});
                     }
                 }
                 cache.x = cellX;
                 cache.y = cellY;
 
-                // Draw sprite (image or fallback circle)
+                // Draw sprite (image or fallback character sheet or fallback circle)
                 if (cache.spriteImg && cache.spriteImg.complete) {
                     renderer.drawImageRaw(cache.spriteImg, spriteX, spriteY, SPRITE_SIZE, SPRITE_SIZE);
                 } else {
-                    // Fallback: colored circle with element color
-                    const elemColor = ELEMENT_COLORS[unit.elementTypes[0]] || '#888888';
-                    ctx.fillStyle = elemColor;
-                    ctx.beginPath();
-                    ctx.arc(centerX, spriteY + SPRITE_SIZE / 2, SPRITE_SIZE / 2 - 2, 0, Math.PI * 2);
-                    ctx.fill();
+                    // Try fallback character sheet
+                    const sheet = unit.team === 0 ? this._fallbackPlayerSheet : this._fallbackEnemySheet;
+                    if (sheet && sheet.complete) {
+                        // Characters ASAI: 128x128, 4 cols x 4 rows, 32x32 per frame
+                        const fw = 32, fh = 32;
+                        ctx.drawImage(sheet, 0, 0, fw, fh,
+                            spriteX, spriteY, SPRITE_SIZE, SPRITE_SIZE);
+                    } else {
+                        // Final fallback: colored circle
+                        const elemColor = ELEMENT_COLORS[unit.elementTypes[0]] || '#888888';
+                        ctx.fillStyle = elemColor;
+                        ctx.beginPath();
+                        ctx.arc(centerX, spriteY + SPRITE_SIZE / 2, SPRITE_SIZE / 2 - 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
 
                     // Team indicator border
                     ctx.strokeStyle = unit.team === 0 ? '#3399ff' : '#ff3333';
                     ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(centerX, spriteY + SPRITE_SIZE / 2, SPRITE_SIZE / 2 - 2, 0, Math.PI * 2);
                     ctx.stroke();
 
                     // Level text on the sprite
@@ -1344,6 +1368,75 @@ export class BattleScene extends Scene {
     // ═══════════════════════════════════════════════════════════════════
     // Helpers
     // ═══════════════════════════════════════════════════════════════════
+
+    /**
+     * Resolve the sprite image path for a unit's instance using AssetRegistry.
+     * Falls back to FALLBACK_SPRITE if formId/raceId cannot be resolved.
+     * @param {object} inst - The spriteInstance on a BattleUnit, or the instance from team data.
+     * @returns {string|null} A path suitable for engine.assets.loadImage(), or null.
+     */
+    _getSpritePathForInstance(inst) {
+        if (!inst) return null;
+
+        // If the instance already has a spriteAsset path, use it directly
+        if (inst.spriteAsset) return inst.spriteAsset;
+
+        // Look up from AssetRegistry using formId
+        const formId = inst.formId ?? inst.form_id ?? null;
+        if (formId != null) {
+            const registryPath = AssetRegistry.CHARACTER_SPRITES[formId];
+            if (registryPath) {
+                // Registry paths are relative from Web/js/data/ (e.g. "../Sprites/Monsters/Slime.png").
+                // AssetLoader.resolvePath prepends _basePath ("..") to non-absolute paths,
+                // so we need to strip the leading "../" to get "Sprites/Monsters/Slime.png"
+                // which resolves to "../Sprites/Monsters/Slime.png" after resolvePath.
+                if (registryPath.startsWith('../')) {
+                    return registryPath.slice(3);
+                }
+                return registryPath;
+            }
+        }
+
+        // Try computing formId from raceId (default to stage 1)
+        const raceId = inst.raceId ?? inst.race_id ?? null;
+        if (raceId != null) {
+            const computedFormId = raceId * 3 - 2; // Stage 1 form
+            const registryPath = AssetRegistry.CHARACTER_SPRITES[computedFormId];
+            if (registryPath) {
+                if (registryPath.startsWith('../')) {
+                    return registryPath.slice(3);
+                }
+                return registryPath;
+            }
+        }
+
+        // Last resort: use the fallback sprite
+        const fallback = AssetRegistry.FALLBACK_SPRITE;
+        if (fallback && fallback.startsWith('../')) {
+            return fallback.slice(3);
+        }
+        return fallback || null;
+    }
+
+    /**
+     * Preload sprite images for all units that will be in the battle.
+     * Called during enter() so images are cached before the first render frame.
+     * @param {object[]} teamDataEntries - Array of team data objects with instance property.
+     */
+    _preloadUnitSprites(teamDataEntries) {
+        const pathsToLoad = new Set();
+        for (const data of teamDataEntries) {
+            const inst = data.instance || data;
+            const path = this._getSpritePathForInstance(inst);
+            if (path) {
+                pathsToLoad.add(path);
+            }
+        }
+        // Fire off all loads in parallel; they will be cached by AssetLoader
+        for (const path of pathsToLoad) {
+            this.engine.assets.loadImage(path).catch(() => {});
+        }
+    }
 
     _screenToGrid(px, py) {
         const gx = this._gridOriginX;

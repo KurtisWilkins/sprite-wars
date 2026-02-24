@@ -14,9 +14,9 @@ export class Engine {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
 
-        // Design resolution (portrait mobile)
-        this.designWidth = 540;
-        this.designHeight = 960;
+        // Design resolution (landscape mobile)
+        this.designWidth = 960;
+        this.designHeight = 540;
         this.scale = 1;
 
         // Timing

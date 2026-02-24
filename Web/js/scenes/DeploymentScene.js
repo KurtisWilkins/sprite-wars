@@ -1,8 +1,8 @@
 /**
  * DeploymentScene -- Pre-battle team deployment screen for Sprite Wars.
- * Allows the player to select 5 sprites from their party (up to 6) and
- * position them on the player's side (left 2 columns) of the 6x4 grid
- * before entering battle.
+ * Allows the player to select 7 sprites from their party and position them
+ * on the player's side (left 3 columns) of the 7x9 grid before entering
+ * battle. Player occupies rows 0-4 (5 rows), enemy rows 5-8 (4 rows).
  *
  * Uses Canvas for the grid preview and DOM panels for the roster/detail UI.
  *
@@ -15,14 +15,14 @@ import { eventBus, GameEvents } from '../core/EventBus.js';
 import { BattleGrid } from '../systems/battle/BattleGrid.js';
 
 // ── Layout Constants ────────────────────────────────────────────────────────
-const GRID_CELL_SIZE = 44;
-const GRID_GAP = 3;
+const GRID_CELL_SIZE = 36;
+const GRID_GAP = 2;
 const GRID_ORIGIN_X = 20;
-const GRID_ORIGIN_Y = 80;
+const GRID_ORIGIN_Y = 40;
 const ROSTER_PANEL_WIDTH = 180;
 const DETAIL_PANEL_HEIGHT = 160;
-const MAX_DEPLOY_UNITS = 5;
-const PLAYER_DEPLOY_COLS = 2; // columns 0-1 on the player side (rows 0-3)
+const MAX_DEPLOY_UNITS = 7;
+const PLAYER_DEPLOY_COLS = 3; // columns 0-2 on the player side (rows 0-4)
 
 // ── Colors ──────────────────────────────────────────────────────────────────
 const COLOR_BG = '#0e0e20';
@@ -102,7 +102,14 @@ export class DeploymentScene extends Scene {
         this._hoveredCell = null;
         this._detailSprite = null;
 
-        // Auto-deploy first 5 sprites in default positions
+        // Preload fallback character sprite sheets (Characters ASAI: 128x128, 4x4, 32x32 frames)
+        this._charSheets = {};
+        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png')
+            .then(img => { this._charSheets.player = img; }).catch(() => {});
+        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/Skeleton1.png')
+            .then(img => { this._charSheets.enemy = img; }).catch(() => {});
+
+        // Auto-deploy first 7 sprites in default positions
         this._autoDeployDefault();
 
         // Build DOM
@@ -194,7 +201,7 @@ export class DeploymentScene extends Scene {
             baseline: 'bottom',
         });
 
-        // Draw the player-side grid (rows 0-3, all 6 columns, but only cols 0-1 are deployable)
+        // Draw the player-side grid (rows 0-4, all 7 columns, but only cols 0-2 are deployable)
         for (let y = 0; y < BattleGrid.GRID_HEIGHT_PER_SIDE; y++) {
             for (let x = 0; x < BattleGrid.GRID_WIDTH; x++) {
                 const cellX = gx + x * (GRID_CELL_SIZE + GRID_GAP);
@@ -247,42 +254,33 @@ export class DeploymentScene extends Scene {
 
     _renderEnemyPreview(ctx, renderer) {
         const gx = GRID_ORIGIN_X;
-        const gy = GRID_ORIGIN_Y + BattleGrid.GRID_HEIGHT_PER_SIDE * (GRID_CELL_SIZE + GRID_GAP) + 20;
+        const gy = GRID_ORIGIN_Y;
 
-        // Label
-        renderer.drawText('Enemy Formation', gx, gy - 14, {
+        // Enemy preview label (above the right-side columns)
+        const enemyColStart = PLAYER_DEPLOY_COLS + 1; // column 4
+        const enemyLabelX = gx + enemyColStart * (GRID_CELL_SIZE + GRID_GAP);
+        renderer.drawText('Enemy Preview', enemyLabelX, gy - 14, {
             color: '#cc5555',
             font: 'bold 10px sans-serif',
             align: 'left',
             baseline: 'bottom',
         });
 
-        // Enemy grid preview (2 rows for preview)
-        const previewRows = 2;
-        for (let y = 0; y < previewRows; y++) {
-            for (let x = 0; x < BattleGrid.GRID_WIDTH; x++) {
-                const cellX = gx + x * (GRID_CELL_SIZE + GRID_GAP);
-                const cellY = gy + y * (GRID_CELL_SIZE + GRID_GAP);
-
-                ctx.fillStyle = COLOR_GRID_ENEMY;
-                ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
-
-                ctx.strokeStyle = COLOR_GRID_LINES;
-                ctx.lineWidth = 1;
-                ctx.strokeRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
-            }
-        }
-
-        // Draw enemy units in preview positions
+        // Draw enemy units scattered across right-side columns (4-6) within the main grid
         for (let i = 0; i < this._enemyTeamData.length; i++) {
             const enemy = this._enemyTeamData[i];
-            const pos = enemy.position || { x: i % BattleGrid.GRID_WIDTH, y: Math.floor(i / BattleGrid.GRID_WIDTH) };
-            // Map enemy row to preview grid (just use row offset from enemy min)
-            const previewY = pos.y >= BattleGrid.ENEMY_ROW_MIN ? pos.y - BattleGrid.ENEMY_ROW_MIN : pos.y;
-            if (previewY >= previewRows) continue;
+            // Scatter enemies across columns 4-6 and available rows
+            const enemyCols = BattleGrid.GRID_WIDTH - enemyColStart; // 3 columns (4, 5, 6)
+            const previewX = enemyColStart + (i % enemyCols);
+            const previewY = Math.floor(i / enemyCols);
+            if (previewY >= BattleGrid.GRID_HEIGHT_PER_SIDE) continue;
 
-            const cellX = gx + pos.x * (GRID_CELL_SIZE + GRID_GAP);
+            const cellX = gx + previewX * (GRID_CELL_SIZE + GRID_GAP);
             const cellY = gy + previewY * (GRID_CELL_SIZE + GRID_GAP);
+
+            // Enemy cell background tint
+            ctx.fillStyle = COLOR_GRID_ENEMY;
+            ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
 
             this._renderEnemyInCell(ctx, renderer, enemy, cellX, cellY);
         }
@@ -297,17 +295,28 @@ export class DeploymentScene extends Scene {
         const centerY = cellY + GRID_CELL_SIZE / 2;
         const size = GRID_CELL_SIZE - 8;
 
-        // Draw colored circle with element
-        const elemTypes = raceData ? (raceData.elementTypes || []) : [];
-        const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#6688cc';
-
-        ctx.fillStyle = elemColor;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-        ctx.fill();
+        // Try to draw character sprite
+        const sheet = this._charSheets && this._charSheets.player;
+        if (sheet && sheet.complete) {
+            // Characters ASAI: 128x128, 4 cols x 4 rows, each frame 32x32
+            const fw = 32, fh = 32;
+            const col = 0; // idle frame
+            ctx.drawImage(sheet, col * fw, 0, fw, fh,
+                cellX + 4, cellY + 2, size, size);
+        } else {
+            // Fallback: colored circle with element
+            const elemTypes = raceData ? (raceData.elementTypes || []) : [];
+            const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#6688cc';
+            ctx.fillStyle = elemColor;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
 
         ctx.strokeStyle = '#3399ff';
         ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
         ctx.stroke();
 
         // Name/Level
@@ -332,18 +341,32 @@ export class DeploymentScene extends Scene {
         const centerY = cellY + GRID_CELL_SIZE / 2;
         const size = GRID_CELL_SIZE - 8;
 
-        const elemTypes = raceData ? (raceData.elementTypes || []) : [];
-        const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#cc5555';
-
-        ctx.fillStyle = elemColor;
-        ctx.globalAlpha = 0.7;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1.0;
+        // Try to draw character sprite
+        const sheet = this._charSheets && this._charSheets.enemy;
+        if (sheet && sheet.complete) {
+            // Characters ASAI: 128x128, 4 cols x 4 rows, each frame 32x32
+            const fw = 32, fh = 32;
+            const col = 0; // idle frame
+            ctx.globalAlpha = 0.7;
+            ctx.drawImage(sheet, col * fw, 0, fw, fh,
+                cellX + 4, cellY + 2, size, size);
+            ctx.globalAlpha = 1.0;
+        } else {
+            // Fallback: colored circle with element
+            const elemTypes = raceData ? (raceData.elementTypes || []) : [];
+            const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#cc5555';
+            ctx.fillStyle = elemColor;
+            ctx.globalAlpha = 0.7;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
 
         ctx.strokeStyle = '#cc3333';
         ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
         ctx.stroke();
 
         // Show a "?" or the name if scouted
@@ -438,7 +461,7 @@ export class DeploymentScene extends Scene {
         this._deployedUnits = [];
         const count = Math.min(MAX_DEPLOY_UNITS, this._availableSprites.length);
 
-        // Default positions: fill columns 0-1 from top to bottom
+        // Default positions: fill columns 0-2 from top to bottom
         const defaultPositions = [];
         for (let x = 0; x < PLAYER_DEPLOY_COLS; x++) {
             for (let y = 0; y < BattleGrid.GRID_HEIGHT_PER_SIDE; y++) {

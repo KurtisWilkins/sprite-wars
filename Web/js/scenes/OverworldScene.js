@@ -8,16 +8,78 @@
  */
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
+import { SpriteSheetGenerator } from '../core/SpriteSheetGenerator.js';
+
+// ── Admin Log ─────────────────────────────────────────────────────────────
+class AdminLog {
+    constructor() {
+        this._entries = [];
+        this._maxEntries = 500;
+        this._visible = false;
+        this._panel = document.getElementById('admin-log-panel');
+        this._content = document.getElementById('admin-log-content');
+
+        // Wire clear/close buttons
+        document.getElementById('admin-log-clear')?.addEventListener('click', () => this.clear());
+        document.getElementById('admin-log-close')?.addEventListener('click', () => this.hide());
+    }
+
+    log(message, level = 'info') {
+        const now = new Date();
+        const time = now.toLocaleTimeString('en-US', { hour12: false });
+        const entry = { time, message, level };
+        this._entries.push(entry);
+        if (this._entries.length > this._maxEntries) {
+            this._entries.shift();
+        }
+        this._appendDOM(entry);
+    }
+
+    _appendDOM(entry) {
+        if (!this._content) return;
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        div.innerHTML = `<span class="log-time">[${entry.time}]</span><span class="log-${entry.level}">${entry.message}</span>`;
+        this._content.appendChild(div);
+        this._content.scrollTop = this._content.scrollHeight;
+    }
+
+    show() {
+        this._visible = true;
+        if (this._panel) this._panel.classList.remove('hidden');
+        // Show admin button in HUD
+        const adminBtn = document.getElementById('hud-admin-btn');
+        if (adminBtn) adminBtn.classList.remove('hidden');
+    }
+
+    hide() {
+        this._visible = false;
+        if (this._panel) this._panel.classList.add('hidden');
+    }
+
+    toggle() {
+        if (this._visible) this.hide(); else this.show();
+    }
+
+    clear() {
+        this._entries = [];
+        if (this._content) this._content.innerHTML = '';
+    }
+
+    get isVisible() { return this._visible; }
+}
 
 // ── Map Constants ──────────────────────────────────────────────────────────
 const TILE_SIZE = 32;
 const TILE_DRAW_SIZE = 32;
-const PLAYER_SIZE = 24;
-const PLAYER_SPEED = 120; // pixels per second
+const PLAYER_SIZE = 28;          // Larger character fills more of the tile (classic RPG style)
+const NPC_DRAW_HALFSIZE = 14;    // NPC render radius matches player proportions
+const PLAYER_SPEED = 120;        // pixels per second
 const NPC_INTERACT_DISTANCE = 40;
 const ENCOUNTER_STEP_THRESHOLD = 30; // steps between encounter checks
 const ENCOUNTER_CHANCE = 0.15; // 15% chance per check
 const CAMERA_LERP_SPEED = 6.0;
+const CAMERA_ZOOM = 2.0;        // 2x zoom for classic RPG look (Pokemon/Zelda/Dragon Quest)
 
 // ── Direction vectors ──────────────────────────────────────────────────────
 const DIR = {
@@ -28,15 +90,15 @@ const DIR = {
 };
 
 // ── Default region map data (used when no external map loaded) ─────────────
-const DEFAULT_MAP_WIDTH = 30;
-const DEFAULT_MAP_HEIGHT = 20;
+const DEFAULT_MAP_WIDTH = 24;
+const DEFAULT_MAP_HEIGHT = 24;
 
 export class OverworldScene extends Scene {
     constructor(engine) {
         super(engine);
 
         // Region / map state
-        this._currentRegion = 'verdant_temple';
+        this._currentRegion = 'starter_town';
         this._mapData = null;      // { width, height, layers[], collisionMap[], npcs[], transitions[], encounterZones[] }
         this._tilesetImg = null;
 
@@ -81,28 +143,70 @@ export class OverworldScene extends Scene {
         // Map-edge boundaries
         this._mapPixelWidth = 0;
         this._mapPixelHeight = 0;
+
+        // Debug overlay (toggle with Ctrl+G)
+        this._debugMode = false;
+        this._debugHoveredTile = null;
+
+        // Admin log
+        this._adminLog = new AdminLog();
+
+        // HUD button handlers (stored for cleanup)
+        this._hudSpritesBtnHandler = null;
+        this._hudBagBtnHandler = null;
+        this._hudAdminBtnHandler = null;
+
+        // Mobile controls handlers (stored for cleanup)
+        this._mobileControlHandlers = [];
+        this._mobileActiveTouches = new Set();
+
+        // Throttled position logging
+        this._lastPosLogTime = 0;
+
+        // Generated walk-cycle sprite sheets from Units body types
+        this._generatedSpriteSheets = [];
     }
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
 
     async init() {
-        // Load player sprite
+        // Load player sprite (Characters ASAI: 128x128, 4 cols x 4 rows, 32x32 per frame)
         try {
             this._player.spriteImg = await this.engine.assets.loadImage(
-                'Sprites/Characters/player_overworld.png'
+                'Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png'
             );
         } catch (_) {
             this._player.spriteImg = null;
+        }
+
+        // Load Units body type sheet and generate walk-cycle sprite sheets with arms/legs
+        try {
+            const unitsSheet = await this.engine.assets.loadImage(
+                'Sprites/Units/newbodytypes (1).png'
+            );
+            if (unitsSheet) {
+                this._generatedSpriteSheets = SpriteSheetGenerator.generateFromSheet(unitsSheet);
+                // Convert first generated sheet to player sprite (if no ASAI sprite loaded)
+                if (!this._player.spriteImg && this._generatedSpriteSheets.length > 0) {
+                    this._player.spriteImg = await SpriteSheetGenerator.toImage(
+                        this._generatedSpriteSheets[0]
+                    );
+                }
+            }
+        } catch (_) {
+            this._generatedSpriteSheets = [];
         }
 
         this.initialized = true;
     }
 
     enter(data) {
-        this._gameData = data.gameData || data.saveData || {};
+        // Pull game data from GameManager first (canonical source), fall back to passed data
+        const gm = this.engine.gameManager;
+        this._gameData = (gm && gm.playerData) ? gm.playerData : (data.gameData || data.saveData || {});
 
         // Determine starting region
-        this._currentRegion = this._gameData.currentRegion || 'verdant_temple';
+        this._currentRegion = this._gameData.currentAreaId || this._gameData.currentRegion || 'starter_town';
 
         // Load the region
         this._loadRegion(this._currentRegion, data.spawnPoint || null);
@@ -147,10 +251,68 @@ export class OverworldScene extends Scene {
             menuBtn.addEventListener('click', this._menuHandler);
         }
 
+        // Wire HUD action buttons
+        const spriteBtn = document.getElementById('hud-sprites-btn');
+        if (spriteBtn) {
+            this._hudSpritesBtnHandler = () => this._openSpriteCenter();
+            spriteBtn.addEventListener('click', this._hudSpritesBtnHandler);
+        }
+
+        const bagBtn = document.getElementById('hud-bag-btn');
+        if (bagBtn) {
+            this._hudBagBtnHandler = () => this._openBag();
+            bagBtn.addEventListener('click', this._hudBagBtnHandler);
+        }
+
+        const adminBtn = document.getElementById('hud-admin-btn');
+        if (adminBtn) {
+            this._hudAdminBtnHandler = () => this._toggleAdminLog();
+            adminBtn.addEventListener('click', this._hudAdminBtnHandler);
+        }
+
+        // Admin log event subscriptions
+        const logEvents = [
+            [GameEvents.BATTLE_STARTED, 'event', 'Battle started'],
+            [GameEvents.BATTLE_ENDED, 'event', 'Battle ended'],
+            [GameEvents.ENCOUNTER_TRIGGERED, 'event', 'Wild encounter triggered'],
+            [GameEvents.NPC_INTERACTED, 'info', data => `NPC interaction: ${data?.name || 'unknown'}`],
+            [GameEvents.SCENE_CHANGED, 'info', data => `Scene changed: ${data || 'unknown'}`],
+            [GameEvents.ITEM_OBTAINED, 'info', data => `Item obtained: ${data?.name || data}`],
+            [GameEvents.ITEM_USED, 'info', data => `Item used: ${data?.name || data}`],
+            [GameEvents.GOLD_CHANGED, 'info', amount => `Gold: ${amount}g`],
+            [GameEvents.TEAM_CHANGED, 'info', 'Team roster changed'],
+            [GameEvents.EQUIPMENT_CHANGED, 'info', 'Equipment changed'],
+            [GameEvents.QUEST_STARTED, 'event', data => `Quest started: ${data?.name || data}`],
+            [GameEvents.QUEST_COMPLETED, 'event', data => `Quest completed: ${data?.name || data}`],
+            [GameEvents.GAME_SAVED, 'admin', data => `Game saved (slot ${data?.slot ?? '?'}, ${data?.auto ? 'auto' : 'manual'})`],
+            [GameEvents.GAME_LOADED, 'admin', 'Game data loaded'],
+            [GameEvents.LEVEL_UP, 'event', data => `Level up! ${data?.name || ''} → Lv.${data?.level || '?'}`],
+            [GameEvents.EVOLUTION_COMPLETE, 'event', data => `Evolution: ${data?.from || '?'} → ${data?.to || '?'}`],
+            [GameEvents.SCREEN_OPENED, 'info', screen => `Screen opened: ${screen}`],
+            [GameEvents.SCREEN_CLOSED, 'info', screen => `Screen closed: ${screen}`],
+        ];
+
+        for (const [event, level, msgOrFn] of logEvents) {
+            this._unsubs.push(
+                eventBus.on(event, (data) => {
+                    const msg = typeof msgOrFn === 'function' ? msgOrFn(data) : msgOrFn;
+                    this._adminLog.log(msg, level);
+                })
+            );
+        }
+
+        // Log initial state
+        this._adminLog.log(`Entered overworld — Region: ${this._currentRegion}`, 'admin');
+        this._adminLog.log(`Player: ${this._gameData.playerName || 'Trainer'}, Gold: ${this._gameData.gold || 0}`, 'admin');
+        this._adminLog.log(`Team size: ${(this._gameData.team || []).length}`, 'admin');
+
         // Play overworld music
         this.engine.audio.playMusic(
             this.engine.assets.resolvePath('Audio/Music/OverworldTheme.wav')
         );
+
+        // Show mobile controls and wire up touch events
+        this._setupMobileControls();
 
         eventBus.emit(GameEvents.SCREEN_OPENED, 'overworld');
     }
@@ -176,6 +338,31 @@ export class OverworldScene extends Scene {
             this._menuHandler = null;
         }
 
+        // Remove HUD button handlers
+        const spriteBtn = document.getElementById('hud-sprites-btn');
+        if (spriteBtn && this._hudSpritesBtnHandler) {
+            spriteBtn.removeEventListener('click', this._hudSpritesBtnHandler);
+            this._hudSpritesBtnHandler = null;
+        }
+
+        const bagBtn = document.getElementById('hud-bag-btn');
+        if (bagBtn && this._hudBagBtnHandler) {
+            bagBtn.removeEventListener('click', this._hudBagBtnHandler);
+            this._hudBagBtnHandler = null;
+        }
+
+        const adminBtn = document.getElementById('hud-admin-btn');
+        if (adminBtn && this._hudAdminBtnHandler) {
+            adminBtn.removeEventListener('click', this._hudAdminBtnHandler);
+            this._hudAdminBtnHandler = null;
+        }
+
+        // Hide admin log panel
+        this._adminLog.hide();
+
+        // Hide mobile controls and remove touch event listeners
+        this._teardownMobileControls();
+
         eventBus.emit(GameEvents.SCREEN_CLOSED, 'overworld');
     }
 
@@ -195,7 +382,7 @@ export class OverworldScene extends Scene {
         this._mapPixelHeight = (this._mapData.height || DEFAULT_MAP_HEIGHT) * TILE_SIZE;
 
         // Load tileset for this region
-        const tilesetPath = this._mapData.tileset || 'Sprites/Tilesets/verdant_tileset.png';
+        const tilesetPath = this._mapData.tileset || 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png';
         try {
             this._tilesetImg = await this.engine.assets.loadImage(tilesetPath);
         } catch (_) {
@@ -209,19 +396,34 @@ export class OverworldScene extends Scene {
             x: (npcDef.gridX || 5) * TILE_SIZE + TILE_SIZE / 2,
             y: (npcDef.gridY || 5) * TILE_SIZE + TILE_SIZE / 2,
             spriteImg: null,
+            spritePath: npcDef.spritePath || null,
             dialogue: npcDef.dialogue || ['...'],
             facing: npcDef.facing || 'down',
             type: npcDef.type || 'talk', // talk, shop, quest, heal
         }));
 
-        // Load NPC sprites
+        // Load individual NPC sprites (Characters ASAI: 128x128, 4 cols x 4 rows, 32x32 per frame)
+        let generatedSheetIdx = 0;
         for (const npc of this._npcs) {
-            try {
-                npc.spriteImg = await this.engine.assets.loadImage(
-                    `Sprites/Characters/npc_${npc.type}.png`
-                );
-            } catch (_) {
-                npc.spriteImg = null;
+            npc.spriteSheet = null;
+            npc.spriteFrameW = 32;
+            npc.spriteFrameH = 32;
+            npc.spriteCols = 4;
+            npc.spriteRows = 4;
+            if (npc.spritePath) {
+                try {
+                    npc.spriteSheet = await this.engine.assets.loadImage(npc.spritePath);
+                } catch (_) {
+                    npc.spriteSheet = null;
+                }
+            }
+            // Fallback: assign a generated walk-cycle sheet from Units body types
+            if (!npc.spriteSheet && this._generatedSpriteSheets.length > 0) {
+                const sheetCanvas = this._generatedSpriteSheets[generatedSheetIdx % this._generatedSpriteSheets.length];
+                try {
+                    npc.spriteSheet = await SpriteSheetGenerator.toImage(sheetCanvas);
+                } catch (_) { /* ignore */ }
+                generatedSheetIdx++;
             }
         }
 
@@ -257,76 +459,470 @@ export class OverworldScene extends Scene {
     }
 
     _generateFallbackMap(regionId) {
+        // Dispatch to dedicated map builders for hand-crafted regions
+        switch (regionId) {
+            case 'starter_town':
+                return this._buildStarterTownMap();
+            case 'starter_route':
+                return this._buildStarterRouteMap();
+            case 'fire_temple':
+                return this._buildFireTempleMap();
+            default:
+                return this._buildGenericFallbackMap(regionId);
+        }
+    }
+
+    // ── Generic fallback for unknown regions ──────────────────────────────
+    _buildGenericFallbackMap(regionId) {
         const w = DEFAULT_MAP_WIDTH;
         const h = DEFAULT_MAP_HEIGHT;
-
-        // Create a basic grass map with walls along edges
         const ground = [];
         const collision = [];
         for (let y = 0; y < h; y++) {
             for (let x = 0; x < w; x++) {
                 const isEdge = x === 0 || y === 0 || x === w - 1 || y === h - 1;
-                ground.push(isEdge ? 1 : 0); // 1 = wall tile, 0 = grass tile
+                ground.push(isEdge ? 6 : 0);
                 collision.push(isEdge ? 1 : 0);
             }
         }
-
-        // Scatter some decorative tiles (trees, rocks)
+        // Scatter decorative tiles avoiding spawn
         for (let i = 0; i < 20; i++) {
             const rx = 2 + Math.floor(Math.random() * (w - 4));
             const ry = 2 + Math.floor(Math.random() * (h - 4));
             const idx = ry * w + rx;
-            // Avoid spawn area
-            if (Math.abs(rx - 5) < 3 && Math.abs(ry - 10) < 3) continue;
-            ground[idx] = 2; // tree/decoration tile
-            collision[idx] = 1; // solid
+            if (Math.abs(rx - 12) < 3 && Math.abs(ry - 12) < 3) continue;
+            ground[idx] = Math.random() < 0.5 ? 6 : 9;
+            collision[idx] = 1;
         }
-
         return {
             id: regionId,
             width: w,
             height: h,
-            tileset: 'Sprites/Tilesets/verdant_tileset.png',
+            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png',
+            tilesetTileSize: 16,
+            tileIndexMap: {
+                0: 171, 1: 173, 2: 174, 3: 175, 4: 199, 5: 198,
+                6: 103, 7: 104, 8: 136, 9: 36, 10: 117, 11: 85,
+                12: 149, 13: 78, 14: 206, 15: 178, 16: 242, 17: 179,
+                18: 143, 19: 7,
+            },
             layers: [ground],
             collisionMap: collision,
-            defaultSpawn: { x: 5, y: 10 },
+            defaultSpawn: { x: 12, y: 12 },
+            npcs: [],
+            transitions: [],
+            encounterZones: [
+                { x1: 1, y1: 1, x2: w - 2, y2: h - 2, encounterRate: 0.15, minLevel: 1, maxLevel: 5 },
+            ],
+        };
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  STARTER TOWN (Willowshade) — 48x48 large overworld village
+    //  Districts: Residential NW, Lake NE, Healer W, Town Square center,
+    //  Training E, Merchant SW, Lab SE. No encounters inside town.
+    // ══════════════════════════════════════════════════════════════════════
+    _buildStarterTownMap() {
+        const w = 48;
+        const h = 48;
+
+        // Tile legend: 0=grass 1=pathH 2=pathV 3=cross 4=water 5=waterEdge
+        // 6=treeDark 7=treeLight 8=flowers 9=rock 10=wall 11=roof
+        // 12=door 13=fence 14=bridge 15=sign 16=chest 17=lamp 18=fountain 19=stairs
+
+        const ground = new Array(w * h).fill(0);
+        const S = (x, y, t) => { if (x >= 0 && x < w && y >= 0 && y < h) ground[y * w + x] = t; };
+        const F = (x1, y1, x2, y2, t) => { for (let y = y1; y <= y2; y++) for (let x = x1; x <= x2; x++) S(x, y, t); };
+        const hP = (x1, x2, y) => { for (let x = x1; x <= x2; x++) S(x, y, 1); };
+        const vP = (x, y1, y2) => { for (let y = y1; y <= y2; y++) S(x, y, 2); };
+        const X = (x, y) => S(x, y, 3);
+
+        // ── FOREST BORDERS (2 thick, mixed trees) ───────────────────────
+        for (let y = 0; y <= 1; y++) for (let x = 0; x < w; x++) S(x, y, (x+y)%3===0?7:6);
+        for (let y = h-2; y < h; y++) for (let x = 0; x < w; x++) S(x, y, (x+y)%3===0?7:6);
+        for (let x = 0; x <= 1; x++) for (let y = 0; y < h; y++) S(x, y, (x+y)%3===0?7:6);
+        for (let x = w-2; x < w; x++) for (let y = 0; y < h; y++) S(x, y, (x+y)%3===0?7:6);
+        for (let x = 0; x < w; x++) { if (x%5<2) S(x,2,6); if ((x+2)%7<2) S(x,h-3,7); }
+        for (let y = 0; y < h; y++) { if (y%5<2) S(2,y,6); if ((y+2)%7<2) S(w-3,y,7); }
+
+        // ── MAIN ROADS ──────────────────────────────────────────────────
+        hP(3,44,24); hP(3,44,25); vP(24,3,44); vP(25,3,44);
+        X(24,24); X(25,24); X(24,25); X(25,25);
+        hP(5,43,12); hP(5,43,36); vP(12,5,43); vP(36,5,43);
+        X(12,12); X(24,12); X(25,12); X(36,12);
+        X(12,24); X(12,25); X(36,24); X(36,25);
+        X(12,36); X(24,36); X(25,36); X(36,36);
+
+        // ── RESIDENTIAL NW (cols 3-22, rows 3-11) ──────────────────────
+        F(5,4,8,4,11); F(5,5,5,6,10); F(8,5,8,6,10);
+        S(6,5,0); S(7,5,0); S(6,6,12); S(7,6,0);
+        S(4,5,8); S(4,6,8); S(9,5,8); S(9,7,8);
+        vP(6,7,11); X(6,12);
+        F(14,4,17,4,11); F(14,5,14,6,10); F(17,5,17,6,10);
+        S(15,5,0); S(16,5,0); S(15,6,12); S(16,6,0);
+        S(13,5,8); S(18,6,8); vP(15,7,11); X(15,12);
+        F(20,4,22,4,11); S(20,5,10); S(22,5,10); S(21,5,12);
+        F(3,3,3,11,13); F(3,3,10,3,13);
+        S(6,9,17); S(15,9,17); S(10,6,17);
+
+        // ── LAKE NE (cols 28-44, rows 3-14) ────────────────────────────
+        F(31,5,42,10,4);
+        F(30,5,30,10,5); F(43,5,43,10,5); F(31,4,42,4,5); F(31,11,42,11,5);
+        S(30,4,5); S(43,4,5); S(30,11,5); S(43,11,5);
+        S(36,7,0); S(37,7,0); S(36,8,0); S(37,8,16);
+        F(34,11,35,11,14); hP(34,35,12);
+        S(29,7,14); S(29,8,14);
+        S(28,3,7); S(29,3,6); S(30,3,7); S(44,3,6); S(43,3,7);
+        S(28,12,7); S(29,12,6);
+        S(28,5,8); S(28,9,8); S(44,6,8); S(44,9,8);
+        hP(26,33,8); X(36,8); S(28,8,15);
+
+        // ── HEALER W (cols 3-11, rows 16-23) ───────────────────────────
+        F(5,17,8,17,11); F(5,18,5,19,10); F(8,18,8,19,10);
+        S(6,18,0); S(7,18,0); S(6,19,0); S(7,19,12);
+        F(4,16,9,16,8); S(4,17,8); S(9,17,8); S(4,18,8); S(9,18,8);
+        S(4,20,8); S(5,20,8); S(8,20,8); S(9,20,8);
+        vP(7,20,24); X(7,24); hP(8,11,20); X(12,20);
+        S(4,22,9); S(5,22,9); S(6,22,9);
+        S(4,23,8); S(5,23,8); S(6,23,8); S(6,20,17);
+
+        // ── TOWN SQUARE (cols 17-31, rows 20-29) ───────────────────────
+        F(18,21,30,28,1);
+        S(23,24,18); S(26,24,18); S(23,25,18); S(26,25,18);
+        S(18,21,17); S(30,21,17); S(18,28,17); S(30,28,17);
+        S(21,23,17); S(28,23,17); S(21,26,17); S(28,26,17);
+        S(17,24,15); S(31,24,15);
+        S(19,22,8); S(20,22,8); S(29,22,8); S(30,22,8);
+        S(19,27,8); S(20,27,8); S(29,27,8); S(30,27,8);
+        X(24,21); X(25,21); X(24,28); X(25,28);
+
+        // ── TRAINING E (cols 38-44, rows 18-28) ────────────────────────
+        F(38,18,44,18,13); F(38,28,44,28,13); F(38,18,38,28,13); F(44,18,44,28,13);
+        S(38,23,12); S(38,24,12); F(39,19,43,27,0);
+        S(40,20,9); S(43,20,9); S(40,26,9); S(43,26,9); S(42,23,16);
+        hP(37,38,23); hP(37,38,24); X(36,23); X(36,24);
+        S(37,22,17); S(37,25,17);
+
+        // ── MERCHANT SW (cols 3-16, rows 30-42) ────────────────────────
+        F(4,31,7,31,11); F(4,32,4,33,10); F(7,32,7,33,10);
+        S(5,32,0); S(6,32,0); S(5,33,12); S(6,33,0);
+        F(10,31,13,31,11); F(10,32,10,33,10); F(13,32,13,33,10);
+        S(11,32,0); S(12,32,0); S(11,33,0); S(12,33,12);
+        F(4,37,16,37,13); F(4,40,16,40,13);
+        F(5,38,7,38,16); F(9,38,11,38,16); F(13,38,15,38,16); F(4,39,16,39,1);
+        F(4,42,7,42,11); F(4,43,4,44,10); F(7,43,7,44,10);
+        S(5,43,0); S(6,43,12); S(5,44,0); S(6,44,0);
+        vP(8,34,36); X(8,36); hP(5,11,34); hP(5,11,36); X(8,34); X(12,34);
+        S(3,37,17); S(3,40,17); S(17,37,17);
+
+        // ── PROFESSOR LAB SE (cols 30-43, rows 30-40) ──────────────────
+        F(32,31,39,31,11); F(32,32,39,32,11);
+        F(32,33,32,35,10); F(39,33,39,35,10); F(33,33,38,33,10); F(33,34,38,34,0);
+        S(35,35,12); S(36,35,12); S(34,35,10); S(37,35,10);
+        S(33,35,10); S(38,35,10); S(32,35,10); S(39,35,10);
+        F(32,37,39,37,13); F(32,39,39,39,13);
+        S(35,37,12); S(36,37,12); F(33,38,38,38,8); S(35,38,18);
+        S(34,36,15); vP(35,35,36); vP(36,35,36); X(35,36); X(36,36);
+        hP(26,34,34); S(31,35,17); S(40,35,17);
+
+        // ── EXITS ───────────────────────────────────────────────────────
+        S(45,24,19); S(45,25,19); S(46,24,9); S(46,25,9);
+        S(47,24,0); S(47,25,0); S(44,23,15); S(44,26,9); S(45,23,9); S(45,26,9);
+        for (let x=21;x<=28;x++){S(x,h-2,0);S(x,h-1,0);}
+        hP(22,27,44); hP(22,27,45);
+        S(20,44,7); S(21,44,6); S(28,44,6); S(29,44,7);
+        S(20,45,6); S(21,45,7); S(28,45,7); S(29,45,6);
+        S(21,43,17); S(28,43,17); S(20,43,15);
+
+        // ── DETAILS ─────────────────────────────────────────────────────
+        for (const [tx,ty] of [[3,14],[4,14],[3,15],[10,3],[11,3],[19,3],[20,3],[3,28],[3,29],[4,29],[44,14],[43,14],[44,15],[43,30],[44,30],[44,31],[3,44],[4,44],[3,43],[10,44],[11,44],[38,44],[39,44],[44,42],[44,43],[27,3],[26,3],[22,3],[23,3],[20,14],[21,14]])
+            if (ground[ty*w+tx]===0) S(tx,ty,(tx+ty)%2?6:7);
+        for (const [fx,fy] of [[16,8],[17,8],[16,10],[30,14],[31,14],[32,14],[15,30],[16,30],[17,30],[42,14],[42,15],[19,42],[20,42],[29,42],[30,42],[14,19],[15,19],[33,16],[34,16],[35,16],[40,14],[41,14]])
+            if (ground[fy*w+fx]===0) S(fx,fy,8);
+        for (const [rx,ry] of [[3,13],[44,13],[3,35],[44,35],[10,2],[38,2],[10,45],[38,45]])
+            if (ground[ry*w+rx]===0) S(rx,ry,9);
+
+        const collision = ground.map(t=>[4,5,6,7,9,10,11,13].includes(t)?1:0);
+
+        return {
+            id: 'starter_town', width: w, height: h,
+            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png',
+            tilesetTileSize: 16,
+            tileIndexMap: { 0:171,1:173,2:174,3:175,4:199,5:198,6:103,7:104,8:136,9:36,10:117,11:85,12:149,13:78,14:206,15:178,16:242,17:179,18:143,19:7 },
+            layers: [ground],
+            collisionMap: collision,
+            defaultSpawn: { x: 24, y: 24 },
+            npcs: [
+                { id:'elder', name:'Temple Elder', gridX:24, gridY:23, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/PRIEST (1).png', dialogue:['Welcome to Willowshade, young trainer!','Our town has grown into a fine settlement.','Head east through the cave to reach the Blazecore Sanctum.','Or venture south through the gate to explore the Verdant Route.','Build your team and grow stronger before challenging the temple guardian.'] },
+                { id:'healer', name:'Healer Mira', gridX:7, gridY:20, type:'heal', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/NUN1 (1).png', dialogue:['Oh dear, your Sprites look exhausted!','Rest here a moment... Let me tend to them.','There we go -- all healed up! Good luck out there!'] },
+                { id:'shopkeeper', name:'Merchant Grin', gridX:8, gridY:35, type:'shop', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Merchant 1.png', dialogue:['Looking to buy supplies? You have come to the right place!','I stock potions, crystals, and other essentials.','Come back any time -- my door is always open!'] },
+                { id:'quest_guide', name:'Scout Renn', gridX:41, gridY:23, type:'quest', facing:'left', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Viking1.png', dialogue:['Blazecore Sanctum is through the cave to the east!','Fire-type Sprites lurk within. Their guardian is formidable.','I train here every day to prepare for the challenge.','If you bring me a Fire Gem, I can teach your Sprites fire resistance!'] },
+                { id:'mom', name:'Mom', gridX:6, gridY:7, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/NOBLELADY1 (1).png', dialogue:['Be careful out there, dear!','Remember to heal your Sprites at Mira\'s hut if they get hurt.','I\'ll always be here if you need me.'] },
+                { id:'father_byron', name:'Father Byron', gridX:35, gridY:35, type:'talk', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/PRIEST (1).png', dialogue:['Blessings upon you, young trainer!','I have devoted my life to studying the bond between Sprites and their tamers.','There are 24 known Sprite races, each with three evolution stages.','That is 72 distinct forms to discover!','Head south to the Verdant Route for your first encounters.'] },
+                { id:'fisherman', name:'Old Fisher Tom', gridX:29, gridY:8, type:'talk', facing:'right', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png', dialogue:['The lake here is home to some rare Water-type Sprites.','I have been fishing these waters for thirty years.','Legend says there is a treasure on the small island out there...'] },
+                { id:'guard', name:'Gate Guard Hal', gridX:24, gridY:43, type:'talk', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Viking3.png', dialogue:['Beyond this gate lies the Verdant Route.','Wild Sprites roam freely out there. Make sure you are prepared!','Stock up on potions before heading out.'] },
+                { id:'blacksmith', name:'Smith Doran', gridX:6, gridY:42, type:'shop', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Miner_leader.png', dialogue:['Need equipment? I forge the finest gear in Willowshade.','Bring me raw materials and I can craft something special.'] },
+                { id:'child', name:'Little Pip', gridX:22, gridY:26, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Theif 1.png', dialogue:['I am going to be the greatest Sprite tamer ever!','My dad says I am too young to leave town though...','Have you seen the big fountain? It is my favorite spot!'] },
+            ],
+            transitions: [
+                { gridX:45, gridY:24, width:2, height:2, targetRegion:'fire_temple', targetSpawn:{x:1,y:12} },
+                { gridX:22, gridY:46, width:6, height:2, targetRegion:'starter_route', targetSpawn:{x:16,y:1} },
+            ],
+            encounterZones: [],
+        };
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  STARTER ROUTE (Verdant Route) — 32x24 outdoor route with encounters
+    //  Connects Willowshade (north) to future areas (south/east).
+    //  Tall grass, winding paths, a few trainers, natural obstacles.
+    // ══════════════════════════════════════════════════════════════════════
+    _buildStarterRouteMap() {
+        const w = 32; const h = 24;
+        const ground = new Array(w * h).fill(0);
+        const S = (x, y, t) => { if (x>=0&&x<w&&y>=0&&y<h) ground[y*w+x]=t; };
+        const F = (x1,y1,x2,y2,t) => { for(let y=y1;y<=y2;y++) for(let x=x1;x<=x2;x++) S(x,y,t); };
+        const hP = (x1,x2,y) => { for(let x=x1;x<=x2;x++) S(x,y,1); };
+        const vP = (x,y1,y2) => { for(let y=y1;y<=y2;y++) S(x,y,2); };
+        const X = (x,y) => S(x,y,3);
+
+        // Borders
+        for(let x=0;x<w;x++){S(x,0,(x%3===0)?7:6);S(x,h-1,(x%3===0)?7:6);}
+        for(let y=0;y<h;y++){S(0,y,(y%3===0)?7:6);S(w-1,y,(y%3===0)?7:6);}
+
+        // North entrance (from town)
+        S(15,0,0); S(16,0,0); S(17,0,0); S(18,0,0);
+        vP(16,0,5); vP(17,0,5);
+
+        // Main path: north to south with bend
+        vP(16,5,11); vP(17,5,11);
+        X(16,11); X(17,11);
+        hP(17,24,11); hP(17,24,12);
+        X(24,11); X(24,12);
+        vP(24,12,22); vP(25,12,22);
+
+        // Tall grass patches (encounter zones) — use flowers(8) as tall grass
+        F(3,3,8,8,8); F(20,3,27,8,8); F(3,14,10,20,8); F(26,16,29,21,8);
+
+        // Trees as obstacles
+        S(10,4,6); S(11,4,7); S(12,5,6); S(10,7,7);
+        S(13,14,6); S(14,15,7); S(13,17,6);
+        S(22,15,7); S(23,16,6); S(22,19,7);
+
+        // Water feature (small pond)
+        F(5,10,8,11,4); S(4,10,5); S(9,10,5); S(4,11,5); S(9,11,5);
+        S(5,9,5); S(6,9,5); S(7,9,5); S(8,9,5);
+        S(5,12,5); S(6,12,5); S(7,12,5); S(8,12,5);
+
+        // Rocks
+        S(15,8,9); S(28,10,9); S(2,15,9); S(12,20,9);
+
+        // Signs
+        S(15,3,15); S(23,14,15);
+
+        // Lamps
+        S(15,6,17); S(25,14,17);
+
+        const collision = ground.map(t=>[4,5,6,7,9,10,11,13].includes(t)?1:0);
+
+        return {
+            id: 'starter_route', width: w, height: h,
+            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png',
+            tilesetTileSize: 16,
+            tileIndexMap: { 0:171,1:173,2:174,3:175,4:199,5:198,6:103,7:104,8:136,9:36,10:117,11:85,12:149,13:78,14:206,15:178,16:242,17:179,18:143,19:7 },
+            layers: [ground],
+            collisionMap: collision,
+            defaultSpawn: { x: 16, y: 1 },
+            npcs: [
+                { id:'ranger', name:'Ranger Kai', gridX:14, gridY:6, type:'talk', facing:'right', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Viking2.png', dialogue:['The tall grass here is full of wild Sprites!','Walk carefully and be ready for battle.','Stronger Sprites appear further along the route.'] },
+                { id:'trainer1', name:'Bug Catcher Tim', gridX:6, gridY:5, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Farmer 3.png', dialogue:['I love catching Bug-type Sprites!','They may be weak, but they evolve fast!'] },
+            ],
+            transitions: [
+                { gridX:15, gridY:0, width:4, height:1, targetRegion:'starter_town', targetSpawn:{x:24,y:44} },
+            ],
+            encounterZones: [
+                { x1:3, y1:3, x2:8, y2:8, encounterRate:0.15, minLevel:2, maxLevel:5 },
+                { x1:20, y1:3, x2:27, y2:8, encounterRate:0.15, minLevel:2, maxLevel:5 },
+                { x1:3, y1:14, x2:10, y2:20, encounterRate:0.18, minLevel:3, maxLevel:7 },
+                { x1:26, y1:16, x2:29, y2:21, encounterRate:0.20, minLevel:4, maxLevel:8 },
+            ],
+        };
+    }
+
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  FIRE TEMPLE (Blazecore Sanctum) — 24x24 cave/dungeon map
+    //  Pokemon-style dungeon: west entrance corridor -> T-junction,
+    //  north boss arena, south treasure room with lava, side rooms,
+    //  rest alcove with healer. All edges are cave wall (10).
+    // ══════════════════════════════════════════════════════════════════════
+    _buildFireTempleMap() {
+        const w = 24;
+        const h = 24;
+
+        // Cave tileset indices (repurposed for dungeon):
+        //  0  = stone floor       1  = path (horiz)     2  = path (vert)
+        //  3  = path intersection  4  = lava pool       5  = lava edge
+        //  6  = stalagmite (tall) 7  = stalagmite (sm)  8  = moss/rubble
+        //  9  = rock/boulder     10  = cave wall        11  = cave wall (top)
+        // 12  = archway/door     13  = pillar           14  = bridge (over lava)
+        // 15  = sign/rune stone  16  = chest/crate      17  = torch/brazier
+        // 18  = altar/shrine     19  = stairs/exit
+
+        // prettier-ignore
+        const ground = [
+            // Row 0  — solid cave wall (north border)
+            10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
+            // Row 1  — boss arena: north wall with corner pillars + torches
+            10,10,10,10,10,10,10,13,17, 0, 0, 0, 0, 0, 0,17,13,10,10,10,10,10,10,10,
+            // Row 2  — boss arena: open floor
+            10,10,10,10,10,10,10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,10,10,10,10,10,10,10,
+            // Row 3  — boss arena: altar at center-north
+            10,10,10,10,10,10,10, 0, 0, 0, 0,18, 0, 0, 0, 0, 0,10,10,10,10,10,10,10,
+            // Row 4  — boss arena: open floor with torches
+            10,10,10,10,10,10,10, 0,17, 0, 0, 0, 0, 0, 0,17, 0,10,10,10,10,10,10,10,
+            // Row 5  — boss arena: south wall with 2-tile boss door (archway)
+            10,10,10,10,10,10,10,13, 0, 0, 0, 0, 0, 0, 0, 0,13,10,10,10,10,10,10,10,
+            // Row 6  — boss door corridor: pillars flank 2-tile archway
+            10,10,10,10,10,10,10,10,10,10,13,12,12,13,10,10,10,10,10,10,10,10,10,10,
+            // Row 7  — north corridor: narrow 2-wide heading south from boss door
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 2, 0,10,10,10,10,10,10,10,10,10,10,
+            // Row 8  — north corridor with torch
+            10,10,10,10,10,10,10,10,10,17, 0, 2, 2, 0,17,10,10,10,10,10,10,10,10,10,
+            // Row 9  — corridor approaching T-junction, east side room opens
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 2, 0, 0, 0, 0, 0,10,10,10,10,10,10,
+            // Row 10 — T-junction row: east side room (encounter room)
+            10,10,10,10,10,10,10,10,10,10, 0, 3, 3, 1, 1,17, 0, 0,10,10,10,10,10,10,
+            // Row 11 — main E-W corridor: west entrance archway with torches
+            10,17,12,12, 1, 1, 1,17, 1, 1, 1, 3, 3, 0, 0, 0, 0, 0,10,10,10,10,10,10,
+            // Row 12 — main E-W corridor continues (2-tile-high corridor)
+            10,17,12,12, 1, 1, 1, 1, 1,17, 1, 3, 3, 1, 1, 0, 0,10,10,10,10,10,10,10,
+            // Row 13 — south branch begins from T-junction
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 2, 0,10,10,10,10,10,10,10,10,10,10,
+            // Row 14 — south corridor with west side room entrance
+            10,10,10,10,10, 0, 0, 0,12, 0, 0, 2, 2, 0,10,10,10,10,10,10,10,10,10,10,
+            // Row 15 — west side room (encounter room with rubble)
+            10,10,10,10,10, 0,17, 8, 0, 0,17, 2, 2, 0,10,10,10,10,10,10,10,10,10,10,
+            // Row 16 — side room continues, south corridor goes down
+            10,10,10,10,10, 0, 0, 8, 0,10,10, 2, 2,10,10,10,10,10,10,10,10,10,10,10,
+            // Row 17 — south corridor: opens to treasure room + rest alcove
+            10,10,10,10,10,10,10,10,10,10, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0,10,10,10,10,
+            // Row 18 — treasure room: lava with proper edge borders
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 0, 0, 5, 5, 5, 0, 0, 0,10,10,10,10,
+            // Row 19 — treasure room: lava pool center, chest beyond
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 0, 5, 4, 4, 5, 0,17, 0,10,10,10,10,
+            // Row 20 — treasure room: lava pool south edge, chest
+            10,10,10,10,10,10,10,10,10,10, 0, 2, 0, 5, 4, 4, 5, 0, 0, 0,10,10,10,10,
+            // Row 21 — treasure room south + rest alcove (west side)
+            10,10,10, 0, 0,17, 0, 0,10,10, 0, 0, 0, 0, 5, 5, 5, 0,16, 0,10,10,10,10,
+            // Row 22 — rest alcove: altar + healer NPC position
+            10,10,10, 0,18, 0,17, 0,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
+            // Row 23 — south border: solid cave wall
+            10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
+        ];
+
+        // Collision: walls(10,11), lava(4), lava-edge(5), stalagmites(6,7), rocks(9), pillars(13)
+        const collision = ground.map(tile => {
+            switch (tile) {
+                case 4:  // lava
+                case 5:  // lava edge
+                case 6:  // stalagmite tall
+                case 7:  // stalagmite small
+                case 9:  // rock
+                case 10: // cave wall
+                case 11: // cave wall top
+                case 13: // pillar
+                    return 1;
+                default:
+                    return 0;
+            }
+        });
+
+        return {
+            id: 'fire_temple',
+            width: w,
+            height: h,
+            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Caverns/Sprites/RA_Cavern.png',
+            tilesetTileSize: 16,
+            // Map logical tile indices (0-19) to positions in RA_Cavern.png (32 cols)
+            tileIndexMap: {
+                0: 165,  // stone floor
+                1: 165,  // path (horiz) - same as floor in cave
+                2: 165,  // path (vert)
+                3: 165,  // path intersection
+                4: 74,   // lava pool
+                5: 73,   // lava edge
+                6: 32,   // stalagmite (tall)
+                7: 33,   // stalagmite (small)
+                8: 101,  // moss/rubble
+                9: 38,   // rock/boulder
+                10: 0,   // cave wall
+                11: 1,   // cave wall (top)
+                12: 99,  // archway/door
+                13: 64,  // pillar
+                14: 166, // bridge (over lava)
+                15: 133, // rune stone
+                16: 199, // chest/crate
+                17: 103, // torch/brazier
+                18: 131, // altar/shrine
+                19: 67,  // stairs/exit
+            },
+            layers: [ground],
+            collisionMap: collision,
+            defaultSpawn: { x: 3, y: 11 },  // Just inside the west entrance
             npcs: [
                 {
-                    id: 'elder',
-                    name: 'Temple Elder',
+                    id: 'temple_guard',
+                    name: 'Fire Acolyte',
                     gridX: 8,
-                    gridY: 6,
+                    gridY: 11,
                     type: 'talk',
+                    facing: 'left',
+                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/Cultist1.png',
                     dialogue: [
-                        'Welcome to the Verdant Temple.',
-                        'Wild Sprites roam these grounds.',
-                        'Build your team and challenge the temple guardians!',
+                        'You dare enter the Blazecore Sanctum?',
+                        'The guardian awaits at the northern chamber.',
+                        'Only those who master Fire can survive here.',
+                        'Beware the lava pools -- they scorch anything nearby.',
                     ],
                 },
                 {
-                    id: 'healer',
-                    name: 'Healer',
-                    gridX: 12,
-                    gridY: 8,
+                    id: 'temple_healer',
+                    name: 'Ember Priestess',
+                    gridX: 4,
+                    gridY: 22,
                     type: 'heal',
+                    facing: 'up',
+                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/NUN3 (2).png',
                     dialogue: [
-                        'Let me restore your Sprites to full health.',
-                        'Your team has been healed!',
+                        'The flames spare those who show respect.',
+                        'Rest here and regain your strength.',
+                        'Your Sprites have been restored by sacred fire.',
                     ],
                 },
             ],
             transitions: [
+                // West entrance: archway back to starter_town (2 tiles high)
                 {
-                    gridX: 14,
-                    gridY: 0,
-                    width: 2,
-                    height: 1,
-                    targetRegion: 'crystal_caverns',
-                    targetSpawn: { x: 7, y: 18 },
+                    gridX: 1,
+                    gridY: 11,
+                    width: 1,
+                    height: 2,
+                    targetRegion: 'starter_town',
+                    targetSpawn: { x: 44, y: 24 },
                 },
             ],
             encounterZones: [
-                { x1: 2, y1: 2, x2: 28, y2: 18, encounterRate: 0.15, minLevel: 1, maxLevel: 5 },
+                // Main corridors (moderate encounter rate)
+                { x1: 4, y1: 7, x2: 17, y2: 13, encounterRate: 0.18, minLevel: 3, maxLevel: 7 },
+                // Side rooms (slightly higher)
+                { x1: 5, y1: 14, x2: 8, y2: 16, encounterRate: 0.20, minLevel: 4, maxLevel: 8 },
+                { x1: 13, y1: 9, x2: 17, y2: 11, encounterRate: 0.20, minLevel: 4, maxLevel: 8 },
+                // Treasure room corridor (higher level)
+                { x1: 10, y1: 17, x2: 19, y2: 21, encounterRate: 0.15, minLevel: 5, maxLevel: 9 },
+                // Boss arena (scripted-feel, low random rate, high level)
+                { x1: 7, y1: 1, x2: 16, y2: 6, encounterRate: 0.05, minLevel: 7, maxLevel: 12 },
+                // Rest alcove: NO encounters (excluded by not covering rows 21-22, cols 3-7)
             ],
         };
     }
@@ -405,6 +1001,14 @@ export class OverworldScene extends Scene {
         // Update renderer camera for tile/sprite drawing
         this.engine.renderer.setCamera(Math.round(this._camera.x), Math.round(this._camera.y));
 
+        // Throttled position logging for admin log
+        if (this._adminLog.isVisible && Date.now() - this._lastPosLogTime > 2000) {
+            const pgx = Math.floor(this._player.x / TILE_SIZE);
+            const pgy = Math.floor(this._player.y / TILE_SIZE);
+            this._adminLog.log(`Player at (${pgx}, ${pgy})`, 'info');
+            this._lastPosLogTime = Date.now();
+        }
+
         super.update(dt);
     }
 
@@ -416,36 +1020,70 @@ export class OverworldScene extends Scene {
         // Sky/ground color
         renderer.clear('#1a2a1a');
 
-        // Determine visible tile range
+        // Apply camera zoom for classic RPG perspective
+        ctx.save();
+        ctx.scale(CAMERA_ZOOM, CAMERA_ZOOM);
+
+        // Visible area is smaller due to zoom
+        const viewW = this.engine.designWidth / CAMERA_ZOOM;
+        const viewH = this.engine.designHeight / CAMERA_ZOOM;
+
+        // Determine visible tile range (based on zoomed viewport)
         const camX = Math.round(this._camera.x);
         const camY = Math.round(this._camera.y);
         const startCol = Math.max(0, Math.floor(camX / TILE_SIZE));
         const startRow = Math.max(0, Math.floor(camY / TILE_SIZE));
         const endCol = Math.min(
             (this._mapData ? this._mapData.width : DEFAULT_MAP_WIDTH) - 1,
-            Math.ceil((camX + this.engine.designWidth) / TILE_SIZE)
+            Math.ceil((camX + viewW) / TILE_SIZE)
         );
         const endRow = Math.min(
             (this._mapData ? this._mapData.height : DEFAULT_MAP_HEIGHT) - 1,
-            Math.ceil((camY + this.engine.designHeight) / TILE_SIZE)
+            Math.ceil((camY + viewH) / TILE_SIZE)
         );
 
         const mapWidth = this._mapData ? this._mapData.width : DEFAULT_MAP_WIDTH;
 
-        // Draw tilemap layers
+        // Tileset config: source tile size (16 for Rogue Adventure) and tile index mapping
+        const tsTileSize = (this._mapData && this._mapData.tilesetTileSize) || TILE_SIZE;
+        const tileMap = this._mapData && this._mapData.tileIndexMap;
+
+        // ── PASS 1: Draw floor tile (tile 0) at every visible position ──
+        // This ensures no black gaps between decorative tiles
+        const floorMapped = tileMap ? tileMap[0] : 0;
+        for (let y = startRow; y <= endRow; y++) {
+            for (let x = startCol; x <= endCol; x++) {
+                const worldX = x * TILE_SIZE;
+                const worldY = y * TILE_SIZE;
+
+                if (this._tilesetImg && floorMapped !== undefined && floorMapped >= 0) {
+                    renderer.drawTile(
+                        this._tilesetImg, floorMapped, tsTileSize,
+                        worldX, worldY, TILE_DRAW_SIZE
+                    );
+                } else {
+                    // Fallback: grass/stone floor color (tile 0)
+                    const floorColor = this._getTileFallbackColor(0);
+                    renderer.drawRect(worldX, worldY, TILE_DRAW_SIZE, TILE_DRAW_SIZE, floorColor);
+                }
+            }
+        }
+
+        // ── PASS 2: Draw decorative/object tiles on top (skip tile 0 since it's the floor) ──
         if (this._mapData && this._mapData.layers) {
             for (const layer of this._mapData.layers) {
                 for (let y = startRow; y <= endRow; y++) {
                     for (let x = startCol; x <= endCol; x++) {
                         const tileIndex = layer[y * mapWidth + x];
-                        if (tileIndex === undefined) continue;
+                        if (tileIndex === undefined || tileIndex === 0) continue; // Skip floor tiles
 
                         const worldX = x * TILE_SIZE;
                         const worldY = y * TILE_SIZE;
 
-                        if (this._tilesetImg) {
+                        const mappedIndex = tileMap ? tileMap[tileIndex] : tileIndex;
+                        if (this._tilesetImg && mappedIndex !== undefined && mappedIndex >= 0) {
                             renderer.drawTile(
-                                this._tilesetImg, tileIndex, TILE_SIZE,
+                                this._tilesetImg, mappedIndex, tsTileSize,
                                 worldX, worldY, TILE_DRAW_SIZE
                             );
                         } else {
@@ -474,28 +1112,61 @@ export class OverworldScene extends Scene {
         // Draw player
         this._renderPlayer(renderer);
 
-        // Draw NPC interaction prompt if nearby
-        const nearbyNpc = this._getNearbyNpc();
-        if (nearbyNpc && !this._dialogueActive) {
-            const screenX = nearbyNpc.x - camX;
-            const screenY = nearbyNpc.y - camY - 28;
-            renderer.drawText('[Talk]', screenX, screenY, {
-                color: '#e8a035',
-                font: 'bold 10px sans-serif',
+        // Restore zoom before drawing UI overlays (text stays crisp at native resolution)
+        ctx.restore();
+
+        // ── UI Overlays (drawn in screen space, not zoomed) ──
+
+        // Draw NPC names above sprites (screen space)
+        for (const npc of this._npcs) {
+            const screenX = (npc.x - camX) * CAMERA_ZOOM;
+            const screenY = (npc.y - camY) * CAMERA_ZOOM;
+            renderer.save();
+            const camBackup = { ...renderer.camera };
+            renderer.setCamera(0, 0);
+            renderer.drawText(npc.name, screenX, screenY - NPC_DRAW_HALFSIZE * CAMERA_ZOOM - 6, {
+                color: '#ffffff',
+                font: '10px sans-serif',
                 align: 'center',
                 baseline: 'bottom',
                 shadow: true,
             });
+            renderer.setCamera(camBackup.x, camBackup.y);
+            renderer.restore();
+        }
+
+        // Draw NPC interaction prompt if nearby
+        const nearbyNpc = this._getNearbyNpc();
+        if (nearbyNpc && !this._dialogueActive) {
+            const screenX = (nearbyNpc.x - camX) * CAMERA_ZOOM;
+            const screenY = (nearbyNpc.y - camY) * CAMERA_ZOOM;
+            renderer.save();
+            const camBackup = { ...renderer.camera };
+            renderer.setCamera(0, 0);
+            renderer.drawText('[Talk]', screenX, screenY - NPC_DRAW_HALFSIZE * CAMERA_ZOOM - 20, {
+                color: '#e8a035',
+                font: 'bold 11px sans-serif',
+                align: 'center',
+                baseline: 'bottom',
+                shadow: true,
+            });
+            renderer.setCamera(camBackup.x, camBackup.y);
+            renderer.restore();
         }
 
         // Region name overlay (top center)
         const regionDisplayName = this._formatRegionName(this._currentRegion);
         renderer.drawText(regionDisplayName, this.engine.designWidth / 2, 56, {
             color: 'rgba(255,255,255,0.5)',
-            font: '11px sans-serif',
+            font: '12px sans-serif',
             align: 'center',
             baseline: 'top',
         });
+
+        // Debug overlay (Ctrl+G)
+        if (this._debugMode) {
+            this._renderDebugOverlay(renderer);
+        }
 
         super.render(renderer);
     }
@@ -522,8 +1193,9 @@ export class OverworldScene extends Scene {
 
         // Tap-to-interact with NPC
         if (input.isTap()) {
-            const worldX = input.pointerPos.x + this._camera.x;
-            const worldY = input.pointerPos.y + this._camera.y;
+            // Convert screen coords to world coords accounting for camera zoom
+            const worldX = input.pointerPos.x / CAMERA_ZOOM + this._camera.x;
+            const worldY = input.pointerPos.y / CAMERA_ZOOM + this._camera.y;
             for (const npc of this._npcs) {
                 const dx = worldX - npc.x;
                 const dy = worldY - npc.y;
@@ -540,6 +1212,16 @@ export class OverworldScene extends Scene {
             this._openSpriteCenter();
         }
 
+        // Open Bag
+        if (input.isKeyJustPressed('KeyB')) {
+            this._openBag();
+        }
+
+        // Toggle Admin Log
+        if (input.isKeyJustPressed('Backquote')) {
+            this._toggleAdminLog();
+        }
+
         // Open pause menu
         if (input.isKeyJustPressed('Escape')) {
             this._openPauseMenu();
@@ -548,6 +1230,31 @@ export class OverworldScene extends Scene {
         // Quick save
         if (input.isKeyJustPressed('F5')) {
             this._quickSave();
+        }
+
+        // Debug overlay toggle (Ctrl+G)
+        // Support multiple input API patterns for Ctrl detection
+        const ctrlHeld = (input.isKeyDown ? input.isKeyDown('Control') : false) ||
+                         (input.isKeyDown ? input.isKeyDown('ControlLeft') : false) ||
+                         (input.isKeyDown ? input.isKeyDown('ControlRight') : false) ||
+                         !!input.ctrlKey || !!input.ctrl;
+        if (input.isKeyJustPressed('KeyG') && ctrlHeld) {
+            this._debugMode = !this._debugMode;
+            const adminBtnEl = document.getElementById('hud-admin-btn');
+            if (adminBtnEl) {
+                if (this._debugMode) adminBtnEl.classList.remove('hidden');
+                else adminBtnEl.classList.add('hidden');
+            }
+        }
+
+        // Update debug hovered tile from pointer position (account for zoom)
+        if (this._debugMode && input.pointerPos) {
+            const worldX = input.pointerPos.x / CAMERA_ZOOM + this._camera.x;
+            const worldY = input.pointerPos.y / CAMERA_ZOOM + this._camera.y;
+            this._debugHoveredTile = {
+                x: Math.floor(worldX / TILE_SIZE),
+                y: Math.floor(worldY / TILE_SIZE),
+            };
         }
 
         // Swipe handling for mobile virtual dpad
@@ -591,15 +1298,18 @@ export class OverworldScene extends Scene {
     // ── Camera ─────────────────────────────────────────────────────────────
 
     _updateCameraTarget() {
-        const halfW = this.engine.designWidth / 2;
-        const halfH = this.engine.designHeight / 2;
+        // Visible area is reduced by zoom factor (shows fewer tiles = more zoomed in)
+        const viewW = this.engine.designWidth / CAMERA_ZOOM;
+        const viewH = this.engine.designHeight / CAMERA_ZOOM;
+        const halfW = viewW / 2;
+        const halfH = viewH / 2;
 
         this._cameraTarget.x = this._player.x - halfW;
         this._cameraTarget.y = this._player.y - halfH;
 
         // Clamp camera to map bounds
-        this._cameraTarget.x = Math.max(0, Math.min(this._mapPixelWidth - this.engine.designWidth, this._cameraTarget.x));
-        this._cameraTarget.y = Math.max(0, Math.min(this._mapPixelHeight - this.engine.designHeight, this._cameraTarget.y));
+        this._cameraTarget.x = Math.max(0, Math.min(this._mapPixelWidth - viewW, this._cameraTarget.x));
+        this._cameraTarget.y = Math.max(0, Math.min(this._mapPixelHeight - viewH, this._cameraTarget.y));
     }
 
     // ── Encounter System ───────────────────────────────────────────────────
@@ -682,6 +1392,10 @@ export class OverworldScene extends Scene {
     }
 
     _transitionToRegion(regionId, spawnPoint) {
+        const fromRegion = this._currentRegion;
+        const toRegion = regionId;
+        this._adminLog.log(`Region transition: ${fromRegion} → ${toRegion}`, 'admin');
+
         this.engine.audio.playSFX(
             this.engine.assets.resolvePath('Audio/Sounds/area_transition.ogg'), 0.7
         );
@@ -865,6 +1579,17 @@ export class OverworldScene extends Scene {
         });
     }
 
+    _openBag() {
+        if (this._dialogueActive) return;
+        this.engine.scenes.pushScene('bag', {
+            gameData: this._gameData,
+        });
+    }
+
+    _toggleAdminLog() {
+        this._adminLog.toggle();
+    }
+
     _openSettings() {
         // Reuse the settings panel from MainMenuScene pattern
         const panel = document.getElementById('screen-panel');
@@ -921,6 +1646,196 @@ export class OverworldScene extends Scene {
         eventBus.emit(GameEvents.NOTIFICATION, 'Game saved!');
     }
 
+    // ── Debug Overlay ────────────────────────────────────────────────────
+
+    _renderDebugOverlay(renderer) {
+        const ctx = renderer.ctx;
+        const camX = Math.round(this._camera.x);
+        const camY = Math.round(this._camera.y);
+        const mapWidth = this._mapData ? this._mapData.width : DEFAULT_MAP_WIDTH;
+        const mapHeight = this._mapData ? this._mapData.height : DEFAULT_MAP_HEIGHT;
+        const screenW = this.engine.designWidth;
+        const screenH = this.engine.designHeight;
+        const viewW = screenW / CAMERA_ZOOM;
+        const viewH = screenH / CAMERA_ZOOM;
+
+        // Determine visible tile range (zoomed viewport)
+        const startCol = Math.max(0, Math.floor(camX / TILE_SIZE));
+        const startRow = Math.max(0, Math.floor(camY / TILE_SIZE));
+        const endCol = Math.min(mapWidth - 1, Math.ceil((camX + viewW) / TILE_SIZE));
+        const endRow = Math.min(mapHeight - 1, Math.ceil((camY + viewH) / TILE_SIZE));
+
+        // Save context state and apply zoom for world-space debug elements
+        ctx.save();
+        ctx.scale(CAMERA_ZOOM, CAMERA_ZOOM);
+
+        // ── 1. Grid lines: semi-transparent white at every tile boundary ──
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.lineWidth = 1 / CAMERA_ZOOM;
+        for (let x = startCol; x <= endCol + 1; x++) {
+            const screenX = x * TILE_SIZE - camX;
+            ctx.beginPath();
+            ctx.moveTo(screenX, startRow * TILE_SIZE - camY);
+            ctx.lineTo(screenX, (endRow + 1) * TILE_SIZE - camY);
+            ctx.stroke();
+        }
+        for (let y = startRow; y <= endRow + 1; y++) {
+            const screenY = y * TILE_SIZE - camY;
+            ctx.beginPath();
+            ctx.moveTo(startCol * TILE_SIZE - camX, screenY);
+            ctx.lineTo((endCol + 1) * TILE_SIZE - camX, screenY);
+            ctx.stroke();
+        }
+
+        // ── 2. Tile ID overlay + 3. Collision overlay ──
+        if (this._mapData && this._mapData.layers && this._mapData.layers[0]) {
+            const ground = this._mapData.layers[0];
+            const collisionMap = this._mapData.collisionMap;
+            ctx.font = '8px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let y = startRow; y <= endRow; y++) {
+                for (let x = startCol; x <= endCol; x++) {
+                    const idx = y * mapWidth + x;
+                    const screenX = x * TILE_SIZE - camX;
+                    const screenY = y * TILE_SIZE - camY;
+
+                    // Collision overlay: semi-transparent red tint on solid tiles
+                    if (collisionMap && collisionMap[idx] === 1) {
+                        ctx.fillStyle = 'rgba(255, 0, 0, 0.25)';
+                        ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                    }
+
+                    // Tile ID number in small red text
+                    const tileId = ground[idx];
+                    if (tileId !== undefined) {
+                        ctx.fillStyle = '#ff3333';
+                        ctx.fillText(String(tileId), screenX + TILE_SIZE / 2, screenY + TILE_SIZE / 2);
+                    }
+                }
+            }
+        }
+
+        // ── 5. Transition zone highlights: semi-transparent blue rectangles ──
+        ctx.fillStyle = 'rgba(50, 100, 255, 0.35)';
+        ctx.strokeStyle = 'rgba(100, 150, 255, 0.8)';
+        ctx.lineWidth = 2;
+        for (const t of this._transitions) {
+            const sx = t.x - camX;
+            const sy = t.y - camY;
+            ctx.fillRect(sx, sy, t.w, t.h);
+            ctx.strokeRect(sx, sy, t.w, t.h);
+        }
+
+        // ── 6. NPC markers: small green dots on NPC tiles ──
+        ctx.fillStyle = '#00ff44';
+        for (const npc of this._npcs) {
+            const npcScreenX = npc.x - camX;
+            const npcScreenY = npc.y - camY;
+            ctx.beginPath();
+            ctx.arc(npcScreenX, npcScreenY - 16, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // ── 7. Spawn point marker: yellow X on default spawn tile ──
+        if (this._mapData && this._mapData.defaultSpawn) {
+            const sp = this._mapData.defaultSpawn;
+            const spX = sp.x * TILE_SIZE + TILE_SIZE / 2 - camX;
+            const spY = sp.y * TILE_SIZE + TILE_SIZE / 2 - camY;
+            ctx.strokeStyle = '#ffff00';
+            ctx.lineWidth = 3;
+            const armLen = TILE_SIZE / 3;
+            ctx.beginPath();
+            ctx.moveTo(spX - armLen, spY - armLen);
+            ctx.lineTo(spX + armLen, spY + armLen);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(spX + armLen, spY - armLen);
+            ctx.lineTo(spX - armLen, spY + armLen);
+            ctx.stroke();
+        }
+
+        // Restore zoom context before drawing screen-space UI elements
+        ctx.restore();
+        ctx.save();
+
+        // ── 4. Coordinate display bar at bottom of screen ──
+        const barHeight = 20;
+        const barY = screenH - barHeight;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+        ctx.fillRect(0, barY, screenW, barHeight);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '11px monospace';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+
+        if (this._debugHoveredTile) {
+            const tx = this._debugHoveredTile.x;
+            const ty = this._debugHoveredTile.y;
+            let tileId = '?';
+            if (this._mapData && this._mapData.layers && this._mapData.layers[0] &&
+                tx >= 0 && ty >= 0 && tx < mapWidth && ty < mapHeight) {
+                tileId = this._mapData.layers[0][ty * mapWidth + tx];
+            }
+            ctx.fillText(`Tile: (${tx}, ${ty}) = ${tileId}`, 8, barY + barHeight / 2);
+        } else {
+            ctx.fillText('Tile: (-, -)', 8, barY + barHeight / 2);
+        }
+
+        // Also show player grid position on the right side of the bar
+        const pgx = Math.floor(this._player.x / TILE_SIZE);
+        const pgy = Math.floor(this._player.y / TILE_SIZE);
+        ctx.textAlign = 'right';
+        ctx.fillText(`Player: (${pgx}, ${pgy})  Region: ${this._currentRegion}`, screenW - 8, barY + barHeight / 2);
+
+        // ── Tile placement rules panel (top-right corner) ──
+        const panelLines = [
+            'TILE RULES:',
+            'Water(4) needs edge(5) border',
+            'Trees(6,7) form borders only',
+            'Doors(12) must face paths(1-3)',
+            'Signs(15) next to paths(1-3)',
+            'Lamps(17) on paths/intersections',
+            'Fountain(18) on intersection(3)',
+        ];
+        const lineHeight = 13;
+        const panelPadX = 6;
+        const panelPadY = 4;
+        const panelW = 210;
+        const panelH = panelLines.length * lineHeight + panelPadY * 2;
+        const panelX = screenW - panelW - 8;
+        const panelY = 8;
+
+        // Panel background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(panelX, panelY, panelW, panelH);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(panelX, panelY, panelW, panelH);
+
+        // Panel text
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        for (let i = 0; i < panelLines.length; i++) {
+            ctx.fillStyle = i === 0 ? '#ffcc44' : '#cccccc';
+            ctx.fillText(panelLines[i], panelX + panelPadX, panelY + panelPadY + i * lineHeight);
+        }
+
+        // ── "DEBUG" label in top-left ──
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(8, 8, 58, 18);
+        ctx.fillStyle = '#ff4444';
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText('DEBUG', 14, 12);
+
+        ctx.restore();
+    }
+
     // ── Rendering Helpers ──────────────────────────────────────────────────
 
     _renderPlayer(renderer) {
@@ -929,12 +1844,14 @@ export class OverworldScene extends Scene {
         const halfSize = PLAYER_SIZE / 2;
 
         if (this._player.spriteImg && this._player.spriteImg.complete) {
-            // Sprite sheet: 4 columns (frames) x 4 rows (directions: down, left, right, up)
+            // Characters ASAI sprite sheet: 128x128, 4 columns x 4 rows, 32x32 per frame
+            // Row 0: down, Row 1: left, Row 2: right, Row 3: up
+            // Use frame 0 for idle, animate through 4 frames for walking
             const dirRow = { down: 0, left: 1, right: 2, up: 3 };
             const row = dirRow[this._player.facing] || 0;
-            const col = this._player.moving ? this._player.animFrame : 0;
-            const sw = this._player.spriteImg.width / 4;
-            const sh = this._player.spriteImg.height / 4;
+            const col = this._player.moving ? (this._player.animFrame % 4) : 0;
+            const sw = this._player.spriteImg.width / 4;   // 32
+            const sh = this._player.spriteImg.height / 4;  // 32
             renderer.drawSprite(
                 this._player.spriteImg,
                 col * sw, row * sh, sw, sh,
@@ -954,10 +1871,23 @@ export class OverworldScene extends Scene {
     }
 
     _renderNpc(renderer, npc) {
-        const halfSize = 12;
-
-        if (npc.spriteImg && npc.spriteImg.complete) {
-            renderer.drawImage(npc.spriteImg, npc.x - halfSize, npc.y - halfSize, halfSize * 2, halfSize * 2);
+        if (npc.spriteSheet && npc.spriteSheet.complete) {
+            // Individual ASAI sprite sheet: 128x128, 4 cols x 4 rows, 32x32 per frame
+            // Row 0: down, Row 1: left, Row 2: right, Row 3: up
+            const dirRow = { down: 0, left: 1, right: 2, up: 3 };
+            const row = dirRow[npc.facing] || 0;
+            const col = 0; // idle frame
+            const fw = npc.spriteFrameW;
+            const fh = npc.spriteFrameH;
+            renderer.drawSprite(
+                npc.spriteSheet,
+                col * fw, row * fh, fw, fh,
+                npc.x - NPC_DRAW_HALFSIZE, npc.y - NPC_DRAW_HALFSIZE,
+                NPC_DRAW_HALFSIZE * 2, NPC_DRAW_HALFSIZE * 2
+            );
+        } else if (npc.spriteImg && npc.spriteImg.complete) {
+            renderer.drawImage(npc.spriteImg, npc.x - NPC_DRAW_HALFSIZE, npc.y - NPC_DRAW_HALFSIZE,
+                NPC_DRAW_HALFSIZE * 2, NPC_DRAW_HALFSIZE * 2);
         } else {
             // Fallback: colored circle by type
             const colors = {
@@ -967,37 +1897,168 @@ export class OverworldScene extends Scene {
                 quest: '#4488ee',
             };
             const color = colors[npc.type] || '#ffffff';
-            renderer.drawCircle(npc.x, npc.y, halfSize, color);
+            renderer.drawCircle(npc.x, npc.y, NPC_DRAW_HALFSIZE, color);
         }
-
-        // NPC name above
-        const screenPos = renderer.worldToScreen(npc.x, npc.y);
-        renderer.save();
-        const camBackup = { ...renderer.camera };
-        renderer.setCamera(0, 0);
-        renderer.drawText(npc.name, screenPos.x, screenPos.y - 22, {
-            color: '#ffffff',
-            font: '9px sans-serif',
-            align: 'center',
-            baseline: 'bottom',
-            shadow: true,
-        });
-        renderer.setCamera(camBackup.x, camBackup.y);
-        renderer.restore();
+        // NPC name labels drawn in screen space after zoom restore (see render method)
     }
 
     _getTileFallbackColor(tileIndex) {
         switch (tileIndex) {
-            case 0: return '#2d5a1e'; // grass
-            case 1: return '#5a4a3a'; // wall/stone
-            case 2: return '#1a4a1a'; // tree/decoration
-            case 3: return '#3a6aaa'; // water
-            case 4: return '#8a7a5a'; // path
+            case 0:  return '#2d5a1e'; // grass / stone floor
+            case 1:  return '#8a7a5a'; // path horizontal
+            case 2:  return '#8a7a5a'; // path vertical
+            case 3:  return '#9a8a6a'; // path intersection
+            case 4:  return '#2244aa'; // water / lava
+            case 5:  return '#3366bb'; // water edge / lava edge
+            case 6:  return '#1a3a0e'; // tree (dark)
+            case 7:  return '#2a5a1e'; // tree (light)
+            case 8:  return '#44882e'; // flowers/bush
+            case 9:  return '#5a5a5a'; // rock/boulder
+            case 10: return '#6a5040'; // house wall / cave wall
+            case 11: return '#8a3030'; // house roof / cave wall top
+            case 12: return '#5a3020'; // house door / archway
+            case 13: return '#7a6a50'; // fence / pillar
+            case 14: return '#6a5a3a'; // bridge
+            case 15: return '#8a8a50'; // sign post / rune
+            case 16: return '#aa8030'; // chest/crate
+            case 17: return '#ccaa30'; // lamp post / torch
+            case 18: return '#60a0c0'; // well/fountain / altar
+            case 19: return '#3a3a3a'; // stairs/cave entrance
             default: return '#2d5a1e';
         }
     }
 
     _formatRegionName(regionId) {
         return regionId.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+
+    // ── Mobile Controls ───────────────────────────────────────────────────
+
+    _setupMobileControls() {
+        const mobileControls = document.getElementById('mobile-controls');
+        if (!mobileControls) return;
+
+        // Show mobile controls
+        mobileControls.classList.remove('hidden');
+
+        // D-pad touch handling
+        const dpadBtns = document.querySelectorAll('.dpad-btn[data-dir]');
+        const dirMap = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
+        this._mobileActiveTouches = new Set();
+
+        const updateDpad = () => {
+            let dx = 0, dy = 0;
+            for (const dir of this._mobileActiveTouches) {
+                dx += dirMap[dir].x;
+                dy += dirMap[dir].y;
+            }
+            this.engine.input.setVirtualDpadDirection(dx, dy);
+        };
+
+        for (const btn of dpadBtns) {
+            const onTouchStart = (e) => {
+                e.preventDefault();
+                this._mobileActiveTouches.add(btn.dataset.dir);
+                btn.style.background = 'rgba(255, 255, 255, 0.3)';
+                updateDpad();
+            };
+            const onTouchEnd = (e) => {
+                e.preventDefault();
+                this._mobileActiveTouches.delete(btn.dataset.dir);
+                btn.style.background = '';
+                updateDpad();
+            };
+            const onTouchCancel = (e) => {
+                this._mobileActiveTouches.delete(btn.dataset.dir);
+                btn.style.background = '';
+                updateDpad();
+            };
+
+            btn.addEventListener('touchstart', onTouchStart, { passive: false });
+            btn.addEventListener('touchend', onTouchEnd, { passive: false });
+            btn.addEventListener('touchcancel', onTouchCancel);
+
+            // Also support mouse events for desktop testing
+            const onMouseDown = (e) => {
+                e.preventDefault();
+                this._mobileActiveTouches.add(btn.dataset.dir);
+                btn.style.background = 'rgba(255, 255, 255, 0.3)';
+                updateDpad();
+            };
+            const onMouseUp = (e) => {
+                this._mobileActiveTouches.delete(btn.dataset.dir);
+                btn.style.background = '';
+                updateDpad();
+            };
+            const onMouseLeave = (e) => {
+                this._mobileActiveTouches.delete(btn.dataset.dir);
+                btn.style.background = '';
+                updateDpad();
+            };
+
+            btn.addEventListener('mousedown', onMouseDown);
+            btn.addEventListener('mouseup', onMouseUp);
+            btn.addEventListener('mouseleave', onMouseLeave);
+
+            // Store handlers for cleanup
+            this._mobileControlHandlers.push(
+                { el: btn, event: 'touchstart', handler: onTouchStart },
+                { el: btn, event: 'touchend', handler: onTouchEnd },
+                { el: btn, event: 'touchcancel', handler: onTouchCancel },
+                { el: btn, event: 'mousedown', handler: onMouseDown },
+                { el: btn, event: 'mouseup', handler: onMouseUp },
+                { el: btn, event: 'mouseleave', handler: onMouseLeave }
+            );
+        }
+
+        // Interact button ("A") touch handling
+        const interactBtn = document.getElementById('mobile-interact-btn');
+        if (interactBtn) {
+            const onInteractTouchStart = (e) => {
+                e.preventDefault();
+                interactBtn.style.background = 'rgba(232, 160, 53, 0.5)';
+                interactBtn.style.borderColor = 'rgba(232, 160, 53, 0.8)';
+                this.engine.input.triggerVirtualButton('Space');
+            };
+            const onInteractTouchEnd = (e) => {
+                e.preventDefault();
+                interactBtn.style.background = '';
+                interactBtn.style.borderColor = '';
+            };
+            const onInteractClick = (e) => {
+                e.preventDefault();
+                this.engine.input.triggerVirtualButton('Space');
+            };
+
+            interactBtn.addEventListener('touchstart', onInteractTouchStart, { passive: false });
+            interactBtn.addEventListener('touchend', onInteractTouchEnd, { passive: false });
+            interactBtn.addEventListener('click', onInteractClick);
+
+            this._mobileControlHandlers.push(
+                { el: interactBtn, event: 'touchstart', handler: onInteractTouchStart },
+                { el: interactBtn, event: 'touchend', handler: onInteractTouchEnd },
+                { el: interactBtn, event: 'click', handler: onInteractClick }
+            );
+        }
+    }
+
+    _teardownMobileControls() {
+        // Hide mobile controls
+        const mobileControls = document.getElementById('mobile-controls');
+        if (mobileControls) {
+            mobileControls.classList.add('hidden');
+        }
+
+        // Remove all stored event listeners
+        for (const { el, event, handler } of this._mobileControlHandlers) {
+            el.removeEventListener(event, handler);
+        }
+        this._mobileControlHandlers = [];
+
+        // Reset the virtual d-pad direction
+        this._mobileActiveTouches = new Set();
+        if (this.engine && this.engine.input) {
+            this.engine.input.setVirtualDpadDirection(0, 0);
+        }
     }
 }

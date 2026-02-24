@@ -30,6 +30,9 @@ export class InputManager {
         this.swipeDirection = null;
         this._swipeMinDistance = 50;
 
+        // Virtual D-pad state (set by mobile controls)
+        this._virtualDpadDir = { x: 0, y: 0 };
+
         this._bindEvents();
     }
 
@@ -126,14 +129,30 @@ export class InputManager {
     isKeyJustPressed(code) { return !!this._keysJustPressed[code]; }
     isKeyJustReleased(code) { return !!this._keysJustReleased[code]; }
 
-    // Directional helpers (arrow keys or WASD)
+    // Directional helpers (arrow keys, WASD, or virtual D-pad)
     getDirection() {
-        let dx = 0, dy = 0;
+        let dx = this._virtualDpadDir.x, dy = this._virtualDpadDir.y;
         if (this._keys['ArrowLeft'] || this._keys['KeyA']) dx -= 1;
         if (this._keys['ArrowRight'] || this._keys['KeyD']) dx += 1;
         if (this._keys['ArrowUp'] || this._keys['KeyW']) dy -= 1;
         if (this._keys['ArrowDown'] || this._keys['KeyS']) dy += 1;
-        return { x: dx, y: dy };
+        return { x: Math.max(-1, Math.min(1, dx)), y: Math.max(-1, Math.min(1, dy)) };
+    }
+
+    // Set the virtual D-pad direction (called by mobile controls)
+    setVirtualDpadDirection(x, y) {
+        this._virtualDpadDir = { x, y };
+    }
+
+    // Simulate a key press for one frame (used by mobile interact button)
+    triggerVirtualButton(buttonName) {
+        this._keysJustPressed[buttonName] = true;
+        this._keys[buttonName] = true;
+        // Auto-release next frame
+        setTimeout(() => {
+            this._keys[buttonName] = false;
+            this._keysJustReleased[buttonName] = true;
+        }, 100);
     }
 
     // Check if point is within a rectangle
