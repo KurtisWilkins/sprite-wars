@@ -123,13 +123,13 @@ class AssetRegistry {
     65: "../Sprites/Monsters/Bug.png",
     66: "../Sprites/Monsters/Bug.png",
     // Race 23 — Solarius (Light+Chaos / Guardian) — legendary phoenix
-    67: "../Sprites/Characters/Character 1.png",
-    68: "../Sprites/Characters/Character 1.png",
-    69: "../Sprites/Characters/Character 1.png",
+    67: "../Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png",
+    68: "../Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png",
+    69: "../Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png",
     // Race 24 — Eclipsar (Dark+Spirit / Summoner) — legendary dragon
-    70: "../Sprites/Characters/Character 2.png",
-    71: "../Sprites/Characters/Character 2.png",
-    72: "../Sprites/Characters/Character 2.png",
+    70: "../Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png",
+    71: "../Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png",
+    72: "../Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png",
   };
 
   // -------------------------------------------------------------------------
@@ -527,14 +527,14 @@ class AssetRegistry {
   // Tileset paths by theme
   // -------------------------------------------------------------------------
   static TILESETS = {
-    "cave":                     "../Sprites/Tilesets/Cave.png",
-    "cave_folder":              "../Sprites/Tilesets/Cave",
-    "town":                     "../Sprites/Tilesets/Town.png",
-    "town_folder":              "../Sprites/Tilesets/Town",
-    "overworld":                "../Sprites/Tilesets/Overworld.png",
-    "overworld_folder":         "../Sprites/Tilesets/Overworld",
-    "home":                     "../Sprites/Tilesets/Home.png",
-    "home_folder":              "../Sprites/Tilesets/Home",
+    "cave":                     "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Caverns/Sprites/RA_Cavern.png",
+    "cave_folder":              "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Caverns",
+    "town":                     "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Village/Sprites/RA_Village.png",
+    "town_folder":              "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Village",
+    "overworld":                "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png",
+    "overworld_folder":         "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld",
+    "home":                     "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Interior/Sprites/RA_Interior.png",
+    "home_folder":              "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Interior",
     "fantasy_dreamland":        "../Sprites/Tiles Sprites/Fantasy Dreamland",
     "fantasy_dreamland_reborn": "../Sprites/Tiles Sprites/Fantasy Dreamland Reborn",
     "rogue_adventure":          "../Sprites/Tiles Sprites/Rogue Adventure",
@@ -799,7 +799,7 @@ class AssetRegistry {
    * @returns {string}
    */
   getTileset(theme) {
-    return AssetRegistry.TILESETS[theme] ?? "../Sprites/Tilesets/Overworld.png";
+    return AssetRegistry.TILESETS[theme] ?? "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png";
   }
 
   /**

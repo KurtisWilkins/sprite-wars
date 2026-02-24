@@ -358,7 +358,7 @@ export class OverworldScene extends Scene {
         this._mapPixelHeight = (this._mapData.height || DEFAULT_MAP_HEIGHT) * TILE_SIZE;
 
         // Load tileset for this region
-        const tilesetPath = this._mapData.tileset || 'Sprites/Tilesets/verdant_tileset.png';
+        const tilesetPath = this._mapData.tileset || 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png';
         try {
             this._tilesetImg = await this.engine.assets.loadImage(tilesetPath);
         } catch (_) {
