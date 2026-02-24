@@ -8,6 +8,7 @@
  */
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
+import { SpriteSheetGenerator } from '../core/SpriteSheetGenerator.js';
 
 // ── Admin Log ─────────────────────────────────────────────────────────────
 class AdminLog {
@@ -71,12 +72,14 @@ class AdminLog {
 // ── Map Constants ──────────────────────────────────────────────────────────
 const TILE_SIZE = 32;
 const TILE_DRAW_SIZE = 32;
-const PLAYER_SIZE = 24;
-const PLAYER_SPEED = 120; // pixels per second
+const PLAYER_SIZE = 28;          // Larger character fills more of the tile (classic RPG style)
+const NPC_DRAW_HALFSIZE = 14;    // NPC render radius matches player proportions
+const PLAYER_SPEED = 120;        // pixels per second
 const NPC_INTERACT_DISTANCE = 40;
 const ENCOUNTER_STEP_THRESHOLD = 30; // steps between encounter checks
 const ENCOUNTER_CHANCE = 0.15; // 15% chance per check
 const CAMERA_LERP_SPEED = 6.0;
+const CAMERA_ZOOM = 2.0;        // 2x zoom for classic RPG look (Pokemon/Zelda/Dragon Quest)
 
 // ── Direction vectors ──────────────────────────────────────────────────────
 const DIR = {
@@ -159,6 +162,9 @@ export class OverworldScene extends Scene {
 
         // Throttled position logging
         this._lastPosLogTime = 0;
+
+        // Generated walk-cycle sprite sheets from Units body types
+        this._generatedSpriteSheets = [];
     }
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
@@ -171,6 +177,24 @@ export class OverworldScene extends Scene {
             );
         } catch (_) {
             this._player.spriteImg = null;
+        }
+
+        // Load Units body type sheet and generate walk-cycle sprite sheets with arms/legs
+        try {
+            const unitsSheet = await this.engine.assets.loadImage(
+                'Sprites/Units/newbodytypes (1).png'
+            );
+            if (unitsSheet) {
+                this._generatedSpriteSheets = SpriteSheetGenerator.generateFromSheet(unitsSheet);
+                // Convert first generated sheet to player sprite (if no ASAI sprite loaded)
+                if (!this._player.spriteImg && this._generatedSpriteSheets.length > 0) {
+                    this._player.spriteImg = await SpriteSheetGenerator.toImage(
+                        this._generatedSpriteSheets[0]
+                    );
+                }
+            }
+        } catch (_) {
+            this._generatedSpriteSheets = [];
         }
 
         this.initialized = true;
@@ -379,6 +403,7 @@ export class OverworldScene extends Scene {
         }));
 
         // Load individual NPC sprites (Characters ASAI: 128x128, 4 cols x 4 rows, 32x32 per frame)
+        let generatedSheetIdx = 0;
         for (const npc of this._npcs) {
             npc.spriteSheet = null;
             npc.spriteFrameW = 32;
@@ -391,6 +416,14 @@ export class OverworldScene extends Scene {
                 } catch (_) {
                     npc.spriteSheet = null;
                 }
+            }
+            // Fallback: assign a generated walk-cycle sheet from Units body types
+            if (!npc.spriteSheet && this._generatedSpriteSheets.length > 0) {
+                const sheetCanvas = this._generatedSpriteSheets[generatedSheetIdx % this._generatedSpriteSheets.length];
+                try {
+                    npc.spriteSheet = await SpriteSheetGenerator.toImage(sheetCanvas);
+                } catch (_) { /* ignore */ }
+                generatedSheetIdx++;
             }
         }
 
@@ -987,18 +1020,26 @@ export class OverworldScene extends Scene {
         // Sky/ground color
         renderer.clear('#1a2a1a');
 
-        // Determine visible tile range
+        // Apply camera zoom for classic RPG perspective
+        ctx.save();
+        ctx.scale(CAMERA_ZOOM, CAMERA_ZOOM);
+
+        // Visible area is smaller due to zoom
+        const viewW = this.engine.designWidth / CAMERA_ZOOM;
+        const viewH = this.engine.designHeight / CAMERA_ZOOM;
+
+        // Determine visible tile range (based on zoomed viewport)
         const camX = Math.round(this._camera.x);
         const camY = Math.round(this._camera.y);
         const startCol = Math.max(0, Math.floor(camX / TILE_SIZE));
         const startRow = Math.max(0, Math.floor(camY / TILE_SIZE));
         const endCol = Math.min(
             (this._mapData ? this._mapData.width : DEFAULT_MAP_WIDTH) - 1,
-            Math.ceil((camX + this.engine.designWidth) / TILE_SIZE)
+            Math.ceil((camX + viewW) / TILE_SIZE)
         );
         const endRow = Math.min(
             (this._mapData ? this._mapData.height : DEFAULT_MAP_HEIGHT) - 1,
-            Math.ceil((camY + this.engine.designHeight) / TILE_SIZE)
+            Math.ceil((camY + viewH) / TILE_SIZE)
         );
 
         const mapWidth = this._mapData ? this._mapData.width : DEFAULT_MAP_WIDTH;
@@ -1071,25 +1112,53 @@ export class OverworldScene extends Scene {
         // Draw player
         this._renderPlayer(renderer);
 
-        // Draw NPC interaction prompt if nearby
-        const nearbyNpc = this._getNearbyNpc();
-        if (nearbyNpc && !this._dialogueActive) {
-            const screenX = nearbyNpc.x - camX;
-            const screenY = nearbyNpc.y - camY - 28;
-            renderer.drawText('[Talk]', screenX, screenY, {
-                color: '#e8a035',
-                font: 'bold 10px sans-serif',
+        // Restore zoom before drawing UI overlays (text stays crisp at native resolution)
+        ctx.restore();
+
+        // ── UI Overlays (drawn in screen space, not zoomed) ──
+
+        // Draw NPC names above sprites (screen space)
+        for (const npc of this._npcs) {
+            const screenX = (npc.x - camX) * CAMERA_ZOOM;
+            const screenY = (npc.y - camY) * CAMERA_ZOOM;
+            renderer.save();
+            const camBackup = { ...renderer.camera };
+            renderer.setCamera(0, 0);
+            renderer.drawText(npc.name, screenX, screenY - NPC_DRAW_HALFSIZE * CAMERA_ZOOM - 6, {
+                color: '#ffffff',
+                font: '10px sans-serif',
                 align: 'center',
                 baseline: 'bottom',
                 shadow: true,
             });
+            renderer.setCamera(camBackup.x, camBackup.y);
+            renderer.restore();
+        }
+
+        // Draw NPC interaction prompt if nearby
+        const nearbyNpc = this._getNearbyNpc();
+        if (nearbyNpc && !this._dialogueActive) {
+            const screenX = (nearbyNpc.x - camX) * CAMERA_ZOOM;
+            const screenY = (nearbyNpc.y - camY) * CAMERA_ZOOM;
+            renderer.save();
+            const camBackup = { ...renderer.camera };
+            renderer.setCamera(0, 0);
+            renderer.drawText('[Talk]', screenX, screenY - NPC_DRAW_HALFSIZE * CAMERA_ZOOM - 20, {
+                color: '#e8a035',
+                font: 'bold 11px sans-serif',
+                align: 'center',
+                baseline: 'bottom',
+                shadow: true,
+            });
+            renderer.setCamera(camBackup.x, camBackup.y);
+            renderer.restore();
         }
 
         // Region name overlay (top center)
         const regionDisplayName = this._formatRegionName(this._currentRegion);
         renderer.drawText(regionDisplayName, this.engine.designWidth / 2, 56, {
             color: 'rgba(255,255,255,0.5)',
-            font: '11px sans-serif',
+            font: '12px sans-serif',
             align: 'center',
             baseline: 'top',
         });
@@ -1124,8 +1193,9 @@ export class OverworldScene extends Scene {
 
         // Tap-to-interact with NPC
         if (input.isTap()) {
-            const worldX = input.pointerPos.x + this._camera.x;
-            const worldY = input.pointerPos.y + this._camera.y;
+            // Convert screen coords to world coords accounting for camera zoom
+            const worldX = input.pointerPos.x / CAMERA_ZOOM + this._camera.x;
+            const worldY = input.pointerPos.y / CAMERA_ZOOM + this._camera.y;
             for (const npc of this._npcs) {
                 const dx = worldX - npc.x;
                 const dy = worldY - npc.y;
@@ -1177,10 +1247,10 @@ export class OverworldScene extends Scene {
             }
         }
 
-        // Update debug hovered tile from pointer position
+        // Update debug hovered tile from pointer position (account for zoom)
         if (this._debugMode && input.pointerPos) {
-            const worldX = input.pointerPos.x + this._camera.x;
-            const worldY = input.pointerPos.y + this._camera.y;
+            const worldX = input.pointerPos.x / CAMERA_ZOOM + this._camera.x;
+            const worldY = input.pointerPos.y / CAMERA_ZOOM + this._camera.y;
             this._debugHoveredTile = {
                 x: Math.floor(worldX / TILE_SIZE),
                 y: Math.floor(worldY / TILE_SIZE),
@@ -1228,15 +1298,18 @@ export class OverworldScene extends Scene {
     // ── Camera ─────────────────────────────────────────────────────────────
 
     _updateCameraTarget() {
-        const halfW = this.engine.designWidth / 2;
-        const halfH = this.engine.designHeight / 2;
+        // Visible area is reduced by zoom factor (shows fewer tiles = more zoomed in)
+        const viewW = this.engine.designWidth / CAMERA_ZOOM;
+        const viewH = this.engine.designHeight / CAMERA_ZOOM;
+        const halfW = viewW / 2;
+        const halfH = viewH / 2;
 
         this._cameraTarget.x = this._player.x - halfW;
         this._cameraTarget.y = this._player.y - halfH;
 
         // Clamp camera to map bounds
-        this._cameraTarget.x = Math.max(0, Math.min(this._mapPixelWidth - this.engine.designWidth, this._cameraTarget.x));
-        this._cameraTarget.y = Math.max(0, Math.min(this._mapPixelHeight - this.engine.designHeight, this._cameraTarget.y));
+        this._cameraTarget.x = Math.max(0, Math.min(this._mapPixelWidth - viewW, this._cameraTarget.x));
+        this._cameraTarget.y = Math.max(0, Math.min(this._mapPixelHeight - viewH, this._cameraTarget.y));
     }
 
     // ── Encounter System ───────────────────────────────────────────────────
@@ -1583,19 +1656,22 @@ export class OverworldScene extends Scene {
         const mapHeight = this._mapData ? this._mapData.height : DEFAULT_MAP_HEIGHT;
         const screenW = this.engine.designWidth;
         const screenH = this.engine.designHeight;
+        const viewW = screenW / CAMERA_ZOOM;
+        const viewH = screenH / CAMERA_ZOOM;
 
-        // Determine visible tile range
+        // Determine visible tile range (zoomed viewport)
         const startCol = Math.max(0, Math.floor(camX / TILE_SIZE));
         const startRow = Math.max(0, Math.floor(camY / TILE_SIZE));
-        const endCol = Math.min(mapWidth - 1, Math.ceil((camX + screenW) / TILE_SIZE));
-        const endRow = Math.min(mapHeight - 1, Math.ceil((camY + screenH) / TILE_SIZE));
+        const endCol = Math.min(mapWidth - 1, Math.ceil((camX + viewW) / TILE_SIZE));
+        const endRow = Math.min(mapHeight - 1, Math.ceil((camY + viewH) / TILE_SIZE));
 
-        // Save context state for screen-space drawing
+        // Save context state and apply zoom for world-space debug elements
         ctx.save();
+        ctx.scale(CAMERA_ZOOM, CAMERA_ZOOM);
 
         // ── 1. Grid lines: semi-transparent white at every tile boundary ──
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1 / CAMERA_ZOOM;
         for (let x = startCol; x <= endCol + 1; x++) {
             const screenX = x * TILE_SIZE - camX;
             ctx.beginPath();
@@ -1679,6 +1755,10 @@ export class OverworldScene extends Scene {
             ctx.lineTo(spX - armLen, spY + armLen);
             ctx.stroke();
         }
+
+        // Restore zoom context before drawing screen-space UI elements
+        ctx.restore();
+        ctx.save();
 
         // ── 4. Coordinate display bar at bottom of screen ──
         const barHeight = 20;
@@ -1791,8 +1871,6 @@ export class OverworldScene extends Scene {
     }
 
     _renderNpc(renderer, npc) {
-        const halfSize = 12;
-
         if (npc.spriteSheet && npc.spriteSheet.complete) {
             // Individual ASAI sprite sheet: 128x128, 4 cols x 4 rows, 32x32 per frame
             // Row 0: down, Row 1: left, Row 2: right, Row 3: up
@@ -1804,10 +1882,12 @@ export class OverworldScene extends Scene {
             renderer.drawSprite(
                 npc.spriteSheet,
                 col * fw, row * fh, fw, fh,
-                npc.x - halfSize, npc.y - halfSize, halfSize * 2, halfSize * 2
+                npc.x - NPC_DRAW_HALFSIZE, npc.y - NPC_DRAW_HALFSIZE,
+                NPC_DRAW_HALFSIZE * 2, NPC_DRAW_HALFSIZE * 2
             );
         } else if (npc.spriteImg && npc.spriteImg.complete) {
-            renderer.drawImage(npc.spriteImg, npc.x - halfSize, npc.y - halfSize, halfSize * 2, halfSize * 2);
+            renderer.drawImage(npc.spriteImg, npc.x - NPC_DRAW_HALFSIZE, npc.y - NPC_DRAW_HALFSIZE,
+                NPC_DRAW_HALFSIZE * 2, NPC_DRAW_HALFSIZE * 2);
         } else {
             // Fallback: colored circle by type
             const colors = {
@@ -1817,23 +1897,9 @@ export class OverworldScene extends Scene {
                 quest: '#4488ee',
             };
             const color = colors[npc.type] || '#ffffff';
-            renderer.drawCircle(npc.x, npc.y, halfSize, color);
+            renderer.drawCircle(npc.x, npc.y, NPC_DRAW_HALFSIZE, color);
         }
-
-        // NPC name above
-        const screenPos = renderer.worldToScreen(npc.x, npc.y);
-        renderer.save();
-        const camBackup = { ...renderer.camera };
-        renderer.setCamera(0, 0);
-        renderer.drawText(npc.name, screenPos.x, screenPos.y - 22, {
-            color: '#ffffff',
-            font: '9px sans-serif',
-            align: 'center',
-            baseline: 'bottom',
-            shadow: true,
-        });
-        renderer.setCamera(camBackup.x, camBackup.y);
-        renderer.restore();
+        // NPC name labels drawn in screen space after zoom restore (see render method)
     }
 
     _getTileFallbackColor(tileIndex) {
