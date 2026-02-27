@@ -170,10 +170,10 @@ export class OverworldScene extends Scene {
     // ── Lifecycle ──────────────────────────────────────────────────────────
 
     async init() {
-        // Load player sprite (Characters ASAI: 128x128, 4 cols x 4 rows, 32x32 per frame)
+        // Load player sprite (128x128, 4 cols x 4 rows, 32x32 per frame)
         try {
             this._player.spriteImg = await this.engine.assets.loadImage(
-                'Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png'
+                'Sprites/Characters/Farmer1.png'
             );
         } catch (_) {
             this._player.spriteImg = null;
@@ -186,7 +186,7 @@ export class OverworldScene extends Scene {
             );
             if (unitsSheet) {
                 this._generatedSpriteSheets = SpriteSheetGenerator.generateFromSheet(unitsSheet);
-                // Convert first generated sheet to player sprite (if no ASAI sprite loaded)
+                // Convert first generated sheet to player sprite (if no character sprite loaded)
                 if (!this._player.spriteImg && this._generatedSpriteSheets.length > 0) {
                     this._player.spriteImg = await SpriteSheetGenerator.toImage(
                         this._generatedSpriteSheets[0]
@@ -402,7 +402,7 @@ export class OverworldScene extends Scene {
             type: npcDef.type || 'talk', // talk, shop, quest, heal
         }));
 
-        // Load individual NPC sprites (Characters ASAI: 128x128, 4 cols x 4 rows, 32x32 per frame)
+        // Load individual NPC sprites (128x128, 4 cols x 4 rows, 32x32 per frame)
         let generatedSheetIdx = 0;
         for (const npc of this._npcs) {
             npc.spriteSheet = null;
@@ -653,16 +653,16 @@ export class OverworldScene extends Scene {
             collisionMap: collision,
             defaultSpawn: { x: 24, y: 24 },
             npcs: [
-                { id:'elder', name:'Temple Elder', gridX:24, gridY:23, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/PRIEST (1).png', dialogue:['Welcome to Willowshade, young trainer!','Our town has grown into a fine settlement.','Head east through the cave to reach the Blazecore Sanctum.','Or venture south through the gate to explore the Verdant Route.','Build your team and grow stronger before challenging the temple guardian.'] },
-                { id:'healer', name:'Healer Mira', gridX:7, gridY:20, type:'heal', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/NUN1 (1).png', dialogue:['Oh dear, your Sprites look exhausted!','Rest here a moment... Let me tend to them.','There we go -- all healed up! Good luck out there!'] },
-                { id:'shopkeeper', name:'Merchant Grin', gridX:8, gridY:35, type:'shop', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Merchant 1.png', dialogue:['Looking to buy supplies? You have come to the right place!','I stock potions, crystals, and other essentials.','Come back any time -- my door is always open!'] },
-                { id:'quest_guide', name:'Scout Renn', gridX:41, gridY:23, type:'quest', facing:'left', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Viking1.png', dialogue:['Blazecore Sanctum is through the cave to the east!','Fire-type Sprites lurk within. Their guardian is formidable.','I train here every day to prepare for the challenge.','If you bring me a Fire Gem, I can teach your Sprites fire resistance!'] },
-                { id:'mom', name:'Mom', gridX:6, gridY:7, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/NOBLELADY1 (1).png', dialogue:['Be careful out there, dear!','Remember to heal your Sprites at Mira\'s hut if they get hurt.','I\'ll always be here if you need me.'] },
-                { id:'father_byron', name:'Father Byron', gridX:35, gridY:35, type:'talk', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/PRIEST (1).png', dialogue:['Blessings upon you, young trainer!','I have devoted my life to studying the bond between Sprites and their tamers.','There are 24 known Sprite races, each with three evolution stages.','That is 72 distinct forms to discover!','Head south to the Verdant Route for your first encounters.'] },
-                { id:'fisherman', name:'Old Fisher Tom', gridX:29, gridY:8, type:'talk', facing:'right', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png', dialogue:['The lake here is home to some rare Water-type Sprites.','I have been fishing these waters for thirty years.','Legend says there is a treasure on the small island out there...'] },
-                { id:'guard', name:'Gate Guard Hal', gridX:24, gridY:43, type:'talk', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Viking3.png', dialogue:['Beyond this gate lies the Verdant Route.','Wild Sprites roam freely out there. Make sure you are prepared!','Stock up on potions before heading out.'] },
-                { id:'blacksmith', name:'Smith Doran', gridX:6, gridY:42, type:'shop', facing:'up', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Miner_leader.png', dialogue:['Need equipment? I forge the finest gear in Willowshade.','Bring me raw materials and I can craft something special.'] },
-                { id:'child', name:'Little Pip', gridX:22, gridY:26, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Theif 1.png', dialogue:['I am going to be the greatest Sprite tamer ever!','My dad says I am too young to leave town though...','Have you seen the big fountain? It is my favorite spot!'] },
+                { id:'elder', name:'Temple Elder', gridX:24, gridY:23, type:'talk', facing:'down', spritePath:'Sprites/Characters/Priest.png', dialogue:['Welcome to Willowshade, young trainer!','Our town has grown into a fine settlement.','Head east through the cave to reach the Blazecore Sanctum.','Or venture south through the gate to explore the Verdant Route.','Build your team and grow stronger before challenging the temple guardian.'] },
+                { id:'healer', name:'Healer Mira', gridX:7, gridY:20, type:'heal', facing:'up', spritePath:'Sprites/Characters/Nun1.png', dialogue:['Oh dear, your Sprites look exhausted!','Rest here a moment... Let me tend to them.','There we go -- all healed up! Good luck out there!'] },
+                { id:'shopkeeper', name:'Merchant Grin', gridX:8, gridY:35, type:'shop', facing:'down', spritePath:'Sprites/Characters/Merchant1.png', dialogue:['Looking to buy supplies? You have come to the right place!','I stock potions, crystals, and other essentials.','Come back any time -- my door is always open!'] },
+                { id:'quest_guide', name:'Scout Renn', gridX:41, gridY:23, type:'quest', facing:'left', spritePath:'Sprites/Characters/Viking1.png', dialogue:['Blazecore Sanctum is through the cave to the east!','Fire-type Sprites lurk within. Their guardian is formidable.','I train here every day to prepare for the challenge.','If you bring me a Fire Gem, I can teach your Sprites fire resistance!'] },
+                { id:'mom', name:'Mom', gridX:6, gridY:7, type:'talk', facing:'down', spritePath:'Sprites/Characters/NobleLady1.png', dialogue:['Be careful out there, dear!','Remember to heal your Sprites at Mira\'s hut if they get hurt.','I\'ll always be here if you need me.'] },
+                { id:'father_byron', name:'Father Byron', gridX:35, gridY:35, type:'talk', facing:'up', spritePath:'Sprites/Characters/Priest.png', dialogue:['Blessings upon you, young trainer!','I have devoted my life to studying the bond between Sprites and their tamers.','There are 24 known Sprite races, each with three evolution stages.','That is 72 distinct forms to discover!','Head south to the Verdant Route for your first encounters.'] },
+                { id:'fisherman', name:'Old Fisher Tom', gridX:29, gridY:8, type:'talk', facing:'right', spritePath:'Sprites/Characters/Farmer1.png', dialogue:['The lake here is home to some rare Water-type Sprites.','I have been fishing these waters for thirty years.','Legend says there is a treasure on the small island out there...'] },
+                { id:'guard', name:'Gate Guard Hal', gridX:24, gridY:43, type:'talk', facing:'up', spritePath:'Sprites/Characters/Viking3.png', dialogue:['Beyond this gate lies the Verdant Route.','Wild Sprites roam freely out there. Make sure you are prepared!','Stock up on potions before heading out.'] },
+                { id:'blacksmith', name:'Smith Doran', gridX:6, gridY:42, type:'shop', facing:'up', spritePath:'Sprites/Characters/MinerLeader.png', dialogue:['Need equipment? I forge the finest gear in Willowshade.','Bring me raw materials and I can craft something special.'] },
+                { id:'child', name:'Little Pip', gridX:22, gridY:26, type:'talk', facing:'down', spritePath:'Sprites/Characters/Thief1.png', dialogue:['I am going to be the greatest Sprite tamer ever!','My dad says I am too young to leave town though...','Have you seen the big fountain? It is my favorite spot!'] },
             ],
             transitions: [
                 { gridX:45, gridY:24, width:2, height:2, targetRegion:'fire_temple', targetSpawn:{x:1,y:12} },
@@ -734,8 +734,8 @@ export class OverworldScene extends Scene {
             collisionMap: collision,
             defaultSpawn: { x: 16, y: 1 },
             npcs: [
-                { id:'ranger', name:'Ranger Kai', gridX:14, gridY:6, type:'talk', facing:'right', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Viking2.png', dialogue:['The tall grass here is full of wild Sprites!','Walk carefully and be ready for battle.','Stronger Sprites appear further along the route.'] },
-                { id:'trainer1', name:'Bug Catcher Tim', gridX:6, gridY:5, type:'talk', facing:'down', spritePath:'Sprites/Tiles Sprites/Characters ASAI/Farmer 3.png', dialogue:['I love catching Bug-type Sprites!','They may be weak, but they evolve fast!'] },
+                { id:'ranger', name:'Ranger Kai', gridX:14, gridY:6, type:'talk', facing:'right', spritePath:'Sprites/Characters/Viking2.png', dialogue:['The tall grass here is full of wild Sprites!','Walk carefully and be ready for battle.','Stronger Sprites appear further along the route.'] },
+                { id:'trainer1', name:'Bug Catcher Tim', gridX:6, gridY:5, type:'talk', facing:'down', spritePath:'Sprites/Characters/Farmer3.png', dialogue:['I love catching Bug-type Sprites!','They may be weak, but they evolve fast!'] },
             ],
             transitions: [
                 { gridX:15, gridY:0, width:4, height:1, targetRegion:'starter_town', targetSpawn:{x:24,y:44} },
@@ -878,7 +878,7 @@ export class OverworldScene extends Scene {
                     gridY: 11,
                     type: 'talk',
                     facing: 'left',
-                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/Cultist1.png',
+                    spritePath: 'Sprites/Characters/Cultist1.png',
                     dialogue: [
                         'You dare enter the Blazecore Sanctum?',
                         'The guardian awaits at the northern chamber.',
@@ -893,7 +893,7 @@ export class OverworldScene extends Scene {
                     gridY: 22,
                     type: 'heal',
                     facing: 'up',
-                    spritePath: 'Sprites/Tiles Sprites/Characters ASAI/NUN3 (2).png',
+                    spritePath: 'Sprites/Characters/Nun3.png',
                     dialogue: [
                         'The flames spare those who show respect.',
                         'Rest here and regain your strength.',
@@ -1844,7 +1844,7 @@ export class OverworldScene extends Scene {
         const halfSize = PLAYER_SIZE / 2;
 
         if (this._player.spriteImg && this._player.spriteImg.complete) {
-            // Characters ASAI sprite sheet: 128x128, 4 columns x 4 rows, 32x32 per frame
+            // Character sprite sheet: 128x128, 4 columns x 4 rows, 32x32 per frame
             // Row 0: down, Row 1: left, Row 2: right, Row 3: up
             // Use frame 0 for idle, animate through 4 frames for walking
             const dirRow = { down: 0, left: 1, right: 2, up: 3 };
@@ -1872,7 +1872,7 @@ export class OverworldScene extends Scene {
 
     _renderNpc(renderer, npc) {
         if (npc.spriteSheet && npc.spriteSheet.complete) {
-            // Individual ASAI sprite sheet: 128x128, 4 cols x 4 rows, 32x32 per frame
+            // Individual character sprite sheet: 128x128, 4 cols x 4 rows, 32x32 per frame
             // Row 0: down, Row 1: left, Row 2: right, Row 3: up
             const dirRow = { down: 0, left: 1, right: 2, up: 3 };
             const row = dirRow[npc.facing] || 0;

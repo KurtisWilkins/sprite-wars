@@ -123,13 +123,13 @@ class AssetRegistry {
     65: "../Sprites/Monsters/Bug.png",
     66: "../Sprites/Monsters/Bug.png",
     // Race 23 — Solarius (Light+Chaos / Guardian) — legendary phoenix
-    67: "../Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png",
-    68: "../Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png",
-    69: "../Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png",
+    67: "../Sprites/Characters/Farmer1.png",
+    68: "../Sprites/Characters/Farmer1.png",
+    69: "../Sprites/Characters/Farmer1.png",
     // Race 24 — Eclipsar (Dark+Spirit / Summoner) — legendary dragon
-    70: "../Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png",
-    71: "../Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png",
-    72: "../Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png",
+    70: "../Sprites/Characters/NoviceWizard1.png",
+    71: "../Sprites/Characters/NoviceWizard1.png",
+    72: "../Sprites/Characters/NoviceWizard1.png",
   };
 
   // -------------------------------------------------------------------------
@@ -540,7 +540,7 @@ class AssetRegistry {
     "rogue_adventure":          "../Sprites/Tiles Sprites/Rogue Adventure",
     "farm_game_world":          "../Sprites/Tiles Sprites/Farm Game World",
     "buildings":                "../Sprites/Tiles Sprites/Buildings",
-    "characters_asai":          "../Sprites/Tiles Sprites/Characters ASAI",
+    "characters":               "../Sprites/Characters",
     "extras":                   "../Sprites/Tiles Sprites/Extras",
     "flowers":                  "../Sprites/Tiles Sprites/Flowers",
     "icons":                    "../Sprites/Tiles Sprites/Icons",

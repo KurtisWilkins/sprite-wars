@@ -185,16 +185,16 @@ export class SpriteSheetGenerator {
     }
 
     /**
-     * Generate a single walk-cycle sheet for a Characters ASAI sprite
+     * Generate a single walk-cycle sheet for a character sprite
      * (already has directions but may need enhanced limb animation).
-     * Returns the original sheet since ASAI sprites already have walk cycles.
-     * @param {HTMLImageElement} asaiSheet - 128x128 ASAI character sprite sheet
-     * @returns {HTMLImageElement} Same image (ASAI sprites already animated)
+     * Returns the original sheet since character sprites already have walk cycles.
+     * @param {HTMLImageElement} charSheet - 128x128 character sprite sheet
+     * @returns {HTMLImageElement} Same image (sprites already animated)
      */
-    static enhanceAsaiSheet(asaiSheet) {
-        // ASAI sprites already have proper 4-dir walk cycles
+    static enhanceAsaiSheet(charSheet) {
+        // Character sprites already have proper 4-dir walk cycles
         // Return as-is since they already have arms and legs in their animation
-        return asaiSheet;
+        return charSheet;
     }
 
     /**
