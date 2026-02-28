@@ -526,9 +526,14 @@ export class OverworldScene extends Scene {
         const w = 48;
         const h = 48;
 
-        // Tile legend: 0=grass 1=pathH 2=pathV 3=cross 4=water 5=waterEdge
+        // Tile legend (Village_Forest combined tileset):
+        // 0=grass 1=path 2=pathV 3=cross 4=pond 5=pondEdge
         // 6=treeDark 7=treeLight 8=flowers 9=rock 10=wall 11=roof
-        // 12=door 13=fence 14=bridge 15=sign 16=chest 17=lamp 18=fountain 19=stairs
+        // 12=door 13=fence 14=bridge 15=sign 16=chest 17=lamp
+        // 18=fountain 19=stairs 20=roofPeak 21=wallWood 22=barrel
+        // 23=tallGrass 24=mushroom 25=stump
+        // 26=bigTreeTL 27=bigTreeTR 28=bigTreeBL 29=bigTreeBR
+        // 30=crate 31=roofLeft 32=roofRight 33=wallWindow 34=stonePath
 
         const ground = new Array(w * h).fill(0);
         const S = (x, y, t) => { if (x >= 0 && x < w && y >= 0 && y < h) ground[y * w + x] = t; };
@@ -537,118 +542,355 @@ export class OverworldScene extends Scene {
         const vP = (x, y1, y2) => { for (let y = y1; y <= y2; y++) S(x, y, 2); };
         const X = (x, y) => S(x, y, 3);
 
-        // ── FOREST BORDERS (2 thick, mixed trees) ───────────────────────
-        for (let y = 0; y <= 1; y++) for (let x = 0; x < w; x++) S(x, y, (x+y)%3===0?7:6);
-        for (let y = h-2; y < h; y++) for (let x = 0; x < w; x++) S(x, y, (x+y)%3===0?7:6);
-        for (let x = 0; x <= 1; x++) for (let y = 0; y < h; y++) S(x, y, (x+y)%3===0?7:6);
-        for (let x = w-2; x < w; x++) for (let y = 0; y < h; y++) S(x, y, (x+y)%3===0?7:6);
-        for (let x = 0; x < w; x++) { if (x%5<2) S(x,2,6); if ((x+2)%7<2) S(x,h-3,7); }
-        for (let y = 0; y < h; y++) { if (y%5<2) S(2,y,6); if ((y+2)%7<2) S(w-3,y,7); }
+        // Helper: place a 2x2 big tree (4 tile quadrants)
+        const bigTree = (x, y) => { S(x, y, 26); S(x + 1, y, 27); S(x, y + 1, 28); S(x + 1, y + 1, 29); };
 
-        // ── MAIN ROADS ──────────────────────────────────────────────────
-        hP(3,44,24); hP(3,44,25); vP(24,3,44); vP(25,3,44);
-        X(24,24); X(25,24); X(24,25); X(25,25);
-        hP(5,43,12); hP(5,43,36); vP(12,5,43); vP(36,5,43);
-        X(12,12); X(24,12); X(25,12); X(36,12);
-        X(12,24); X(12,25); X(36,24); X(36,25);
-        X(12,36); X(24,36); X(25,36); X(36,36);
+        // Helper: place a building (roof peak top, roof sides, wall with windows, stone foundation)
+        const bldg = (bx, by, bw) => {
+            // Row 0: roof peak — left edge, middle fills, right edge
+            S(bx, by, 31);
+            for (let i = 1; i < bw - 1; i++) S(bx + i, by, 20);
+            S(bx + bw - 1, by, 32);
+            // Row 1: roof body
+            for (let i = 0; i < bw; i++) S(bx + i, by + 1, 11);
+            // Row 2: walls with windows, door in center
+            for (let i = 0; i < bw; i++) S(bx + i, by + 2, 33);
+            const doorX = bx + Math.floor(bw / 2);
+            S(doorX, by + 2, 12);
+            // Row 3: stone foundation
+            for (let i = 0; i < bw; i++) S(bx + i, by + 3, 34);
+        };
 
-        // ── RESIDENTIAL NW (cols 3-22, rows 3-11) ──────────────────────
-        F(5,4,8,4,11); F(5,5,5,6,10); F(8,5,8,6,10);
-        S(6,5,0); S(7,5,0); S(6,6,12); S(7,6,0);
-        S(4,5,8); S(4,6,8); S(9,5,8); S(9,7,8);
-        vP(6,7,11); X(6,12);
-        F(14,4,17,4,11); F(14,5,14,6,10); F(17,5,17,6,10);
-        S(15,5,0); S(16,5,0); S(15,6,12); S(16,6,0);
-        S(13,5,8); S(18,6,8); vP(15,7,11); X(15,12);
-        F(20,4,22,4,11); S(20,5,10); S(22,5,10); S(21,5,12);
-        F(3,3,3,11,13); F(3,3,10,3,13);
-        S(6,9,17); S(15,9,17); S(10,6,17);
+        // ── FOREST BORDERS (3 thick, mixed big & small trees) ───────
+        // Top border: rows 0-2
+        for (let y = 0; y <= 2; y++) {
+            for (let x = 0; x < w; x++) {
+                S(x, y, (x + y) % 3 === 0 ? 7 : 6);
+            }
+        }
+        // Bottom border: rows 45-47
+        for (let y = h - 3; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                S(x, y, (x + y) % 3 === 0 ? 7 : 6);
+            }
+        }
+        // Left border: cols 0-2
+        for (let x = 0; x <= 2; x++) {
+            for (let y = 0; y < h; y++) {
+                S(x, y, (x + y) % 3 === 0 ? 7 : 6);
+            }
+        }
+        // Right border: cols 45-47
+        for (let x = w - 3; x < w; x++) {
+            for (let y = 0; y < h; y++) {
+                S(x, y, (x + y) % 3 === 0 ? 7 : 6);
+            }
+        }
 
-        // ── LAKE NE (cols 28-44, rows 3-14) ────────────────────────────
-        F(31,5,42,10,4);
-        F(30,5,30,10,5); F(43,5,43,10,5); F(31,4,42,4,5); F(31,11,42,11,5);
-        S(30,4,5); S(43,4,5); S(30,11,5); S(43,11,5);
-        S(36,7,0); S(37,7,0); S(36,8,0); S(37,8,16);
-        F(34,11,35,11,14); hP(34,35,12);
-        S(29,7,14); S(29,8,14);
-        S(28,3,7); S(29,3,6); S(30,3,7); S(44,3,6); S(43,3,7);
-        S(28,12,7); S(29,12,6);
-        S(28,5,8); S(28,9,8); S(44,6,8); S(44,9,8);
-        hP(26,33,8); X(36,8); S(28,8,15);
+        // Scatter big trees along the inner edge of the forest border
+        bigTree(3, 0); bigTree(9, 0); bigTree(15, 0); bigTree(31, 0); bigTree(37, 0); bigTree(43, 0);
+        bigTree(0, 5); bigTree(0, 11); bigTree(0, 17); bigTree(0, 29); bigTree(0, 35); bigTree(0, 41);
+        bigTree(46, 5); bigTree(46, 11); bigTree(46, 17); bigTree(46, 29); bigTree(46, 35); bigTree(46, 41);
+        bigTree(3, 46); bigTree(9, 46); bigTree(15, 46); bigTree(31, 46); bigTree(37, 46); bigTree(43, 46);
 
-        // ── HEALER W (cols 3-11, rows 16-23) ───────────────────────────
-        F(5,17,8,17,11); F(5,18,5,19,10); F(8,18,8,19,10);
-        S(6,18,0); S(7,18,0); S(6,19,0); S(7,19,12);
-        F(4,16,9,16,8); S(4,17,8); S(9,17,8); S(4,18,8); S(9,18,8);
-        S(4,20,8); S(5,20,8); S(8,20,8); S(9,20,8);
-        vP(7,20,24); X(7,24); hP(8,11,20); X(12,20);
-        S(4,22,9); S(5,22,9); S(6,22,9);
-        S(4,23,8); S(5,23,8); S(6,23,8); S(6,20,17);
+        // ── MAIN ROADS (dirt paths) ─────────────────────────────────
+        // Central crossroads at (24,24)
+        hP(3, 44, 24); hP(3, 44, 25);
+        vP(24, 3, 44); vP(25, 3, 44);
+        X(24, 24); X(25, 24); X(24, 25); X(25, 25);
 
-        // ── TOWN SQUARE (cols 17-31, rows 20-29) ───────────────────────
-        F(18,21,30,28,1);
-        S(23,24,18); S(26,24,18); S(23,25,18); S(26,25,18);
-        S(18,21,17); S(30,21,17); S(18,28,17); S(30,28,17);
-        S(21,23,17); S(28,23,17); S(21,26,17); S(28,26,17);
-        S(17,24,15); S(31,24,15);
-        S(19,22,8); S(20,22,8); S(29,22,8); S(30,22,8);
-        S(19,27,8); S(20,27,8); S(29,27,8); S(30,27,8);
-        X(24,21); X(25,21); X(24,28); X(25,28);
+        // Secondary grid roads
+        hP(5, 43, 12); hP(5, 43, 36);
+        vP(12, 5, 43); vP(36, 5, 43);
 
-        // ── TRAINING E (cols 38-44, rows 18-28) ────────────────────────
-        F(38,18,44,18,13); F(38,28,44,28,13); F(38,18,38,28,13); F(44,18,44,28,13);
-        S(38,23,12); S(38,24,12); F(39,19,43,27,0);
-        S(40,20,9); S(43,20,9); S(40,26,9); S(43,26,9); S(42,23,16);
-        hP(37,38,23); hP(37,38,24); X(36,23); X(36,24);
-        S(37,22,17); S(37,25,17);
+        // Intersections
+        X(12, 12); X(24, 12); X(25, 12); X(36, 12);
+        X(12, 24); X(12, 25); X(36, 24); X(36, 25);
+        X(12, 36); X(24, 36); X(25, 36); X(36, 36);
 
-        // ── MERCHANT SW (cols 3-16, rows 30-42) ────────────────────────
-        F(4,31,7,31,11); F(4,32,4,33,10); F(7,32,7,33,10);
-        S(5,32,0); S(6,32,0); S(5,33,12); S(6,33,0);
-        F(10,31,13,31,11); F(10,32,10,33,10); F(13,32,13,33,10);
-        S(11,32,0); S(12,32,0); S(11,33,0); S(12,33,12);
-        F(4,37,16,37,13); F(4,40,16,40,13);
-        F(5,38,7,38,16); F(9,38,11,38,16); F(13,38,15,38,16); F(4,39,16,39,1);
-        F(4,42,7,42,11); F(4,43,4,44,10); F(7,43,7,44,10);
-        S(5,43,0); S(6,43,12); S(5,44,0); S(6,44,0);
-        vP(8,34,36); X(8,36); hP(5,11,34); hP(5,11,36); X(8,34); X(12,34);
-        S(3,37,17); S(3,40,17); S(17,37,17);
+        // ── RESIDENTIAL NW (cols 4-22, rows 4-11) ──────────────────
+        // House 1: Mom's cottage (4 wide)
+        bldg(5, 4, 4);
+        S(4, 5, 8); S(4, 6, 8); S(9, 5, 8); S(9, 7, 8); // flower gardens
+        vP(7, 8, 11); X(7, 12);
 
-        // ── PROFESSOR LAB SE (cols 30-43, rows 30-40) ──────────────────
-        F(32,31,39,31,11); F(32,32,39,32,11);
-        F(32,33,32,35,10); F(39,33,39,35,10); F(33,33,38,33,10); F(33,34,38,34,0);
-        S(35,35,12); S(36,35,12); S(34,35,10); S(37,35,10);
-        S(33,35,10); S(38,35,10); S(32,35,10); S(39,35,10);
-        F(32,37,39,37,13); F(32,39,39,39,13);
-        S(35,37,12); S(36,37,12); F(33,38,38,38,8); S(35,38,18);
-        S(34,36,15); vP(35,35,36); vP(36,35,36); X(35,36); X(36,36);
-        hP(26,34,34); S(31,35,17); S(40,35,17);
+        // House 2: Neighbor cottage (4 wide)
+        bldg(14, 4, 4);
+        S(13, 5, 8); S(18, 6, 8);
+        vP(16, 8, 11); X(16, 12);
 
-        // ── EXITS ───────────────────────────────────────────────────────
-        S(45,24,19); S(45,25,19); S(46,24,9); S(46,25,9);
-        S(47,24,0); S(47,25,0); S(44,23,15); S(44,26,9); S(45,23,9); S(45,26,9);
-        for (let x=21;x<=28;x++){S(x,h-2,0);S(x,h-1,0);}
-        hP(22,27,44); hP(22,27,45);
-        S(20,44,7); S(21,44,6); S(28,44,6); S(29,44,7);
-        S(20,45,6); S(21,45,7); S(28,45,7); S(29,45,6);
-        S(21,43,17); S(28,43,17); S(20,43,15);
+        // House 3: Small hut (3 wide)
+        bldg(20, 5, 3);
+        S(19, 6, 23); S(23, 6, 23); // tall grass patches
 
-        // ── DETAILS ─────────────────────────────────────────────────────
-        for (const [tx,ty] of [[3,14],[4,14],[3,15],[10,3],[11,3],[19,3],[20,3],[3,28],[3,29],[4,29],[44,14],[43,14],[44,15],[43,30],[44,30],[44,31],[3,44],[4,44],[3,43],[10,44],[11,44],[38,44],[39,44],[44,42],[44,43],[27,3],[26,3],[22,3],[23,3],[20,14],[21,14]])
-            if (ground[ty*w+tx]===0) S(tx,ty,(tx+ty)%2?6:7);
-        for (const [fx,fy] of [[16,8],[17,8],[16,10],[30,14],[31,14],[32,14],[15,30],[16,30],[17,30],[42,14],[42,15],[19,42],[20,42],[29,42],[30,42],[14,19],[15,19],[33,16],[34,16],[35,16],[40,14],[41,14]])
-            if (ground[fy*w+fx]===0) S(fx,fy,8);
-        for (const [rx,ry] of [[3,13],[44,13],[3,35],[44,35],[10,2],[38,2],[10,45],[38,45]])
-            if (ground[ry*w+rx]===0) S(rx,ry,9);
+        // Residential fence line
+        F(3, 3, 3, 11, 13); F(3, 3, 10, 3, 13);
 
-        const collision = ground.map(t=>[4,5,6,7,9,10,11,13].includes(t)?1:0);
+        // Lamps along paths
+        S(7, 10, 17); S(16, 10, 17); S(10, 7, 17);
+
+        // Stumps and mushrooms for decoration
+        S(10, 9, 25); S(11, 5, 24); S(19, 8, 24);
+
+        // ── GARDEN GROVE NE (cols 28-44, rows 3-14) ────────────────
+        // Small pond in the middle
+        F(33, 6, 40, 9, 4);
+        F(32, 6, 32, 9, 5); F(41, 6, 41, 9, 5);
+        F(33, 5, 40, 5, 5); F(33, 10, 40, 10, 5);
+        S(32, 5, 5); S(41, 5, 5); S(32, 10, 5); S(41, 10, 5);
+
+        // Small island in pond
+        S(36, 7, 0); S(37, 7, 0); S(36, 8, 0); S(37, 8, 16); // chest on island
+
+        // Bridge to island
+        S(34, 10, 14); S(35, 10, 14);
+
+        // Garden flowers around pond
+        S(28, 5, 8); S(28, 9, 8); S(28, 6, 8); S(28, 8, 8);
+        S(42, 6, 8); S(42, 8, 8); S(43, 7, 8); S(43, 9, 8);
+        S(30, 4, 23); S(31, 4, 23); S(42, 4, 23); S(43, 4, 23);
+
+        // Trees around grove
+        bigTree(28, 3); bigTree(42, 3); bigTree(28, 11); bigTree(42, 11);
+
+        // Path from main road to grove
+        hP(26, 33, 8); X(36, 8);
+        S(29, 8, 15); // sign post near grove
+
+        // Decorative fence along south edge of grove
+        F(28, 13, 44, 13, 13);
+
+        // ── HEALER HUT W (cols 3-11, rows 16-23) ───────────────────
+        // Healer building (4 wide)
+        bldg(5, 16, 4);
+
+        // Herb garden around healer
+        F(4, 16, 4, 20, 8); F(9, 16, 9, 20, 8);
+        S(5, 20, 8); S(8, 20, 8);
+        S(4, 22, 24); S(5, 22, 24); S(6, 22, 24); // mushroom patch for potions
+
+        // Path to main road
+        vP(7, 20, 24); X(7, 24);
+        hP(8, 11, 20); X(12, 20);
+
+        // Rocks near healer
+        S(4, 23, 9); S(5, 23, 9);
+        S(6, 20, 17); // lamp near door
+
+        // ── TOWN SQUARE (cols 17-31, rows 20-29) ───────────────────
+        // Paved plaza
+        F(18, 21, 30, 28, 1);
+
+        // Central fountain (2x2 decorative)
+        S(23, 24, 18); S(26, 24, 18);
+        S(23, 25, 18); S(26, 25, 18);
+        S(24, 24, 34); S(25, 24, 34); // stone center
+        S(24, 25, 34); S(25, 25, 34);
+
+        // Corner lamps
+        S(18, 21, 17); S(30, 21, 17); S(18, 28, 17); S(30, 28, 17);
+        S(21, 23, 17); S(28, 23, 17); S(21, 26, 17); S(28, 26, 17);
+
+        // Signs at entrances
+        S(17, 24, 15); S(31, 24, 15);
+
+        // Flower beds in corners
+        S(19, 22, 8); S(20, 22, 8); S(29, 22, 8); S(30, 22, 8);
+        S(19, 27, 8); S(20, 27, 8); S(29, 27, 8); S(30, 27, 8);
+
+        // Barrel and crate decorations
+        S(19, 23, 22); S(30, 23, 30); S(19, 26, 30); S(30, 26, 22);
+
+        // Road connections
+        X(24, 21); X(25, 21); X(24, 28); X(25, 28);
+
+        // ── TRAINING YARD E (cols 38-44, rows 18-28) ───────────────
+        // Fenced training arena
+        F(38, 18, 44, 18, 13); F(38, 28, 44, 28, 13);
+        F(38, 18, 38, 28, 13); F(44, 18, 44, 28, 13);
+
+        // Gate openings
+        S(38, 23, 12); S(38, 24, 12);
+
+        // Arena interior — clear ground
+        F(39, 19, 43, 27, 0);
+
+        // Training dummies (rocks) and equipment (chest)
+        S(40, 20, 9); S(43, 20, 9); S(40, 26, 9); S(43, 26, 9);
+        S(42, 23, 16); // reward chest
+        S(41, 21, 25); S(42, 26, 25); // stumps as training targets
+
+        // Path connection
+        hP(37, 38, 23); hP(37, 38, 24);
+        X(36, 23); X(36, 24);
+        S(37, 22, 17); S(37, 25, 17); // lamps at gate
+
+        // ── MERCHANT DISTRICT SW (cols 3-16, rows 30-42) ───────────
+        // Shop 1: General store
+        bldg(4, 30, 4);
+        vP(6, 34, 36); X(6, 36);
+
+        // Shop 2: Potion shop
+        bldg(10, 30, 4);
+        vP(12, 34, 36); // already has intersection
+
+        // Market stalls (fence lines with chests = goods)
+        F(4, 37, 16, 37, 13);
+        F(4, 40, 16, 40, 13);
+        F(5, 38, 7, 38, 16); F(9, 38, 11, 38, 16); F(13, 38, 15, 38, 16);
+        F(4, 39, 16, 39, 1); // walkway between stalls
+
+        // Blacksmith forge
+        bldg(4, 41, 4);
+        S(8, 42, 22); S(9, 42, 22); // barrels outside forge
+        S(8, 43, 30); S(9, 43, 30); // crates outside forge
+
+        // Connecting paths
+        hP(5, 11, 34); hP(5, 11, 36);
+        X(8, 34); X(12, 34); X(8, 36);
+
+        // Lamps in market area
+        S(3, 37, 17); S(3, 40, 17); S(17, 37, 17);
+
+        // ── PROFESSOR LAB SE (cols 30-43, rows 30-40) ──────────────
+        // Large lab building (8 wide, 2 floors)
+        // Top floor: double roof
+        S(32, 30, 31);
+        for (let i = 33; i <= 38; i++) S(i, 30, 20);
+        S(39, 30, 32);
+        for (let i = 32; i <= 39; i++) S(i, 31, 11);
+
+        // Bottom floor: walls + windows + door
+        for (let i = 32; i <= 39; i++) S(i, 32, 33);
+        S(35, 32, 12); S(36, 32, 12); // double doors
+        for (let i = 32; i <= 39; i++) S(i, 33, 34); // stone foundation
+
+        // Garden behind lab
+        F(32, 35, 39, 35, 13);
+        F(32, 38, 39, 38, 13);
+        S(35, 35, 12); S(36, 35, 12); // garden gate
+        F(33, 36, 38, 37, 8); // flower research garden
+        S(35, 37, 18); // special specimen in center
+
+        // Lab sign and lamps
+        S(34, 34, 15);
+        vP(35, 33, 36); vP(36, 33, 36);
+        X(35, 36); X(36, 36);
+        hP(26, 34, 34);
+        S(31, 33, 17); S(40, 33, 17);
+
+        // Crates and barrels near lab
+        S(31, 31, 30); S(31, 32, 22);
+        S(40, 31, 22); S(40, 32, 30);
+
+        // ── EXITS ───────────────────────────────────────────────────
+        // East exit to fire_temple
+        S(45, 24, 19); S(45, 25, 19);
+        S(44, 23, 15); S(44, 26, 9);
+        // Clear path through border trees
+        for (let x = 45; x < 48; x++) { S(x, 24, 0); S(x, 25, 0); S(x, 23, 0); S(x, 26, 0); }
+
+        // South exit to starter_route
+        for (let x = 21; x <= 28; x++) { S(x, h - 3, 0); S(x, h - 2, 0); S(x, h - 1, 0); }
+        hP(22, 27, 44);
+        S(20, 44, 15); // sign at south gate
+        S(21, 43, 17); S(28, 43, 17); // lamps flanking gate
+        // Gate pillars
+        S(21, 44, 9); S(28, 44, 9);
+        S(21, 45, 9); S(28, 45, 9);
+
+        // ── SCATTERED DETAILS ───────────────────────────────────────
+        // Extra trees along inner paths for atmosphere
+        for (const [tx, ty] of [
+            [3,14],[4,14],[3,15], [10,3],[11,3], [19,3],[20,3],
+            [3,28],[3,29],[4,29], [44,14],[43,14],[44,15],
+            [43,30],[44,30],[44,31], [3,44],[4,44],[3,43],
+            [10,44],[11,44], [38,44],[39,44], [44,42],[44,43],
+            [27,3],[26,3], [22,3],[23,3], [20,14],[21,14]
+        ]) {
+            if (ground[ty * w + tx] === 0) S(tx, ty, (tx + ty) % 2 ? 6 : 7);
+        }
+
+        // Scattered flower patches
+        for (const [fx, fy] of [
+            [16,8],[17,8],[16,10], [30,14],[31,14],[32,14],
+            [15,30],[16,30],[17,30], [42,14],[42,15],
+            [19,42],[20,42], [29,42],[30,42],
+            [14,19],[15,19], [33,16],[34,16],[35,16],
+            [40,14],[41,14]
+        ]) {
+            if (ground[fy * w + fx] === 0) S(fx, fy, 8);
+        }
+
+        // Scattered rocks
+        for (const [rx, ry] of [
+            [3,13],[44,13], [3,35],[44,35],
+            [10,2],[38,2], [10,45],[38,45]
+        ]) {
+            if (ground[ry * w + rx] === 0) S(rx, ry, 9);
+        }
+
+        // Tall grass and mushroom clusters in open areas
+        for (const [gx, gy] of [
+            [13,8],[14,8],[13,9], [26,5],[27,5],[27,6],
+            [37,16],[38,16], [14,27],[15,27],[15,28],
+            [26,31],[27,31], [40,37],[41,37],[41,38]
+        ]) {
+            if (ground[gy * w + gx] === 0) S(gx, gy, 23);
+        }
+
+        for (const [mx, my] of [
+            [13,10],[27,7],[15,29],[41,39],[26,32]
+        ]) {
+            if (ground[my * w + mx] === 0) S(mx, my, 24);
+        }
+
+        // Collidable tiles: trees, rocks, walls, roofs, fences, pond, stumps, big trees, barrels, crates
+        const collision = ground.map(t =>
+            [4, 5, 6, 7, 9, 10, 11, 13, 20, 21, 22, 25, 26, 27, 28, 29, 30, 31, 32, 33].includes(t) ? 1 : 0
+        );
 
         return {
             id: 'starter_town', width: w, height: h,
-            tileset: 'Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png',
+            tileset: 'Sprites/Tiles/Village_Forest.png',
             tilesetTileSize: 16,
-            tileIndexMap: { 0:171,1:173,2:174,3:175,4:199,5:198,6:103,7:104,8:136,9:36,10:117,11:85,12:149,13:78,14:206,15:178,16:242,17:179,18:143,19:7 },
+            tileIndexMap: {
+                0: 1602,   // grass (forest ground tile)
+                1: 49,     // path horizontal (village wooden floor)
+                2: 49,     // path vertical (same path tile)
+                3: 49,     // crossroad (same path tile)
+                4: 1571,   // pond water (forest light green ground)
+                5: 1603,   // pond edge (forest grass edge)
+                6: 1152,   // dark tree (forest small tree)
+                7: 1184,   // light tree (forest small tree variant)
+                8: 1033,   // flowers (forest plant)
+                9: 1618,   // rock (forest stone)
+                10: 708,   // wall (village stone wall)
+                11: 272,   // roof (village red planks)
+                12: 876,   // door (village door tile)
+                13: 1729,  // fence (forest wooden fence)
+                14: 130,   // bridge (village wooden plank)
+                15: 1714,  // sign (forest sign post)
+                16: 1038,  // chest (forest red chest)
+                17: 103,   // lamp/well (village well piece)
+                18: 1035,  // fountain/specimen (forest yellow flower)
+                19: 1620,  // stairs/exit marker (forest rock pile)
+                20: 240,   // roof peak (village roof peak)
+                21: 176,   // wood panel wall (village wood wall)
+                22: 856,   // barrel (village barrel)
+                23: 1024,  // tall grass (forest grass tuft)
+                24: 1105,  // mushroom (forest mushroom)
+                25: 1042,  // stump (forest tree stump)
+                26: 1286,  // big tree top-left (forest large tree)
+                27: 1287,  // big tree top-right
+                28: 1318,  // big tree bottom-left
+                29: 1319,  // big tree bottom-right
+                30: 820,   // crate (village crate)
+                31: 273,   // roof left edge (village roof left)
+                32: 275,   // roof right edge (village roof right)
+                33: 848,   // wall with window (village windowed wall)
+                34: 711,   // stone path/foundation (village stone)
+            },
             layers: [ground],
             collisionMap: collision,
             defaultSpawn: { x: 24, y: 24 },
@@ -657,11 +899,11 @@ export class OverworldScene extends Scene {
                 { id:'healer', name:'Healer Mira', gridX:7, gridY:20, type:'heal', facing:'up', spritePath:'Sprites/Characters/Nun1.png', dialogue:['Oh dear, your Sprites look exhausted!','Rest here a moment... Let me tend to them.','There we go -- all healed up! Good luck out there!'] },
                 { id:'shopkeeper', name:'Merchant Grin', gridX:8, gridY:35, type:'shop', facing:'down', spritePath:'Sprites/Characters/Merchant1.png', dialogue:['Looking to buy supplies? You have come to the right place!','I stock potions, crystals, and other essentials.','Come back any time -- my door is always open!'] },
                 { id:'quest_guide', name:'Scout Renn', gridX:41, gridY:23, type:'quest', facing:'left', spritePath:'Sprites/Characters/Viking1.png', dialogue:['Blazecore Sanctum is through the cave to the east!','Fire-type Sprites lurk within. Their guardian is formidable.','I train here every day to prepare for the challenge.','If you bring me a Fire Gem, I can teach your Sprites fire resistance!'] },
-                { id:'mom', name:'Mom', gridX:6, gridY:7, type:'talk', facing:'down', spritePath:'Sprites/Characters/NobleLady1.png', dialogue:['Be careful out there, dear!','Remember to heal your Sprites at Mira\'s hut if they get hurt.','I\'ll always be here if you need me.'] },
+                { id:'mom', name:'Mom', gridX:7, gridY:8, type:'talk', facing:'down', spritePath:'Sprites/Characters/NobleLady1.png', dialogue:['Be careful out there, dear!','Remember to heal your Sprites at Mira\'s hut if they get hurt.','I\'ll always be here if you need me.'] },
                 { id:'father_byron', name:'Father Byron', gridX:35, gridY:35, type:'talk', facing:'up', spritePath:'Sprites/Characters/Priest.png', dialogue:['Blessings upon you, young trainer!','I have devoted my life to studying the bond between Sprites and their tamers.','There are 24 known Sprite races, each with three evolution stages.','That is 72 distinct forms to discover!','Head south to the Verdant Route for your first encounters.'] },
-                { id:'fisherman', name:'Old Fisher Tom', gridX:29, gridY:8, type:'talk', facing:'right', spritePath:'Sprites/Characters/Farmer1.png', dialogue:['The lake here is home to some rare Water-type Sprites.','I have been fishing these waters for thirty years.','Legend says there is a treasure on the small island out there...'] },
+                { id:'fisherman', name:'Old Fisher Tom', gridX:31, gridY:8, type:'talk', facing:'right', spritePath:'Sprites/Characters/Farmer1.png', dialogue:['The pond here is home to some rare Water-type Sprites.','I have been fishing these waters for thirty years.','Legend says there is a treasure on the small island out there...'] },
                 { id:'guard', name:'Gate Guard Hal', gridX:24, gridY:43, type:'talk', facing:'up', spritePath:'Sprites/Characters/Viking3.png', dialogue:['Beyond this gate lies the Verdant Route.','Wild Sprites roam freely out there. Make sure you are prepared!','Stock up on potions before heading out.'] },
-                { id:'blacksmith', name:'Smith Doran', gridX:6, gridY:42, type:'shop', facing:'up', spritePath:'Sprites/Characters/MinerLeader.png', dialogue:['Need equipment? I forge the finest gear in Willowshade.','Bring me raw materials and I can craft something special.'] },
+                { id:'blacksmith', name:'Smith Doran', gridX:6, gridY:44, type:'shop', facing:'up', spritePath:'Sprites/Characters/MinerLeader.png', dialogue:['Need equipment? I forge the finest gear in Willowshade.','Bring me raw materials and I can craft something special.'] },
                 { id:'child', name:'Little Pip', gridX:22, gridY:26, type:'talk', facing:'down', spritePath:'Sprites/Characters/Thief1.png', dialogue:['I am going to be the greatest Sprite tamer ever!','My dad says I am too young to leave town though...','Have you seen the big fountain? It is my favorite spot!'] },
             ],
             transitions: [
@@ -1924,6 +2166,21 @@ export class OverworldScene extends Scene {
             case 17: return '#ccaa30'; // lamp post / torch
             case 18: return '#60a0c0'; // well/fountain / altar
             case 19: return '#3a3a3a'; // stairs/cave entrance
+            case 20: return '#8a3030'; // roof peak
+            case 21: return '#6a5040'; // wood panel wall
+            case 22: return '#5a3a20'; // barrel
+            case 23: return '#3a7a2e'; // tall grass
+            case 24: return '#aa3030'; // mushroom
+            case 25: return '#5a4a30'; // stump
+            case 26: return '#1a4a0e'; // big tree top-left
+            case 27: return '#1a4a0e'; // big tree top-right
+            case 28: return '#3a2a1a'; // big tree bottom-left
+            case 29: return '#3a2a1a'; // big tree bottom-right
+            case 30: return '#6a5030'; // crate
+            case 31: return '#8a3030'; // roof left edge
+            case 32: return '#8a3030'; // roof right edge
+            case 33: return '#6a5040'; // wall with window
+            case 34: return '#7a7a7a'; // stone path/foundation
             default: return '#2d5a1e';
         }
     }
