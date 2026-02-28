@@ -377,6 +377,52 @@
         #shortcuts-overlay td { padding: 4px 8px; font-size: 13px; }
         #shortcuts-overlay td:first-child { color: var(--accent2); font-family: monospace; font-weight: 700; }
 
+        /* ── Speech-to-text mic buttons ── */
+        .stt-wrap {
+            position: relative;
+            display: flex;
+            gap: 4px;
+            align-items: flex-start;
+        }
+        .stt-wrap input, .stt-wrap textarea {
+            flex: 1;
+            min-width: 0;
+        }
+        .mic-btn {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--bg);
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .mic-btn:hover { border-color: var(--accent2); color: var(--text); }
+        .mic-btn.recording {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            animation: mic-pulse 1s infinite;
+        }
+        .mic-btn.unsupported { display: none; }
+        @keyframes mic-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(233,69,96,0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(233,69,96,0); }
+        }
+        #stt-status {
+            font-size: 10px;
+            color: var(--text-dim);
+            padding: 2px 0;
+            min-height: 14px;
+        }
+        #stt-status.recording { color: var(--accent); }
+
         /* ── Scrollbar styling ── */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
@@ -889,14 +935,22 @@ function onTileClick(index) {
 
 function renderAnnotationForm(index) {
     const ann = getTileAnnotation(index) || {};
+    const micClass = sttSupported ? 'mic-btn' : 'mic-btn unsupported';
     annotationFormEl.innerHTML = `
+        <div id="stt-status"></div>
         <div class="form-group">
             <label>Name</label>
-            <input type="text" id="ann-name" value="${escHtml(ann.name || '')}" placeholder="e.g. Grass Base, Stone Wall Top">
+            <div class="stt-wrap">
+                <input type="text" id="ann-name" value="${escHtml(ann.name || '')}" placeholder="e.g. Grass Base, Stone Wall Top">
+                <button class="${micClass}" data-target="ann-name" title="Dictate name">&#x1F3A4;</button>
+            </div>
         </div>
         <div class="form-group">
             <label>Description / Use Cases</label>
-            <textarea id="ann-desc" placeholder="Describe what this tile looks like and when to use it...">${escHtml(ann.description || '')}</textarea>
+            <div class="stt-wrap">
+                <textarea id="ann-desc" placeholder="Describe what this tile looks like and when to use it...">${escHtml(ann.description || '')}</textarea>
+                <button class="${micClass}" data-target="ann-desc" title="Dictate description">&#x1F3A4;</button>
+            </div>
         </div>
         <div class="form-group">
             <label>Category <span style="color:var(--text-dim);font-size:10px">(keys 1-9 for quick set)</span></label>
@@ -920,7 +974,10 @@ function renderAnnotationForm(index) {
         </div>
         <div class="form-group">
             <label>Tags (comma-separated)</label>
-            <input type="text" id="ann-tags" value="${escHtml((ann.tags||[]).join(', '))}" placeholder="e.g. grass, outdoor, variant">
+            <div class="stt-wrap">
+                <input type="text" id="ann-tags" value="${escHtml((ann.tags||[]).join(', '))}" placeholder="e.g. grass, outdoor, variant">
+                <button class="${micClass}" data-target="ann-tags" title="Dictate tags">&#x1F3A4;</button>
+            </div>
         </div>
         <div style="display:flex;gap:8px;margin-top:16px">
             <button class="btn-small" id="apply-ann-btn" style="background:var(--green);color:#000;font-weight:700">Apply</button>
@@ -928,6 +985,11 @@ function renderAnnotationForm(index) {
             <button class="btn-small" id="copy-ann-btn">Copy to Next</button>
         </div>
     `;
+
+    // Bind mic buttons
+    annotationFormEl.querySelectorAll('.mic-btn').forEach(btn => {
+        btn.addEventListener('click', () => toggleDictation(btn.dataset.target, btn));
+    });
 
     // Bind events
     document.getElementById('apply-ann-btn').addEventListener('click', () => applyAnnotation(index));
@@ -1313,6 +1375,114 @@ function setupEventListeners() {
             zoomSlider.dispatchEvent(new Event('input'));
         }
     });
+}
+
+// ── Speech-to-Text (Web Speech API) ──────────────────────────────────
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const sttSupported = !!SpeechRecognition;
+let activeRecognition = null;   // current SpeechRecognition instance
+let activeMicBtn = null;        // currently active mic button element
+let activeTargetId = null;      // id of the field being dictated into
+
+function setSttStatus(msg, isRecording) {
+    const el = document.getElementById('stt-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = isRecording ? 'recording' : '';
+}
+
+function stopDictation() {
+    if (activeRecognition) {
+        activeRecognition.abort();
+        activeRecognition = null;
+    }
+    if (activeMicBtn) {
+        activeMicBtn.classList.remove('recording');
+        activeMicBtn = null;
+    }
+    activeTargetId = null;
+    setSttStatus('');
+}
+
+function toggleDictation(targetId, btn) {
+    if (!sttSupported) {
+        setSttStatus('Speech recognition not supported in this browser');
+        return;
+    }
+
+    // If already recording into this field, stop
+    if (activeRecognition && activeTargetId === targetId) {
+        stopDictation();
+        return;
+    }
+
+    // Stop any existing session first
+    stopDictation();
+
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = true;
+    recognition.continuous = true;
+    recognition.maxAlternatives = 1;
+
+    let finalTranscript = '';
+    const existingText = target.value;
+
+    activeRecognition = recognition;
+    activeMicBtn = btn;
+    activeTargetId = targetId;
+    btn.classList.add('recording');
+    setSttStatus('Listening...', true);
+
+    recognition.onresult = (event) => {
+        let interim = '';
+        finalTranscript = '';
+        for (let i = 0; i < event.results.length; i++) {
+            const result = event.results[i];
+            if (result.isFinal) {
+                finalTranscript += result[0].transcript;
+            } else {
+                interim += result[0].transcript;
+            }
+        }
+
+        // Append to existing text with a space separator
+        const separator = existingText && !existingText.endsWith(' ') ? ' ' : '';
+        if (interim) {
+            target.value = existingText + separator + finalTranscript + interim;
+            setSttStatus('Listening... (speaking)', true);
+        } else if (finalTranscript) {
+            target.value = existingText + separator + finalTranscript;
+            setSttStatus('Listening...', true);
+        }
+    };
+
+    recognition.onerror = (event) => {
+        if (event.error === 'no-speech') {
+            setSttStatus('No speech detected — try again');
+        } else if (event.error === 'not-allowed') {
+            setSttStatus('Microphone access denied — check browser permissions');
+        } else {
+            setSttStatus('Error: ' + event.error);
+        }
+        stopDictation();
+    };
+
+    recognition.onend = () => {
+        // Only clear if this is still the active session
+        if (activeRecognition === recognition) {
+            btn.classList.remove('recording');
+            activeMicBtn = null;
+            activeRecognition = null;
+            activeTargetId = null;
+            setSttStatus(finalTranscript ? 'Done' : '');
+        }
+    };
+
+    recognition.start();
 }
 
 function escHtml(str) {
