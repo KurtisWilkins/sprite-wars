@@ -1,0 +1,882 @@
+{
+  "schemaVersion": "1.0.0",
+  "tileset": {
+    "filename": "Finishedflowersv3.png",
+    "tileWidth": 16,
+    "tileHeight": 16,
+    "columns": 6,
+    "rows": 12,
+    "totalTiles": 72,
+    "themeTags": [
+      "flowers"
+    ],
+    "notes": "Auto-generated metadata for Finishedflowersv3.png. Review and correct in Tile Admin."
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "Nature Top Left 0",
+      "description": "Nature tile from Finishedflowersv3 (top left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Nature Top 1",
+      "description": "Nature tile from Finishedflowersv3 (top region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Nature Top 2",
+      "description": "Nature tile from Finishedflowersv3 (top region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Nature Top 3",
+      "description": "Nature tile from Finishedflowersv3 (top region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 4,
+      "name": "Nature Top 4",
+      "description": "Nature tile from Finishedflowersv3 (top region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 5,
+      "name": "Nature Top Right 5",
+      "description": "Nature tile from Finishedflowersv3 (top right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 6,
+      "name": "Nature Overlay 6",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 7,
+      "name": "Nature Overlay 7",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 8,
+      "name": "Nature Overlay 8",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 9,
+      "name": "Nature Overlay 9",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 10,
+      "name": "Empty 10",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 11,
+      "name": "Nature Overlay 11",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 12,
+      "name": "Nature Left 12",
+      "description": "Nature tile from Finishedflowersv3 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 13,
+      "name": "Nature Overlay 13",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 14,
+      "name": "Nature 14",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 15,
+      "name": "Nature 15",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 16,
+      "name": "Nature 16",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 17,
+      "name": "Nature Right 17",
+      "description": "Nature tile from Finishedflowersv3 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 18,
+      "name": "Nature Left 18",
+      "description": "Nature tile from Finishedflowersv3 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 19,
+      "name": "Nature 19",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 20,
+      "name": "Nature 20",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 21,
+      "name": "Nature 21",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 22,
+      "name": "Nature 22",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 23,
+      "name": "Nature Right 23",
+      "description": "Nature tile from Finishedflowersv3 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 24,
+      "name": "Nature Left 24",
+      "description": "Nature tile from Finishedflowersv3 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 25,
+      "name": "Nature Overlay 25",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 26,
+      "name": "Nature 26",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 27,
+      "name": "Nature 27",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 28,
+      "name": "Nature Overlay 28",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 29,
+      "name": "Nature Right 29",
+      "description": "Nature tile from Finishedflowersv3 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 30,
+      "name": "Nature Left 30",
+      "description": "Nature tile from Finishedflowersv3 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 31,
+      "name": "Nature 31",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 32,
+      "name": "Nature 32",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 33,
+      "name": "Nature 33",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 34,
+      "name": "Nature 34",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 35,
+      "name": "Nature Right 35",
+      "description": "Nature tile from Finishedflowersv3 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 36,
+      "name": "Nature Left 36",
+      "description": "Nature tile from Finishedflowersv3 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 37,
+      "name": "Nature 37",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 38,
+      "name": "Nature 38",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 39,
+      "name": "Nature 39",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 40,
+      "name": "Nature 40",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 41,
+      "name": "Nature Right 41",
+      "description": "Nature tile from Finishedflowersv3 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 42,
+      "name": "Nature Left 42",
+      "description": "Nature tile from Finishedflowersv3 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 43,
+      "name": "Nature Overlay 43",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 44,
+      "name": "Nature 44",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 45,
+      "name": "Nature 45",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 46,
+      "name": "Nature Overlay 46",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 47,
+      "name": "Nature Right 47",
+      "description": "Nature tile from Finishedflowersv3 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 48,
+      "name": "Nature Left 48",
+      "description": "Nature tile from Finishedflowersv3 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 49,
+      "name": "Nature 49",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 50,
+      "name": "Nature 50",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 51,
+      "name": "Nature 51",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 52,
+      "name": "Nature 52",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 53,
+      "name": "Nature Right 53",
+      "description": "Nature tile from Finishedflowersv3 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 54,
+      "name": "Nature Left 54",
+      "description": "Nature tile from Finishedflowersv3 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 55,
+      "name": "Nature 55",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 56,
+      "name": "Nature 56",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 57,
+      "name": "Nature 57",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 58,
+      "name": "Nature 58",
+      "description": "Nature tile from Finishedflowersv3",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 59,
+      "name": "Nature Right 59",
+      "description": "Nature tile from Finishedflowersv3 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 60,
+      "name": "Nature Bottom Left 60",
+      "description": "Nature tile from Finishedflowersv3 (bottom left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 61,
+      "name": "Nature Overlay 61",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 62,
+      "name": "Nature Bottom 62",
+      "description": "Nature tile from Finishedflowersv3 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 63,
+      "name": "Nature Bottom 63",
+      "description": "Nature tile from Finishedflowersv3 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 64,
+      "name": "Nature Overlay 64",
+      "description": "Mostly transparent nature element, suitable as overlay",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 65,
+      "name": "Nature Bottom Right 65",
+      "description": "Nature tile from Finishedflowersv3 (bottom right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 66,
+      "name": "Nature Bottom Left 66",
+      "description": "Nature tile from Finishedflowersv3 (bottom left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 67,
+      "name": "Nature Bottom 67",
+      "description": "Nature tile from Finishedflowersv3 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 68,
+      "name": "Nature Bottom 68",
+      "description": "Nature tile from Finishedflowersv3 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 69,
+      "name": "Nature Bottom 69",
+      "description": "Nature tile from Finishedflowersv3 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 70,
+      "name": "Nature Bottom 70",
+      "description": "Nature tile from Finishedflowersv3 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    },
+    {
+      "index": 71,
+      "name": "Nature Bottom Right 71",
+      "description": "Nature tile from Finishedflowersv3 (bottom right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "flowers",
+        "nature"
+      ]
+    }
+  ],
+  "structures": []
+}

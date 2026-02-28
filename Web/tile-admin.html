@@ -660,7 +660,7 @@ async function loadSavedMetadataList() {
         const key = localStorage.key(i);
         if (key && key.startsWith('tile-meta:')) {
             const filename = key.replace('tile-meta:', '');
-            const metaKey = filename.replace(/\.[^.]+$/, '').replace(/[\/\\:*?"<>|.\x00]/g, '_') + '.json';
+            const metaKey = filename.replace(/[\/\\:*?"<>|.\x00]/g, '_') + '.json';
             savedMetadataFiles.add(metaKey);
         }
     }
@@ -683,7 +683,7 @@ function renderTilesetSidebar(filter = '') {
         html += `<div class="tileset-group">${group}</div>`;
         for (const ts of items) {
             const shortName = ts.replace(/\\/g, '/').split('/').pop();
-            const metaKey = shortName.replace(/\.[^.]+$/, '').replace(/[\/\\:*?"<>|.\x00]/g, '_') + '.json';
+            const metaKey = shortName.replace(/[\/\\:*?"<>|.\x00]/g, '_') + '.json';
             const hasMeta = savedMetadataFiles.has(metaKey);
             const active = ts === currentTileset ? ' active' : '';
             html += `<div class="tileset-item${active}" data-path="${ts}" title="${ts}">
@@ -746,6 +746,16 @@ async function loadMetadata(tilesetPath) {
         }
     } catch (e) { /* API unavailable */ }
 
+    // Try static metadata file fallback
+    const sanitized = filename.replace(/[\/\\:*?"<>|.\x00]/g, '_');
+    try {
+        const res = await fetch('data/tile-metadata/' + encodeURIComponent(sanitized) + '.json');
+        if (res.ok) {
+            metadata = await res.json();
+            return;
+        }
+    } catch (e) { /* not available */ }
+
     // Try localStorage fallback
     const lsKey = 'tile-meta:' + filename;
     const stored = localStorage.getItem(lsKey);
@@ -801,7 +811,7 @@ async function saveMetadata() {
     }
 
     // Mark as saved in sidebar regardless
-    const metaKey = filename.replace(/\.[^.]+$/, '').replace(/[\/\\:*?"<>|.\x00]/g, '_') + '.json';
+    const metaKey = filename.replace(/[\/\\:*?"<>|.\x00]/g, '_') + '.json';
     savedMetadataFiles.add(metaKey);
     renderTilesetSidebar(sidebarSearch.value);
 }

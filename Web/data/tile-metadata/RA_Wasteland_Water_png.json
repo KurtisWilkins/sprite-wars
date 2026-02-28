@@ -1,0 +1,4082 @@
+{
+  "schemaVersion": "1.0.0",
+  "tileset": {
+    "filename": "RA_Wasteland_Water.png",
+    "tileWidth": 16,
+    "tileHeight": 16,
+    "columns": 16,
+    "rows": 20,
+    "totalTiles": 320,
+    "themeTags": [
+      "rogue",
+      "rogueadventure",
+      "water"
+    ],
+    "notes": "Auto-generated metadata for RA_Wasteland_Water.png. Review and correct in Tile Admin."
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "Empty 0",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Water Top Left 1",
+      "description": "Water tile from RA_Wasteland_Water (top left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Water Top 2",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Empty 3",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 4,
+      "name": "Water Top 4",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 5,
+      "name": "Water Top 5",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 6,
+      "name": "Water Top 6",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 7,
+      "name": "Empty 7",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 8,
+      "name": "Water Top 8",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 9,
+      "name": "Water Top 9",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 10,
+      "name": "Water Top 10",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 11,
+      "name": "Empty 11",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 12,
+      "name": "Water Top 12",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 13,
+      "name": "Water Top 13",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 14,
+      "name": "Water Top Right 14",
+      "description": "Water tile from RA_Wasteland_Water (top right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 15,
+      "name": "Empty 15",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 16,
+      "name": "Water Top Left 16",
+      "description": "Water tile from RA_Wasteland_Water (top left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 17,
+      "name": "Water Top Left 17",
+      "description": "Water tile from RA_Wasteland_Water (top left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 18,
+      "name": "Water Top 18",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 19,
+      "name": "Empty 19",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 20,
+      "name": "Water Top 20",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 21,
+      "name": "Water Top 21",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 22,
+      "name": "Water Top 22",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 23,
+      "name": "Empty 23",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 24,
+      "name": "Water Top 24",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 25,
+      "name": "Water Top 25",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 26,
+      "name": "Water Top 26",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 27,
+      "name": "Empty 27",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 28,
+      "name": "Water Top 28",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 29,
+      "name": "Water Top 29",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 30,
+      "name": "Water Top Right 30",
+      "description": "Water tile from RA_Wasteland_Water (top right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 31,
+      "name": "Empty 31",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 32,
+      "name": "Water Top Left 32",
+      "description": "Water tile from RA_Wasteland_Water (top left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 33,
+      "name": "Water Top Left 33",
+      "description": "Water tile from RA_Wasteland_Water (top left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 34,
+      "name": "Water Top 34",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 35,
+      "name": "Empty 35",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 36,
+      "name": "Water Top 36",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 37,
+      "name": "Water Top 37",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 38,
+      "name": "Water Top 38",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 39,
+      "name": "Empty 39",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 40,
+      "name": "Water Top 40",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 41,
+      "name": "Water Top 41",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 42,
+      "name": "Water Top 42",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 43,
+      "name": "Empty 43",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 44,
+      "name": "Water Top 44",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 45,
+      "name": "Water Top 45",
+      "description": "Water tile from RA_Wasteland_Water (top region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 46,
+      "name": "Water Top Right 46",
+      "description": "Water tile from RA_Wasteland_Water (top right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 47,
+      "name": "Empty 47",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 48,
+      "name": "Water Left 48",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 49,
+      "name": "Water Left 49",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 50,
+      "name": "Water 50",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 51,
+      "name": "Empty 51",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 52,
+      "name": "Water 52",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 53,
+      "name": "Water 53",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 54,
+      "name": "Water 54",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 55,
+      "name": "Empty 55",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 56,
+      "name": "Water 56",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 57,
+      "name": "Water 57",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 58,
+      "name": "Water 58",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 59,
+      "name": "Empty 59",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 60,
+      "name": "Water 60",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 61,
+      "name": "Water 61",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 62,
+      "name": "Water Right 62",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 63,
+      "name": "Empty 63",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 64,
+      "name": "Water Left 64",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 65,
+      "name": "Water Left 65",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 66,
+      "name": "Water 66",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 67,
+      "name": "Empty 67",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 68,
+      "name": "Water 68",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 69,
+      "name": "Water 69",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 70,
+      "name": "Water 70",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 71,
+      "name": "Empty 71",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 72,
+      "name": "Water 72",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 73,
+      "name": "Water 73",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 74,
+      "name": "Water 74",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 75,
+      "name": "Empty 75",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 76,
+      "name": "Water 76",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 77,
+      "name": "Water 77",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 78,
+      "name": "Water Right 78",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 79,
+      "name": "Empty 79",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 80,
+      "name": "Empty 80",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 81,
+      "name": "Water Left 81",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 82,
+      "name": "Water 82",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 83,
+      "name": "Empty 83",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 84,
+      "name": "Empty 84",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 85,
+      "name": "Water 85",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 86,
+      "name": "Water 86",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 87,
+      "name": "Empty 87",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 88,
+      "name": "Empty 88",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 89,
+      "name": "Water 89",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 90,
+      "name": "Water 90",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 91,
+      "name": "Empty 91",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 92,
+      "name": "Empty 92",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 93,
+      "name": "Water 93",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 94,
+      "name": "Water Right 94",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 95,
+      "name": "Empty 95",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 96,
+      "name": "Empty 96",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 97,
+      "name": "Water Left 97",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 98,
+      "name": "Water 98",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 99,
+      "name": "Empty 99",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 100,
+      "name": "Empty 100",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 101,
+      "name": "Water 101",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 102,
+      "name": "Water 102",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 103,
+      "name": "Empty 103",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 104,
+      "name": "Empty 104",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 105,
+      "name": "Water 105",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 106,
+      "name": "Water 106",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 107,
+      "name": "Empty 107",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 108,
+      "name": "Empty 108",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 109,
+      "name": "Water 109",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 110,
+      "name": "Water Right 110",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 111,
+      "name": "Empty 111",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 112,
+      "name": "Water Left 112",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 113,
+      "name": "Water Left 113",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 114,
+      "name": "Water 114",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 115,
+      "name": "Empty 115",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 116,
+      "name": "Water 116",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 117,
+      "name": "Water 117",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 118,
+      "name": "Water 118",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 119,
+      "name": "Empty 119",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 120,
+      "name": "Water 120",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 121,
+      "name": "Water 121",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 122,
+      "name": "Water 122",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 123,
+      "name": "Empty 123",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 124,
+      "name": "Water 124",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 125,
+      "name": "Water 125",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 126,
+      "name": "Water Right 126",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 127,
+      "name": "Empty 127",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 128,
+      "name": "Water Left 128",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 129,
+      "name": "Water Left 129",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 130,
+      "name": "Water 130",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 131,
+      "name": "Empty 131",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 132,
+      "name": "Water 132",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 133,
+      "name": "Water 133",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 134,
+      "name": "Water 134",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 135,
+      "name": "Empty 135",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 136,
+      "name": "Water 136",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 137,
+      "name": "Water 137",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 138,
+      "name": "Water 138",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 139,
+      "name": "Empty 139",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 140,
+      "name": "Water 140",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 141,
+      "name": "Water 141",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 142,
+      "name": "Water Right 142",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 143,
+      "name": "Empty 143",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 144,
+      "name": "Water Left 144",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 145,
+      "name": "Water Left 145",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 146,
+      "name": "Water 146",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 147,
+      "name": "Empty 147",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 148,
+      "name": "Water 148",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 149,
+      "name": "Water 149",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 150,
+      "name": "Water 150",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 151,
+      "name": "Empty 151",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 152,
+      "name": "Water 152",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 153,
+      "name": "Water 153",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 154,
+      "name": "Water 154",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 155,
+      "name": "Empty 155",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 156,
+      "name": "Water 156",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 157,
+      "name": "Water 157",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 158,
+      "name": "Water Right 158",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 159,
+      "name": "Empty 159",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 160,
+      "name": "Empty 160",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 161,
+      "name": "Water Left 161",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 162,
+      "name": "Water 162",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 163,
+      "name": "Empty 163",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 164,
+      "name": "Water 164",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 165,
+      "name": "Water 165",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 166,
+      "name": "Water 166",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 167,
+      "name": "Empty 167",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 168,
+      "name": "Water 168",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 169,
+      "name": "Water 169",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 170,
+      "name": "Water 170",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 171,
+      "name": "Empty 171",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 172,
+      "name": "Water 172",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 173,
+      "name": "Water 173",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 174,
+      "name": "Water Right 174",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 175,
+      "name": "Empty 175",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 176,
+      "name": "Water Left 176",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 177,
+      "name": "Water Left 177",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 178,
+      "name": "Water 178",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 179,
+      "name": "Empty 179",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 180,
+      "name": "Water 180",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 181,
+      "name": "Water 181",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 182,
+      "name": "Water 182",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 183,
+      "name": "Empty 183",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 184,
+      "name": "Water 184",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 185,
+      "name": "Water 185",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 186,
+      "name": "Water 186",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 187,
+      "name": "Empty 187",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 188,
+      "name": "Water 188",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 189,
+      "name": "Water 189",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 190,
+      "name": "Water Right 190",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 191,
+      "name": "Empty 191",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 192,
+      "name": "Water Left 192",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 193,
+      "name": "Water Left 193",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 194,
+      "name": "Water 194",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 195,
+      "name": "Empty 195",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 196,
+      "name": "Water 196",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 197,
+      "name": "Water 197",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 198,
+      "name": "Water 198",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 199,
+      "name": "Empty 199",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 200,
+      "name": "Water 200",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 201,
+      "name": "Water 201",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 202,
+      "name": "Water 202",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 203,
+      "name": "Empty 203",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 204,
+      "name": "Water 204",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 205,
+      "name": "Water 205",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 206,
+      "name": "Water Right 206",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 207,
+      "name": "Empty 207",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 208,
+      "name": "Water Left 208",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 209,
+      "name": "Water Left 209",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 210,
+      "name": "Water 210",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 211,
+      "name": "Empty 211",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 212,
+      "name": "Water 212",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 213,
+      "name": "Water 213",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 214,
+      "name": "Water 214",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 215,
+      "name": "Empty 215",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 216,
+      "name": "Water 216",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 217,
+      "name": "Water 217",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 218,
+      "name": "Water 218",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 219,
+      "name": "Empty 219",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 220,
+      "name": "Water 220",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 221,
+      "name": "Water 221",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 222,
+      "name": "Water Right 222",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 223,
+      "name": "Empty 223",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 224,
+      "name": "Water Left 224",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 225,
+      "name": "Water Left 225",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 226,
+      "name": "Water 226",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 227,
+      "name": "Empty 227",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 228,
+      "name": "Water 228",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 229,
+      "name": "Water 229",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 230,
+      "name": "Water 230",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 231,
+      "name": "Empty 231",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 232,
+      "name": "Water 232",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 233,
+      "name": "Water 233",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 234,
+      "name": "Water 234",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 235,
+      "name": "Empty 235",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 236,
+      "name": "Water 236",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 237,
+      "name": "Water 237",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 238,
+      "name": "Water Right 238",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 239,
+      "name": "Empty 239",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 240,
+      "name": "Empty 240",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 241,
+      "name": "Water Left 241",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 242,
+      "name": "Water 242",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 243,
+      "name": "Empty 243",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 244,
+      "name": "Empty 244",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 245,
+      "name": "Water 245",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 246,
+      "name": "Water 246",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 247,
+      "name": "Empty 247",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 248,
+      "name": "Empty 248",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 249,
+      "name": "Water 249",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 250,
+      "name": "Water 250",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 251,
+      "name": "Empty 251",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 252,
+      "name": "Empty 252",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 253,
+      "name": "Water 253",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 254,
+      "name": "Water Right 254",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 255,
+      "name": "Empty 255",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 256,
+      "name": "Empty 256",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 257,
+      "name": "Water Left 257",
+      "description": "Water tile from RA_Wasteland_Water (left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 258,
+      "name": "Water 258",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 259,
+      "name": "Empty 259",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 260,
+      "name": "Empty 260",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 261,
+      "name": "Water 261",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 262,
+      "name": "Water 262",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 263,
+      "name": "Empty 263",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 264,
+      "name": "Empty 264",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 265,
+      "name": "Water 265",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 266,
+      "name": "Water 266",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 267,
+      "name": "Empty 267",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 268,
+      "name": "Empty 268",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 269,
+      "name": "Water 269",
+      "description": "Water tile from RA_Wasteland_Water",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 270,
+      "name": "Water Right 270",
+      "description": "Water tile from RA_Wasteland_Water (right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 271,
+      "name": "Empty 271",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 272,
+      "name": "Water Bottom Left 272",
+      "description": "Water tile from RA_Wasteland_Water (bottom left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 273,
+      "name": "Water Bottom Left 273",
+      "description": "Water tile from RA_Wasteland_Water (bottom left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 274,
+      "name": "Water Bottom 274",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 275,
+      "name": "Empty 275",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 276,
+      "name": "Water Bottom 276",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 277,
+      "name": "Water Bottom 277",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 278,
+      "name": "Water Bottom 278",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 279,
+      "name": "Empty 279",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 280,
+      "name": "Water Bottom 280",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 281,
+      "name": "Water Bottom 281",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 282,
+      "name": "Water Bottom 282",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 283,
+      "name": "Empty 283",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 284,
+      "name": "Water Bottom 284",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 285,
+      "name": "Water Bottom 285",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 286,
+      "name": "Water Bottom Right 286",
+      "description": "Water tile from RA_Wasteland_Water (bottom right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 287,
+      "name": "Empty 287",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 288,
+      "name": "Water Bottom Left 288",
+      "description": "Water tile from RA_Wasteland_Water (bottom left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 289,
+      "name": "Water Bottom Left 289",
+      "description": "Water tile from RA_Wasteland_Water (bottom left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 290,
+      "name": "Water Bottom 290",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 291,
+      "name": "Empty 291",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 292,
+      "name": "Water Bottom 292",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 293,
+      "name": "Water Bottom 293",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 294,
+      "name": "Water Bottom 294",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 295,
+      "name": "Empty 295",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 296,
+      "name": "Water Bottom 296",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 297,
+      "name": "Water Bottom 297",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 298,
+      "name": "Water Bottom 298",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 299,
+      "name": "Empty 299",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 300,
+      "name": "Water Bottom 300",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 301,
+      "name": "Water Bottom 301",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 302,
+      "name": "Water Bottom Right 302",
+      "description": "Water tile from RA_Wasteland_Water (bottom right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 303,
+      "name": "Empty 303",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 304,
+      "name": "Water Bottom Left 304",
+      "description": "Water tile from RA_Wasteland_Water (bottom left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 305,
+      "name": "Water Bottom Left 305",
+      "description": "Water tile from RA_Wasteland_Water (bottom left region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 306,
+      "name": "Water Bottom 306",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 307,
+      "name": "Empty 307",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 308,
+      "name": "Water Bottom 308",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 309,
+      "name": "Water Bottom 309",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 310,
+      "name": "Water Bottom 310",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 311,
+      "name": "Empty 311",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 312,
+      "name": "Water Bottom 312",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 313,
+      "name": "Water Bottom 313",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 314,
+      "name": "Water Bottom 314",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 315,
+      "name": "Empty 315",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 316,
+      "name": "Water Bottom 316",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 317,
+      "name": "Water Bottom 317",
+      "description": "Water tile from RA_Wasteland_Water (bottom region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 318,
+      "name": "Water Bottom Right 318",
+      "description": "Water tile from RA_Wasteland_Water (bottom right region)",
+      "category": "water",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "water"
+      ]
+    },
+    {
+      "index": 319,
+      "name": "Empty 319",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    }
+  ],
+  "structures": []
+}

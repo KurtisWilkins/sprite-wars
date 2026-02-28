@@ -1,0 +1,6601 @@
+{
+  "schemaVersion": "1.0.0",
+  "tileset": {
+    "filename": "RA_Crypt.png",
+    "tileWidth": 16,
+    "tileHeight": 16,
+    "columns": 32,
+    "rows": 16,
+    "totalTiles": 512,
+    "themeTags": [
+      "rogue",
+      "rogueadventure"
+    ],
+    "notes": "Auto-generated metadata for RA_Crypt.png. Review and correct in Tile Admin."
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "Empty 0",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Prop Top Left 1",
+      "description": "Prop tile from RA_Crypt (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Prop Top Left 2",
+      "description": "Prop tile from RA_Crypt (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Prop Top Left 3",
+      "description": "Prop tile from RA_Crypt (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 4,
+      "name": "Prop Top 4",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 5,
+      "name": "Prop Top 5",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 6,
+      "name": "Prop Top 6",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 7,
+      "name": "Prop Top 7",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 8,
+      "name": "Prop Top 8",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 9,
+      "name": "Prop Top 9",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 10,
+      "name": "Prop Top 10",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 11,
+      "name": "Prop Top 11",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 12,
+      "name": "Prop Top 12",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 13,
+      "name": "Prop Top 13",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 14,
+      "name": "Prop Top 14",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 15,
+      "name": "Prop Top 15",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 16,
+      "name": "Prop Top 16",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 17,
+      "name": "Prop Top 17",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 18,
+      "name": "Prop Top 18",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 19,
+      "name": "Prop Top 19",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 20,
+      "name": "Prop Top 20",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 21,
+      "name": "Prop Top 21",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 22,
+      "name": "Prop Top 22",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 23,
+      "name": "Prop Top 23",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 24,
+      "name": "Prop Top 24",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 25,
+      "name": "Prop Top 25",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 26,
+      "name": "Prop Top 26",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 27,
+      "name": "Prop Top 27",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 28,
+      "name": "Prop Top Right 28",
+      "description": "Prop tile from RA_Crypt (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 29,
+      "name": "Prop Top Right 29",
+      "description": "Prop tile from RA_Crypt (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 30,
+      "name": "Prop Top Right 30",
+      "description": "Prop tile from RA_Crypt (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 31,
+      "name": "Prop Top Right 31",
+      "description": "Prop tile from RA_Crypt (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 32,
+      "name": "Empty 32",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 33,
+      "name": "Prop Top Left 33",
+      "description": "Prop tile from RA_Crypt (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 34,
+      "name": "Prop Top Left 34",
+      "description": "Prop tile from RA_Crypt (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 35,
+      "name": "Prop Top Left 35",
+      "description": "Prop tile from RA_Crypt (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 36,
+      "name": "Prop Top 36",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 37,
+      "name": "Prop Top 37",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 38,
+      "name": "Prop Top 38",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 39,
+      "name": "Prop Top 39",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 40,
+      "name": "Prop Top 40",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 41,
+      "name": "Prop Top 41",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 42,
+      "name": "Prop Top 42",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 43,
+      "name": "Prop Top 43",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 44,
+      "name": "Prop Top 44",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 45,
+      "name": "Prop Top 45",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 46,
+      "name": "Prop Top 46",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 47,
+      "name": "Prop Top 47",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 48,
+      "name": "Prop Top 48",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 49,
+      "name": "Prop Top 49",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 50,
+      "name": "Prop Top 50",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 51,
+      "name": "Prop Top 51",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 52,
+      "name": "Prop Top 52",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 53,
+      "name": "Prop Top 53",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 54,
+      "name": "Prop Top 54",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 55,
+      "name": "Prop Top 55",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 56,
+      "name": "Prop Top 56",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 57,
+      "name": "Prop Top 57",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 58,
+      "name": "Prop Top 58",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 59,
+      "name": "Prop Top 59",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 60,
+      "name": "Prop Top Right 60",
+      "description": "Prop tile from RA_Crypt (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 61,
+      "name": "Prop Top Right 61",
+      "description": "Prop tile from RA_Crypt (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 62,
+      "name": "Prop Top Right 62",
+      "description": "Prop tile from RA_Crypt (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 63,
+      "name": "Prop Top Right 63",
+      "description": "Prop tile from RA_Crypt (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 64,
+      "name": "Prop Top Left 64",
+      "description": "Prop tile from RA_Crypt (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 65,
+      "name": "Prop Top Left 65",
+      "description": "Prop tile from RA_Crypt (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 66,
+      "name": "Prop Top Left 66",
+      "description": "Prop tile from RA_Crypt (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 67,
+      "name": "Prop Top Left 67",
+      "description": "Prop tile from RA_Crypt (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 68,
+      "name": "Prop Top 68",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 69,
+      "name": "Prop Top 69",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 70,
+      "name": "Prop Top 70",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 71,
+      "name": "Prop Top 71",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 72,
+      "name": "Prop Top 72",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 73,
+      "name": "Prop Top 73",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 74,
+      "name": "Prop Top 74",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 75,
+      "name": "Prop Top 75",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 76,
+      "name": "Prop Top 76",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 77,
+      "name": "Prop Top 77",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 78,
+      "name": "Prop Top 78",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 79,
+      "name": "Empty 79",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 80,
+      "name": "Prop Top 80",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 81,
+      "name": "Prop Top 81",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 82,
+      "name": "Prop Top 82",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 83,
+      "name": "Prop Top 83",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 84,
+      "name": "Prop Top 84",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 85,
+      "name": "Prop Top 85",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 86,
+      "name": "Prop Top 86",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 87,
+      "name": "Prop Top 87",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 88,
+      "name": "Prop Top 88",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 89,
+      "name": "Prop Top 89",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 90,
+      "name": "Prop Top 90",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 91,
+      "name": "Prop Top 91",
+      "description": "Prop tile from RA_Crypt (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 92,
+      "name": "Empty 92",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 93,
+      "name": "Empty 93",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 94,
+      "name": "Prop Top Right 94",
+      "description": "Prop tile from RA_Crypt (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 95,
+      "name": "Prop Top Right 95",
+      "description": "Prop tile from RA_Crypt (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 96,
+      "name": "Prop Left 96",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 97,
+      "name": "Prop Left 97",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 98,
+      "name": "Prop Left 98",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 99,
+      "name": "Prop Left 99",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 100,
+      "name": "Prop 100",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 101,
+      "name": "Prop 101",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 102,
+      "name": "Prop 102",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 103,
+      "name": "Prop 103",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 104,
+      "name": "Prop 104",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 105,
+      "name": "Prop 105",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 106,
+      "name": "Prop 106",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 107,
+      "name": "Prop 107",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 108,
+      "name": "Prop 108",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 109,
+      "name": "Prop 109",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 110,
+      "name": "Prop 110",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 111,
+      "name": "Empty 111",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 112,
+      "name": "Prop 112",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 113,
+      "name": "Prop 113",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 114,
+      "name": "Prop 114",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 115,
+      "name": "Prop 115",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 116,
+      "name": "Prop 116",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 117,
+      "name": "Prop 117",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 118,
+      "name": "Prop 118",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 119,
+      "name": "Prop 119",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 120,
+      "name": "Prop 120",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 121,
+      "name": "Prop 121",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 122,
+      "name": "Prop 122",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 123,
+      "name": "Prop 123",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 124,
+      "name": "Prop Right 124",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 125,
+      "name": "Prop Right 125",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 126,
+      "name": "Prop Right 126",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 127,
+      "name": "Prop Right 127",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 128,
+      "name": "Prop Left 128",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 129,
+      "name": "Prop Left 129",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 130,
+      "name": "Prop Left 130",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 131,
+      "name": "Prop Left 131",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 132,
+      "name": "Empty 132",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 133,
+      "name": "Prop 133",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 134,
+      "name": "Prop 134",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 135,
+      "name": "Prop 135",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 136,
+      "name": "Prop 136",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 137,
+      "name": "Prop 137",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 138,
+      "name": "Prop 138",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 139,
+      "name": "Prop 139",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 140,
+      "name": "Empty 140",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 141,
+      "name": "Empty 141",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 142,
+      "name": "Empty 142",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 143,
+      "name": "Empty 143",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 144,
+      "name": "Prop 144",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 145,
+      "name": "Prop 145",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 146,
+      "name": "Prop 146",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 147,
+      "name": "Prop 147",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 148,
+      "name": "Prop 148",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 149,
+      "name": "Prop 149",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 150,
+      "name": "Prop 150",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 151,
+      "name": "Prop 151",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 152,
+      "name": "Prop 152",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 153,
+      "name": "Prop 153",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 154,
+      "name": "Prop 154",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 155,
+      "name": "Prop 155",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 156,
+      "name": "Prop Right 156",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 157,
+      "name": "Prop Right 157",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 158,
+      "name": "Prop Right 158",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 159,
+      "name": "Prop Right 159",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 160,
+      "name": "Prop Left 160",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 161,
+      "name": "Prop Left 161",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 162,
+      "name": "Prop Left 162",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 163,
+      "name": "Prop Left 163",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 164,
+      "name": "Prop 164",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 165,
+      "name": "Prop 165",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 166,
+      "name": "Prop 166",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 167,
+      "name": "Prop 167",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 168,
+      "name": "Prop 168",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 169,
+      "name": "Prop 169",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 170,
+      "name": "Prop 170",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 171,
+      "name": "Prop 171",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 172,
+      "name": "Empty 172",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 173,
+      "name": "Empty 173",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 174,
+      "name": "Empty 174",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 175,
+      "name": "Empty 175",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 176,
+      "name": "Prop 176",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 177,
+      "name": "Prop 177",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 178,
+      "name": "Prop 178",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 179,
+      "name": "Prop 179",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 180,
+      "name": "Prop 180",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 181,
+      "name": "Prop 181",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 182,
+      "name": "Prop 182",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 183,
+      "name": "Prop 183",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 184,
+      "name": "Prop 184",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 185,
+      "name": "Prop 185",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 186,
+      "name": "Prop 186",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 187,
+      "name": "Prop 187",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 188,
+      "name": "Empty 188",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 189,
+      "name": "Empty 189",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 190,
+      "name": "Prop Right 190",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 191,
+      "name": "Prop Right 191",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 192,
+      "name": "Empty 192",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 193,
+      "name": "Prop Left 193",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 194,
+      "name": "Prop Left 194",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 195,
+      "name": "Prop Left 195",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 196,
+      "name": "Prop 196",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 197,
+      "name": "Prop 197",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 198,
+      "name": "Prop 198",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 199,
+      "name": "Prop 199",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 200,
+      "name": "Prop 200",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 201,
+      "name": "Prop 201",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 202,
+      "name": "Prop 202",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 203,
+      "name": "Prop 203",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 204,
+      "name": "Prop 204",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 205,
+      "name": "Empty 205",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 206,
+      "name": "Empty 206",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 207,
+      "name": "Empty 207",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 208,
+      "name": "Prop 208",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 209,
+      "name": "Prop 209",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 210,
+      "name": "Prop 210",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 211,
+      "name": "Prop 211",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 212,
+      "name": "Prop 212",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 213,
+      "name": "Prop 213",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 214,
+      "name": "Prop 214",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 215,
+      "name": "Prop 215",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 216,
+      "name": "Prop 216",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 217,
+      "name": "Prop 217",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 218,
+      "name": "Prop 218",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 219,
+      "name": "Empty 219",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 220,
+      "name": "Empty 220",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 221,
+      "name": "Empty 221",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 222,
+      "name": "Prop Right 222",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 223,
+      "name": "Prop Right 223",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 224,
+      "name": "Empty 224",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 225,
+      "name": "Prop Left 225",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 226,
+      "name": "Prop Left 226",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 227,
+      "name": "Prop Left 227",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 228,
+      "name": "Prop 228",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 229,
+      "name": "Prop 229",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 230,
+      "name": "Prop 230",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 231,
+      "name": "Prop 231",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 232,
+      "name": "Prop 232",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 233,
+      "name": "Prop 233",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 234,
+      "name": "Prop 234",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 235,
+      "name": "Prop 235",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 236,
+      "name": "Empty 236",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 237,
+      "name": "Empty 237",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 238,
+      "name": "Empty 238",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 239,
+      "name": "Empty 239",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 240,
+      "name": "Prop 240",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 241,
+      "name": "Prop 241",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 242,
+      "name": "Prop 242",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 243,
+      "name": "Prop 243",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 244,
+      "name": "Prop 244",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 245,
+      "name": "Prop 245",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 246,
+      "name": "Prop 246",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 247,
+      "name": "Prop 247",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 248,
+      "name": "Prop 248",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 249,
+      "name": "Prop 249",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 250,
+      "name": "Prop 250",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 251,
+      "name": "Empty 251",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 252,
+      "name": "Empty 252",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 253,
+      "name": "Empty 253",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 254,
+      "name": "Empty 254",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 255,
+      "name": "Empty 255",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 256,
+      "name": "Prop Left 256",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 257,
+      "name": "Prop Left 257",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 258,
+      "name": "Prop Left 258",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 259,
+      "name": "Prop Left 259",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 260,
+      "name": "Prop 260",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 261,
+      "name": "Prop 261",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 262,
+      "name": "Prop 262",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 263,
+      "name": "Prop 263",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 264,
+      "name": "Prop 264",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 265,
+      "name": "Prop 265",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 266,
+      "name": "Prop 266",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 267,
+      "name": "Prop 267",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 268,
+      "name": "Prop 268",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 269,
+      "name": "Prop 269",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 270,
+      "name": "Empty 270",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 271,
+      "name": "Empty 271",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 272,
+      "name": "Prop 272",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 273,
+      "name": "Prop 273",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 274,
+      "name": "Prop 274",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 275,
+      "name": "Prop 275",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 276,
+      "name": "Prop 276",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 277,
+      "name": "Prop 277",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 278,
+      "name": "Prop 278",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 279,
+      "name": "Prop 279",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 280,
+      "name": "Prop 280",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 281,
+      "name": "Prop 281",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 282,
+      "name": "Prop 282",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 283,
+      "name": "Prop 283",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 284,
+      "name": "Prop Right 284",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 285,
+      "name": "Prop Right 285",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 286,
+      "name": "Prop Right 286",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 287,
+      "name": "Prop Right 287",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 288,
+      "name": "Prop Left 288",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 289,
+      "name": "Prop Left 289",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 290,
+      "name": "Prop Left 290",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 291,
+      "name": "Prop Left 291",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 292,
+      "name": "Prop 292",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 293,
+      "name": "Prop 293",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 294,
+      "name": "Prop 294",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 295,
+      "name": "Prop 295",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 296,
+      "name": "Prop 296",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 297,
+      "name": "Prop 297",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 298,
+      "name": "Prop 298",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 299,
+      "name": "Prop 299",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 300,
+      "name": "Prop 300",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 301,
+      "name": "Prop 301",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 302,
+      "name": "Empty 302",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 303,
+      "name": "Empty 303",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 304,
+      "name": "Prop 304",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 305,
+      "name": "Prop 305",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 306,
+      "name": "Prop 306",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 307,
+      "name": "Prop 307",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 308,
+      "name": "Prop 308",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 309,
+      "name": "Prop 309",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 310,
+      "name": "Prop 310",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 311,
+      "name": "Prop 311",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 312,
+      "name": "Prop 312",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 313,
+      "name": "Prop 313",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 314,
+      "name": "Prop 314",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 315,
+      "name": "Prop 315",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 316,
+      "name": "Prop Right 316",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 317,
+      "name": "Prop Right 317",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 318,
+      "name": "Prop Right 318",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 319,
+      "name": "Prop Right 319",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 320,
+      "name": "Prop Left 320",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 321,
+      "name": "Prop Left 321",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 322,
+      "name": "Prop Left 322",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 323,
+      "name": "Prop Left 323",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 324,
+      "name": "Empty 324",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 325,
+      "name": "Prop 325",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 326,
+      "name": "Prop 326",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 327,
+      "name": "Prop 327",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 328,
+      "name": "Prop 328",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 329,
+      "name": "Prop 329",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 330,
+      "name": "Prop 330",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 331,
+      "name": "Prop 331",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 332,
+      "name": "Prop 332",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 333,
+      "name": "Empty 333",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 334,
+      "name": "Empty 334",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 335,
+      "name": "Empty 335",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 336,
+      "name": "Prop 336",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 337,
+      "name": "Prop 337",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 338,
+      "name": "Prop 338",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 339,
+      "name": "Prop 339",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 340,
+      "name": "Prop 340",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 341,
+      "name": "Prop 341",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 342,
+      "name": "Prop 342",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 343,
+      "name": "Prop 343",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 344,
+      "name": "Prop 344",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 345,
+      "name": "Prop 345",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 346,
+      "name": "Prop 346",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 347,
+      "name": "Prop 347",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 348,
+      "name": "Empty 348",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 349,
+      "name": "Empty 349",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 350,
+      "name": "Prop Right 350",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 351,
+      "name": "Prop Right 351",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 352,
+      "name": "Prop Left 352",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 353,
+      "name": "Prop Left 353",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 354,
+      "name": "Prop Left 354",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 355,
+      "name": "Prop Left 355",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 356,
+      "name": "Prop 356",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 357,
+      "name": "Prop 357",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 358,
+      "name": "Prop 358",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 359,
+      "name": "Prop 359",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 360,
+      "name": "Prop 360",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 361,
+      "name": "Prop 361",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 362,
+      "name": "Prop 362",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 363,
+      "name": "Prop 363",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 364,
+      "name": "Empty 364",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 365,
+      "name": "Empty 365",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 366,
+      "name": "Empty 366",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 367,
+      "name": "Empty 367",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 368,
+      "name": "Prop 368",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 369,
+      "name": "Prop 369",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 370,
+      "name": "Prop 370",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 371,
+      "name": "Prop 371",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 372,
+      "name": "Prop 372",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 373,
+      "name": "Prop 373",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 374,
+      "name": "Prop 374",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 375,
+      "name": "Prop 375",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 376,
+      "name": "Prop 376",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 377,
+      "name": "Prop 377",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 378,
+      "name": "Prop 378",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 379,
+      "name": "Prop 379",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 380,
+      "name": "Prop Right 380",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 381,
+      "name": "Prop Right 381",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 382,
+      "name": "Prop Right 382",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 383,
+      "name": "Prop Right 383",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 384,
+      "name": "Prop Left 384",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 385,
+      "name": "Prop Left 385",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 386,
+      "name": "Prop Left 386",
+      "description": "Prop tile from RA_Crypt (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 387,
+      "name": "Empty 387",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 388,
+      "name": "Empty 388",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 389,
+      "name": "Empty 389",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 390,
+      "name": "Prop 390",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 391,
+      "name": "Prop 391",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 392,
+      "name": "Prop 392",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 393,
+      "name": "Prop 393",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 394,
+      "name": "Prop 394",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 395,
+      "name": "Prop 395",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 396,
+      "name": "Prop 396",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 397,
+      "name": "Prop 397",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 398,
+      "name": "Empty 398",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 399,
+      "name": "Empty 399",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 400,
+      "name": "Prop 400",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 401,
+      "name": "Prop 401",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 402,
+      "name": "Prop 402",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 403,
+      "name": "Prop 403",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 404,
+      "name": "Prop 404",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 405,
+      "name": "Prop 405",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 406,
+      "name": "Prop 406",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 407,
+      "name": "Prop 407",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 408,
+      "name": "Prop 408",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 409,
+      "name": "Prop 409",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 410,
+      "name": "Prop 410",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 411,
+      "name": "Prop 411",
+      "description": "Prop tile from RA_Crypt",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 412,
+      "name": "Prop Right 412",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 413,
+      "name": "Prop Right 413",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 414,
+      "name": "Prop Right 414",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 415,
+      "name": "Prop Right 415",
+      "description": "Prop tile from RA_Crypt (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 416,
+      "name": "Prop Bottom Left 416",
+      "description": "Prop tile from RA_Crypt (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 417,
+      "name": "Prop Bottom Left 417",
+      "description": "Prop tile from RA_Crypt (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 418,
+      "name": "Prop Bottom Left 418",
+      "description": "Prop tile from RA_Crypt (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 419,
+      "name": "Prop Bottom Left 419",
+      "description": "Prop tile from RA_Crypt (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 420,
+      "name": "Prop Bottom 420",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 421,
+      "name": "Prop Bottom 421",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 422,
+      "name": "Prop Bottom 422",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 423,
+      "name": "Prop Bottom 423",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 424,
+      "name": "Prop Bottom 424",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 425,
+      "name": "Prop Bottom 425",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 426,
+      "name": "Prop Bottom 426",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 427,
+      "name": "Prop Bottom 427",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 428,
+      "name": "Prop Bottom 428",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 429,
+      "name": "Prop Bottom 429",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 430,
+      "name": "Empty 430",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 431,
+      "name": "Empty 431",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 432,
+      "name": "Prop Bottom 432",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 433,
+      "name": "Prop Bottom 433",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 434,
+      "name": "Prop Bottom 434",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 435,
+      "name": "Prop Bottom 435",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 436,
+      "name": "Prop Bottom 436",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 437,
+      "name": "Prop Bottom 437",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 438,
+      "name": "Prop Bottom 438",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 439,
+      "name": "Prop Bottom 439",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 440,
+      "name": "Prop Bottom 440",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 441,
+      "name": "Prop Bottom 441",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 442,
+      "name": "Prop Bottom 442",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 443,
+      "name": "Prop Bottom 443",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 444,
+      "name": "Empty 444",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 445,
+      "name": "Empty 445",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 446,
+      "name": "Prop Bottom Right 446",
+      "description": "Prop tile from RA_Crypt (bottom right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 447,
+      "name": "Prop Bottom Right 447",
+      "description": "Prop tile from RA_Crypt (bottom right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 448,
+      "name": "Prop Bottom Left 448",
+      "description": "Prop tile from RA_Crypt (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 449,
+      "name": "Prop Bottom Left 449",
+      "description": "Prop tile from RA_Crypt (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 450,
+      "name": "Prop Bottom Left 450",
+      "description": "Prop tile from RA_Crypt (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 451,
+      "name": "Prop Bottom Left 451",
+      "description": "Prop tile from RA_Crypt (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 452,
+      "name": "Prop Bottom 452",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 453,
+      "name": "Prop Bottom 453",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 454,
+      "name": "Prop Bottom 454",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 455,
+      "name": "Prop Bottom 455",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 456,
+      "name": "Empty 456",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 457,
+      "name": "Prop Bottom 457",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 458,
+      "name": "Prop Bottom 458",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 459,
+      "name": "Prop Bottom 459",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 460,
+      "name": "Prop Bottom 460",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 461,
+      "name": "Prop Bottom 461",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 462,
+      "name": "Empty 462",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 463,
+      "name": "Empty 463",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 464,
+      "name": "Prop Bottom 464",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 465,
+      "name": "Prop Bottom 465",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 466,
+      "name": "Prop Bottom 466",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 467,
+      "name": "Prop Bottom 467",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 468,
+      "name": "Prop Bottom 468",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 469,
+      "name": "Prop Bottom 469",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 470,
+      "name": "Prop Bottom 470",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 471,
+      "name": "Prop Bottom 471",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 472,
+      "name": "Prop Bottom 472",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 473,
+      "name": "Prop Bottom 473",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 474,
+      "name": "Prop Bottom 474",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 475,
+      "name": "Empty 475",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 476,
+      "name": "Empty 476",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 477,
+      "name": "Empty 477",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 478,
+      "name": "Prop Bottom Right 478",
+      "description": "Prop tile from RA_Crypt (bottom right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 479,
+      "name": "Prop Bottom Right 479",
+      "description": "Prop tile from RA_Crypt (bottom right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 480,
+      "name": "Empty 480",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 481,
+      "name": "Empty 481",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 482,
+      "name": "Empty 482",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 483,
+      "name": "Prop Bottom Left 483",
+      "description": "Prop tile from RA_Crypt (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 484,
+      "name": "Prop Bottom 484",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 485,
+      "name": "Prop Bottom 485",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 486,
+      "name": "Prop Bottom 486",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 487,
+      "name": "Prop Bottom 487",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 488,
+      "name": "Prop Bottom 488",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 489,
+      "name": "Prop Bottom 489",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 490,
+      "name": "Prop Bottom 490",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 491,
+      "name": "Prop Bottom 491",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 492,
+      "name": "Prop Overlay 492",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 493,
+      "name": "Prop Bottom 493",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 494,
+      "name": "Empty 494",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 495,
+      "name": "Empty 495",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 496,
+      "name": "Prop Bottom 496",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 497,
+      "name": "Prop Bottom 497",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 498,
+      "name": "Prop Bottom 498",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 499,
+      "name": "Prop Bottom 499",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 500,
+      "name": "Prop Bottom 500",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 501,
+      "name": "Prop Bottom 501",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 502,
+      "name": "Prop Bottom 502",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 503,
+      "name": "Prop Bottom 503",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 504,
+      "name": "Prop Bottom 504",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 505,
+      "name": "Prop Bottom 505",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 506,
+      "name": "Prop Bottom 506",
+      "description": "Prop tile from RA_Crypt (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 507,
+      "name": "Empty 507",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 508,
+      "name": "Empty 508",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 509,
+      "name": "Empty 509",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 510,
+      "name": "Empty 510",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 511,
+      "name": "Empty 511",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    }
+  ],
+  "structures": []
+}

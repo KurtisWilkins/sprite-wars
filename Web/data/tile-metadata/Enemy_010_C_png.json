@@ -1,0 +1,1523 @@
+{
+  "schemaVersion": "1.0.0",
+  "tileset": {
+    "filename": "Enemy_010_C.png",
+    "tileWidth": 16,
+    "tileHeight": 16,
+    "columns": 12,
+    "rows": 10,
+    "totalTiles": 120,
+    "themeTags": [
+      "rogue",
+      "rogueadventure"
+    ],
+    "notes": "Auto-generated metadata for Enemy_010_C.png. Review and correct in Tile Admin."
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "Empty 0",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Empty 1",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Empty 2",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Empty 3",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 4,
+      "name": "Empty 4",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 5,
+      "name": "Empty 5",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 6,
+      "name": "Empty 6",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 7,
+      "name": "Empty 7",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 8,
+      "name": "Empty 8",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 9,
+      "name": "Empty 9",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 10,
+      "name": "Empty 10",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 11,
+      "name": "Empty 11",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 12,
+      "name": "Prop Top Left 12",
+      "description": "Prop tile from Enemy_010_C (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 13,
+      "name": "Prop Top Left 13",
+      "description": "Prop tile from Enemy_010_C (top left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 14,
+      "name": "Prop Top 14",
+      "description": "Prop tile from Enemy_010_C (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 15,
+      "name": "Prop Top 15",
+      "description": "Prop tile from Enemy_010_C (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 16,
+      "name": "Prop Top 16",
+      "description": "Prop tile from Enemy_010_C (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 17,
+      "name": "Prop Top 17",
+      "description": "Prop tile from Enemy_010_C (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 18,
+      "name": "Prop Top 18",
+      "description": "Prop tile from Enemy_010_C (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 19,
+      "name": "Prop Top 19",
+      "description": "Prop tile from Enemy_010_C (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 20,
+      "name": "Prop Top 20",
+      "description": "Prop tile from Enemy_010_C (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 21,
+      "name": "Prop Top 21",
+      "description": "Prop tile from Enemy_010_C (top region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 22,
+      "name": "Prop Top Right 22",
+      "description": "Prop tile from Enemy_010_C (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 23,
+      "name": "Prop Top Right 23",
+      "description": "Prop tile from Enemy_010_C (top right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 24,
+      "name": "Empty 24",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 25,
+      "name": "Empty 25",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 26,
+      "name": "Empty 26",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 27,
+      "name": "Empty 27",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 28,
+      "name": "Empty 28",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 29,
+      "name": "Empty 29",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 30,
+      "name": "Empty 30",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 31,
+      "name": "Empty 31",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 32,
+      "name": "Empty 32",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 33,
+      "name": "Empty 33",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 34,
+      "name": "Empty 34",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 35,
+      "name": "Empty 35",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 36,
+      "name": "Prop Left 36",
+      "description": "Prop tile from Enemy_010_C (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 37,
+      "name": "Prop Left 37",
+      "description": "Prop tile from Enemy_010_C (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 38,
+      "name": "Prop 38",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 39,
+      "name": "Prop 39",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 40,
+      "name": "Prop 40",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 41,
+      "name": "Prop 41",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 42,
+      "name": "Prop 42",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 43,
+      "name": "Prop 43",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 44,
+      "name": "Prop 44",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 45,
+      "name": "Prop 45",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 46,
+      "name": "Prop Right 46",
+      "description": "Prop tile from Enemy_010_C (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 47,
+      "name": "Prop Right 47",
+      "description": "Prop tile from Enemy_010_C (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 48,
+      "name": "Empty 48",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 49,
+      "name": "Empty 49",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 50,
+      "name": "Empty 50",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 51,
+      "name": "Prop 51",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 52,
+      "name": "Prop Overlay 52",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 53,
+      "name": "Prop 53",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 54,
+      "name": "Empty 54",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 55,
+      "name": "Empty 55",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 56,
+      "name": "Empty 56",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 57,
+      "name": "Empty 57",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 58,
+      "name": "Empty 58",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 59,
+      "name": "Empty 59",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 60,
+      "name": "Prop Left 60",
+      "description": "Prop tile from Enemy_010_C (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 61,
+      "name": "Prop Left 61",
+      "description": "Prop tile from Enemy_010_C (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 62,
+      "name": "Prop 62",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 63,
+      "name": "Prop 63",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 64,
+      "name": "Prop 64",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 65,
+      "name": "Prop 65",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 66,
+      "name": "Prop 66",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 67,
+      "name": "Prop 67",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 68,
+      "name": "Prop 68",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 69,
+      "name": "Prop 69",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 70,
+      "name": "Prop Right 70",
+      "description": "Prop tile from Enemy_010_C (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 71,
+      "name": "Prop Right 71",
+      "description": "Prop tile from Enemy_010_C (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 72,
+      "name": "Prop Overlay 72",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 73,
+      "name": "Prop Overlay 73",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 74,
+      "name": "Prop Overlay 74",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 75,
+      "name": "Prop Overlay 75",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 76,
+      "name": "Empty 76",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 77,
+      "name": "Empty 77",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 78,
+      "name": "Empty 78",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 79,
+      "name": "Empty 79",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 80,
+      "name": "Empty 80",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 81,
+      "name": "Empty 81",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 82,
+      "name": "Empty 82",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 83,
+      "name": "Empty 83",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 84,
+      "name": "Prop Left 84",
+      "description": "Prop tile from Enemy_010_C (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 85,
+      "name": "Prop Left 85",
+      "description": "Prop tile from Enemy_010_C (left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 86,
+      "name": "Prop 86",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 87,
+      "name": "Prop 87",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 88,
+      "name": "Prop 88",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 89,
+      "name": "Prop 89",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 90,
+      "name": "Prop 90",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 91,
+      "name": "Prop 91",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 92,
+      "name": "Prop 92",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 93,
+      "name": "Prop 93",
+      "description": "Prop tile from Enemy_010_C",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 94,
+      "name": "Prop Right 94",
+      "description": "Prop tile from Enemy_010_C (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 95,
+      "name": "Prop Right 95",
+      "description": "Prop tile from Enemy_010_C (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 96,
+      "name": "Prop Overlay 96",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 97,
+      "name": "Prop Bottom Left 97",
+      "description": "Prop tile from Enemy_010_C (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 98,
+      "name": "Prop Overlay 98",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 99,
+      "name": "Prop Bottom 99",
+      "description": "Prop tile from Enemy_010_C (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 100,
+      "name": "Prop Bottom 100",
+      "description": "Prop tile from Enemy_010_C (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 101,
+      "name": "Prop Bottom 101",
+      "description": "Prop tile from Enemy_010_C (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 102,
+      "name": "Prop Bottom 102",
+      "description": "Prop tile from Enemy_010_C (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 103,
+      "name": "Prop Overlay 103",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 104,
+      "name": "Prop Bottom 104",
+      "description": "Prop tile from Enemy_010_C (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 105,
+      "name": "Empty 105",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 106,
+      "name": "Empty 106",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 107,
+      "name": "Empty 107",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 108,
+      "name": "Prop Bottom Left 108",
+      "description": "Prop tile from Enemy_010_C (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 109,
+      "name": "Prop Bottom Left 109",
+      "description": "Prop tile from Enemy_010_C (bottom left region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 110,
+      "name": "Prop Bottom 110",
+      "description": "Prop tile from Enemy_010_C (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 111,
+      "name": "Prop Bottom 111",
+      "description": "Prop tile from Enemy_010_C (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 112,
+      "name": "Prop Bottom 112",
+      "description": "Prop tile from Enemy_010_C (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 113,
+      "name": "Prop Bottom 113",
+      "description": "Prop tile from Enemy_010_C (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 114,
+      "name": "Prop Bottom 114",
+      "description": "Prop tile from Enemy_010_C (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 115,
+      "name": "Prop Overlay 115",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 116,
+      "name": "Prop Bottom 116",
+      "description": "Prop tile from Enemy_010_C (bottom region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "rogue",
+        "rogueadventure",
+        "prop"
+      ]
+    },
+    {
+      "index": 117,
+      "name": "Empty 117",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 118,
+      "name": "Empty 118",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 119,
+      "name": "Empty 119",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    }
+  ],
+  "structures": []
+}
