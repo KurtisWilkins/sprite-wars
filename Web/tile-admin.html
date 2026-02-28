@@ -574,23 +574,49 @@ async function init() {
 }
 
 async function loadTilesetList() {
+    // Try the API first, fall back to static manifest
     try {
         const res = await fetch('/api/tilesets/list');
-        allTilesets = await res.json();
-        allTilesets.sort();
-    } catch (e) {
-        console.error('Failed to load tileset list:', e);
-        allTilesets = [];
-    }
+        if (res.ok) {
+            allTilesets = await res.json();
+            allTilesets.sort();
+            return;
+        }
+    } catch (e) { /* API unavailable, try manifest */ }
+
+    try {
+        const res = await fetch('data/tileset-manifest.json');
+        if (res.ok) {
+            allTilesets = await res.json();
+            allTilesets.sort();
+            return;
+        }
+    } catch (e) { /* manifest also unavailable */ }
+
+    console.error('Failed to load tileset list from API or manifest');
+    allTilesets = [];
 }
 
 async function loadSavedMetadataList() {
+    savedMetadataFiles = new Set();
+
+    // Try API
     try {
         const res = await fetch('/api/tile-metadata/list');
-        const files = await res.json();
-        savedMetadataFiles = new Set(files);
-    } catch (e) {
-        savedMetadataFiles = new Set();
+        if (res.ok) {
+            const files = await res.json();
+            for (const f of files) savedMetadataFiles.add(f);
+        }
+    } catch (e) { /* API unavailable */ }
+
+    // Also check localStorage for any locally-saved metadata
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('tile-meta:')) {
+            const filename = key.replace('tile-meta:', '');
+            const metaKey = filename.replace(/\.[^.]+$/, '').replace(/[\/\\:*?"<>|.\x00]/g, '_') + '.json';
+            savedMetadataFiles.add(metaKey);
+        }
     }
 }
 
@@ -627,12 +653,17 @@ async function loadTileset(tilesetPath) {
     currentTileset = tilesetPath;
     statusText.textContent = 'Loading ' + tilesetPath.split('/').pop() + '...';
 
-    // Load image
+    // Load image — try absolute path first (Node server), then relative (static hosting)
     const img = new Image();
     img.crossOrigin = 'anonymous';
     await new Promise((resolve, reject) => {
         img.onload = resolve;
-        img.onerror = reject;
+        img.onerror = () => {
+            // Fallback: try relative path from Web/ directory
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = '../' + tilesetPath;
+        };
         img.src = '/' + tilesetPath;
     });
     tilesetImage = img;
@@ -659,13 +690,22 @@ async function loadTileset(tilesetPath) {
 
 async function loadMetadata(tilesetPath) {
     const filename = tilesetPath.replace(/\\/g, '/').split('/').pop();
+
+    // Try API first
     try {
         const res = await fetch('/api/tile-metadata/load?tileset=' + encodeURIComponent(filename));
         if (res.ok) {
             metadata = await res.json();
             return;
         }
-    } catch (e) { /* not found, create new */ }
+    } catch (e) { /* API unavailable */ }
+
+    // Try localStorage fallback
+    const lsKey = 'tile-meta:' + filename;
+    const stored = localStorage.getItem(lsKey);
+    if (stored) {
+        try { metadata = JSON.parse(stored); return; } catch (e) { /* corrupt */ }
+    }
 
     // Create fresh metadata
     metadata = {
@@ -689,6 +729,13 @@ async function loadMetadata(tilesetPath) {
 async function saveMetadata() {
     if (!metadata) return;
     statusText.textContent = 'Saving...';
+
+    // Always save to localStorage as backup
+    const filename = metadata.tileset.filename;
+    const lsKey = 'tile-meta:' + filename;
+    try { localStorage.setItem(lsKey, JSON.stringify(metadata)); } catch (e) { /* quota */ }
+
+    // Try API save
     try {
         const res = await fetch('/api/tile-metadata/save', {
             method: 'POST',
@@ -700,12 +747,17 @@ async function saveMetadata() {
             statusText.textContent = 'Saved: ' + result.filename;
             savedMetadataFiles.add(result.filename);
             renderTilesetSidebar(sidebarSearch.value);
-        } else {
-            statusText.textContent = 'Save failed: ' + (result.error || 'Unknown error');
+            return;
         }
+        statusText.textContent = 'API save failed, saved to browser storage';
     } catch (e) {
-        statusText.textContent = 'Save failed: ' + e.message;
+        statusText.textContent = 'Saved to browser storage (server unavailable)';
     }
+
+    // Mark as saved in sidebar regardless
+    const metaKey = filename.replace(/\.[^.]+$/, '').replace(/[\/\\:*?"<>|.\x00]/g, '_') + '.json';
+    savedMetadataFiles.add(metaKey);
+    renderTilesetSidebar(sidebarSearch.value);
 }
 
 // ── Tile annotation helpers ───────────────────────────────────────────
