@@ -527,24 +527,24 @@ class AssetRegistry {
   // Tileset paths by theme
   // -------------------------------------------------------------------------
   static TILESETS = {
-    "cave":                     "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Caverns/Sprites/RA_Cavern.png",
-    "cave_folder":              "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Caverns",
-    "town":                     "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Village/Sprites/RA_Village.png",
-    "town_folder":              "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Village",
-    "overworld":                "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png",
-    "overworld_folder":         "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld",
-    "home":                     "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Interior/Sprites/RA_Interior.png",
-    "home_folder":              "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Interior",
-    "fantasy_dreamland":        "../Sprites/Tiles Sprites/Fantasy Dreamland",
-    "fantasy_dreamland_reborn": "../Sprites/Tiles Sprites/Fantasy Dreamland Reborn",
-    "rogue_adventure":          "../Sprites/Tiles Sprites/Rogue Adventure",
-    "farm_game_world":          "../Sprites/Tiles Sprites/Farm Game World",
-    "buildings":                "../Sprites/Tiles Sprites/Buildings",
+    "cave":                     "../Sprites/Tiles/RogueAdventure/Cavern/RA_Cavern.png",
+    "cave_folder":              "../Sprites/Tiles/RogueAdventure/Cavern",
+    "town":                     "../Sprites/Tiles/RogueAdventure/Village/RA_Village.png",
+    "town_folder":              "../Sprites/Tiles/RogueAdventure/Village",
+    "overworld":                "../Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png",
+    "overworld_folder":         "../Sprites/Tiles/RogueAdventure/Overworld",
+    "home":                     "../Sprites/Tiles/RogueAdventure/Interior/RA_Interior.png",
+    "home_folder":              "../Sprites/Tiles/RogueAdventure/Interior",
+    "fantasy_dreamland":        "../Sprites/Tiles/FantasyDreamland",
+    "fantasy_dreamland_reborn": "../Sprites/Tiles/FantasyDreamlandReborn",
+    "rogue_adventure":          "../Sprites/Tiles/RogueAdventure",
+    "farm_game_world":          "../Sprites/Tiles/FarmGameWorld",
+    "buildings":                "../Sprites/Tiles/Buildings",
     "characters":               "../Sprites/Characters",
-    "extras":                   "../Sprites/Tiles Sprites/Extras",
-    "flowers":                  "../Sprites/Tiles Sprites/Flowers",
-    "icons":                    "../Sprites/Tiles Sprites/Icons",
-    "prefab_tiles":             "../Sprites/Tiles Sprites/Prefab Tiles",
+    "extras":                   "../Sprites/Tiles/Extras",
+    "flowers":                  "../Sprites/Tiles/Flowers",
+    "icons":                    "../Sprites/Tiles/Icons",
+    "prefab_tiles":             "../Sprites/Tiles/PrefabTiles",
   };
 
   // -------------------------------------------------------------------------
@@ -799,7 +799,7 @@ class AssetRegistry {
    * @returns {string}
    */
   getTileset(theme) {
-    return AssetRegistry.TILESETS[theme] ?? "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png";
+    return AssetRegistry.TILESETS[theme] ?? "../Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png";
   }
 
   /**

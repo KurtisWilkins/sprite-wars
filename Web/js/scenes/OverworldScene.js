@@ -382,7 +382,7 @@ export class OverworldScene extends Scene {
         this._mapPixelHeight = (this._mapData.height || DEFAULT_MAP_HEIGHT) * TILE_SIZE;
 
         // Load tileset for this region
-        const tilesetPath = this._mapData.tileset || 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png';
+        const tilesetPath = this._mapData.tileset || 'Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png';
         try {
             this._tilesetImg = await this.engine.assets.loadImage(tilesetPath);
         } catch (_) {
@@ -498,7 +498,7 @@ export class OverworldScene extends Scene {
             id: regionId,
             width: w,
             height: h,
-            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png',
+            tileset: 'Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png',
             tilesetTileSize: 16,
             tileIndexMap: {
                 0: 171, 1: 173, 2: 174, 3: 175, 4: 199, 5: 198,
@@ -646,7 +646,7 @@ export class OverworldScene extends Scene {
 
         return {
             id: 'starter_town', width: w, height: h,
-            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png',
+            tileset: 'Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png',
             tilesetTileSize: 16,
             tileIndexMap: { 0:171,1:173,2:174,3:175,4:199,5:198,6:103,7:104,8:136,9:36,10:117,11:85,12:149,13:78,14:206,15:178,16:242,17:179,18:143,19:7 },
             layers: [ground],
@@ -727,7 +727,7 @@ export class OverworldScene extends Scene {
 
         return {
             id: 'starter_route', width: w, height: h,
-            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png',
+            tileset: 'Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png',
             tilesetTileSize: 16,
             tileIndexMap: { 0:171,1:173,2:174,3:175,4:199,5:198,6:103,7:104,8:136,9:36,10:117,11:85,12:149,13:78,14:206,15:178,16:242,17:179,18:143,19:7 },
             layers: [ground],
@@ -842,7 +842,7 @@ export class OverworldScene extends Scene {
             id: 'fire_temple',
             width: w,
             height: h,
-            tileset: 'Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Caverns/Sprites/RA_Cavern.png',
+            tileset: 'Sprites/Tiles/RogueAdventure/Cavern/RA_Cavern.png',
             tilesetTileSize: 16,
             // Map logical tile indices (0-19) to positions in RA_Cavern.png (32 cols)
             tileIndexMap: {
