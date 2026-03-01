@@ -13,6 +13,14 @@
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { BattleGrid } from '../systems/battle/BattleGrid.js';
+import { SPRITE_RACES } from '../data/SpriteData.js';
+
+function _getSpriteName(inst) {
+    if (!inst) return '???';
+    if (inst.nickname) return inst.nickname;
+    const race = SPRITE_RACES.find(r => r.race_id === inst.raceId);
+    return race ? race.race_name : `Sprite #${inst.raceId || '?'}`;
+}
 
 // ── Layout Constants ────────────────────────────────────────────────────────
 const GRID_CELL_SIZE = 36;
@@ -89,9 +97,13 @@ export class DeploymentScene extends Scene {
     }
 
     enter(data) {
-        this._availableSprites = data.availableSprites || [];
-        this._enemyTeamData = data.enemyTeam || [];
+        // Pull player team from passed data, gameData, or engine's GameManager
+        const gm = this.engine.gameManager;
+        const pd = (gm && gm.playerData) ? gm.playerData : {};
+        this._availableSprites = data.availableSprites || (data.gameData && data.gameData.team) || pd.team || [];
+        this._enemyTeamData = data.enemyTeam || data.enemies || [];
         this._templeId = data.templeId || 0;
+        this._encounterData = data;
 
         // Reset state
         this._deployedUnits = [];
@@ -790,7 +802,7 @@ export class DeploymentScene extends Scene {
 
             const nameSpan = document.createElement('div');
             nameSpan.style.cssText = `font-size:0.7rem;font-weight:600;color:${isDeployed ? '#66cc88' : '#ccccdd'};`;
-            nameSpan.textContent = inst ? (inst.nickname || `Sprite #${inst.raceId}`) : '???';
+            nameSpan.textContent = _getSpriteName(inst);
             nameDiv.appendChild(nameSpan);
 
             const levelSpan = document.createElement('div');
@@ -843,7 +855,7 @@ export class DeploymentScene extends Scene {
         // Name
         const name = document.createElement('div');
         name.style.cssText = 'font-size:0.85rem;font-weight:700;color:#ffcc33;margin-bottom:4px;';
-        name.textContent = inst ? (inst.nickname || `Sprite #${inst.raceId}`) : '???';
+        name.textContent = _getSpriteName(inst);
         this._detailPanelEl.appendChild(name);
 
         // Level + Elements

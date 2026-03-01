@@ -5,6 +5,7 @@
  *
  * Ported from Game/Scripts/Battle/BattleUnit.gd
  */
+import { SPRITE_RACES } from '../../data/SpriteData.js';
 
 export class BattleUnit {
     // -- Constants ----------------------------------------------------------------
@@ -358,7 +359,8 @@ export class BattleUnit {
         if (this.spriteInstance.nickname && this.spriteInstance.nickname.length > 0) {
             return this.spriteInstance.nickname;
         }
-        return `Sprite #${this.spriteInstance.raceId}`;
+        const race = SPRITE_RACES.find(r => r.race_id === this.spriteInstance.raceId);
+        return race ? race.race_name : `Sprite #${this.spriteInstance.raceId}`;
     }
 
     /**

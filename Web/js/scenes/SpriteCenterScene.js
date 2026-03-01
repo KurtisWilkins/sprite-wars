@@ -17,6 +17,14 @@
 
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
+import { SPRITE_RACES } from '../data/SpriteData.js';
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function _getSpriteName(inst) {
+    if (inst.nickname) return inst.nickname;
+    const race = SPRITE_RACES.find(r => r.race_id === inst.raceId);
+    return race ? race.race_name : `Sprite #${inst.raceId || '?'}`;
+}
 
 // ── Constants ───────────────────────────────────────────────────────────────
 const TABS = ['team', 'storage', 'registry'];
@@ -178,11 +186,12 @@ export class SpriteCenterScene extends Scene {
     // ═══════════════════════════════════════════════════════════════════
 
     _loadPlayerData() {
-        const state = this.engine.state || this.engine.gameState || {};
-        this._party = state.party || state.team || [];
-        this._storage = state.storage || state.spriteStorage || [[]];
-        this._registry = state.registry || state.spriteRegistry || {};
-        this._inventory = state.inventory || state.items || [];
+        const gm = this.engine.gameManager;
+        const pd = (gm && gm.playerData) ? gm.playerData : (this.engine.state || this.engine.gameState || {});
+        this._party = pd.team || pd.party || [];
+        this._storage = pd.storage || pd.spriteStorage || [[]];
+        this._registry = pd.spriteRegistry || pd.registry || {};
+        this._inventory = pd.inventory || pd.items || [];
 
         // Ensure at least one storage box
         if (this._storage.length === 0) {
@@ -191,13 +200,13 @@ export class SpriteCenterScene extends Scene {
     }
 
     _savePlayerData() {
-        const state = this.engine.state || this.engine.gameState || {};
-        state.party = this._party;
-        state.team = this._party;
-        state.storage = this._storage;
-        state.spriteStorage = this._storage;
-        state.registry = this._registry;
-        state.inventory = this._inventory;
+        const gm = this.engine.gameManager;
+        const pd = (gm && gm.playerData) ? gm.playerData : (this.engine.state || this.engine.gameState || {});
+        pd.team = this._party;
+        pd.storage = this._storage;
+        pd.spriteStorage = this._storage;
+        pd.spriteRegistry = this._registry;
+        pd.inventory = this._inventory;
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -385,7 +394,7 @@ export class SpriteCenterScene extends Scene {
 
         const nameSpan = document.createElement('div');
         nameSpan.style.cssText = 'font-size:0.8rem;font-weight:600;color:#ddddee;';
-        nameSpan.textContent = inst.nickname || `Sprite #${inst.raceId || '?'}`;
+        nameSpan.textContent = _getSpriteName(inst);
         info.appendChild(nameSpan);
 
         const detailSpan = document.createElement('div');
@@ -820,7 +829,7 @@ export class SpriteCenterScene extends Scene {
         // Name and level
         const nameEl = document.createElement('div');
         nameEl.style.cssText = 'font-size:0.9rem;font-weight:700;color:#ffcc33;margin-bottom:2px;';
-        nameEl.textContent = inst.nickname || `Sprite #${inst.raceId || '?'}`;
+        nameEl.textContent = _getSpriteName(inst);
         this._detailPanelEl.appendChild(nameEl);
 
         const levelEl = document.createElement('div');
