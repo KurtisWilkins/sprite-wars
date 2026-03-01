@@ -14,6 +14,7 @@ import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { BattleGrid } from '../systems/battle/BattleGrid.js';
 import { SPRITE_RACES } from '../data/SpriteData.js';
+import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
 
 function _getSpriteName(inst) {
     if (!inst) return '???';
@@ -84,6 +85,9 @@ export class DeploymentScene extends Scene {
         this._detailPanelEl = null;
         this._startBtnEl = null;
 
+        // ── Animation time tracker ──────────────────────────────────────
+        this._time = 0;
+
         // ── Event cleanup ─────────────────────────────────────────────
         this._unsubs = [];
     }
@@ -114,12 +118,19 @@ export class DeploymentScene extends Scene {
         this._hoveredCell = null;
         this._detailSprite = null;
 
+        // Reset animation time
+        this._time = 0;
+
         // Preload fallback character sprite sheets (128x128, 4x4, 32x32 frames)
         this._charSheets = {};
         this.engine.assets.loadImage('Sprites/Characters/NoviceWizard1.png')
             .then(img => { this._charSheets.player = img; }).catch(() => {});
         this.engine.assets.loadImage('Sprites/Characters/Skeleton1.png')
             .then(img => { this._charSheets.enemy = img; }).catch(() => {});
+
+        // Preload unit assets via UnitRenderer for rich composite rendering
+        UnitRenderer.preloadTeam(this.engine, this._availableSprites).catch(() => {});
+        UnitRenderer.preloadTeam(this.engine, this._enemyTeamData).catch(() => {});
 
         // Auto-deploy first 7 sprites in default positions
         this._autoDeployDefault();
@@ -160,6 +171,7 @@ export class DeploymentScene extends Scene {
 
     update(dt) {
         super.update(dt);
+        this._time += dt;
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -234,7 +246,7 @@ export class DeploymentScene extends Scene {
                 if (deployedIdx >= 0) {
                     ctx.fillStyle = COLOR_GRID_PLACED;
                     ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
-                    this._renderUnitInCell(ctx, renderer, this._deployedUnits[deployedIdx].spriteData, cellX, cellY);
+                    this._renderUnitInCell(ctx, renderer, this._deployedUnits[deployedIdx].spriteData, cellX, cellY, deployedIdx);
                 }
 
                 // Hover highlight
@@ -298,101 +310,42 @@ export class DeploymentScene extends Scene {
         }
     }
 
-    _renderUnitInCell(ctx, renderer, spriteData, cellX, cellY) {
-        const inst = spriteData.instance;
-        const raceData = spriteData.raceData;
-        if (!inst && !raceData) return;
+    _renderUnitInCell(ctx, renderer, spriteData, cellX, cellY, deployedIdx) {
+        const inst = spriteData.instance || spriteData;
+        if (!inst && !spriteData.raceData) return;
 
         const centerX = cellX + GRID_CELL_SIZE / 2;
         const centerY = cellY + GRID_CELL_SIZE / 2;
-        const size = GRID_CELL_SIZE - 8;
 
-        // Try to draw character sprite
-        const sheet = this._charSheets && this._charSheets.player;
-        if (sheet && sheet.complete) {
-            // Character sprite sheet: 128x128, 4 cols x 4 rows, each frame 32x32
-            const fw = 32, fh = 32;
-            const col = 0; // idle frame
-            ctx.drawImage(sheet, col * fw, 0, fw, fh,
-                cellX + 4, cellY + 2, size, size);
-        } else {
-            // Fallback: colored circle with element
-            const elemTypes = raceData ? (raceData.elementTypes || []) : [];
-            const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#6688cc';
-            ctx.fillStyle = elemColor;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        ctx.strokeStyle = '#3399ff';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Name/Level
-        const name = inst ? (inst.nickname || `Lv${inst.level || 1}`) : '?';
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 8px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(name.substring(0, 5), centerX, centerY - 2);
-
-        // Level below
-        const level = inst ? (inst.level || 1) : 1;
-        ctx.fillStyle = '#aaaacc';
-        ctx.font = '7px sans-serif';
-        ctx.fillText(`Lv${level}`, centerX, cellY + GRID_CELL_SIZE - 6);
+        UnitRenderer.draw(ctx, inst, centerX, centerY, GRID_CELL_SIZE - 6, {
+            time: this._time,
+            team: 0,
+            showHpBar: false,
+            showLevel: true,
+            showAura: true,
+            showWeapon: true,
+            showArmorGlow: true,
+            showElementBadge: true,
+            isSelected: deployedIdx !== undefined && deployedIdx === this._selectedDeployedIndex,
+        });
     }
 
     _renderEnemyInCell(ctx, renderer, enemyData, cellX, cellY) {
-        const inst = enemyData.instance;
-        const raceData = enemyData.raceData;
+        const inst = enemyData.instance || enemyData;
         const centerX = cellX + GRID_CELL_SIZE / 2;
         const centerY = cellY + GRID_CELL_SIZE / 2;
-        const size = GRID_CELL_SIZE - 8;
 
-        // Try to draw character sprite
-        const sheet = this._charSheets && this._charSheets.enemy;
-        if (sheet && sheet.complete) {
-            // Character sprite sheet: 128x128, 4 cols x 4 rows, each frame 32x32
-            const fw = 32, fh = 32;
-            const col = 0; // idle frame
-            ctx.globalAlpha = 0.7;
-            ctx.drawImage(sheet, col * fw, 0, fw, fh,
-                cellX + 4, cellY + 2, size, size);
-            ctx.globalAlpha = 1.0;
-        } else {
-            // Fallback: colored circle with element
-            const elemTypes = raceData ? (raceData.elementTypes || []) : [];
-            const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#cc5555';
-            ctx.fillStyle = elemColor;
-            ctx.globalAlpha = 0.7;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 1.0;
-        }
-
-        ctx.strokeStyle = '#cc3333';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Show a "?" or the name if scouted
-        const name = inst ? (inst.nickname || '???') : '???';
-        ctx.fillStyle = '#ffaaaa';
-        ctx.font = 'bold 8px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(name.substring(0, 5), centerX, centerY - 2);
-
-        const level = inst ? (inst.level || '?') : '?';
-        ctx.fillStyle = '#cc8888';
-        ctx.font = '7px sans-serif';
-        ctx.fillText(`Lv${level}`, centerX, cellY + GRID_CELL_SIZE - 6);
+        UnitRenderer.draw(ctx, inst, centerX, centerY, GRID_CELL_SIZE - 6, {
+            time: this._time,
+            team: 1,
+            alpha: 0.7,
+            showHpBar: false,
+            showLevel: true,
+            showAura: true,
+            showWeapon: true,
+            showArmorGlow: true,
+            showElementBadge: true,
+        });
     }
 
     _renderDragSprite(ctx, renderer) {
@@ -402,12 +355,22 @@ export class DeploymentScene extends Scene {
         const drawX = this._dragScreenX - GRID_CELL_SIZE / 2;
         const drawY = this._dragScreenY - GRID_CELL_SIZE / 2;
 
-        ctx.globalAlpha = 0.7;
         ctx.fillStyle = 'rgba(50, 150, 255, 0.3)';
         ctx.fillRect(drawX, drawY, GRID_CELL_SIZE, GRID_CELL_SIZE);
 
-        this._renderUnitInCell(ctx, renderer, spriteData, drawX, drawY);
-        ctx.globalAlpha = 1.0;
+        const inst = spriteData.instance || spriteData;
+        UnitRenderer.draw(ctx, inst, this._dragScreenX, this._dragScreenY, GRID_CELL_SIZE - 6, {
+            time: this._time,
+            team: 0,
+            alpha: 0.7,
+            showHpBar: false,
+            showLevel: true,
+            showAura: true,
+            showWeapon: true,
+            showArmorGlow: true,
+            showElementBadge: false,
+            isSelected: true,
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -772,65 +735,24 @@ export class DeploymentScene extends Scene {
         header.textContent = `Party (${this._deployedUnits.length}/${MAX_DEPLOY_UNITS} deployed)`;
         this._rosterPanelEl.appendChild(header);
 
-        // List of available sprites
+        // List of available sprites — rendered via UnitRenderer.createUnitCard()
         for (let i = 0; i < this._availableSprites.length; i++) {
             const sprite = this._availableSprites[i];
-            const inst = sprite.instance;
-            const raceData = sprite.raceData;
+            const spriteInst = sprite.instance || sprite;
             const isDeployed = this._deployedUnits.some(d => d.spriteData === sprite);
-            const isSelected = this._selectedRosterIndex === i;
 
-            const row = document.createElement('div');
-            row.style.cssText = `
-                display:flex;align-items:center;gap:8px;padding:6px 8px;
-                cursor:pointer;
-                border-bottom:1px solid rgba(255,255,255,0.04);
-                background:${isSelected ? 'rgba(50,150,255,0.15)' : isDeployed ? 'rgba(50,200,100,0.08)' : 'transparent'};
-                transition:background 0.15s;
-            `;
-
-            // Element dot
-            const elemTypes = raceData ? (raceData.elementTypes || []) : [];
-            const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#888';
-            const dot = document.createElement('div');
-            dot.style.cssText = `width:12px;height:12px;border-radius:50%;background:${elemColor};flex-shrink:0;`;
-            row.appendChild(dot);
-
-            // Name + level
-            const nameDiv = document.createElement('div');
-            nameDiv.style.cssText = 'flex:1;';
-
-            const nameSpan = document.createElement('div');
-            nameSpan.style.cssText = `font-size:0.7rem;font-weight:600;color:${isDeployed ? '#66cc88' : '#ccccdd'};`;
-            nameSpan.textContent = _getSpriteName(inst);
-            nameDiv.appendChild(nameSpan);
-
-            const levelSpan = document.createElement('div');
-            levelSpan.style.cssText = 'font-size:0.6rem;color:#888;';
-            const level = inst ? (inst.level || 1) : '?';
-            const elemLabel = elemTypes.join('/') || '???';
-            levelSpan.textContent = `Lv${level} | ${elemLabel}`;
-            nameDiv.appendChild(levelSpan);
-
-            row.appendChild(nameDiv);
-
-            // Deploy status indicator
-            const statusSpan = document.createElement('span');
-            statusSpan.style.cssText = `font-size:0.6rem;color:${isDeployed ? '#66cc88' : '#666'};`;
-            statusSpan.textContent = isDeployed ? 'ON' : '';
-            row.appendChild(statusSpan);
-
-            // Click handler
-            const idx = i;
-            row.addEventListener('click', () => this._selectRosterSprite(idx));
-            row.addEventListener('mouseenter', () => {
-                if (!isSelected) row.style.background = 'rgba(255,255,255,0.05)';
+            const card = UnitRenderer.createUnitCard(spriteInst, {
+                cardWidth: ROSTER_PANEL_WIDTH - 12,
+                cardHeight: 52,
+                previewSize: 42,
+                showEquipment: true,
+                showHpBar: false,
+                isSelected: isDeployed,
+                onClick: () => this._selectRosterSprite(i),
             });
-            row.addEventListener('mouseleave', () => {
-                row.style.background = isSelected ? 'rgba(50,150,255,0.15)' : isDeployed ? 'rgba(50,200,100,0.08)' : 'transparent';
-            });
+            card.style.margin = '2px 4px';
 
-            this._rosterPanelEl.appendChild(row);
+            this._rosterPanelEl.appendChild(card);
         }
     }
 
@@ -847,10 +769,34 @@ export class DeploymentScene extends Scene {
             return;
         }
 
-        const inst = sprite.instance;
+        const inst = sprite.instance || sprite;
         const raceData = sprite.raceData;
         const stageData = sprite.stageData;
         const abilities = sprite.abilities || [];
+
+        // ── Sprite preview canvas (composite render at top) ──────────
+        const detailCanvas = document.createElement('canvas');
+        detailCanvas.width = 64;
+        detailCanvas.height = 72;
+        detailCanvas.style.cssText = 'width:64px;height:72px;display:block;margin:0 auto 4px;';
+        const dCtx = detailCanvas.getContext('2d');
+        UnitRenderer.draw(dCtx, inst, 32, 32, 56, {
+            time: this._time,
+            showLevel: true,
+            showAura: true,
+            showWeapon: true,
+            showArmorGlow: true,
+            showElementBadge: true,
+        });
+        this._detailPanelEl.appendChild(detailCanvas);
+
+        // ── Equipment display (paper-doll layout) ────────────────────
+        const equipment = inst.equipment || (sprite.equipment) || {};
+        if (Object.keys(equipment).length > 0) {
+            const eqDisplay = UnitRenderer.createEquipmentDisplay(equipment, 80);
+            eqDisplay.style.margin = '4px auto';
+            this._detailPanelEl.appendChild(eqDisplay);
+        }
 
         // Name
         const name = document.createElement('div');

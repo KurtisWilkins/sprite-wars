@@ -21,18 +21,14 @@ import { BattleAI } from '../systems/battle/BattleAI.js';
 import { StatusEffectSystem } from '../systems/battle/StatusEffectSystem.js';
 import { AbilityExecutor } from '../systems/battle/AbilityExecutor.js';
 import { AssetRegistry } from '../data/AssetRegistry.js';
+import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
 
 // ── Layout Constants ────────────────────────────────────────────────────────
 const GRID_PADDING_X = 24;
 const GRID_PADDING_TOP = 72;
 const CELL_SIZE = 48;
 const CELL_GAP = 4;
-const HP_BAR_HEIGHT = 5;
-const HP_BAR_WIDTH = 40;
-const SPRITE_SIZE = 36;
-const STATUS_ICON_SIZE = 12;
 const TURN_ORDER_HEIGHT = 52;
-const ABILITY_BAR_HEIGHT = 80;
 const BATTLE_LOG_MAX_LINES = 40;
 
 // ── Colors ──────────────────────────────────────────────────────────────────
@@ -42,7 +38,6 @@ const COLOR_GRID_LINES = 'rgba(255,255,255,0.08)';
 const COLOR_CELL_HIGHLIGHT = 'rgba(255, 255, 100, 0.35)';
 const COLOR_CELL_TARGET_VALID = 'rgba(0, 255, 100, 0.25)';
 const COLOR_CELL_TARGET_HOVER = 'rgba(0, 255, 100, 0.50)';
-const COLOR_HP_BG = '#1a1a2e';
 const COLOR_HP_GREEN = '#33cc66';
 const COLOR_HP_YELLOW = '#cccc33';
 const COLOR_HP_RED = '#cc3333';
@@ -57,12 +52,12 @@ const PHASE_PLAYER_SELECT_TARGET = 'player_select_target';
 const PHASE_ANIMATING = 'animating';
 const PHASE_BATTLE_END = 'battle_end';
 
-// ── Element Color Map ───────────────────────────────────────────────────────
+// ── Element Color Map (canonical UnitRenderer palette + local overrides) ─────
 const ELEMENT_COLORS = {
-    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
-    Electric: '#ffcc00', Ice: '#99ddff', Nature: '#33aa33', Poison: '#aa33aa',
-    Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Psychic: '#ff66aa',
-    Dragon: '#6633cc', Spirit: '#ccccff',
+    ...UR_ELEMENT_COLORS,
+    // Legacy aliases used in some ability/unit data
+    Wind: '#88ccaa',
+    Dragon: '#6633cc',
 };
 
 export class BattleScene extends Scene {
@@ -131,6 +126,9 @@ export class BattleScene extends Scene {
 
         // ── Pending turn advance delay ────────────────────────────────
         this._turnAdvanceDelay = 0;
+
+        // ── Time tracker for UnitRenderer animations ──────────────────
+        this._time = 0;
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -178,16 +176,9 @@ export class BattleScene extends Scene {
                 .catch(() => {});
         }
 
-        // Preload fallback character sheets (128x128, 4x4, 32x32 frames)
-        this._fallbackPlayerSheet = null;
-        this._fallbackEnemySheet = null;
-        this.engine.assets.loadImage('Sprites/Characters/NoviceWizard1.png')
-            .then(img => { this._fallbackPlayerSheet = img; }).catch(() => {});
-        this.engine.assets.loadImage('Sprites/Characters/Skeleton1.png')
-            .then(img => { this._fallbackEnemySheet = img; }).catch(() => {});
-
-        // Preload sprite images for all units before battle renders
-        this._preloadUnitSprites([...this._playerTeamData, ...this._enemyTeamData]);
+        // Preload unit assets via UnitRenderer for rich composite rendering
+        UnitRenderer.preloadTeam(this.engine, this._playerTeamData).catch(() => {});
+        UnitRenderer.preloadTeam(this.engine, this._enemyTeamData).catch(() => {});
 
         // Build DOM overlays
         this._createDOMOverlays();
@@ -231,6 +222,8 @@ export class BattleScene extends Scene {
     // ═══════════════════════════════════════════════════════════════════
 
     update(dt) {
+        this._time += dt;
+
         switch (this._phase) {
             case PHASE_INTRO:
                 this._updateIntro(dt);
@@ -412,104 +405,45 @@ export class BattleScene extends Scene {
         const grid = this._battleManager.grid;
         if (!grid) return;
 
+        const cellStep = CELL_SIZE + CELL_GAP;
+
         for (let y = 0; y < BattleGrid.TOTAL_HEIGHT; y++) {
             for (let x = 0; x < BattleGrid.GRID_WIDTH; x++) {
                 const unit = grid.getUnitAt({ x, y });
                 if (!unit || !unit.isAlive) continue;
 
-                const cellX = gx + x * (CELL_SIZE + CELL_GAP);
-                const cellY = gy + y * (CELL_SIZE + CELL_GAP);
+                const cellX = gx + x * cellStep;
+                const cellY = gy + y * cellStep;
                 const centerX = cellX + CELL_SIZE / 2;
-                const spriteX = centerX - SPRITE_SIZE / 2;
-                const spriteY = cellY + 2;
+                const centerY = cellY + CELL_SIZE / 2;
+                const spriteSize = CELL_SIZE - 8; // leave some padding
 
-                // Try loading sprite image from cache
+                // Update render cache position for floating text placement
                 let cache = this._unitRenderCache.get(unit);
                 if (!cache) {
                     cache = { spriteImg: null, x: cellX, y: cellY };
                     this._unitRenderCache.set(unit, cache);
-                    // Attempt to load sprite image using AssetRegistry lookup
-                    const inst = unit.spriteInstance;
-                    const spritePath = this._getSpritePathForInstance(inst);
-                    if (spritePath) {
-                        this.engine.assets.loadImage(spritePath)
-                            .then(img => { if (img) cache.spriteImg = img; })
-                            .catch(() => {});
-                    }
                 }
                 cache.x = cellX;
                 cache.y = cellY;
 
-                // Draw sprite (image or fallback character sheet or fallback circle)
-                if (cache.spriteImg && cache.spriteImg.complete) {
-                    renderer.drawImageRaw(cache.spriteImg, spriteX, spriteY, SPRITE_SIZE, SPRITE_SIZE);
-                } else {
-                    // Try fallback character sheet
-                    const sheet = unit.team === 0 ? this._fallbackPlayerSheet : this._fallbackEnemySheet;
-                    if (sheet && sheet.complete) {
-                        // Character sprite sheet: 128x128, 4 cols x 4 rows, 32x32 per frame
-                        const fw = 32, fh = 32;
-                        ctx.drawImage(sheet, 0, 0, fw, fh,
-                            spriteX, spriteY, SPRITE_SIZE, SPRITE_SIZE);
-                    } else {
-                        // Final fallback: colored circle
-                        const elemColor = ELEMENT_COLORS[unit.elementTypes[0]] || '#888888';
-                        ctx.fillStyle = elemColor;
-                        ctx.beginPath();
-                        ctx.arc(centerX, spriteY + SPRITE_SIZE / 2, SPRITE_SIZE / 2 - 2, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-
-                    // Team indicator border
-                    ctx.strokeStyle = unit.team === 0 ? '#3399ff' : '#ff3333';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(centerX, spriteY + SPRITE_SIZE / 2, SPRITE_SIZE / 2 - 2, 0, Math.PI * 2);
-                    ctx.stroke();
-
-                    // Level text on the sprite
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 10px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(`${unit.getLevel()}`, centerX, spriteY + SPRITE_SIZE / 2);
-                }
-
-                // Draw HP bar
-                const hpBarX = centerX - HP_BAR_WIDTH / 2;
-                const hpBarY = spriteY + SPRITE_SIZE + 2;
-                const hpFrac = unit.getHpFraction();
-                const hpColor = hpFrac > 0.5 ? COLOR_HP_GREEN
-                    : hpFrac > 0.25 ? COLOR_HP_YELLOW : COLOR_HP_RED;
-
-                ctx.fillStyle = COLOR_HP_BG;
-                ctx.fillRect(hpBarX, hpBarY, HP_BAR_WIDTH, HP_BAR_HEIGHT);
-                ctx.fillStyle = hpColor;
-                ctx.fillRect(hpBarX, hpBarY, HP_BAR_WIDTH * hpFrac, HP_BAR_HEIGHT);
-                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-                ctx.lineWidth = 0.5;
-                ctx.strokeRect(hpBarX, hpBarY, HP_BAR_WIDTH, HP_BAR_HEIGHT);
-
-                // Draw status effect icons
-                const statusY = hpBarY + HP_BAR_HEIGHT + 1;
-                const maxIcons = Math.min(unit.activeStatusEffects.length, 3);
-                const iconStartX = centerX - (maxIcons * (STATUS_ICON_SIZE + 1)) / 2;
-                for (let s = 0; s < maxIcons; s++) {
-                    const entry = unit.activeStatusEffects[s];
-                    const effectData = entry.effectData;
-                    if (!effectData) continue;
-                    const iconColor = this._getStatusColor(effectData);
-                    const ix = iconStartX + s * (STATUS_ICON_SIZE + 1);
-                    ctx.fillStyle = iconColor;
-                    ctx.fillRect(ix, statusY, STATUS_ICON_SIZE, STATUS_ICON_SIZE);
-                    // First letter of effect name
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 8px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    const letter = (effectData.effectName || '?')[0].toUpperCase();
-                    ctx.fillText(letter, ix + STATUS_ICON_SIZE / 2, statusY + STATUS_ICON_SIZE / 2);
-                }
+                // Draw fully composited unit via UnitRenderer
+                const inst = unit.spriteInstance || unit.spriteData || unit;
+                UnitRenderer.draw(ctx, inst, centerX, centerY, spriteSize, {
+                    time: this._time,
+                    team: unit.team,
+                    showHpBar: true,
+                    hpFraction: unit.getHpFraction ? unit.getHpFraction() : (unit.currentHp / unit.maxHp),
+                    showLevel: true,
+                    showAura: true,
+                    showWeapon: true,
+                    showArmorGlow: true,
+                    showElementBadge: true,
+                    showStatusIcons: true,
+                    isSelected: unit === this._battleManager.currentUnit,
+                    statusEffects: unit.activeStatusEffects || [],
+                    direction: unit.facing || 0,
+                });
 
                 // Draw name label for current unit
                 if (this._battleManager.currentUnit === unit) {
@@ -1218,16 +1152,28 @@ export class BattleScene extends Scene {
                 min-width:36px;height:36px;border-radius:6px;
                 border:2px solid ${borderColor};background:${elemColor}33;
                 display:flex;align-items:center;justify-content:center;
-                flex-shrink:0;position:relative;
+                flex-shrink:0;position:relative;overflow:hidden;
                 ${isCurrent ? 'box-shadow:0 0 8px rgba(255,204,51,0.5);' : ''}
             `;
 
-            // Name initial or level
-            const label = document.createElement('span');
-            label.style.cssText = `color:#fff;font-size:0.6rem;font-weight:700;`;
-            const name = unit.getDisplayName();
-            label.textContent = name.substring(0, 3);
-            unitEl.appendChild(label);
+            // Mini canvas preview via UnitRenderer
+            const miniCanvas = document.createElement('canvas');
+            miniCanvas.width = 36;
+            miniCanvas.height = 36;
+            miniCanvas.style.cssText = 'width:36px;height:36px;border-radius:4px;';
+            const mCtx = miniCanvas.getContext('2d');
+            const inst = unit.spriteInstance || unit.spriteData || {};
+            UnitRenderer.draw(mCtx, inst, 18, 18, 30, {
+                time: this._time,
+                team: unit.team,
+                showHpBar: false,
+                showLevel: false,
+                showAura: false,
+                showWeapon: true,
+                showArmorGlow: true,
+                showElementBadge: false,
+            });
+            unitEl.appendChild(miniCanvas);
 
             // Mini HP bar at bottom
             const miniHp = document.createElement('div');
@@ -1369,75 +1315,6 @@ export class BattleScene extends Scene {
     // Helpers
     // ═══════════════════════════════════════════════════════════════════
 
-    /**
-     * Resolve the sprite image path for a unit's instance using AssetRegistry.
-     * Falls back to FALLBACK_SPRITE if formId/raceId cannot be resolved.
-     * @param {object} inst - The spriteInstance on a BattleUnit, or the instance from team data.
-     * @returns {string|null} A path suitable for engine.assets.loadImage(), or null.
-     */
-    _getSpritePathForInstance(inst) {
-        if (!inst) return null;
-
-        // If the instance already has a spriteAsset path, use it directly
-        if (inst.spriteAsset) return inst.spriteAsset;
-
-        // Look up from AssetRegistry using formId
-        const formId = inst.formId ?? inst.form_id ?? null;
-        if (formId != null) {
-            const registryPath = AssetRegistry.CHARACTER_SPRITES[formId];
-            if (registryPath) {
-                // Registry paths are relative from Web/js/data/ (e.g. "../Sprites/Monsters/Slime.png").
-                // AssetLoader.resolvePath prepends _basePath ("..") to non-absolute paths,
-                // so we need to strip the leading "../" to get "Sprites/Monsters/Slime.png"
-                // which resolves to "../Sprites/Monsters/Slime.png" after resolvePath.
-                if (registryPath.startsWith('../')) {
-                    return registryPath.slice(3);
-                }
-                return registryPath;
-            }
-        }
-
-        // Try computing formId from raceId (default to stage 1)
-        const raceId = inst.raceId ?? inst.race_id ?? null;
-        if (raceId != null) {
-            const computedFormId = raceId * 3 - 2; // Stage 1 form
-            const registryPath = AssetRegistry.CHARACTER_SPRITES[computedFormId];
-            if (registryPath) {
-                if (registryPath.startsWith('../')) {
-                    return registryPath.slice(3);
-                }
-                return registryPath;
-            }
-        }
-
-        // Last resort: use the fallback sprite
-        const fallback = AssetRegistry.FALLBACK_SPRITE;
-        if (fallback && fallback.startsWith('../')) {
-            return fallback.slice(3);
-        }
-        return fallback || null;
-    }
-
-    /**
-     * Preload sprite images for all units that will be in the battle.
-     * Called during enter() so images are cached before the first render frame.
-     * @param {object[]} teamDataEntries - Array of team data objects with instance property.
-     */
-    _preloadUnitSprites(teamDataEntries) {
-        const pathsToLoad = new Set();
-        for (const data of teamDataEntries) {
-            const inst = data.instance || data;
-            const path = this._getSpritePathForInstance(inst);
-            if (path) {
-                pathsToLoad.add(path);
-            }
-        }
-        // Fire off all loads in parallel; they will be cached by AssetLoader
-        for (const path of pathsToLoad) {
-            this.engine.assets.loadImage(path).catch(() => {});
-        }
-    }
-
     _screenToGrid(px, py) {
         const gx = this._gridOriginX;
         const gy = this._gridOriginY;
@@ -1457,15 +1334,4 @@ export class BattleScene extends Scene {
         return { x: gridX, y: gridY };
     }
 
-    _getStatusColor(effectData) {
-        if (!effectData) return '#666';
-        const name = (effectData.effectName || '').toLowerCase();
-        const map = {
-            burn: '#ff5533', freeze: '#88ccff', poison: '#aa33aa',
-            stun: '#ffcc00', sleep: '#9999cc', paralysis: '#ffee33',
-            regen: '#33cc66', shield: '#6699ff', haste: '#66ffcc',
-            slow: '#996633', bleed: '#cc0000', confuse: '#cc66ff',
-        };
-        return map[name] || '#888888';
-    }
 }

@@ -18,6 +18,7 @@
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { SPRITE_RACES } from '../data/SpriteData.js';
+import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function _getSpriteName(inst) {
@@ -85,6 +86,11 @@ export class SpriteCenterScene extends Scene {
         this._previewCanvasEl = null;
         this._previewCtx = null;
 
+        // ── Animation time tracking ──────────────────────────────────
+        this._time = 0;
+        this._animAccum = 0;
+        this._previewCanvases = [];
+
         // ── Event cleanup ─────────────────────────────────────────────
         this._unsubs = [];
     }
@@ -108,6 +114,12 @@ export class SpriteCenterScene extends Scene {
 
         // Load player data from engine state
         this._loadPlayerData();
+
+        // Preload sprite assets for visual rendering
+        UnitRenderer.preloadTeam(this.engine, this._party).catch(() => {});
+        for (const box of this._storage) {
+            UnitRenderer.preloadTeam(this.engine, box || []).catch(() => {});
+        }
 
         // Build DOM
         this._createDOM();
@@ -160,6 +172,16 @@ export class SpriteCenterScene extends Scene {
 
     update(dt) {
         super.update(dt);
+        this._time += dt;
+        this._animAccum = (this._animAccum || 0) + dt;
+        if (this._animAccum > 0.2 && this._previewCanvases) {
+            this._animAccum = 0;
+            for (const { canvas, inst, opts } of this._previewCanvases) {
+                const pCtx = canvas.getContext('2d');
+                pCtx.clearRect(0, 0, canvas.width, canvas.height);
+                UnitRenderer.draw(pCtx, inst, opts.cx, opts.cy, opts.size, { ...opts, time: this._time });
+            }
+        }
     }
 
     render(renderer) {
@@ -330,6 +352,7 @@ export class SpriteCenterScene extends Scene {
 
     _renderTeamTab() {
         this._contentEl.innerHTML = '';
+        this._previewCanvases = [];
 
         const header = document.createElement('div');
         header.style.cssText = 'color:#aaa;font-size:0.75rem;margin-bottom:8px;';
@@ -377,16 +400,30 @@ export class SpriteCenterScene extends Scene {
         posNum.textContent = `${index + 1}`;
         row.appendChild(posNum);
 
-        // Element indicator
-        const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#888';
-        const elemDot = document.createElement('div');
-        elemDot.style.cssText = `
-            width:28px;height:28px;border-radius:50%;background:${elemColor};
-            display:flex;align-items:center;justify-content:center;
-            font-size:0.6rem;font-weight:700;color:#fff;flex-shrink:0;
-        `;
-        elemDot.textContent = `${inst.level || 1}`;
-        row.appendChild(elemDot);
+        // Sprite preview canvas (rich composite via UnitRenderer)
+        const hp = inst.currentHp !== undefined ? inst.currentHp : (inst.maxHp || 100);
+        const maxHp = inst.maxHp || 100;
+        const previewCanvas = document.createElement('canvas');
+        previewCanvas.width = 44;
+        previewCanvas.height = 50;
+        previewCanvas.style.cssText = 'width:44px;height:50px;flex-shrink:0;';
+        const pCtx = previewCanvas.getContext('2d');
+        UnitRenderer.draw(pCtx, inst, 22, 22, 38, {
+            time: this._time,
+            showHpBar: true,
+            hpFraction: hp / maxHp,
+            showLevel: true,
+            showAura: true,
+            showWeapon: true,
+            showArmorGlow: true,
+            showElementBadge: true,
+        });
+        row.appendChild(previewCanvas);
+        this._previewCanvases.push({
+            canvas: previewCanvas,
+            inst,
+            opts: { cx: 22, cy: 22, size: 38, showHpBar: true, hpFraction: hp / maxHp, showLevel: true, showAura: true, showWeapon: true, showArmorGlow: true, showElementBadge: true },
+        });
 
         // Info block
         const info = document.createElement('div');
@@ -403,8 +440,6 @@ export class SpriteCenterScene extends Scene {
         info.appendChild(detailSpan);
 
         // HP bar
-        const hp = inst.currentHp !== undefined ? inst.currentHp : (inst.maxHp || 100);
-        const maxHp = inst.maxHp || 100;
         const hpFrac = Math.max(0, Math.min(1, hp / maxHp));
         const hpBar = document.createElement('div');
         hpBar.style.cssText = `
@@ -476,6 +511,7 @@ export class SpriteCenterScene extends Scene {
 
     _renderStorageTab() {
         this._contentEl.innerHTML = '';
+        this._previewCanvases = [];
 
         // Box navigation
         const boxNav = document.createElement('div');
@@ -559,15 +595,27 @@ export class SpriteCenterScene extends Scene {
             if (sprite) {
                 const inst = sprite.instance || sprite;
 
-                // Element circle
-                const dot = document.createElement('div');
-                dot.style.cssText = `
-                    width:20px;height:20px;border-radius:50%;background:${elemColor};
-                    display:flex;align-items:center;justify-content:center;
-                    font-size:0.55rem;font-weight:700;color:#fff;margin-bottom:2px;
-                `;
-                dot.textContent = `${inst.level || '?'}`;
-                cell.appendChild(dot);
+                // Sprite preview canvas (rich composite via UnitRenderer)
+                const cellCanvas = document.createElement('canvas');
+                cellCanvas.width = 48;
+                cellCanvas.height = 52;
+                cellCanvas.style.cssText = 'width:48px;height:52px;';
+                const cCtx = cellCanvas.getContext('2d');
+                UnitRenderer.draw(cCtx, inst, 24, 24, 40, {
+                    time: this._time,
+                    showHpBar: false,
+                    showLevel: true,
+                    showAura: true,
+                    showWeapon: true,
+                    showArmorGlow: true,
+                    showElementBadge: true,
+                });
+                cell.appendChild(cellCanvas);
+                this._previewCanvases.push({
+                    canvas: cellCanvas,
+                    inst,
+                    opts: { cx: 24, cy: 24, size: 40, showHpBar: false, showLevel: true, showAura: true, showWeapon: true, showArmorGlow: true, showElementBadge: true },
+                });
 
                 const nameLabel = document.createElement('div');
                 nameLabel.style.cssText = 'font-size:0.5rem;color:#aaa;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;padding:0 2px;';
@@ -853,6 +901,35 @@ export class SpriteCenterScene extends Scene {
             }
             this._detailPanelEl.appendChild(elemDiv);
         }
+
+        // Large sprite preview (rich composite via UnitRenderer)
+        const detailCanvas = document.createElement('canvas');
+        detailCanvas.width = 80;
+        detailCanvas.height = 90;
+        detailCanvas.style.cssText = 'width:80px;height:90px;display:block;margin:0 auto 6px;';
+        const dCtx = detailCanvas.getContext('2d');
+        UnitRenderer.draw(dCtx, inst, 40, 40, 72, {
+            time: this._time,
+            showHpBar: true,
+            hpFraction: (inst.currentHp || inst.maxHp || 100) / (inst.maxHp || 100),
+            showLevel: true,
+            showAura: true,
+            showWeapon: true,
+            showArmorGlow: true,
+            showElementBadge: true,
+            showStatusIcons: true,
+        });
+        this._detailPanelEl.appendChild(detailCanvas);
+        this._previewCanvases.push({
+            canvas: detailCanvas,
+            inst,
+            opts: { cx: 40, cy: 40, size: 72, showHpBar: true, hpFraction: (inst.currentHp || inst.maxHp || 100) / (inst.maxHp || 100), showLevel: true, showAura: true, showWeapon: true, showArmorGlow: true, showElementBadge: true, showStatusIcons: true },
+        });
+
+        // Equipment paper-doll display
+        const eqDisplay = UnitRenderer.createEquipmentDisplay(inst.equipment || {}, 100);
+        eqDisplay.style.margin = '4px auto';
+        this._detailPanelEl.appendChild(eqDisplay);
 
         // Mode tabs (Stats, Abilities, Equipment, Evolution)
         const modeTabs = document.createElement('div');
