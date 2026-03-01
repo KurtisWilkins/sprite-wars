@@ -9,6 +9,7 @@
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { SpriteSheetGenerator } from '../core/SpriteSheetGenerator.js';
+import { getTrainer } from '../data/TrainerData.js';
 
 // ── Admin Log ─────────────────────────────────────────────────────────────
 class AdminLog {
@@ -204,6 +205,7 @@ export class OverworldScene extends Scene {
         // Pull game data from GameManager first (canonical source), fall back to passed data
         const gm = this.engine.gameManager;
         this._gameData = (gm && gm.playerData) ? gm.playerData : (data.gameData || data.saveData || {});
+        if (!this._gameData.defeatedTrainers) this._gameData.defeatedTrainers = [];
 
         // Determine starting region
         this._currentRegion = this._gameData.currentAreaId || this._gameData.currentRegion || 'starter_town';
@@ -904,7 +906,8 @@ export class OverworldScene extends Scene {
                 { id:'fisherman', name:'Old Fisher Tom', gridX:31, gridY:8, type:'talk', facing:'right', spritePath:'Sprites/Characters/Farmer1.png', dialogue:['The pond here is home to some rare Water-type Sprites.','I have been fishing these waters for thirty years.','Legend says there is a treasure on the small island out there...'] },
                 { id:'guard', name:'Gate Guard Hal', gridX:24, gridY:43, type:'talk', facing:'up', spritePath:'Sprites/Characters/Viking3.png', dialogue:['Beyond this gate lies the Verdant Route.','Wild Sprites roam freely out there. Make sure you are prepared!','Stock up on potions before heading out.'] },
                 { id:'blacksmith', name:'Smith Doran', gridX:6, gridY:44, type:'shop', facing:'up', spritePath:'Sprites/Characters/MinerLeader.png', dialogue:['Need equipment? I forge the finest gear in Willowshade.','Bring me raw materials and I can craft something special.'] },
-                { id:'child', name:'Little Pip', gridX:22, gridY:26, type:'talk', facing:'down', spritePath:'Sprites/Characters/Thief1.png', dialogue:['I am going to be the greatest Sprite tamer ever!','My dad says I am too young to leave town though...','Have you seen the big fountain? It is my favorite spot!'] },
+                { id:'trainer_pip', name:'Youngster Pip', gridX:22, gridY:40, type:'trainer', facing:'up', spritePath:'Sprites/Characters/RedBand_Kai/RedBand_Kai.png', dialogue:['I just got my first Sprite yesterday!','Wanna see how strong it is? Battle me!'], visionRange:4, visionDirection:{x:0,y:-1} },
+                { id:'trainer_fern', name:'Lass Fern', gridX:28, gridY:10, type:'trainer', facing:'left', spritePath:'Sprites/Characters/GoldenBraid_Celeste/GoldenBraid_Celeste.png', dialogue:['The Sprites near this pond are so graceful...','Oh! A challenger? My Water-types won\'t go easy on you!'], visionRange:3, visionDirection:{x:-1,y:0} },
             ],
             transitions: [
                 { gridX:45, gridY:24, width:2, height:2, targetRegion:'fire_temple', targetSpawn:{x:1,y:12} },
@@ -976,8 +979,8 @@ export class OverworldScene extends Scene {
             collisionMap: collision,
             defaultSpawn: { x: 16, y: 1 },
             npcs: [
-                { id:'ranger', name:'Ranger Kai', gridX:14, gridY:6, type:'talk', facing:'right', spritePath:'Sprites/Characters/Viking2.png', dialogue:['The tall grass here is full of wild Sprites!','Walk carefully and be ready for battle.','Stronger Sprites appear further along the route.'] },
-                { id:'trainer1', name:'Bug Catcher Tim', gridX:6, gridY:5, type:'talk', facing:'down', spritePath:'Sprites/Characters/Farmer3.png', dialogue:['I love catching Bug-type Sprites!','They may be weak, but they evolve fast!'] },
+                { id:'trainer_kai', name:'Ranger Kai', gridX:14, gridY:6, type:'trainer', facing:'right', spritePath:'Sprites/Characters/Viking2.png', dialogue:['Hold it right there, rookie!','The wilds ahead are dangerous. Let me test if you are ready!'], visionRange:5, visionDirection:{x:-1,y:0} },
+                { id:'trainer_tim', name:'Bug Catcher Tim', gridX:6, gridY:5, type:'trainer', facing:'down', spritePath:'Sprites/Characters/Farmer3.png', dialogue:['Hey! You look like a new trainer!','Let me show you what my Bug-type Sprites can do!'], visionRange:4, visionDirection:{x:0,y:1} },
             ],
             transitions: [
                 { gridX:15, gridY:0, width:4, height:1, targetRegion:'starter_town', targetSpawn:{x:24,y:44} },
@@ -1385,8 +1388,11 @@ export class OverworldScene extends Scene {
             renderer.save();
             const camBackup = { ...renderer.camera };
             renderer.setCamera(0, 0);
-            renderer.drawText('[Talk]', screenX, screenY - NPC_DRAW_HALFSIZE * CAMERA_ZOOM - 20, {
-                color: '#e8a035',
+            const isUndefeatedTrainer = nearbyNpc.type === 'trainer' && !(this._gameData.defeatedTrainers || []).includes(nearbyNpc.id);
+            const promptLabel = isUndefeatedTrainer ? '[Battle]' : '[Talk]';
+            const promptColor = isUndefeatedTrainer ? '#e03535' : '#e8a035';
+            renderer.drawText(promptLabel, screenX, screenY - NPC_DRAW_HALFSIZE * CAMERA_ZOOM - 20, {
+                color: promptColor,
                 font: 'bold 11px sans-serif',
                 align: 'center',
                 baseline: 'bottom',
@@ -1675,7 +1681,19 @@ export class OverworldScene extends Scene {
     _startNpcInteraction(npc) {
         this._dialogueActive = true;
         this._dialogueNpc = npc;
-        this._dialogueQueue = [...npc.dialogue];
+
+        // Defeated trainers show post-battle dialogue instead
+        let lines = npc.dialogue;
+        if (npc.type === 'trainer') {
+            const defeated = (this._gameData.defeatedTrainers || []).includes(npc.id);
+            if (defeated) {
+                const trainerDef = getTrainer(npc.id);
+                if (trainerDef && trainerDef.postDialogue) {
+                    lines = trainerDef.postDialogue;
+                }
+            }
+        }
+        this._dialogueQueue = [...lines];
 
         eventBus.emit(GameEvents.NPC_INTERACTED, {
             npcId: npc.id,
@@ -1685,7 +1703,7 @@ export class OverworldScene extends Scene {
 
         eventBus.emit(GameEvents.DIALOGUE_STARTED, {
             speaker: npc.name,
-            lines: npc.dialogue,
+            lines,
         });
 
         this._showDialogueLine();
@@ -1733,6 +1751,9 @@ export class OverworldScene extends Scene {
                 case 'quest':
                     // Quest handling would check quest state and advance
                     break;
+                case 'trainer':
+                    this._startTrainerBattle(this._dialogueNpc);
+                    break;
             }
         }
 
@@ -1763,6 +1784,53 @@ export class OverworldScene extends Scene {
     _openShop(npc) {
         // Open shop via the screen panel -- future implementation
         eventBus.emit(GameEvents.NOTIFICATION, 'Shop coming soon!');
+    }
+
+    _startTrainerBattle(npc) {
+        const trainerDef = getTrainer(npc.id);
+        if (!trainerDef) {
+            eventBus.emit(GameEvents.NOTIFICATION, `${npc.name} wants to battle, but has no team data!`);
+            return;
+        }
+
+        // Check if already defeated (stored in gameData)
+        const defeated = this._gameData.defeatedTrainers || [];
+        if (defeated.includes(npc.id)) {
+            return; // Already beaten, dialogue-only from now on
+        }
+
+        this.engine.audio.playSFX(
+            this.engine.assets.resolvePath('Audio/Sounds/encounter.ogg')
+        );
+
+        eventBus.emit(GameEvents.ENCOUNTER_TRIGGERED, {
+            type: 'trainer',
+            trainerId: npc.id,
+            trainerName: trainerDef.name,
+            region: this._currentRegion,
+            enemies: trainerDef.team,
+        });
+
+        this.engine.scenes.changeTo('deployment', {
+            encounterType: 'trainer',
+            trainerId: npc.id,
+            trainerName: trainerDef.name,
+            trainerTitle: trainerDef.title,
+            region: this._currentRegion,
+            enemies: trainerDef.team,
+            goldReward: trainerDef.goldReward,
+            xpBonus: trainerDef.xpBonus,
+            postDialogue: trainerDef.postDialogue,
+            gameData: this._gameData,
+            returnScene: 'overworld',
+            returnData: {
+                gameData: this._gameData,
+                spawnPoint: {
+                    x: Math.floor(this._player.x / TILE_SIZE),
+                    y: Math.floor(this._player.y / TILE_SIZE),
+                },
+            },
+        });
     }
 
     // ── Menus ──────────────────────────────────────────────────────────────
