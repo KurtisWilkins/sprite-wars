@@ -44,8 +44,8 @@ function createStarterSprite() {
         maxHp: 50,
         elementTypes: ['Fire'],
         abilities: [
-            { abilityId: 1, name: 'Ember', element: 'Fire', power: 30, targetingType: 'single' },
-            { abilityId: 2, name: 'Tackle', element: 'Normal', power: 25, targetingType: 'single' },
+            { abilityId: 1, name: 'Ember Shot', element: 'Fire', power: 40, targetingType: 'single' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
         ],
         stats: {
             attack: 12,
@@ -70,8 +70,8 @@ function _createWaterStarter() {
         maxHp: 55,
         elementTypes: ['Water'],
         abilities: [
-            { abilityId: 12, name: 'Water Burst', element: 'Water', power: 30, targetingType: 'single' },
-            { abilityId: 2, name: 'Tackle', element: 'Normal', power: 25, targetingType: 'single' },
+            { abilityId: 12, name: 'Aqua Jet', element: 'Water', power: 40, targetingType: 'single' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
         ],
         stats: {
             attack: 9,
@@ -96,8 +96,8 @@ function _createNatureStarter() {
         maxHp: 52,
         elementTypes: ['Nature'],
         abilities: [
-            { abilityId: 23, name: 'Vine Whip', element: 'Nature', power: 28, targetingType: 'single' },
-            { abilityId: 2, name: 'Tackle', element: 'Normal', power: 25, targetingType: 'single' },
+            { abilityId: 23, name: 'Vine Whip', element: 'Nature', power: 40, targetingType: 'single' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
         ],
         stats: {
             attack: 10,
@@ -105,6 +105,188 @@ function _createNatureStarter() {
             speed: 9,
             specialAttack: 13,
             specialDefense: 11,
+        },
+        equipment: {},
+    };
+}
+
+function _createIceStarter() {
+    return {
+        instanceId: 4,
+        raceId: 4,
+        formId: 10,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 48,
+        maxHp: 48,
+        elementTypes: ['Ice'],
+        abilities: [
+            { abilityId: 34, name: 'Frost Shard', element: 'Ice', power: 40, targetingType: 'single' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+        ],
+        stats: {
+            attack: 13,
+            defense: 8,
+            speed: 14,
+            specialAttack: 12,
+            specialDefense: 9,
+        },
+        equipment: {},
+    };
+}
+
+function _createAirStarter() {
+    return {
+        instanceId: 5,
+        raceId: 5,
+        formId: 13,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 45,
+        maxHp: 45,
+        elementTypes: ['Air'],
+        abilities: [
+            { abilityId: 45, name: 'Gust Slash', element: 'Wind', power: 40, targetingType: 'single' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+        ],
+        stats: {
+            attack: 11,
+            defense: 7,
+            speed: 15,
+            specialAttack: 11,
+            specialDefense: 8,
+        },
+        equipment: {},
+    };
+}
+
+function _createEarthStarter() {
+    return {
+        instanceId: 6,
+        raceId: 6,
+        formId: 16,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 60,
+        maxHp: 60,
+        elementTypes: ['Earth'],
+        abilities: [
+            { abilityId: 56, name: 'Rock Throw', element: 'Earth', power: 40, targetingType: 'single' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+        ],
+        stats: {
+            attack: 12,
+            defense: 14,
+            speed: 6,
+            specialAttack: 7,
+            specialDefense: 11,
+        },
+        equipment: {},
+    };
+}
+
+function _createElectricStarter() {
+    return {
+        instanceId: 7,
+        raceId: 7,
+        formId: 19,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 45,
+        maxHp: 45,
+        elementTypes: ['Electric'],
+        abilities: [
+            { abilityId: 67, name: 'Spark Bolt', element: 'Electric', power: 40, targetingType: 'single' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+        ],
+        stats: {
+            attack: 7,
+            defense: 8,
+            speed: 13,
+            specialAttack: 15,
+            specialDefense: 10,
+        },
+        equipment: {},
+    };
+}
+
+function _createDarkStarter() {
+    return {
+        instanceId: 8,
+        raceId: 8,
+        formId: 22,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 48,
+        maxHp: 48,
+        elementTypes: ['Dark'],
+        abilities: [
+            { abilityId: 78, name: 'Shadow Strike', element: 'Dark', power: 40, targetingType: 'single' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+        ],
+        stats: {
+            attack: 13,
+            defense: 8,
+            speed: 13,
+            specialAttack: 12,
+            specialDefense: 10,
+        },
+        equipment: {},
+    };
+}
+
+function _createLightStarter() {
+    return {
+        instanceId: 9,
+        raceId: 9,
+        formId: 25,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 55,
+        maxHp: 55,
+        elementTypes: ['Light'],
+        abilities: [
+            { abilityId: 89, name: 'Holy Beam', element: 'Light', power: 40, targetingType: 'single' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+        ],
+        stats: {
+            attack: 7,
+            defense: 10,
+            speed: 9,
+            specialAttack: 13,
+            specialDefense: 14,
+        },
+        equipment: {},
+    };
+}
+
+function _createPoisonStarter() {
+    return {
+        instanceId: 10,
+        raceId: 14,
+        formId: 40,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 50,
+        maxHp: 50,
+        elementTypes: ['Poison'],
+        abilities: [
+            { abilityId: 144, name: 'Toxic Spit', element: 'Poison', power: 35, targetingType: 'single' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+        ],
+        stats: {
+            attack: 10,
+            defense: 9,
+            speed: 12,
+            specialAttack: 11,
+            specialDefense: 9,
         },
         equipment: {},
     };
@@ -191,7 +373,18 @@ export class GameManager {
     startNewGame() {
         this.playerData = createDefaultPlayerData();
         this.playerData.playerName = 'Trainer';
-        this.playerData.team = [createStarterSprite(), _createWaterStarter(), _createNatureStarter()];
+        this.playerData.team = [
+            createStarterSprite(),      // 1. Emberpaw (Fire)
+            _createWaterStarter(),      // 2. Tidalfin (Water)
+            _createNatureStarter(),     // 3. Thornvine (Nature)
+            _createIceStarter(),        // 4. Frostfang (Ice)
+            _createAirStarter(),        // 5. Galecrest (Air)
+            _createEarthStarter(),      // 6. Terraclaw (Earth)
+            _createElectricStarter(),   // 7. Voltail (Electric)
+            _createDarkStarter(),       // 8. Gloomshade (Dark)
+            _createLightStarter(),      // 9. Luminos (Light)
+            _createPoisonStarter(),     // 10. Venomire (Poison)
+        ];
         this.currentAreaId = 'starter_town';
         this.gameTimeSeconds = 0;
         this.isInBattle = false;
