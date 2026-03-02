@@ -29,10 +29,10 @@ const SPEED_LABELS = { 1: '1x', 2: '2x', 3: '3x' };
 
 // ── Element Colors (for info panel) ──────────────────────────────────────────
 const ELEMENT_COLORS_PANEL = {
-    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
+    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Air: '#88ccaa',
     Electric: '#ffcc00', Ice: '#99ddff', Nature: '#33aa33', Poison: '#aa33aa',
     Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Psychic: '#ff66aa',
-    Dragon: '#6633cc', Spirit: '#ccccff',
+    Chaos: '#ff8833', Spirit: '#ccccff',
 };
 
 // ── Ability wrapper (same as BattleScene) ───────────────────────────────────
@@ -515,7 +515,7 @@ export class RTSBattleScene extends Scene {
                     <div style="font-size:8px;color:#999;margin-top:1px;">
                         ${ability.element_type} | ${isPhys} | ${targetType}
                         ${ability.base_power ? ` | Pwr: ${ability.base_power}` : ''}
-                        ${ability.accuracy ? ` | Acc: ${ability.accuracy}%` : ''}
+                        ${ability.accuracy ? ` | Acc: ${Math.round(ability.accuracy * 100)}%` : ''}
                     </div>
                 `;
                 panel.appendChild(abEl);
@@ -984,8 +984,8 @@ export class RTSBattleScene extends Scene {
         if (this._battleResult !== 'player_win') return;
 
         const stats = this._battleManager.stats;
-        const xp = 50 + stats.unitsDefeated.player * 20 + Math.floor(this._battleManager.elapsedTime * 0.5);
-        const gold = 25 + stats.unitsDefeated.player * 10;
+        const xp = 50 + stats.unitsDefeated.enemy * 20 + Math.floor(this._battleManager.elapsedTime * 0.5);
+        const gold = 25 + stats.unitsDefeated.enemy * 10;
 
         this._battleRewards = { xp, gold };
     }

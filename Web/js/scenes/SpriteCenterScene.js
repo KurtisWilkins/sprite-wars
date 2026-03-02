@@ -70,10 +70,10 @@ const STAT_COLORS = {
 const STAT_WEIGHTS = { hp: 0.5, atk: 1.2, def: 1.0, spd: 1.1, sp_atk: 1.2, sp_def: 1.0 };
 
 const ELEMENT_COLORS = {
-    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
+    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Air: '#88ccaa',
     Electric: '#ffcc00', Ice: '#99ddff', Nature: '#33aa33', Poison: '#aa33aa',
     Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Psychic: '#ff66aa',
-    Dragon: '#6633cc', Spirit: '#ccccff',
+    Chaos: '#ff8833', Spirit: '#ccccff',
 };
 
 const COLOR_BG = '#0b0b1a';
@@ -1818,21 +1818,25 @@ export class SpriteCenterScene extends Scene {
         const spriteElements = (raceData && raceData.element_types) ? raceData.element_types : [];
         const spriteClass = (raceData && raceData.class_type) ? raceData.class_type : '';
 
-        // Find compatible items from inventory and EquipmentData
+        // Find compatible items from player's inventory
         const inventoryItems = (this._inventory || []).filter(
             it => it && (it.equipSlot === slot.key || it.slot_type === slot.key)
         );
-        const eqDataItems = EQUIPMENT.filter(e =>
-            e.slot_type === slot.key && e.level_requirement <= (inst.level || 1)
-        );
-        const compatibleItems = [...inventoryItems];
-        for (const eqItem of eqDataItems) {
-            const alreadyInList = compatibleItems.some(
-                it => (it.equipment_id || it.equipmentId) === eqItem.equipment_id
-            );
-            const isCurrentlyEquipped = currentEqData && currentEqData.equipment_id === eqItem.equipment_id;
-            if (!alreadyInList && !isCurrentlyEquipped) {
-                compatibleItems.push(eqItem);
+        // Resolve inventory items to full data if stored as IDs
+        const compatibleItems = [];
+        for (const it of inventoryItems) {
+            const eqId = it.equipment_id || it.equipmentId || it;
+            if (typeof eqId === 'number') {
+                const resolved = EQUIPMENT.find(e => e.equipment_id === eqId);
+                if (resolved && resolved.level_requirement <= (inst.level || 1)) {
+                    const isCurrentlyEquipped = currentEqData && currentEqData.equipment_id === resolved.equipment_id;
+                    if (!isCurrentlyEquipped) compatibleItems.push(resolved);
+                }
+            } else if (it.slot_type === slot.key) {
+                const isCurrentlyEquipped = currentEqData && currentEqData.equipment_id === it.equipment_id;
+                if (!isCurrentlyEquipped && (it.level_requirement || 0) <= (inst.level || 1)) {
+                    compatibleItems.push(it);
+                }
             }
         }
 

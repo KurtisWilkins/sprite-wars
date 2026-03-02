@@ -306,7 +306,7 @@ export class RTSBattleRenderer {
             ctx, unit.raceId, unit.evolutionStage,
             unit.facing, frame != null ? frame : unit.walkFrame,
             x, y, UNIT_DRAW_SIZE,
-            { equipment: unit.equipment || null }
+            { equipment: unit.equipment || {} }
         );
     }
 

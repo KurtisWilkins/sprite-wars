@@ -45,10 +45,10 @@ const COLOR_GRID_INVALID = 'rgba(255, 80, 80, 0.20)';
 const COLOR_GRID_LINES = 'rgba(255,255,255,0.08)';
 
 const ELEMENT_COLORS = {
-    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
+    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Air: '#88ccaa',
     Electric: '#ffcc00', Ice: '#99ddff', Nature: '#33aa33', Poison: '#aa33aa',
     Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Psychic: '#ff66aa',
-    Dragon: '#6633cc', Spirit: '#ccccff',
+    Chaos: '#ff8833', Spirit: '#ccccff',
 };
 
 export class DeploymentScene extends Scene {
@@ -411,7 +411,7 @@ export class DeploymentScene extends Scene {
         ctx.globalAlpha = 0.75;
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, raceId, stage, 0, animFrame,
-            this._dragScreenX, this._dragScreenY + GRID_CELL_SIZE / 2 - 4, GRID_CELL_SIZE - 6,
+            this._dragScreenX, this._dragScreenY + 4, GRID_CELL_SIZE - 6,
             { equipment }
         );
         ctx.globalAlpha = 1;
@@ -856,7 +856,7 @@ export class DeploymentScene extends Scene {
         this._detailPanelEl.appendChild(name);
 
         // Level + Elements
-        const elemTypes = raceData ? (raceData.elementTypes || []) : [];
+        const elemTypes = raceData ? (raceData.element_types || raceData.elementTypes || []) : [];
         const infoLine = document.createElement('div');
         infoLine.style.cssText = 'font-size:0.65rem;color:#aaa;margin-bottom:6px;';
         infoLine.textContent = `Lv${inst ? inst.level || 1 : '?'} | ${elemTypes.join(' / ') || '???'}`;
