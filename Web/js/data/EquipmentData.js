@@ -6,6 +6,10 @@
  * 1031-1036 legs, 1041-1046 boots, 1051-1056 gloves, 1061-1066 ring,
  * 1071-1076 amulet, 1081-1086 crystal
  *
+ * Extended ranges (1100+):
+ * 1101-1106 weapon, 1111-1116 helmet, 1121-1126 chest,
+ * 1161-1164 ring, 1171-1174 amulet, 1181-1184 crystal
+ *
  * @typedef {Object} Equipment
  * @property {number} equipment_id
  * @property {string} equipment_name

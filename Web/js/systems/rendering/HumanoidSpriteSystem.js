@@ -80,7 +80,7 @@ function _buildCacheKey(raceId, stage, equipment) {
     const eqParts = [];
     if (equipment) {
         // Sort keys for consistent hashing
-        for (const slot of ['weapon', 'helmet', 'chest', 'legs', 'boots', 'gloves']) {
+        for (const slot of ['weapon', 'helmet', 'chest', 'legs', 'boots', 'gloves', 'ring', 'amulet', 'crystal']) {
             const val = equipment[slot];
             if (val) eqParts.push(`${slot}:${typeof val === 'object' ? (val.equipment_id || 0) : val}`);
         }
@@ -240,7 +240,7 @@ export class HumanoidSpriteSystem {
         // Resolve equipment data
         const eqData = {};
         if (equipment) {
-            for (const slot of ['weapon', 'helmet', 'chest', 'legs', 'boots', 'gloves']) {
+            for (const slot of ['weapon', 'helmet', 'chest', 'legs', 'boots', 'gloves', 'ring', 'amulet', 'crystal']) {
                 eqData[slot] = _getEquipData(equipment[slot]);
             }
         }
@@ -361,6 +361,26 @@ export class HumanoidSpriteSystem {
         } else {
             this._drawWeaponPixel(ctx, cx, shoulderY, armH, dir, frame, weaponType,
                 colors, themeImg, raceTheme, eqData.weapon, armorTier);
+        }
+
+        // ────────────────────────────────────────────────────────
+        // LAYER 6: Accessory effects (ring, amulet, crystal)
+        // ────────────────────────────────────────────────────────
+
+        // Ring: small glowing band on front hand
+        if (eqData.ring) {
+            const ringPos = this._drawRingEffect(ctx, cx, shoulderY, armH, torsoW, walk, dir);
+            this._renderRing(ctx, ringPos, eqData.ring);
+        }
+
+        // Amulet: pendant/necklace on neck/upper chest
+        if (eqData.amulet) {
+            this._drawAmuletEffect(ctx, cx, torsoTopY, bob, dir, eqData.amulet);
+        }
+
+        // Crystal: floating diamond above/behind shoulder
+        if (eqData.crystal) {
+            this._drawCrystalEffect(ctx, cx, headTopY, torsoW, dir, frame, eqData.crystal);
         }
     }
 
@@ -769,6 +789,202 @@ export class HumanoidSpriteSystem {
         ctx.drawImage(themeImg,
             srcX, srcY, equipRow.cellW, equipRow.cellH,
             dx, dy, dw, dh);
+        ctx.restore();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Accessory Renderers (Ring, Amulet, Crystal)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Get rarity-based accent color for accessories.
+     */
+    static _getAccessoryColor(rarity) {
+        switch (rarity) {
+            case 'legendary': return '#ffaa00';
+            case 'epic':      return '#aa44ff';
+            case 'rare':      return '#4488ff';
+            case 'uncommon':  return '#44cc66';
+            default:          return '#aa8855';
+        }
+    }
+
+    /**
+     * Draw a small glowing ring/band on the front hand.
+     * Rendered as a 2-3px band with a 1px sparkle highlight.
+     */
+    static _drawRingEffect(ctx, cx, shoulderY, armH, torsoW, walk, dir) {
+        // No ring data — nothing to draw (caller checks, but guard anyway)
+        // Position ring at the hand of the front arm
+        const armW = 3;
+        let rx, ry;
+
+        if (dir === DIR_DOWN) {
+            // Front hand is the right arm (drawn in front)
+            rx = Math.floor(cx + torsoW / 2);
+            ry = Math.floor(shoulderY + walk.armR + armH - 2);
+        } else if (dir === DIR_LEFT) {
+            // Left-facing: left arm is in front
+            rx = Math.floor(cx - torsoW / 2 - armW);
+            ry = Math.floor(shoulderY + walk.armL + armH - 2);
+        } else if (dir === DIR_RIGHT) {
+            // Right-facing: right arm is in front
+            rx = Math.floor(cx + torsoW / 2);
+            ry = Math.floor(shoulderY + walk.armR + armH - 2);
+        } else {
+            // Facing up: ring not visible (hands face away)
+            return;
+        }
+
+        return { x: rx, y: ry };
+    }
+
+    /**
+     * Render the ring pixels at the computed position.
+     */
+    static _renderRing(ctx, ringPos, ringData) {
+        if (!ringPos) return;
+        const rarity = ringData.rarity || 'common';
+        const color = this._getAccessoryColor(rarity);
+
+        const rx = ringPos.x;
+        const ry = ringPos.y;
+
+        // Ring band (2px wide, 1px tall)
+        ctx.fillStyle = color;
+        ctx.fillRect(rx, ry, 3, 1);
+
+        // Ring body / gem (1px centered on band)
+        ctx.fillRect(rx + 1, ry - 1, 1, 1);
+
+        // Sparkle highlight (1px bright white pixel)
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.fillRect(rx + 1, ry - 1, 1, 1);
+
+        // Subtle glow around the ring
+        ctx.save();
+        ctx.globalAlpha = 0.2;
+        ctx.fillStyle = color;
+        ctx.fillRect(rx - 1, ry - 1, 5, 3);
+        ctx.restore();
+    }
+
+    /**
+     * Draw a small pendant/necklace below the head on the neck/upper chest area.
+     * 3-4px wide gem/circle with rarity-based coloring and a subtle glow.
+     */
+    static _drawAmuletEffect(ctx, cx, torsoTopY, bob, dir, amuletData) {
+        if (dir === DIR_UP) return; // Amulet not visible from behind
+
+        const rarity = amuletData.rarity || 'common';
+        const gemColor = this._getAccessoryColor(rarity);
+
+        // Necklace sits at the top of the torso (neck area)
+        const neckY = Math.floor(torsoTopY + bob);
+        const neckCx = Math.floor(cx);
+
+        // Chain (thin line from shoulders down to pendant)
+        ctx.fillStyle = '#888877';
+        if (dir === DIR_DOWN) {
+            // V-shaped chain visible from front
+            ctx.fillRect(neckCx - 2, neckY, 1, 2);
+            ctx.fillRect(neckCx + 1, neckY, 1, 2);
+            ctx.fillRect(neckCx - 1, neckY + 1, 1, 1);
+            ctx.fillRect(neckCx,     neckY + 1, 1, 1);
+        } else {
+            // Side view: single chain line
+            const chainX = dir === DIR_RIGHT ? neckCx + 1 : neckCx - 1;
+            ctx.fillRect(chainX, neckY, 1, 2);
+        }
+
+        // Pendant gem (centered below chain)
+        const gemY = neckY + 2;
+        const gemX = dir === DIR_DOWN ? neckCx - 1 : (dir === DIR_RIGHT ? neckCx : neckCx - 1);
+
+        // Gem body
+        ctx.fillStyle = gemColor;
+        if (dir === DIR_DOWN) {
+            // Front view: 3px wide diamond/circle shape
+            ctx.fillRect(gemX, gemY, 3, 2);
+            ctx.fillRect(gemX + 1, gemY - 1, 1, 1); // top point
+            ctx.fillRect(gemX + 1, gemY + 2, 1, 1);  // bottom point
+        } else {
+            // Side view: 2px visible
+            ctx.fillRect(gemX, gemY, 2, 2);
+        }
+
+        // Gem highlight (1px bright spot)
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        if (dir === DIR_DOWN) {
+            ctx.fillRect(gemX, gemY, 1, 1);
+        } else {
+            ctx.fillRect(gemX, gemY, 1, 1);
+        }
+
+        // Subtle glow around the gem
+        ctx.save();
+        ctx.globalAlpha = 0.15;
+        ctx.fillStyle = gemColor;
+        ctx.fillRect(gemX - 1, gemY - 1, dir === DIR_DOWN ? 5 : 4, 4);
+        ctx.restore();
+    }
+
+    /**
+     * Draw a small floating crystal above/behind the shoulder area.
+     * 3-5px diamond shape with element-based or rarity coloring.
+     * Pulsing opacity effect based on frame number.
+     */
+    static _drawCrystalEffect(ctx, cx, headTopY, torsoW, dir, frame, crystalData) {
+        const rarity = crystalData.rarity || 'common';
+
+        // Determine crystal color: element_synergy takes priority, then rarity
+        let crystalColor;
+        if (crystalData.element_synergy && ELEMENT_SKIN[crystalData.element_synergy]) {
+            crystalColor = ELEMENT_SKIN[crystalData.element_synergy].eye;
+        } else {
+            crystalColor = this._getAccessoryColor(rarity);
+        }
+
+        // Position: floating above/behind the shoulder
+        let crx, cry;
+        if (dir === DIR_DOWN) {
+            crx = Math.floor(cx - torsoW / 2 - 3);
+            cry = Math.floor(headTopY - 1);
+        } else if (dir === DIR_UP) {
+            crx = Math.floor(cx + torsoW / 2 + 1);
+            cry = Math.floor(headTopY - 1);
+        } else if (dir === DIR_LEFT) {
+            crx = Math.floor(cx + 2);
+            cry = Math.floor(headTopY - 2);
+        } else {
+            crx = Math.floor(cx - 4);
+            cry = Math.floor(headTopY - 2);
+        }
+
+        // Pulsing opacity (alternates brightness based on frame number)
+        const pulse = [0.7, 0.85, 1.0, 0.85][frame];
+
+        ctx.save();
+        ctx.globalAlpha = pulse;
+
+        // Diamond shape (5px tall, 3px wide at center)
+        //     X       (top)
+        //    XXX      (middle)
+        //     X       (bottom)
+        ctx.fillStyle = crystalColor;
+        ctx.fillRect(crx + 1, cry, 1, 1);       // top point
+        ctx.fillRect(crx,     cry + 1, 3, 2);   // middle body
+        ctx.fillRect(crx + 1, cry + 3, 1, 1);   // bottom point
+
+        // Inner highlight (bright center pixel)
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.fillRect(crx + 1, cry + 1, 1, 1);
+
+        // Outer glow
+        ctx.globalAlpha = pulse * 0.2;
+        ctx.fillStyle = crystalColor;
+        ctx.fillRect(crx - 1, cry - 1, 5, 6);
+
         ctx.restore();
     }
 

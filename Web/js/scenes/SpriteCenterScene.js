@@ -42,6 +42,33 @@ const STORAGE_BOX_COLS = 6;
 const REGISTRY_COLS = 8;
 const SPRITE_PREVIEW_SIZE = 64;
 
+// ── Equipment Slot Config ─────────────────────────────────────────────────
+const EQUIP_SLOT_ICONS = {
+    helmet:  '\u26D1',  // helmet
+    weapon:  '\u2694',  // crossed swords
+    chest:   '\u{1F6E1}', // shield
+    gloves:  '\u{1F9E4}', // gloves
+    legs:    '\u{1F456}', // jeans/legs
+    boots:   '\u{1F462}', // boots
+    ring:    '\u{1F48D}', // ring
+    amulet:  '\u{1F4FF}', // prayer beads / amulet
+    crystal: '\u{1F48E}', // gem / crystal
+};
+
+const RARITY_ORDER = { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4 };
+const RARITY_COLORS_GLOBAL = {
+    common: '#888888', uncommon: '#33cc66', rare: '#3399ff', epic: '#aa44ff', legendary: '#ffaa00',
+};
+
+// Stat display labels
+const STAT_LABELS = { hp: 'HP', atk: 'ATK', def: 'DEF', spd: 'SPD', sp_atk: 'SP.ATK', sp_def: 'SP.DEF' };
+const STAT_COLORS = {
+    hp: '#33cc66', atk: '#ff6644', def: '#4488ff', spd: '#66ffcc', sp_atk: '#ff66aa', sp_def: '#66aaff',
+};
+
+// Stat weights for power score calculation
+const STAT_WEIGHTS = { hp: 0.5, atk: 1.2, def: 1.0, spd: 1.1, sp_atk: 1.2, sp_def: 1.0 };
+
 const ELEMENT_COLORS = {
     Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
     Electric: '#ffcc00', Ice: '#99ddff', Nature: '#33aa33', Poison: '#aa33aa',
@@ -93,8 +120,42 @@ export class SpriteCenterScene extends Scene {
         this._animAccum = 0;
         this._previewCanvases = [];
 
+        // ── Equipment preview animation ──────────────────────────────
+        this._equipPreviewCanvas = null;
+        this._equipPreviewFrame = 0;
+        this._equipPreviewAccum = 0;
+        this._equipPreviewInst = null;
+
+        // ── Equipment popup sort state ───────────────────────────────
+        this._equipSortMode = 'rarity'; // 'rarity', 'stat', 'level'
+
+        // ── Equipment preview walk animation ─────────────────────────
+        this._equipPreviewDir = 0;       // 0=down,1=left,2=right,3=up
+        this._equipPreviewAnimTimer = 0;
+
         // ── Event cleanup ─────────────────────────────────────────────
         this._unsubs = [];
+
+        // ── Inject CSS keyframes for equipment UI (once) ─────────────
+        if (!document.getElementById('sprite-center-equip-styles')) {
+            const style = document.createElement('style');
+            style.id = 'sprite-center-equip-styles';
+            style.textContent = `
+                @keyframes equip-slot-pulse-epic {
+                    0%, 100% { box-shadow: 0 0 4px #aa44ff55; }
+                    50% { box-shadow: 0 0 12px #aa44ffaa; }
+                }
+                @keyframes equip-slot-pulse-legendary {
+                    0%, 100% { box-shadow: 0 0 6px #ffaa0055; }
+                    50% { box-shadow: 0 0 16px #ffaa00cc, 0 0 24px #ffaa0044; }
+                }
+                @keyframes equip-power-shimmer {
+                    0% { background-position: -200% 0; }
+                    100% { background-position: 200% 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -182,6 +243,31 @@ export class SpriteCenterScene extends Scene {
                 const pCtx = canvas.getContext('2d');
                 pCtx.clearRect(0, 0, canvas.width, canvas.height);
                 UnitRenderer.draw(pCtx, inst, opts.cx, opts.cy, opts.size, { ...opts, time: this._time });
+            }
+        }
+
+        // ── Animated equipment preview (walk cycle) ──────────────
+        if (this._equipPreviewCanvas && this._equipPreviewInst) {
+            this._equipPreviewAnimTimer = (this._equipPreviewAnimTimer || 0) + dt;
+            if (this._equipPreviewAnimTimer > 0.18) {
+                this._equipPreviewAnimTimer = 0;
+                this._equipPreviewFrame = ((this._equipPreviewFrame || 0) + 1) % 4;
+
+                const canvas = this._equipPreviewCanvas;
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = false;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const inst = this._equipPreviewInst;
+                const raceId = inst.raceId || inst.race_id || 1;
+                const stage = inst.evolutionStage || inst.evolution_stage || 1;
+                const equipment = inst.equipment || {};
+                HumanoidSpriteSystem.drawWithEquipment(
+                    ctx, raceId, stage,
+                    this._equipPreviewDir, this._equipPreviewFrame,
+                    64, 100, 80,
+                    { equipment }
+                );
             }
         }
     }
