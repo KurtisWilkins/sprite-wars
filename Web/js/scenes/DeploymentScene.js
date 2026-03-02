@@ -352,8 +352,9 @@ export class DeploymentScene extends Scene {
 
         // Element badge (bottom-right)
         const raceData = SPRITE_RACES.find(r => r.race_id === raceId);
-        if (raceData && raceData.element_types && raceData.element_types[0]) {
-            const elem = raceData.element_types[0];
+        const elemArr = raceData && (raceData.element_types || raceData.elementTypes);
+        if (elemArr && elemArr[0]) {
+            const elem = elemArr[0];
             const ec = ELEMENT_COLORS[elem] || '#888';
             ctx.fillStyle = ec;
             ctx.beginPath();
