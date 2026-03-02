@@ -407,7 +407,7 @@ export class DeploymentScene extends Scene {
         }
 
         // Handle pointer down for drag start from grid
-        if (input.isJustPressed && input.isJustPressed()) {
+        if (input.justPressed && input.justPressed()) {
             const cell = this._screenToDeployGrid(px, py);
             if (cell) {
                 const deployIdx = this._getDeployedAtPosition(cell.x, cell.y);
@@ -637,6 +637,7 @@ export class DeploymentScene extends Scene {
                 enemyTeam,
                 background: `Sprites/Battle Backgrounds/temple_${this._templeId || 1}.png`,
                 isBoss: this._enemyTeamData.some(e => e.isBoss),
+                returnData: this._encounterData.returnData || null,
             });
         } catch (err) {
             console.error('DeploymentScene: Failed to transition to battle:', err);

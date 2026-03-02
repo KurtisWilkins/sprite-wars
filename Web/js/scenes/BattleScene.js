@@ -225,12 +225,16 @@ export class BattleScene extends Scene {
         this._bgColor = this._isBoss ? COLOR_BG_BOSS : COLOR_BG_DEFAULT;
         this._bgImage = null;
 
+        // Store return data so we can pass spawn position back to overworld
+        this._returnData = data.returnData || null;
+
         // Reset state
         this._phase = PHASE_INTRO;
         this._introTimer = 0;
         this._floatingTexts = [];
         this._battleLog = [];
         this._battleResult = null;
+        this._battleRewards = null;
         this._resultTimer = 0;
         this._selectedAbilityIndex = -1;
         this._selectedAbility = null;
@@ -805,11 +809,11 @@ export class BattleScene extends Scene {
             const config = {};
 
             // Provide element chart from engine data if available
-            if (this.engine.data && this.engine.data.elementChart) {
-                config.elementChart = this.engine.data.elementChart;
+            if (this.engine.data && this.engine.data.effectivenessMatrix) {
+                config.elementChart = this.engine.data.effectivenessMatrix;
             }
-            if (this.engine.data && this.engine.data.statusDb) {
-                config.statusDb = this.engine.data.statusDb;
+            if (this.engine.data && this.engine.data.statusEffects) {
+                config.statusDb = this.engine.data.statusEffects;
             }
 
             // Enrich raw team data into the format BattleManager expects
@@ -911,21 +915,14 @@ export class BattleScene extends Scene {
         this.engine.audio.stopMusic(400);
         const result = this._battleResult;
 
-        if (result === 'player_win') {
-            // Return to overworld (or caller) with victory data
-            this.engine.scenes.popScene().catch(() => {
-                this.engine.scenes.changeTo('overworld', {
-                    battleResult: result,
-                });
-            });
-        } else {
-            // Defeat or draw: return to overworld
-            this.engine.scenes.popScene().catch(() => {
-                this.engine.scenes.changeTo('overworld', {
-                    battleResult: result,
-                });
-            });
-        }
+        // The battle scene is reached via changeTo() (Overworld -> Deployment -> Battle),
+        // so the scene stack is empty and popScene() would silently resolve without
+        // transitioning. Use changeTo() directly to return to the overworld.
+        this.engine.scenes.changeTo('overworld', {
+            battleResult: result,
+            rewards: this._battleRewards || null,
+            returnData: this._returnData,
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -1414,6 +1411,9 @@ export class BattleScene extends Scene {
             rewardsDiv.innerHTML += `<div>Gold: +${goldGained}</div>`;
 
             container.appendChild(rewardsDiv);
+
+            // Store rewards so _exitBattle() can pass them back to the overworld
+            this._battleRewards = { xp: xpGained, gold: goldGained };
         }
 
         // Continue button

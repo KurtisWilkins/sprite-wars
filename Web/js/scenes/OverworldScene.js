@@ -10,6 +10,7 @@ import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { SpriteSheetGenerator } from '../core/SpriteSheetGenerator.js';
 import { getTrainer } from '../data/TrainerData.js';
+import { ENCOUNTER_TABLES } from '../data/EncounterData.js';
 
 // ── Admin Log ─────────────────────────────────────────────────────────────
 class AdminLog {
@@ -77,7 +78,7 @@ const PLAYER_SIZE = 28;          // Larger character fills more of the tile (cla
 const NPC_DRAW_HALFSIZE = 14;    // NPC render radius matches player proportions
 const PLAYER_SPEED = 120;        // pixels per second
 const NPC_INTERACT_DISTANCE = 40;
-const ENCOUNTER_STEP_THRESHOLD = 30; // steps between encounter checks
+const ENCOUNTER_STEP_THRESHOLD = 10; // steps between encounter checks
 const ENCOUNTER_CHANCE = 0.15; // 15% chance per check
 const CAMERA_LERP_SPEED = 6.0;
 const CAMERA_ZOOM = 2.0;        // 2x zoom for classic RPG look (Pokemon/Zelda/Dragon Quest)
@@ -126,6 +127,7 @@ export class OverworldScene extends Scene {
 
         // Area transitions
         this._transitions = [];
+        this._transitionPending = false;
 
         // Dialogue state
         this._dialogueActive = false;
@@ -202,16 +204,38 @@ export class OverworldScene extends Scene {
     }
 
     enter(data) {
+        this._transitionPending = false;
+
         // Pull game data from GameManager first (canonical source), fall back to passed data
         const gm = this.engine.gameManager;
         this._gameData = (gm && gm.playerData) ? gm.playerData : (data.gameData || data.saveData || {});
         if (!this._gameData.defeatedTrainers) this._gameData.defeatedTrainers = [];
 
+        // Record trainer victory if returning from a won trainer battle
+        if (data.battleResult === 'player_win' && data.returnData?.trainerId) {
+            if (!this._gameData.defeatedTrainers.includes(data.returnData.trainerId)) {
+                this._gameData.defeatedTrainers.push(data.returnData.trainerId);
+            }
+        }
+
+        // Apply battle rewards if present
+        if (data.rewards) {
+            if (data.rewards.gold) {
+                this._gameData.gold = (this._gameData.gold || 0) + data.rewards.gold;
+            }
+            if (data.rewards.xp && this._gameData.team) {
+                for (const member of this._gameData.team) {
+                    member.xp = (member.xp || 0) + data.rewards.xp;
+                }
+            }
+        }
+
         // Determine starting region
         this._currentRegion = this._gameData.currentAreaId || this._gameData.currentRegion || 'starter_town';
 
-        // Load the region
-        this._loadRegion(this._currentRegion, data.spawnPoint || null);
+        // Load the region (prefer explicit spawnPoint, then extract from returnData)
+        const spawnPoint = data.spawnPoint || (data.returnData && data.returnData.spawnPoint) || null;
+        this._loadRegion(this._currentRegion, spawnPoint);
 
         // Show overworld HUD
         this._showHud = true;
@@ -358,6 +382,10 @@ export class OverworldScene extends Scene {
             adminBtn.removeEventListener('click', this._hudAdminBtnHandler);
             this._hudAdminBtnHandler = null;
         }
+
+        // Hide screen panel (pause menu / settings)
+        const screenPanel = document.getElementById('screen-panel');
+        if (screenPanel) { screenPanel.classList.add('hidden'); screenPanel.innerHTML = ''; }
 
         // Hide admin log panel
         this._adminLog.hide();
@@ -1226,6 +1254,9 @@ export class OverworldScene extends Scene {
             this._stepCounter += PLAYER_SPEED * dt / TILE_SIZE;
             if (this._encounterCooldown > 0) {
                 this._encounterCooldown -= dt;
+                if (this._encounterCooldown <= 0) {
+                    this._stepCounter = 0; // reset steps accumulated during cooldown
+                }
             } else if (this._stepCounter >= ENCOUNTER_STEP_THRESHOLD) {
                 this._stepCounter = 0;
                 this._checkEncounter();
@@ -1587,11 +1618,34 @@ export class OverworldScene extends Scene {
         const maxLevel = zone.maxLevel || 5;
         const enemyCount = 1 + Math.floor(Math.random() * 3); // 1-3 enemies
 
+        // Look up the current region in the curated encounter tables
+        const table = ENCOUNTER_TABLES[this._currentRegion];
+
         const enemies = [];
         for (let i = 0; i < enemyCount; i++) {
             const level = minLevel + Math.floor(Math.random() * (maxLevel - minLevel + 1));
+            let raceId;
+
+            if (table && table.length > 0) {
+                // Weighted random selection from the encounter table
+                const totalWeight = table.reduce((sum, entry) => sum + entry.weight, 0);
+                let roll = Math.random() * totalWeight;
+                let picked = table[0];
+                for (const entry of table) {
+                    roll -= entry.weight;
+                    if (roll <= 0) {
+                        picked = entry;
+                        break;
+                    }
+                }
+                raceId = picked.race_id;
+            } else {
+                // Fallback: random race if no encounter table exists for this region
+                raceId = Math.floor(Math.random() * 24) + 1;
+            }
+
             enemies.push({
-                raceId: Math.floor(Math.random() * 24) + 1, // 24 Sprite races
+                raceId,
                 level,
                 stage: level < 10 ? 0 : (level < 25 ? 1 : 2),
             });
@@ -1627,6 +1681,7 @@ export class OverworldScene extends Scene {
     // ── Area Transitions ───────────────────────────────────────────────────
 
     _checkTransitions() {
+        if (this._transitionPending) return;
         const px = this._player.x;
         const py = this._player.y;
 
@@ -1640,6 +1695,7 @@ export class OverworldScene extends Scene {
     }
 
     _transitionToRegion(regionId, spawnPoint) {
+        this._transitionPending = true;
         const fromRegion = this._currentRegion;
         const toRegion = regionId;
         this._adminLog.log(`Region transition: ${fromRegion} → ${toRegion}`, 'admin');
@@ -2205,6 +2261,7 @@ export class OverworldScene extends Scene {
                 heal: '#44cc44',
                 shop: '#cc44cc',
                 quest: '#4488ee',
+                trainer: '#e03535',
             };
             const color = colors[npc.type] || '#ffffff';
             renderer.drawCircle(npc.x, npc.y, NPC_DRAW_HALFSIZE, color);

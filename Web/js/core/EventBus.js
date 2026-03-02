@@ -33,11 +33,9 @@ export class EventBus {
         if (listeners) {
             for (const cb of listeners) cb(...args);
         }
-        const onceListeners = this._onceListeners[event];
-        if (onceListeners) {
-            for (const cb of onceListeners) cb(...args);
-            this._onceListeners[event] = [];
-        }
+        const onceListeners = this._onceListeners[event] || [];
+        this._onceListeners[event] = []; // clear before firing so errors don't leave stale listeners
+        for (const cb of onceListeners) cb(...args);
     }
 
     clear(event) {

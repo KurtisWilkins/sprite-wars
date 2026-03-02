@@ -35,101 +35,204 @@ class AssetRegistry {
   // -------------------------------------------------------------------------
   static CHARACTER_SPRITES = {
     // Race 1 — Emberpaw (Fire / Berserker)
-    1:  "../Sprites/Monsters/Slime.png",
-    2:  "../Sprites/Monsters/Slime.png",
-    3:  "../Sprites/Monsters/Slime.png",
+    1:  "../Sprites/Characters/FlameSpike_Flynn/FlameSpike_Flynn_Walk_Down.png",
+    2:  "../Sprites/Characters/EmberCrest_Knight_Aldric/EmberCrest_Knight_Aldric_Walk_Down.png",
+    3:  "../Sprites/Characters/CrimsonScarlet_Knight_Hugo/CrimsonScarlet_Knight_Hugo_Walk_Down.png",
     // Race 2 — Tidalfin (Water / Guardian)
-    4:  "../Sprites/Monsters/Snake.png",
-    5:  "../Sprites/Monsters/Snake.png",
-    6:  "../Sprites/Monsters/Snake.png",
+    4:  "../Sprites/Characters/AzureBare_Knight_Hartford/AzureBare_Knight_Hartford_Walk_Down.png",
+    5:  "../Sprites/Characters/AzureGuard_Knight_Beaumont/AzureGuard_Knight_Beaumont_Walk_Down.png",
+    6:  "../Sprites/Characters/AzureShield_Knight_Bexley/AzureShield_Knight_Bexley_Walk_Down.png",
     // Race 3 — Thornvine (Nature / Ranger)
-    7:  "../Sprites/Monsters/Bug.png",
-    8:  "../Sprites/Monsters/Bug.png",
-    9:  "../Sprites/Monsters/Bug.png",
+    7:  "../Sprites/Characters/GreenVest_Forrest/GreenVest_Forrest_Walk_Down.png",
+    8:  "../Sprites/Characters/WoodlandTunic_Sage/WoodlandTunic_Sage_Walk_Down.png",
+    9:  "../Sprites/Characters/CobaltPlume_Knight_Ashford/CobaltPlume_Knight_Ashford_Walk_Down.png",
     // Race 4 — Frostfang (Ice / Assassin)
-    10: "../Sprites/Monsters/Bat.png",
-    11: "../Sprites/Monsters/Bat.png",
-    12: "../Sprites/Monsters/Bat.png",
+    10: "../Sprites/Characters/DarkTeal_Storm/DarkTeal_Storm_Walk_Down.png",
+    11: "../Sprites/Characters/TealShadow_Dusk/TealShadow_Dusk_Walk_Down.png",
+    12: "../Sprites/Characters/ShadowBare_Knight_Callum/ShadowBare_Knight_Callum_Walk_Down.png",
     // Race 5 — Galecrest (Air / Archer)
-    13: "../Sprites/Monsters/Crow.png",
-    14: "../Sprites/Monsters/Crow.png",
-    15: "../Sprites/Monsters/Crow.png",
+    13: "../Sprites/Characters/BlueCap_Marcus/BlueCap_Marcus_Walk_Down.png",
+    14: "../Sprites/Characters/BlueCap_Toby/BlueCap_Toby_Walk_Down.png",
+    15: "../Sprites/Characters/AzurePlume_Knight_Winston/AzurePlume_Knight_Winston_Walk_Down.png",
     // Race 6 — Terraclaw (Earth / Knight)
-    16: "../Sprites/Monsters/Gourmet.png",
-    17: "../Sprites/Monsters/Gourmet.png",
-    18: "../Sprites/Monsters/Gourmet.png",
+    16: "../Sprites/Characters/IronHelm_Knight_Garrett/IronHelm_Knight_Garrett_Walk_Down.png",
+    17: "../Sprites/Characters/CopperBare_Knight_Desmond/CopperBare_Knight_Desmond_Walk_Down.png",
+    18: "../Sprites/Characters/IronCrest_Knight_Orion/IronCrest_Knight_Orion_Walk_Down.png",
     // Race 7 — Voltail (Electric / Wizard)
-    19: "../Sprites/Monsters/Bee.png",
-    20: "../Sprites/Monsters/Bee.png",
-    21: "../Sprites/Monsters/Bee.png",
+    19: "../Sprites/Characters/SkyTurban_Cyrus/SkyTurban_Cyrus_Walk_Down.png",
+    20: "../Sprites/Characters/GingerSuit_Ashton/GingerSuit_Ashton_Walk_Down.png",
+    21: "../Sprites/Characters/GoldSuit_Sterling/GoldSuit_Sterling_Walk_Down.png",
     // Race 8 — Gloomshade (Dark / Assassin)
-    22: "../Sprites/Monsters/Bat.png",
-    23: "../Sprites/Monsters/Bat.png",
-    24: "../Sprites/Monsters/Bat.png",
+    22: "../Sprites/Characters/PhantomCloak_Raven/PhantomCloak_Raven_Walk_Down.png",
+    23: "../Sprites/Characters/NightHelm_Ember/NightHelm_Ember_Walk_Down.png",
+    24: "../Sprites/Characters/ShadowBare_Knight_Lennox/ShadowBare_Knight_Lennox_Walk_Down.png",
     // Race 9 — Luminos (Light / Cleric)
-    25: "../Sprites/Monsters/Bee.png",
-    26: "../Sprites/Monsters/Bee.png",
-    27: "../Sprites/Monsters/Bee.png",
+    25: "../Sprites/Characters/SunnyHat_Goldie/SunnyHat_Goldie_Walk_Down.png",
+    26: "../Sprites/Characters/GoldenBare_Knight_Matthias/GoldenBare_Knight_Matthias_Walk_Down.png",
+    27: "../Sprites/Characters/GoldenHelm_Knight_Galahad/GoldenHelm_Knight_Galahad_Walk_Down.png",
     // Race 10 — Glimmerwing (Psychic / Summoner)
-    28: "../Sprites/Monsters/Bee.png",
-    29: "../Sprites/Monsters/Bee.png",
-    30: "../Sprites/Monsters/Bee.png",
+    28: "../Sprites/Characters/CrimsonPuff_Ruby/CrimsonPuff_Ruby_Walk_Down.png",
+    29: "../Sprites/Characters/GoldenBraid_Celeste/GoldenBraid_Celeste_Walk_Down.png",
+    30: "../Sprites/Characters/RoseFluff_Plum/RoseFluff_Plum_Walk_Down.png",
     // Race 11 — Spectrail (Spirit / Wizard)
-    31: "../Sprites/Monsters/Snake.png",
-    32: "../Sprites/Monsters/Snake.png",
-    33: "../Sprites/Monsters/Snake.png",
+    31: "../Sprites/Characters/MidnightHair_Violet/MidnightHair_Violet_Walk_Down.png",
+    32: "../Sprites/Characters/CeruleanBare_Knight_Cromwell/CeruleanBare_Knight_Cromwell_Walk_Down.png",
+    33: "../Sprites/Characters/SapphirePlume_Knight_Montague/SapphirePlume_Knight_Montague_Walk_Down.png",
     // Race 12 — Ignisurge (Chaos / Berserker)
-    34: "../Sprites/Monsters/Slime.png",
-    35: "../Sprites/Monsters/Slime.png",
-    36: "../Sprites/Monsters/Slime.png",
+    34: "../Sprites/Characters/WildSpike_Blaze/WildSpike_Blaze_Walk_Down.png",
+    35: "../Sprites/Characters/EmberHelm_Knight_Darius/EmberHelm_Knight_Darius_Walk_Down.png",
+    36: "../Sprites/Characters/EmberScarlet_Knight_Felix/EmberScarlet_Knight_Felix_Walk_Down.png",
     // Race 13 — Ironhusk (Metal / Knight)
-    37: "../Sprites/Monsters/Bug.png",
-    38: "../Sprites/Monsters/Bug.png",
-    39: "../Sprites/Monsters/Bug.png",
+    37: "../Sprites/Characters/IronHelm_Knight_Roland/IronHelm_Knight_Roland_Walk_Down.png",
+    38: "../Sprites/Characters/CopperBare_Knight_Warren/CopperBare_Knight_Warren_Walk_Down.png",
+    39: "../Sprites/Characters/IronCrest_Knight_Tristan/IronCrest_Knight_Tristan_Walk_Down.png",
     // Race 14 — Venomire (Poison / Ranger)
-    40: "../Sprites/Monsters/Snake.png",
-    41: "../Sprites/Monsters/Snake.png",
-    42: "../Sprites/Monsters/Snake.png",
+    40: "../Sprites/Characters/MaroonHood_Jasmine/MaroonHood_Jasmine_Walk_Down.png",
+    41: "../Sprites/Characters/DarkRose_Hazel/DarkRose_Hazel_Walk_Down.png",
+    42: "../Sprites/Characters/MaroonPlume_Knight_Drake/MaroonPlume_Knight_Drake_Walk_Down.png",
     // Race 15 — Blazeguard (Fire / Guardian)
-    43: "../Sprites/Monsters/Gourmet.png",
-    44: "../Sprites/Monsters/Gourmet.png",
-    45: "../Sprites/Monsters/Gourmet.png",
+    43: "../Sprites/Characters/ScarletBare_Knight_Corbin/ScarletBare_Knight_Corbin_Walk_Down.png",
+    44: "../Sprites/Characters/ScarletGuard_Knight_Emeric/ScarletGuard_Knight_Emeric_Walk_Down.png",
+    45: "../Sprites/Characters/ScarletShield_Knight_Beckett/ScarletShield_Knight_Beckett_Walk_Down.png",
     // Race 16 — Aquashot (Water / Archer)
-    46: "../Sprites/Monsters/Crow.png",
-    47: "../Sprites/Monsters/Crow.png",
-    48: "../Sprites/Monsters/Crow.png",
+    46: "../Sprites/Characters/RedCapRound_Porter/RedCapRound_Porter_Walk_Down.png",
+    47: "../Sprites/Characters/AzureHelm_Knight_Edmund/AzureHelm_Knight_Edmund_Walk_Down.png",
+    48: "../Sprites/Characters/AzureCrest_Knight_Mercer/AzureCrest_Knight_Mercer_Walk_Down.png",
     // Race 17 — Pyrovolt (Fire+Electric / Wizard)
-    49: "../Sprites/Monsters/Slime.png",
-    50: "../Sprites/Monsters/Slime.png",
-    51: "../Sprites/Monsters/Slime.png",
+    49: "../Sprites/Characters/CrimsonHat_Miles/CrimsonHat_Miles_Walk_Down.png",
+    50: "../Sprites/Characters/EmberHelm_Knight_Silas/EmberHelm_Knight_Silas_Walk_Down.png",
+    51: "../Sprites/Characters/EmberCrest_Knight_Dorian/EmberCrest_Knight_Dorian_Walk_Down.png",
     // Race 18 — Venomthorn (Poison+Nature / Spearman)
-    52: "../Sprites/Monsters/Bug.png",
-    53: "../Sprites/Monsters/Bug.png",
-    54: "../Sprites/Monsters/Bug.png",
+    52: "../Sprites/Characters/RedWrap_Jasper/RedWrap_Jasper_Walk_Down.png",
+    53: "../Sprites/Characters/MaroonPlume_Knight_Rowan/MaroonPlume_Knight_Rowan_Walk_Down.png",
+    54: "../Sprites/Characters/MaroonScarlet_Knight_Ignatius/MaroonScarlet_Knight_Ignatius_Walk_Down.png",
     // Race 19 — Shadowflare (Dark+Fire / Spearman)
-    55: "../Sprites/Monsters/Bat.png",
-    56: "../Sprites/Monsters/Bat.png",
-    57: "../Sprites/Monsters/Bat.png",
+    55: "../Sprites/Characters/RedBand_Kai/RedBand_Kai_Walk_Down.png",
+    56: "../Sprites/Characters/ScarletIron_Knight_Barrett/ScarletIron_Knight_Barrett_Walk_Down.png",
+    57: "../Sprites/Characters/ScarletCrest_Knight_Magnus/ScarletCrest_Knight_Magnus_Walk_Down.png",
     // Race 20 — Crystalmist (Ice+Psychic / Cleric)
-    58: "../Sprites/Monsters/Crow.png",
-    59: "../Sprites/Monsters/Crow.png",
-    60: "../Sprites/Monsters/Crow.png",
+    58: "../Sprites/Characters/PeachBonnet_Pippin/PeachBonnet_Pippin_Walk_Down.png",
+    59: "../Sprites/Characters/CeruleanBare_Knight_Lowell/CeruleanBare_Knight_Lowell_Walk_Down.png",
+    60: "../Sprites/Characters/RadiantPlume_Knight_Cassander/RadiantPlume_Knight_Cassander_Walk_Down.png",
     // Race 21 — Ironstorm (Metal+Air / Berserker)
-    61: "../Sprites/Monsters/Crow.png",
-    62: "../Sprites/Monsters/Crow.png",
-    63: "../Sprites/Monsters/Crow.png",
+    61: "../Sprites/Characters/AuburnBob_Hector/AuburnBob_Hector_Walk_Down.png",
+    62: "../Sprites/Characters/CobaltHelm_Knight_Harding/CobaltHelm_Knight_Harding_Walk_Down.png",
+    63: "../Sprites/Characters/CobaltCrest_Knight_Pembroke/CobaltCrest_Knight_Pembroke_Walk_Down.png",
     // Race 22 — Spiritbloom (Spirit+Nature / Summoner)
-    64: "../Sprites/Monsters/Bug.png",
-    65: "../Sprites/Monsters/Bug.png",
-    66: "../Sprites/Monsters/Bug.png",
+    64: "../Sprites/Characters/CurlyAfro_Maggie/CurlyAfro_Maggie_Walk_Down.png",
+    65: "../Sprites/Characters/DarkLocks_Kira/DarkLocks_Kira_Walk_Down.png",
+    66: "../Sprites/Characters/GoldenPony_Rosie/GoldenPony_Rosie_Walk_Down.png",
     // Race 23 — Solarius (Light+Chaos / Guardian) — legendary phoenix
-    67: "../Sprites/Characters/Farmer1.png",
-    68: "../Sprites/Characters/Farmer1.png",
-    69: "../Sprites/Characters/Farmer1.png",
+    67: "../Sprites/Characters/GoldenArmor_Aurum/GoldenArmor_Aurum_Walk_Down.png",
+    68: "../Sprites/Characters/GoldenGuard_Knight_Montgomery/GoldenGuard_Knight_Montgomery_Walk_Down.png",
+    69: "../Sprites/Characters/GoldenShield_Knight_Alistair/GoldenShield_Knight_Alistair_Walk_Down.png",
     // Race 24 — Eclipsar (Dark+Spirit / Summoner) — legendary dragon
-    70: "../Sprites/Characters/NoviceWizard1.png",
-    71: "../Sprites/Characters/NoviceWizard1.png",
-    72: "../Sprites/Characters/NoviceWizard1.png",
+    70: "../Sprites/Characters/SolarBare_Knight_Leonidas/SolarBare_Knight_Leonidas_Walk_Down.png",
+    71: "../Sprites/Characters/SolarHelm_Knight_Valerian/SolarHelm_Knight_Valerian_Walk_Down.png",
+    72: "../Sprites/Characters/RadiantCrest_Knight_Theodoric/RadiantCrest_Knight_Theodoric_Walk_Down.png",
+  };
+
+  // -------------------------------------------------------------------------
+  // Character sprite directory names keyed by form_id (1-72)
+  // Used to resolve attack, death, and directional animation strips
+  // -------------------------------------------------------------------------
+  static CHARACTER_SPRITE_DIRS = {
+    // Race 1 — Emberpaw (Fire / Berserker)
+    1:  "FlameSpike_Flynn",
+    2:  "EmberCrest_Knight_Aldric",
+    3:  "CrimsonScarlet_Knight_Hugo",
+    // Race 2 — Tidalfin (Water / Guardian)
+    4:  "AzureBare_Knight_Hartford",
+    5:  "AzureGuard_Knight_Beaumont",
+    6:  "AzureShield_Knight_Bexley",
+    // Race 3 — Thornvine (Nature / Ranger)
+    7:  "GreenVest_Forrest",
+    8:  "WoodlandTunic_Sage",
+    9:  "CobaltPlume_Knight_Ashford",
+    // Race 4 — Frostfang (Ice / Assassin)
+    10: "DarkTeal_Storm",
+    11: "TealShadow_Dusk",
+    12: "ShadowBare_Knight_Callum",
+    // Race 5 — Galecrest (Air / Archer)
+    13: "BlueCap_Marcus",
+    14: "BlueCap_Toby",
+    15: "AzurePlume_Knight_Winston",
+    // Race 6 — Terraclaw (Earth / Knight)
+    16: "IronHelm_Knight_Garrett",
+    17: "CopperBare_Knight_Desmond",
+    18: "IronCrest_Knight_Orion",
+    // Race 7 — Voltail (Electric / Wizard)
+    19: "SkyTurban_Cyrus",
+    20: "GingerSuit_Ashton",
+    21: "GoldSuit_Sterling",
+    // Race 8 — Gloomshade (Dark / Assassin)
+    22: "PhantomCloak_Raven",
+    23: "NightHelm_Ember",
+    24: "ShadowBare_Knight_Lennox",
+    // Race 9 — Luminos (Light / Cleric)
+    25: "SunnyHat_Goldie",
+    26: "GoldenBare_Knight_Matthias",
+    27: "GoldenHelm_Knight_Galahad",
+    // Race 10 — Glimmerwing (Psychic / Summoner)
+    28: "CrimsonPuff_Ruby",
+    29: "GoldenBraid_Celeste",
+    30: "RoseFluff_Plum",
+    // Race 11 — Spectrail (Spirit / Wizard)
+    31: "MidnightHair_Violet",
+    32: "CeruleanBare_Knight_Cromwell",
+    33: "SapphirePlume_Knight_Montague",
+    // Race 12 — Ignisurge (Chaos / Berserker)
+    34: "WildSpike_Blaze",
+    35: "EmberHelm_Knight_Darius",
+    36: "EmberScarlet_Knight_Felix",
+    // Race 13 — Ironhusk (Metal / Knight)
+    37: "IronHelm_Knight_Roland",
+    38: "CopperBare_Knight_Warren",
+    39: "IronCrest_Knight_Tristan",
+    // Race 14 — Venomire (Poison / Ranger)
+    40: "MaroonHood_Jasmine",
+    41: "DarkRose_Hazel",
+    42: "MaroonPlume_Knight_Drake",
+    // Race 15 — Blazeguard (Fire / Guardian)
+    43: "ScarletBare_Knight_Corbin",
+    44: "ScarletGuard_Knight_Emeric",
+    45: "ScarletShield_Knight_Beckett",
+    // Race 16 — Aquashot (Water / Archer)
+    46: "RedCapRound_Porter",
+    47: "AzureHelm_Knight_Edmund",
+    48: "AzureCrest_Knight_Mercer",
+    // Race 17 — Pyrovolt (Fire+Electric / Wizard)
+    49: "CrimsonHat_Miles",
+    50: "EmberHelm_Knight_Silas",
+    51: "EmberCrest_Knight_Dorian",
+    // Race 18 — Venomthorn (Poison+Nature / Spearman)
+    52: "RedWrap_Jasper",
+    53: "MaroonPlume_Knight_Rowan",
+    54: "MaroonScarlet_Knight_Ignatius",
+    // Race 19 — Shadowflare (Dark+Fire / Spearman)
+    55: "RedBand_Kai",
+    56: "ScarletIron_Knight_Barrett",
+    57: "ScarletCrest_Knight_Magnus",
+    // Race 20 — Crystalmist (Ice+Psychic / Cleric)
+    58: "PeachBonnet_Pippin",
+    59: "CeruleanBare_Knight_Lowell",
+    60: "RadiantPlume_Knight_Cassander",
+    // Race 21 — Ironstorm (Metal+Air / Berserker)
+    61: "AuburnBob_Hector",
+    62: "CobaltHelm_Knight_Harding",
+    63: "CobaltCrest_Knight_Pembroke",
+    // Race 22 — Spiritbloom (Spirit+Nature / Summoner)
+    64: "CurlyAfro_Maggie",
+    65: "DarkLocks_Kira",
+    66: "GoldenPony_Rosie",
+    // Race 23 — Solarius (Light+Chaos / Guardian) — legendary phoenix
+    67: "GoldenArmor_Aurum",
+    68: "GoldenGuard_Knight_Montgomery",
+    69: "GoldenShield_Knight_Alistair",
+    // Race 24 — Eclipsar (Dark+Spirit / Summoner) — legendary dragon
+    70: "SolarBare_Knight_Leonidas",
+    71: "SolarHelm_Knight_Valerian",
+    72: "RadiantCrest_Knight_Theodoric",
   };
 
   // -------------------------------------------------------------------------
@@ -665,6 +768,16 @@ class AssetRegistry {
    */
   getCharacterSprite(formId) {
     return AssetRegistry.CHARACTER_SPRITES[formId] ?? AssetRegistry.FALLBACK_SPRITE;
+  }
+
+  /**
+   * Returns the character directory name for a specific form_id (1-72).
+   * Used to resolve attack, death, and directional animation strips.
+   * @param {number} formId
+   * @returns {string|null}
+   */
+  getCharacterSpriteDir(formId) {
+    return AssetRegistry.CHARACTER_SPRITE_DIRS[formId] || null;
   }
 
   /**

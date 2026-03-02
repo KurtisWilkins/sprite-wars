@@ -114,7 +114,9 @@ export class SceneManager {
     }
 
     async popScene() {
-        if (this._sceneStack.length === 0) return;
+        if (this._sceneStack.length === 0) {
+            throw new Error('SceneManager: No scene to pop -- stack is empty');
+        }
         const prev = this._sceneStack.pop();
 
         this._transitioning = true;

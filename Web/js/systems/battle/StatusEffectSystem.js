@@ -15,8 +15,8 @@ export class StatusEffectSystem {
     static CONFLICT_MAP = {
         burn: ['freeze'],
         freeze: ['burn'],
-        sleep: ['stun'],
-        stun: ['sleep'],
+        sleep: ['paralysis'],
+        paralysis: ['sleep'],
     };
 
     // -- Effect Application -------------------------------------------------------
@@ -346,9 +346,9 @@ export class StatusEffectSystem {
     _applyStatModifiers(unit, effect, stacks) {
         if (!effect.hasStatModifiers()) return;
         for (const statKey in effect.statModifiers) {
-            const mult = effect.statModifiers[statKey];
+            const offset = effect.statModifiers[statKey];
             for (let s = 0; s < stacks; s++) {
-                unit.applyStatModifier(statKey, mult);
+                unit.applyStatModifier(statKey, 1.0 + offset);
             }
         }
     }
@@ -362,9 +362,9 @@ export class StatusEffectSystem {
     _removeStatModifiers(unit, effectData, stacks) {
         if (!effectData.hasStatModifiers()) return;
         for (const statKey in effectData.statModifiers) {
-            const mult = effectData.statModifiers[statKey];
+            const offset = effectData.statModifiers[statKey];
             for (let s = 0; s < stacks; s++) {
-                unit.removeStatModifier(statKey, mult);
+                unit.removeStatModifier(statKey, 1.0 + offset);
             }
         }
     }

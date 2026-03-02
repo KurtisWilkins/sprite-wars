@@ -162,16 +162,16 @@ async function startGame(user) {
         // Load core data modules
         loadingText.textContent = 'Loading element data...';
         loadingBar.style.width = '5%';
-        const { ELEMENTS, EFFECTIVENESS_MATRIX } = await import('./data/ElementData.js');
+        const { ELEMENT_IDS, ELEMENT_NAMES, EFFECTIVENESS_CHART } = await import('./data/ElementData.js');
         engine.data = engine.data || {};
-        engine.data.elements = ELEMENTS;
-        engine.data.effectivenessMatrix = EFFECTIVENESS_MATRIX;
+        engine.data.elements = { ids: ELEMENT_IDS, names: ELEMENT_NAMES };
+        engine.data.effectivenessMatrix = EFFECTIVENESS_CHART;
 
         loadingText.textContent = 'Loading sprite data...';
         loadingBar.style.width = '15%';
         const spriteDataModule = await import('./data/SpriteData.js');
-        engine.data.races = spriteDataModule.RACES;
-        engine.data.evolutionData = spriteDataModule.EVOLUTION_DATA;
+        engine.data.races = spriteDataModule.SPRITE_RACES;
+        engine.data.evolutionData = spriteDataModule.EVOLUTION_FORMS;
 
         loadingText.textContent = 'Loading ability data...';
         loadingBar.style.width = '25%';
