@@ -22,6 +22,8 @@ import { StatusEffectSystem } from '../systems/battle/StatusEffectSystem.js';
 import { AbilityExecutor } from '../systems/battle/AbilityExecutor.js';
 import { AssetRegistry } from '../data/AssetRegistry.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
+import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
+import { ABILITIES } from '../data/AbilityData.js';
 
 // ── Layout Constants ────────────────────────────────────────────────────────
 const GRID_PADDING_X = 24;
@@ -59,6 +61,83 @@ const ELEMENT_COLORS = {
     Wind: '#88ccaa',
     Dragon: '#6633cc',
 };
+
+// ── Ability wrapper: converts raw AbilityData (snake_case) to battle format ──
+function _wrapAbility(raw) {
+    return {
+        abilityId: raw.ability_id,
+        abilityName: raw.ability_name,
+        elementType: raw.element_type,
+        targetingType: raw.targeting_type,
+        basePower: raw.base_power,
+        accuracy: raw.accuracy,
+        ppMax: raw.pp_max,
+        cooldownTurns: raw.cooldown_turns,
+        priorityModifier: raw.priority_modifier || 0,
+        statusEffectIds: raw.status_effect_ids || [],
+        statusApplyChance: raw.status_apply_chance || 0,
+        isPhysical: raw.is_physical,
+        critRateBonus: raw.crit_rate_bonus || 0,
+        description: raw.description || '',
+        isDamaging() { return this.basePower > 0; },
+        getOffenseStatKey() { return this.isPhysical ? 'atk' : 'sp_atk'; },
+        getDefenseStatKey() { return this.isPhysical ? 'def' : 'sp_def'; },
+        hasStatusEffects() { return this.statusEffectIds.length > 0; },
+    };
+}
+
+/**
+ * Resolve abilities for a sprite, using the canonical ABILITIES database.
+ * Player sprites have simplified ability objects (abilityId, name, power).
+ * Enemies may have no abilities — assign from the race/level.
+ */
+function _resolveAbilities(raw, raceData, stageData, level) {
+    const wrapped = [];
+
+    // 1. Try to use the sprite's own ability list (player sprites)
+    if (raw.abilities && raw.abilities.length > 0) {
+        for (const ab of raw.abilities) {
+            const id = ab.abilityId || ab.ability_id;
+            const canonical = ABILITIES[id];
+            if (canonical) {
+                wrapped.push(_wrapAbility(canonical));
+            }
+        }
+    }
+
+    // 2. If we found abilities from the sprite data, we're done
+    if (wrapped.length > 0) return wrapped;
+
+    // 3. Fallback for enemies with no abilities: assign based on element + level
+    const elemType = (raceData.element_types && raceData.element_types[0]) || 'Fire';
+
+    // Find abilities matching this element, sorted by base_power ascending
+    const matching = [];
+    for (const id in ABILITIES) {
+        const ab = ABILITIES[id];
+        if (ab.element_type === elemType || ab.element_type === 'None') {
+            matching.push(ab);
+        }
+    }
+    matching.sort((a, b) => a.base_power - b.base_power);
+
+    // Pick up to 2 abilities appropriate for level
+    const levelAppropriate = matching.filter(ab => ab.base_power <= 30 + level * 3);
+    const picks = levelAppropriate.length > 0 ? levelAppropriate : matching.slice(0, 2);
+
+    // Take the last (strongest) 2 that are level-appropriate
+    const selected = picks.slice(-2);
+    for (const ab of selected) {
+        wrapped.push(_wrapAbility(ab));
+    }
+
+    // Always have at least Tackle (ability 155) as a fallback
+    if (wrapped.length === 0 && ABILITIES[155]) {
+        wrapped.push(_wrapAbility(ABILITIES[155]));
+    }
+
+    return wrapped;
+}
 
 export class BattleScene extends Scene {
     constructor(engine) {
@@ -561,6 +640,91 @@ export class BattleScene extends Scene {
     // Battle Lifecycle
     // ═══════════════════════════════════════════════════════════════════
 
+    /**
+     * Enrich raw team data so BattleManager._createBattleUnit() gets the
+     * { instance, raceData, stageData, abilities } shape it expects.
+     *
+     * Player sprites from GameManager have: raceId, formId, level, stats,
+     * abilities (simplified), elementTypes, maxHp, etc.
+     *
+     * Enemy sprites from encounters may only have: raceId, level, stage.
+     */
+    _enrichTeamData(rawTeam, isEnemy = false) {
+        const enriched = [];
+
+        for (const raw of rawTeam) {
+            // Already enriched — pass through
+            if (raw.instance && raw.raceData && raw.stageData) {
+                enriched.push(raw);
+                continue;
+            }
+
+            const raceId = raw.raceId;
+            const raceData = SPRITE_RACES.find(r => r.race_id === raceId);
+            if (!raceData) {
+                console.warn(`BattleScene: Unknown raceId ${raceId}, skipping.`);
+                continue;
+            }
+
+            // Resolve formId: player data has formId, enemies have stage (0-2)
+            let formId = raw.formId;
+            if (formId == null) {
+                const stageIdx = raw.stage != null ? raw.stage : 0; // 0,1,2
+                formId = raceId * 3 - 2 + stageIdx;
+            }
+            const stageData = EVOLUTION_FORMS[formId];
+            if (!stageData) {
+                console.warn(`BattleScene: Unknown formId ${formId}, skipping.`);
+                continue;
+            }
+
+            // Build instance object with calculateAllEffectiveStats
+            const level = raw.level || 1;
+            const instance = {
+                ...raw,
+                raceId,
+                formId,
+                level,
+                calculateAllEffectiveStats(rd, sd) {
+                    // Player sprites have pre-computed stats — use them
+                    if (this.stats && this.maxHp) {
+                        return {
+                            hp: this.maxHp,
+                            atk: this.stats.attack || this.stats.atk || 1,
+                            def: this.stats.defense || this.stats.def || 1,
+                            spd: this.stats.speed || this.stats.spd || 1,
+                            sp_atk: this.stats.specialAttack || this.stats.sp_atk || 1,
+                            sp_def: this.stats.specialDefense || this.stats.sp_def || 1,
+                        };
+                    }
+                    // Enemy sprites: compute from base_stats, growth, level, stage mult
+                    const result = {};
+                    const keys = ['hp', 'atk', 'def', 'spd', 'sp_atk', 'sp_def'];
+                    for (const key of keys) {
+                        const base = rd.base_stats[key] || 10;
+                        const growth = rd.growth_rates[key] || 1;
+                        const mult = sd.stat_multipliers[key] || 1;
+                        result[key] = Math.max(1, Math.floor((base + growth * this.level) * mult));
+                    }
+                    return result;
+                },
+            };
+
+            // Resolve abilities from the canonical ABILITIES database
+            const abilities = _resolveAbilities(raw, raceData, stageData, level);
+
+            enriched.push({
+                instance,
+                raceData,
+                stageData,
+                abilities,
+                position: raw.position || null,
+            });
+        }
+
+        return enriched;
+    }
+
     _startBattle() {
         const config = {};
 
@@ -572,9 +736,13 @@ export class BattleScene extends Scene {
             config.statusDb = this.engine.data.statusDb;
         }
 
+        // Enrich raw team data into the format BattleManager expects
+        const playerTeam = this._enrichTeamData(this._playerTeamData, false);
+        const enemyTeam = this._enrichTeamData(this._enemyTeamData, true);
+
         this._battleManager.startBattle(
-            this._playerTeamData,
-            this._enemyTeamData,
+            playerTeam,
+            enemyTeam,
             config
         );
 

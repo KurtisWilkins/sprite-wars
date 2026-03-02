@@ -694,10 +694,9 @@ export class BattleManager {
         // Calculate full stats.
         const stats = instance.calculateAllEffectiveStats(raceData, stageData);
         const elemTypes = [];
-        if (raceData.elementTypes) {
-            for (const e of raceData.elementTypes) {
-                elemTypes.push(e);
-            }
+        const raceElems = raceData.elementTypes || raceData.element_types || [];
+        for (const e of raceElems) {
+            elemTypes.push(e);
         }
 
         const unit = new BattleUnit();
