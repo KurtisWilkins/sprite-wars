@@ -13,8 +13,8 @@ import { eventBus, GameEvents } from '../../core/EventBus.js';
 const VALID_CATEGORIES = ['crystals', 'potions', 'key_items', 'battle_items', 'materials'];
 const SORT_MODES = ['name', 'rarity', 'category', 'count'];
 
-const EQUIPMENT_SLOTS = ['weapon', 'helmet', 'armor', 'accessory'];
-const STAT_KEYS = ['hp', 'attack', 'defense', 'sp_attack', 'sp_defense', 'speed'];
+const EQUIPMENT_SLOTS = ['weapon', 'helmet', 'chest', 'legs', 'boots', 'gloves', 'ring', 'amulet', 'crystal'];
+const STAT_KEYS = ['hp', 'atk', 'def', 'spd', 'sp_atk', 'sp_def'];
 
 // ── ItemInventory Class ─────────────────────────────────────────────────────
 

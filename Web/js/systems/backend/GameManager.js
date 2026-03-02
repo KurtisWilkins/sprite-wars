@@ -22,7 +22,60 @@ function createDefaultPlayerData() {
             201: 10, // Basic Crystal x10
         },
         equipmentInventory: [
+            // Weapons (5)
             1001, // Iron Sword
+            1002, // Steel Blade
+            1003, // Flame Sword
+            1101, // Bone Dagger
+            1102, // Crystal Wand
+            // Helmets (5)
+            1011, // Leather Cap
+            1012, // Iron Helm
+            1013, // Flame Crest
+            1111, // Bone Visor
+            1112, // Mystic Hood
+            // Chest Armor (5)
+            1021, // Cloth Tunic
+            1022, // Chain Mail
+            1023, // Flame Plate
+            1121, // Bone Harness
+            1122, // Mystic Robe
+            // Legs (5)
+            1031, // Cloth Leggings
+            1032, // Chain Greaves
+            1033, // Flame Tassets
+            1034, // Storm Legguards
+            1035, // Shadow Cuisses
+            // Boots (5)
+            1041, // Leather Sandals
+            1042, // Iron Treads
+            1043, // Flame Stompers
+            1044, // Gale Runners
+            1045, // Shadow Striders
+            // Gloves (5)
+            1051, // Cloth Wraps
+            1052, // Iron Gauntlets
+            1053, // Flame Grips
+            1054, // Storm Bracers
+            1055, // Shadow Claws
+            // Rings (5)
+            1061, // Copper Band
+            1062, // Silver Ring
+            1063, // Ember Ring
+            1064, // Gale Loop
+            1161, // Bone Ring
+            // Amulets (5)
+            1071, // Wooden Charm
+            1072, // Stone Pendant
+            1073, // Flame Locket
+            1074, // Storm Talisman
+            1171, // Bone Fetish
+            // Crystals (5)
+            1081, // Dull Shard
+            1082, // Clear Crystal
+            1083, // Fire Prism
+            1084, // Storm Gem
+            1181, // Bone Fragment
         ],
         completedTempleIds: [],
         completedQuestIds: [],

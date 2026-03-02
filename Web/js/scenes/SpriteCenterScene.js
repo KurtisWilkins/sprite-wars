@@ -90,6 +90,7 @@ export class SpriteCenterScene extends Scene {
         this._storage = [];     // Array of storage boxes, each an array of sprite data
         this._registry = {};    // Map of formId -> { seen: bool, caught: bool }
         this._inventory = [];   // Player's item inventory
+        this._equipmentInventory = []; // Player's equipment inventory (equipment IDs)
 
         // ── Storage browsing ──────────────────────────────────────────
         this._currentBoxIndex = 0;
@@ -304,6 +305,7 @@ export class SpriteCenterScene extends Scene {
         this._storage = pd.storage || pd.spriteStorage || [[]];
         this._registry = pd.spriteRegistry || pd.registry || {};
         this._inventory = pd.inventory || pd.items || [];
+        this._equipmentInventory = pd.equipmentInventory || [];
 
         // Ensure at least one storage box
         if (this._storage.length === 0) {
@@ -319,6 +321,7 @@ export class SpriteCenterScene extends Scene {
         pd.spriteStorage = this._storage;
         pd.spriteRegistry = this._registry;
         pd.inventory = this._inventory;
+        pd.equipmentInventory = this._equipmentInventory;
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -1818,26 +1821,19 @@ export class SpriteCenterScene extends Scene {
         const spriteElements = (raceData && raceData.element_types) ? raceData.element_types : [];
         const spriteClass = (raceData && raceData.class_type) ? raceData.class_type : '';
 
-        // Find compatible items from player's inventory
-        const inventoryItems = (this._inventory || []).filter(
-            it => it && (it.equipSlot === slot.key || it.slot_type === slot.key)
-        );
-        // Resolve inventory items to full data if stored as IDs
+        // Find compatible items from player's equipment inventory
         const compatibleItems = [];
-        for (const it of inventoryItems) {
-            const eqId = it.equipment_id || it.equipmentId || it;
-            if (typeof eqId === 'number') {
-                const resolved = EQUIPMENT.find(e => e.equipment_id === eqId);
-                if (resolved && resolved.level_requirement <= (inst.level || 1)) {
-                    const isCurrentlyEquipped = currentEqData && currentEqData.equipment_id === resolved.equipment_id;
-                    if (!isCurrentlyEquipped) compatibleItems.push(resolved);
-                }
-            } else if (it.slot_type === slot.key) {
-                const isCurrentlyEquipped = currentEqData && currentEqData.equipment_id === it.equipment_id;
-                if (!isCurrentlyEquipped && (it.level_requirement || 0) <= (inst.level || 1)) {
-                    compatibleItems.push(it);
-                }
-            }
+        for (const entry of (this._equipmentInventory || [])) {
+            // Entry can be a numeric ID or a full equipment object
+            const eqId = typeof entry === 'number' ? entry : (entry.equipment_id || entry.equipmentId);
+            const resolved = typeof entry === 'number'
+                ? EQUIPMENT.find(e => e.equipment_id === eqId)
+                : entry;
+            if (!resolved) continue;
+            if ((resolved.slot_type || '') !== slot.key) continue;
+            if ((resolved.level_requirement || 0) > (inst.level || 1)) continue;
+            const isCurrentlyEquipped = currentEqData && currentEqData.equipment_id === resolved.equipment_id;
+            if (!isCurrentlyEquipped) compatibleItems.push(resolved);
         }
 
         // ── Sort function ────────────────────────────────────────
@@ -2419,10 +2415,10 @@ export class SpriteCenterScene extends Scene {
         const eqId = equipment[slotKey];
         if (!eqId && eqId !== 0) return;
 
-        // Return item to inventory (store the equipment data object)
-        const eqData = typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId);
-        if (eqData) {
-            this._inventory.push(eqData);
+        // Return item to equipment inventory (store the numeric ID)
+        const numericId = typeof eqId === 'object' ? (eqId.equipment_id || eqId.equipmentId) : eqId;
+        if (numericId && numericId > 0) {
+            this._equipmentInventory.push(numericId);
         }
         delete equipment[slotKey];
         inst.equipment = equipment;
@@ -2509,12 +2505,12 @@ export class SpriteCenterScene extends Scene {
     _equipItem(inst, slotKey, item) {
         const equipment = inst.equipment || {};
 
-        // If there is already an item in this slot, return it to inventory
+        // If there is already an item in this slot, return it to equipment inventory
         const oldId = equipment[slotKey];
         if (oldId) {
-            const oldData = typeof oldId === 'object' ? oldId : EQUIPMENT.find(e => e.equipment_id === oldId);
-            if (oldData) {
-                this._inventory.push(oldData);
+            const numericOldId = typeof oldId === 'object' ? (oldId.equipment_id || oldId.equipmentId) : oldId;
+            if (numericOldId && numericOldId > 0) {
+                this._equipmentInventory.push(numericOldId);
             }
         }
 
@@ -2522,10 +2518,13 @@ export class SpriteCenterScene extends Scene {
         const newEqId = item.equipment_id || item.equipmentId;
         equipment[slotKey] = newEqId || item;
 
-        // Remove from inventory
-        const invIdx = this._inventory.indexOf(item);
-        if (invIdx >= 0) {
-            this._inventory.splice(invIdx, 1);
+        // Remove from equipment inventory
+        const removeId = newEqId || (typeof item === 'number' ? item : null);
+        if (removeId) {
+            const invIdx = this._equipmentInventory.indexOf(removeId);
+            if (invIdx >= 0) {
+                this._equipmentInventory.splice(invIdx, 1);
+            }
         }
 
         inst.equipment = equipment;
