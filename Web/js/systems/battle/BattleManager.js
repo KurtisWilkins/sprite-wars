@@ -565,6 +565,7 @@ export class BattleManager {
             const healed = result.healed || 0;
             if (healed > 0) {
                 this.eventLog.logHeal(tName, healed);
+                eventBus.emit(GameEvents.UNIT_HEALED, target.spriteInstance, healed);
             }
 
             // Status effect logging.
@@ -621,11 +622,8 @@ export class BattleManager {
         this.eventLog.advanceTurn();
         this.currentUnit = null;
 
-        if (!this.isBattleActive) return;
-
-        // Continue to the next turn.
-        // Use setTimeout(0) to allow UI to update between turns (mirrors call_deferred).
-        setTimeout(() => this.processTurn(), 0);
+        // Turn progression is driven by BattleScene via _advanceTurn().
+        // Do NOT auto-chain here to avoid double processTurn() calls.
     }
 
     // -- Private: Condition Check -------------------------------------------------

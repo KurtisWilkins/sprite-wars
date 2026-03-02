@@ -349,6 +349,17 @@ export class BattleScene extends Scene {
     }
 
     _updateTurns(dt) {
+        // Detect player turn: when BattleManager chains AI turns synchronously,
+        // awaitingPlayerInput becomes true but _advanceTurn() has already returned.
+        // Catch it here and show the ability bar.
+        if (this._phase === PHASE_TURNS &&
+            this._battleManager.awaitingPlayerInput &&
+            !this._autoBattle &&
+            this._turnAdvanceDelay <= 0) {
+            this._phase = PHASE_PLAYER_SELECT_ABILITY;
+            this._showAbilityBar();
+        }
+
         // Refresh turn order display
         this._refreshTurnOrderUI();
     }
@@ -411,6 +422,11 @@ export class BattleScene extends Scene {
 
         // Draw units
         this._renderUnits(ctx, renderer);
+
+        // Draw ability animation effects (screen flash, impact flash)
+        if (this._currentAnim && this._currentAnim.type === 'ability_use') {
+            this._renderAbilityEffect(ctx, renderer);
+        }
 
         // Draw floating texts
         this._renderFloatingTexts(ctx, renderer);
@@ -506,9 +522,24 @@ export class BattleScene extends Scene {
                 cache.x = cellX;
                 cache.y = cellY;
 
+                // Apply shake offset if this unit is being hit by an ability animation
+                let shakeX = 0;
+                let shakeY = 0;
+                if (this._currentAnim && this._currentAnim.type === 'ability_use' && this._currentAnim.targetPos) {
+                    const tp = this._currentAnim.targetPos;
+                    if (tp.x === x && tp.y === y) {
+                        const progress = Math.min(1, this._animTimer / this._currentAnim.duration);
+                        if (progress >= 0.1 && progress < 0.4) {
+                            const shakeIntensity = (1 - (progress - 0.1) / 0.3) * 4;
+                            shakeX = Math.sin(progress * 60) * shakeIntensity;
+                            shakeY = Math.cos(progress * 45) * shakeIntensity * 0.5;
+                        }
+                    }
+                }
+
                 // Draw fully composited unit via UnitRenderer
                 const inst = unit.spriteInstance || unit.spriteData || unit;
-                UnitRenderer.draw(ctx, inst, centerX, centerY, spriteSize, {
+                UnitRenderer.draw(ctx, inst, centerX + shakeX, centerY + shakeY, spriteSize, {
                     time: this._time,
                     team: unit.team,
                     showHpBar: true,
@@ -575,6 +606,50 @@ export class BattleScene extends Scene {
         });
 
         renderer.restore();
+    }
+
+    _renderAbilityEffect(ctx, renderer) {
+        const anim = this._currentAnim;
+        if (!anim) return;
+
+        const progress = Math.min(1, this._animTimer / anim.duration);
+        const ability = anim.ability;
+        const elemColor = ELEMENT_COLORS[ability.elementType] || '#ffffff';
+
+        // Phase 1 (0-0.3): Screen flash with element color
+        if (progress < 0.3) {
+            const flashAlpha = (1 - progress / 0.3) * 0.2;
+            ctx.fillStyle = elemColor;
+            ctx.globalAlpha = flashAlpha;
+            ctx.fillRect(0, 0, this.engine.designWidth, this.engine.designHeight);
+            ctx.globalAlpha = 1;
+        }
+
+        // Phase 2 (0.15-0.5): Impact flash at target cell
+        if (progress >= 0.15 && progress < 0.5) {
+            const impactProgress = (progress - 0.15) / 0.35;
+            const impactAlpha = (1 - impactProgress) * 0.6;
+            const targetPos = anim.targetPos;
+            if (targetPos) {
+                const cellStep = CELL_SIZE + CELL_GAP;
+                const tx = this._gridOriginX + targetPos.x * cellStep + CELL_SIZE / 2;
+                const ty = this._gridOriginY + targetPos.y * cellStep + CELL_SIZE / 2;
+                const radius = CELL_SIZE * (0.5 + impactProgress * 0.8);
+
+                ctx.globalAlpha = impactAlpha;
+                const gradient = ctx.createRadialGradient(tx, ty, 0, tx, ty, radius);
+                gradient.addColorStop(0, elemColor);
+                gradient.addColorStop(1, elemColor + '00');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(tx, ty, radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // Phase 3 (0.1-0.35): Shake the target unit slightly
+        // This is handled in _renderUnits via _currentAnim reference
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -764,18 +839,25 @@ export class BattleScene extends Scene {
     _advanceTurn() {
         if (!this._battleManager.isBattleActive) return;
 
-        // Let BattleManager process the next turn
+        // Let BattleManager process the next turn (synchronous)
         this._battleManager.processTurn();
+
+        // Battle may have ended during processTurn
+        if (!this._battleManager.isBattleActive) return;
 
         // After processTurn, check what state we are in
         if (this._battleManager.awaitingPlayerInput && !this._autoBattle) {
             this._phase = PHASE_PLAYER_SELECT_ABILITY;
             this._showAbilityBar();
+        } else if (this._animQueue.length > 0) {
+            // AI or auto-battle turn queued animations via ABILITY_USED event.
+            // Enter animation phase; _updateAnimations will advance to next turn after.
+            this._phase = PHASE_ANIMATING;
         } else {
-            // AI or auto-battle turn was processed; the _endCurrentTurn in
-            // BattleManager will call processTurn again via setTimeout.
-            // We just keep the phase in TURNS and let event listeners drive animations.
+            // AI turn with no visual animation (e.g. skip or status-prevented).
+            // Add a brief delay so the player can read log entries.
             this._phase = PHASE_TURNS;
+            this._turnAdvanceDelay = 0.4;
         }
 
         this._refreshTurnOrderUI();
@@ -787,8 +869,24 @@ export class BattleScene extends Scene {
         if (this._autoBattle) {
             this._hideAbilityBar();
             this._addLogEntry('Auto-Battle enabled.');
+            // If we were in ability selection, the BattleManager just executed
+            // the AI turn for the current player unit. Transition to animation or next turn.
+            if (this._phase === PHASE_PLAYER_SELECT_ABILITY ||
+                this._phase === PHASE_PLAYER_SELECT_TARGET) {
+                if (this._animQueue.length > 0) {
+                    this._phase = PHASE_ANIMATING;
+                } else {
+                    this._phase = PHASE_TURNS;
+                    this._turnAdvanceDelay = 0.5;
+                }
+            }
         } else {
             this._addLogEntry('Auto-Battle disabled.');
+            // If it's still the player's turn and awaiting input, show ability bar
+            if (this._battleManager.awaitingPlayerInput && this._battleManager.currentUnit) {
+                this._phase = PHASE_PLAYER_SELECT_ABILITY;
+                this._showAbilityBar();
+            }
         }
     }
 
@@ -1025,18 +1123,19 @@ export class BattleScene extends Scene {
     // ═══════════════════════════════════════════════════════════════════
 
     _queueAbilityAnimation(caster, ability, targetPos) {
+        // Play SFX immediately when the animation starts
+        this.engine.audio.playSFX(
+            this.engine.assets.resolvePath('Audio/Sounds/attack_hit.ogg'), 0.5
+        );
+
         this._animQueue.push({
             type: 'ability_use',
             caster,
             ability,
             targetPos,
             duration: 0.5,
-            onComplete: () => {
-                // SFX for ability use
-                this.engine.audio.playSFX(
-                    this.engine.assets.resolvePath('Audio/Sounds/attack_hit.ogg'), 0.5
-                );
-            },
+            startTime: this._time,
+            onComplete: null,
         });
     }
 
@@ -1134,6 +1233,31 @@ export class BattleScene extends Scene {
                 const abilityName = ability ? (ability.abilityName || 'an ability') : 'an ability';
                 if (caster) {
                     this._addLogEntry(`${caster.getDisplayName()} used ${abilityName}!`);
+
+                    // Queue visual effect for AI turns (player turns already queue via _confirmTarget)
+                    if (caster.team === 1 || this._autoBattle) {
+                        // Find target position from the first target
+                        let targetPos = null;
+                        if (targetInsts && targetInsts.length > 0) {
+                            const targetUnit = this._findUnitByInstance(targetInsts[0]);
+                            if (targetUnit) {
+                                targetPos = { x: targetUnit.gridPosition.x, y: targetUnit.gridPosition.y };
+                            }
+                        }
+                        // Queue ability animation for visual feedback
+                        this._animQueue.push({
+                            type: 'ability_use',
+                            caster,
+                            ability,
+                            targetPos,
+                            duration: 0.5,
+                            startTime: this._time,
+                            onComplete: null,
+                        });
+                        this.engine.audio.playSFX(
+                            this.engine.assets.resolvePath('Audio/Sounds/attack_hit.ogg'), 0.4
+                        );
+                    }
                 }
             })
         );
