@@ -630,9 +630,9 @@ export class DeploymentScene extends Scene {
 
         this.engine.audio.stopMusic(300);
 
-        // Transition to BattleScene
+        // Transition to RTSBattleScene (Hero's Hour-style real-time combat)
         try {
-            await this.engine.scenes.changeTo('battle', {
+            await this.engine.scenes.changeTo('rts_battle', {
                 playerTeam,
                 enemyTeam,
                 background: `Sprites/Battle Backgrounds/temple_${this._templeId || 1}.png`,

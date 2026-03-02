@@ -274,6 +274,7 @@ async function startGame(user) {
         const { DeploymentScene } = await import('./scenes/DeploymentScene.js');
         const { SpriteCenterScene } = await import('./scenes/SpriteCenterScene.js');
         const { BagScene } = await import('./scenes/BagScene.js');
+        const { RTSBattleScene } = await import('./scenes/RTSBattleScene.js');
 
         engine.scenes.register('main_menu', MainMenuScene);
         engine.scenes.register('overworld', OverworldScene);
@@ -281,6 +282,7 @@ async function startGame(user) {
         engine.scenes.register('deployment', DeploymentScene);
         engine.scenes.register('sprite_center', SpriteCenterScene);
         engine.scenes.register('bag', BagScene);
+        engine.scenes.register('rts_battle', RTSBattleScene);
 
         // Initialize game state
         engine.gameManager.init(user);
