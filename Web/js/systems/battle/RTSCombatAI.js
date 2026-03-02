@@ -64,10 +64,11 @@ export class RTSCombatAI {
         this._acquireTarget(unit, field, behavior);
 
         if (!unit.target || !unit.target.isAlive) {
-            // No valid target — idle
-            unit.state = UnitState.IDLE;
-            unit.velocity.x = 0;
-            unit.velocity.y = 0;
+            // No target in aggro range — march toward the enemy side
+            // This ensures units always advance even if spawn distance > AGGRO_RANGE
+            const marchX = unit.team === 0 ? unit.worldPos.x + 200 : unit.worldPos.x - 200;
+            const marchY = unit.worldPos.y;
+            unit.moveToward(marchX, marchY, dt);
             return null;
         }
 
@@ -115,7 +116,7 @@ export class RTSCombatAI {
             case BEHAVIOR_SUPPORT: {
                 // Support units target the weakest ally for healing (excluding self)
                 const weakAlly = field.findWeakestAlly(
-                    unit.worldPos.x, unit.worldPos.y, unit.team, 200
+                    unit.worldPos.x, unit.worldPos.y, unit.team, AGGRO_RANGE
                 );
                 if (weakAlly && weakAlly !== unit) {
                     unit.target = weakAlly;
@@ -130,7 +131,7 @@ export class RTSCombatAI {
 
             case BEHAVIOR_RANGED:
             case BEHAVIOR_CASTER: {
-                // Prefer weakest enemy in range, fall back to nearest
+                // Prefer weakest enemy in range, fall back to nearest anywhere
                 const weakEnemy = field.findWeakestEnemy(
                     unit.worldPos.x, unit.worldPos.y, unit.team, AGGRO_RANGE
                 );

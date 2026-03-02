@@ -28,7 +28,7 @@ const UNIT_RADIUS = 10;              // Collision radius
 const ATTACK_ANIM_DURATION = 0.3;    // Seconds for attack animation
 const CAST_ANIM_DURATION = 0.5;      // Seconds for ability cast animation
 const SEPARATION_RADIUS = 18;        // Min distance between allied units
-const AGGRO_RANGE = 300;             // Max distance to acquire targets
+const AGGRO_RANGE = 1000;             // Max distance to acquire targets (must exceed spawn distance ~700px)
 
 // Class types that use ranged attacks
 const RANGED_CLASSES = new Set(['Archer', 'Wizard', 'Cleric', 'Summoner', 'Ranger']);
