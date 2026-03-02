@@ -65,31 +65,42 @@ export class SceneManager {
 
         this._transitioning = true;
 
-        if (transition) {
-            await this._fadeOut();
+        try {
+            if (transition) {
+                await this._fadeOut();
+            }
+
+            // Exit current scene
+            if (this._currentScene) {
+                this._currentScene.exit();
+            }
+
+            // Create and init new scene
+            const scene = new SceneClass(this.engine);
+            if (!scene.initialized) {
+                await scene.init();
+            }
+            scene.enter(data);
+
+            this._currentScene = scene;
+            this._currentName = name;
+
+            if (transition) {
+                await this._fadeIn();
+            }
+
+            eventBus.emit(GameEvents.SCENE_CHANGED, name, data);
+        } catch (err) {
+            console.error(`SceneManager: Error transitioning to "${name}":`, err);
+            // Ensure fade overlay is cleared so the screen isn't stuck black
+            const overlay = document.getElementById('transition-overlay');
+            if (overlay) {
+                overlay.classList.remove('fade-in');
+                overlay.classList.add('hidden');
+            }
+        } finally {
+            this._transitioning = false;
         }
-
-        // Exit current scene
-        if (this._currentScene) {
-            this._currentScene.exit();
-        }
-
-        // Create and init new scene
-        const scene = new SceneClass(this.engine);
-        if (!scene.initialized) {
-            await scene.init();
-        }
-        scene.enter(data);
-
-        this._currentScene = scene;
-        this._currentName = name;
-
-        if (transition) {
-            await this._fadeIn();
-        }
-
-        this._transitioning = false;
-        eventBus.emit(GameEvents.SCENE_CHANGED, name, data);
     }
 
     pushScene(name, data = {}) {
@@ -107,15 +118,25 @@ export class SceneManager {
         const prev = this._sceneStack.pop();
 
         this._transitioning = true;
-        await this._fadeOut();
+        try {
+            await this._fadeOut();
 
-        if (this._currentScene) this._currentScene.exit();
-        prev.scene.enter({});
-        this._currentScene = prev.scene;
-        this._currentName = prev.name;
+            if (this._currentScene) this._currentScene.exit();
+            prev.scene.enter({});
+            this._currentScene = prev.scene;
+            this._currentName = prev.name;
 
-        await this._fadeIn();
-        this._transitioning = false;
+            await this._fadeIn();
+        } catch (err) {
+            console.error('SceneManager: Error during popScene:', err);
+            const overlay = document.getElementById('transition-overlay');
+            if (overlay) {
+                overlay.classList.remove('fade-in');
+                overlay.classList.add('hidden');
+            }
+        } finally {
+            this._transitioning = false;
+        }
     }
 
     update(dt) {

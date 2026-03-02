@@ -605,7 +605,7 @@ export class DeploymentScene extends Scene {
         return this._deployedUnits.length >= 1 && this._deployedUnits.length <= MAX_DEPLOY_UNITS;
     }
 
-    _startBattle() {
+    async _startBattle() {
         if (!this._canStartBattle()) return;
 
         this.engine.audio.playSFX(
@@ -631,12 +631,16 @@ export class DeploymentScene extends Scene {
         this.engine.audio.stopMusic(300);
 
         // Transition to BattleScene
-        this.engine.scenes.changeTo('battle', {
-            playerTeam,
-            enemyTeam,
-            background: `Sprites/Battle Backgrounds/temple_${this._templeId || 1}.png`,
-            isBoss: this._enemyTeamData.some(e => e.isBoss),
-        });
+        try {
+            await this.engine.scenes.changeTo('battle', {
+                playerTeam,
+                enemyTeam,
+                background: `Sprites/Battle Backgrounds/temple_${this._templeId || 1}.png`,
+                isBoss: this._enemyTeamData.some(e => e.isBoss),
+            });
+        } catch (err) {
+            console.error('DeploymentScene: Failed to transition to battle:', err);
+        }
     }
 
     _goBack() {

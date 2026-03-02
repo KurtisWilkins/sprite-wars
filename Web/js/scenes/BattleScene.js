@@ -726,27 +726,39 @@ export class BattleScene extends Scene {
     }
 
     _startBattle() {
-        const config = {};
+        try {
+            const config = {};
 
-        // Provide element chart from engine data if available
-        if (this.engine.data && this.engine.data.elementChart) {
-            config.elementChart = this.engine.data.elementChart;
+            // Provide element chart from engine data if available
+            if (this.engine.data && this.engine.data.elementChart) {
+                config.elementChart = this.engine.data.elementChart;
+            }
+            if (this.engine.data && this.engine.data.statusDb) {
+                config.statusDb = this.engine.data.statusDb;
+            }
+
+            // Enrich raw team data into the format BattleManager expects
+            const playerTeam = this._enrichTeamData(this._playerTeamData, false);
+            const enemyTeam = this._enrichTeamData(this._enemyTeamData, true);
+
+            if (playerTeam.length === 0) {
+                console.error('BattleScene: No player units after enrichment. Raw data:', this._playerTeamData);
+            }
+            if (enemyTeam.length === 0) {
+                console.error('BattleScene: No enemy units after enrichment. Raw data:', this._enemyTeamData);
+            }
+
+            this._battleManager.startBattle(
+                playerTeam,
+                enemyTeam,
+                config
+            );
+
+            this._addLogEntry('Battle started!');
+        } catch (err) {
+            console.error('BattleScene._startBattle() error:', err);
+            this._addLogEntry('Error starting battle. Check console.');
         }
-        if (this.engine.data && this.engine.data.statusDb) {
-            config.statusDb = this.engine.data.statusDb;
-        }
-
-        // Enrich raw team data into the format BattleManager expects
-        const playerTeam = this._enrichTeamData(this._playerTeamData, false);
-        const enemyTeam = this._enrichTeamData(this._enemyTeamData, true);
-
-        this._battleManager.startBattle(
-            playerTeam,
-            enemyTeam,
-            config
-        );
-
-        this._addLogEntry('Battle started!');
     }
 
     _advanceTurn() {
