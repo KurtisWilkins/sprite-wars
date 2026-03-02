@@ -10,6 +10,7 @@
  * designed for mobile-first layout. Screens are registered with ScreenManager.
  */
 import { eventBus, GameEvents } from '../../core/EventBus.js';
+import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 
 // -- Shared Style Constants ------------------------------------------------------
 
@@ -386,14 +387,24 @@ export class TeamScreen {
             numLabel.style.cssText = 'color:rgba(130,130,140,0.7);font-size:14px;min-width:30px;';
             slot.appendChild(numLabel);
 
-            // Portrait placeholder
-            const portrait = document.createElement('div');
+            // Portrait with equipment rendering
+            const portrait = document.createElement('canvas');
+            portrait.width = 56;
+            portrait.height = 56;
             Object.assign(portrait.style, {
                 width: '56px', height: '56px',
-                background: 'rgba(35,35,55,1)',
                 borderRadius: '8px',
                 flexShrink: '0',
+                imageRendering: 'pixelated',
+                background: 'rgba(35,35,55,1)',
             });
+            const pCtx = portrait.getContext('2d');
+            const sRaceId = spriteData.raceId || spriteData.race_id || 1;
+            const sStage = spriteData.evolutionStage || spriteData.evolution_stage || 1;
+            const sEquip = spriteData.equipment || {};
+            HumanoidSpriteSystem.drawWithEquipment(
+                pCtx, sRaceId, sStage, 0, 0, 28, 50, 44, { equipment: sEquip }
+            );
             slot.appendChild(portrait);
 
             // Info column
@@ -805,9 +816,11 @@ export class InventoryScreen {
                 boxSizing: 'border-box',
             });
 
-            // Item icon or placeholder
+            // Item icon with category-specific emoji
             const iconArea = document.createElement('div');
-            iconArea.style.cssText = 'width:48px;height:48px;background:rgba(40,40,60,1);border-radius:6px;margin-bottom:4px;';
+            iconArea.style.cssText = 'width:48px;height:48px;background:rgba(40,40,60,1);border-radius:6px;margin-bottom:4px;display:flex;align-items:center;justify-content:center;font-size:22px;';
+            const catIcons = { consumables: '\u{1F9EA}', crystals: '\u{1F48E}', equipment: '\u2694\uFE0F', key_items: '\u{1F511}', materials: '\u{1F9F1}' };
+            iconArea.textContent = catIcons[category] || '\u{1F4E6}';
             cell.appendChild(iconArea);
 
             // Quantity badge

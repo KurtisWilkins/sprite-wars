@@ -383,13 +383,25 @@ export class RTSBattleScene extends Scene {
         closeBtn.addEventListener('click', () => this._deselectUnit());
         panel.appendChild(closeBtn);
 
+        // ── Sprite Preview (with equipment) ──
+        const sprPreviewCanvas = document.createElement('canvas');
+        sprPreviewCanvas.width = 64;
+        sprPreviewCanvas.height = 64;
+        sprPreviewCanvas.style.cssText = 'display:block;margin:0 auto 6px auto;image-rendering:pixelated;';
+        const spCtx = sprPreviewCanvas.getContext('2d');
+        HumanoidSpriteSystem.drawWithEquipment(
+            spCtx, unit.raceId, unit.evolutionStage, unit.facing, 0,
+            32, 58, 52, { equipment: unit.equipment || {} }
+        );
+        panel.appendChild(sprPreviewCanvas);
+
         // ── Name + Team ──
         const teamLabel = unit.team === 0 ? 'ALLY' : 'ENEMY';
         const teamColor = unit.team === 0 ? '#4488ff' : '#ff4444';
         const name = unit.getDisplayName();
 
         const nameEl = document.createElement('div');
-        nameEl.style.cssText = `font-weight:bold;font-size:13px;color:#ffcc33;margin-bottom:2px;`;
+        nameEl.style.cssText = `font-weight:bold;font-size:13px;color:#ffcc33;margin-bottom:2px;text-align:center;`;
         nameEl.textContent = name;
         panel.appendChild(nameEl);
 
@@ -489,6 +501,51 @@ export class RTSBattleScene extends Scene {
             </div>
         `;
         panel.appendChild(targetEl);
+
+        // ── Equipment ──
+        const equipData = unit.equipment || {};
+        const equipSlots = Object.keys(equipData).filter(k => !!equipData[k]);
+        if (equipSlots.length > 0) {
+            const eqHeader = document.createElement('div');
+            eqHeader.style.cssText = 'font-size:10px;font-weight:bold;color:#aaa;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:2px;';
+            eqHeader.textContent = 'EQUIPMENT';
+            panel.appendChild(eqHeader);
+
+            // Sprite preview with equipment
+            const eqPreviewCanvas = document.createElement('canvas');
+            eqPreviewCanvas.width = 48;
+            eqPreviewCanvas.height = 48;
+            eqPreviewCanvas.style.cssText = 'display:block;margin:0 auto 6px auto;image-rendering:pixelated;';
+            const epCtx = eqPreviewCanvas.getContext('2d');
+            HumanoidSpriteSystem.drawWithEquipment(
+                epCtx, unit.raceId, unit.evolutionStage, unit.facing, 0,
+                24, 44, 40, { equipment: equipData }
+            );
+            panel.appendChild(eqPreviewCanvas);
+
+            // Equipment slot list
+            const RARITY_COLORS_PANEL = {
+                common: '#888888', uncommon: '#33cc66', rare: '#3399ff', epic: '#aa44ff', legendary: '#ffaa00',
+            };
+            const SLOT_ICONS = {
+                helmet: '\u26D1', weapon: '\u2694', chest: '\u{1F6E1}', gloves: '\u{1F9E4}',
+                legs: '\u{1F456}', boots: '\u{1F462}', ring: '\u{1F48D}', amulet: '\u{1F4FF}', crystal: '\u{1F48E}',
+            };
+            for (const slot of equipSlots) {
+                const eqId = equipData[slot];
+                const eqInfo = EQUIPMENT.find(e => e.equipment_id === eqId);
+                if (!eqInfo) continue;
+                const rc = RARITY_COLORS_PANEL[eqInfo.rarity] || '#888';
+                const eqEl = document.createElement('div');
+                eqEl.style.cssText = 'font-size:9px;margin-bottom:2px;display:flex;align-items:center;gap:3px;';
+                eqEl.innerHTML = `<span>${SLOT_ICONS[slot] || ''}</span><span style="color:${rc};font-weight:bold">${eqInfo.equipment_name}</span>`;
+                panel.appendChild(eqEl);
+            }
+
+            const eqSpacer = document.createElement('div');
+            eqSpacer.style.cssText = 'margin-bottom:6px;';
+            panel.appendChild(eqSpacer);
+        }
 
         // ── Abilities ──
         if (unit.equippedAbilities.length > 0) {
@@ -891,12 +948,13 @@ export class RTSBattleScene extends Scene {
                 formId,
                 level,
                 calculateAllEffectiveStats(rd, sd) {
+                    let result;
                     // Player sprites have pre-computed stats — use them
                     // Check that stats actually has meaningful values (not empty object)
                     const hasStats = this.stats && this.maxHp &&
                         (this.stats.attack || this.stats.atk || this.stats.defense || this.stats.def);
                     if (hasStats) {
-                        return {
+                        result = {
                             hp: this.maxHp,
                             atk: this.stats.attack || this.stats.atk || 1,
                             def: this.stats.defense || this.stats.def || 1,
@@ -904,16 +962,49 @@ export class RTSBattleScene extends Scene {
                             sp_atk: this.stats.specialAttack || this.stats.sp_atk || 1,
                             sp_def: this.stats.specialDefense || this.stats.sp_def || 1,
                         };
+                    } else {
+                        // Enemy sprites: compute from base_stats, growth, level, stage mult
+                        result = {};
+                        const keys = ['hp', 'atk', 'def', 'spd', 'sp_atk', 'sp_def'];
+                        for (const key of keys) {
+                            const base = rd.base_stats[key] || 10;
+                            const growth = rd.growth_rates[key] || 1;
+                            const mult = sd.stat_multipliers[key] || 1;
+                            result[key] = Math.max(1, Math.floor((base + growth * this.level) * mult));
+                        }
                     }
-                    // Enemy sprites: compute from base_stats, growth, level, stage mult
-                    const result = {};
-                    const keys = ['hp', 'atk', 'def', 'spd', 'sp_atk', 'sp_def'];
-                    for (const key of keys) {
-                        const base = rd.base_stats[key] || 10;
-                        const growth = rd.growth_rates[key] || 1;
-                        const mult = sd.stat_multipliers[key] || 1;
-                        result[key] = Math.max(1, Math.floor((base + growth * this.level) * mult));
+
+                    // Apply equipment stat bonuses per EquipmentSystemDesign.md
+                    // Final Stat = Base Stat + Equipment Bonus + Synergy Multiplier
+                    const eq = this.equipment || {};
+                    const spriteElements = rd.element_types || this.elementTypes || [];
+                    const spriteClass = rd.class_type || this.classType || '';
+                    const statKeys = ['hp', 'atk', 'def', 'spd', 'sp_atk', 'sp_def'];
+
+                    for (const slotKey of Object.keys(eq)) {
+                        const eqId = eq[slotKey];
+                        if (!eqId) continue;
+                        const eqData = typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId);
+                        if (!eqData || !eqData.stat_bonuses) continue;
+
+                        // Calculate synergy multiplier
+                        let synergyMult = 1.0;
+                        if (eqData.element_synergy && spriteElements.includes(eqData.element_synergy)) {
+                            synergyMult *= (eqData.element_synergy_multiplier || 1.0);
+                        }
+                        if (eqData.class_synergy && eqData.class_synergy === spriteClass) {
+                            synergyMult *= (eqData.class_synergy_multiplier || 1.0);
+                        }
+
+                        // Add equipment bonuses with synergy
+                        for (const key of statKeys) {
+                            const bonus = eqData.stat_bonuses[key] || 0;
+                            if (bonus > 0) {
+                                result[key] = Math.floor(result[key] + bonus * synergyMult);
+                            }
+                        }
                     }
+
                     return result;
                 },
             };

@@ -298,163 +298,73 @@ export class UnitRenderer {
      */
     static _drawBaseSprite(ctx, inst, cx, cy, size, formId, direction, time, team, elemColor, level) {
         const halfSize = size / 2;
-        const spritePath = inst.spriteAsset || assetRegistry.getCharacterSprite(formId);
-        const img = _getCachedImage(spritePath);
+        const raceId = inst.raceId || inst.race_id || Math.ceil(formId / 3);
+        const stage = inst.evolutionStage || inst.evolution_stage || (((formId - 1) % 3) + 1);
+        const equipment = inst.equipment || {};
+        const animFrame = Math.floor(time * 3) % 4;
 
-        if (img) {
-            const imgW = img.naturalWidth || img.width;
-            const imgH = img.naturalHeight || img.height;
+        // Check if the sprite has any equipment equipped
+        const hasEquipment = Object.values(equipment).some(v => !!v);
 
-            if (imgW >= 128 && imgH >= 28 && imgH <= 48) {
-                // Horizontal strip: 4 frames of 32x32 (e.g., 128x32 Walk_Down.png)
-                const frameW = Math.floor(imgW / 4);
-                const frameH = imgH;
-                const animFrame = Math.floor(time * 3) % 4;
-                ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(img, animFrame * frameW, 0, frameW, frameH,
-                    cx - halfSize, cy - halfSize, size, size);
-                ctx.imageSmoothingEnabled = true;
-            } else if (imgW >= 128 && imgH >= 128) {
-                // Character sheet (128x128, 4x4 = 32x32 frames)
-                const animFrame = Math.floor(time * 3) % CHAR_COLS;
-                const row = direction % 4;
-                const sx = animFrame * CHAR_FRAME_SIZE;
-                const sy = row * CHAR_FRAME_SIZE;
-                ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(img, sx, sy, CHAR_FRAME_SIZE, CHAR_FRAME_SIZE,
-                    cx - halfSize, cy - halfSize, size, size);
-                ctx.imageSmoothingEnabled = true;
-            } else if (imgW > 64 && imgH > 64) {
-                // Larger sprite sheet — extract a suitable frame
-                const frameW = Math.min(64, imgW / 4);
-                const frameH = Math.min(64, imgH / 4);
-                const animFrame = Math.floor(time * 3) % 4;
-                ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(img, animFrame * frameW, 0, frameW, frameH,
-                    cx - halfSize, cy - halfSize, size, size);
-                ctx.imageSmoothingEnabled = true;
-            } else {
-                // Small standalone sprite (e.g., 30x34 monster sprites)
-                // Draw with slight scaling to fill the cell
-                ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(img, cx - halfSize, cy - halfSize, size, size);
-                ctx.imageSmoothingEnabled = true;
-            }
-        } else {
-            // Fallback: use HumanoidSpriteSystem for pixel-art humanoid with equipment
-            const raceId = inst.raceId || inst.race_id || Math.ceil(formId / 3);
-            const stage = inst.evolutionStage || inst.evolution_stage || (((formId - 1) % 3) + 1);
-            const equipment = inst.equipment || {};
-            const animFrame = Math.floor(time * 3) % 4;
+        if (hasEquipment) {
+            // Equipment exists — always use HumanoidSpriteSystem which properly
+            // composites all 9 equipment slots (helmet, chest, boots, gloves,
+            // ring, amulet, crystal, weapon, legs) as visual layers.
             HumanoidSpriteSystem.drawWithEquipment(
                 ctx, raceId, stage, direction, animFrame,
                 cx, cy + halfSize, size,
                 { equipment }
             );
+        } else {
+            // No equipment — try to use the loaded sprite image
+            const spritePath = inst.spriteAsset || assetRegistry.getCharacterSprite(formId);
+            const img = _getCachedImage(spritePath);
+
+            if (img) {
+                const imgW = img.naturalWidth || img.width;
+                const imgH = img.naturalHeight || img.height;
+
+                if (imgW >= 128 && imgH >= 28 && imgH <= 48) {
+                    // Horizontal strip: 4 frames of 32x32 (e.g., 128x32 Walk_Down.png)
+                    const frameW = Math.floor(imgW / 4);
+                    const frameH = imgH;
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.drawImage(img, animFrame * frameW, 0, frameW, frameH,
+                        cx - halfSize, cy - halfSize, size, size);
+                    ctx.imageSmoothingEnabled = true;
+                } else if (imgW >= 128 && imgH >= 128) {
+                    // Character sheet (128x128, 4x4 = 32x32 frames)
+                    const row = direction % 4;
+                    const sx = animFrame * CHAR_FRAME_SIZE;
+                    const sy = row * CHAR_FRAME_SIZE;
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.drawImage(img, sx, sy, CHAR_FRAME_SIZE, CHAR_FRAME_SIZE,
+                        cx - halfSize, cy - halfSize, size, size);
+                    ctx.imageSmoothingEnabled = true;
+                } else if (imgW > 64 && imgH > 64) {
+                    // Larger sprite sheet — extract a suitable frame
+                    const frameW = Math.min(64, imgW / 4);
+                    const frameH = Math.min(64, imgH / 4);
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.drawImage(img, animFrame * frameW, 0, frameW, frameH,
+                        cx - halfSize, cy - halfSize, size, size);
+                    ctx.imageSmoothingEnabled = true;
+                } else {
+                    // Small standalone sprite (e.g., 30x34 monster sprites)
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.drawImage(img, cx - halfSize, cy - halfSize, size, size);
+                    ctx.imageSmoothingEnabled = true;
+                }
+            } else {
+                // No image and no equipment — fall back to HumanoidSpriteSystem
+                // with empty equipment for a bare humanoid rendering
+                HumanoidSpriteSystem.drawWithEquipment(
+                    ctx, raceId, stage, direction, animFrame,
+                    cx, cy + halfSize, size,
+                    { equipment }
+                );
+            }
         }
-    }
-
-    /**
-     * Draw a humanoid silhouette fallback when no image is available.
-     * Draws head, body, arms, and legs with element coloring and idle bob.
-     */
-    static _drawFallbackSprite(ctx, cx, cy, size, elemColor, level, team, time) {
-        const halfSize = size / 2;
-
-        // Bob already applied via cy parameter from caller; avoid double-bob
-        const bob = 0;
-
-        // Proportions relative to size
-        const headR = size * 0.15;
-        const bodyW = size * 0.30;
-        const bodyH = size * 0.28;
-        const armW = size * 0.10;
-        const armH = size * 0.24;
-        const legW = size * 0.12;
-        const legH = size * 0.22;
-
-        // Anchor positions
-        const headCy = cy - halfSize + headR + size * 0.06 + bob;
-        const bodyCy = headCy + headR + bodyH * 0.5;
-        const armY = bodyCy - bodyH * 0.4;
-        const legY = bodyCy + bodyH * 0.5;
-
-        // ── Ground shadow ellipse ─────────────────────────────────
-        ctx.save();
-        ctx.fillStyle = 'rgba(0,0,0,0.25)';
-        ctx.beginPath();
-        ctx.ellipse(cx, cy + halfSize - size * 0.04, size * 0.28, size * 0.06, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        // ── Legs ─────────────────────────────────────────────────
-        const legSwing = Math.sin(time * 3) * size * 0.03;
-        ctx.fillStyle = elemColor;
-        // Left leg
-        ctx.fillRect(cx - legW - size * 0.02, legY + bob + legSwing, legW, legH);
-        // Right leg
-        ctx.fillRect(cx + size * 0.02, legY + bob - legSwing, legW, legH);
-
-        // ── Body (torso) ─────────────────────────────────────────
-        const bodyGrad = ctx.createLinearGradient(cx, bodyCy - bodyH / 2 + bob, cx, bodyCy + bodyH / 2 + bob);
-        bodyGrad.addColorStop(0, elemColor);
-        bodyGrad.addColorStop(1, elemColor + 'aa');
-        ctx.fillStyle = bodyGrad;
-        ctx.beginPath();
-        ctx.roundRect(cx - bodyW / 2, bodyCy - bodyH / 2 + bob, bodyW, bodyH, size * 0.04);
-        ctx.fill();
-
-        // Body highlight
-        ctx.fillStyle = 'rgba(255,255,255,0.15)';
-        ctx.beginPath();
-        ctx.roundRect(cx - bodyW * 0.3, bodyCy - bodyH * 0.35 + bob, bodyW * 0.3, bodyH * 0.5, size * 0.02);
-        ctx.fill();
-
-        // ── Arms ─────────────────────────────────────────────────
-        const armSwing = Math.sin(time * 3 + Math.PI) * size * 0.03;
-        ctx.fillStyle = elemColor;
-        // Left arm
-        ctx.fillRect(cx - bodyW / 2 - armW, armY + bob + armSwing, armW, armH);
-        // Right arm
-        ctx.fillRect(cx + bodyW / 2, armY + bob - armSwing, armW, armH);
-
-        // ── Head ─────────────────────────────────────────────────
-        // Skin-tone head
-        ctx.fillStyle = '#e8c39e';
-        ctx.beginPath();
-        ctx.arc(cx, headCy, headR, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Head outline
-        ctx.strokeStyle = '#c9a07a';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(cx, headCy, headR, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // ── Eyes ─────────────────────────────────────────────────
-        const eyeSize = Math.max(1.5, size * 0.04);
-        const eyeY = headCy - headR * 0.1;
-        const eyeSpacing = headR * 0.45;
-
-        // Whites
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(cx - eyeSpacing, eyeY, eyeSize * 1.2, 0, Math.PI * 2);
-        ctx.arc(cx + eyeSpacing, eyeY, eyeSize * 1.2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Pupils
-        ctx.fillStyle = '#222222';
-        ctx.beginPath();
-        ctx.arc(cx - eyeSpacing, eyeY + eyeSize * 0.2, eyeSize * 0.6, 0, Math.PI * 2);
-        ctx.arc(cx + eyeSpacing, eyeY + eyeSize * 0.2, eyeSize * 0.6, 0, Math.PI * 2);
-        ctx.fill();
-
-        // ── Team outline ─────────────────────────────────────────
-        ctx.strokeStyle = team === 0 ? 'rgba(51,153,255,0.6)' : 'rgba(255,51,51,0.6)';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(cx - halfSize, cy - halfSize, size, size);
     }
 
     /**
