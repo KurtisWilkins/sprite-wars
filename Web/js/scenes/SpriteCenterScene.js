@@ -1273,141 +1273,530 @@ export class SpriteCenterScene extends Scene {
             common: '#888', uncommon: '#33cc66', rare: '#3399ff', epic: '#aa44ff', legendary: '#ffaa00',
         };
 
-        // Full 9-slot equipment system
+        // Full 9-slot equipment system with slot-specific icons
         const equipSlots = [
-            { key: 'helmet',  label: 'Helmet',  icon: '\u{1F3A9}' },
+            { key: 'helmet',  label: 'Helmet',  icon: '\u26D1' },
             { key: 'weapon',  label: 'Weapon',  icon: '\u2694' },
             { key: 'chest',   label: 'Chest',   icon: '\u{1F6E1}' },
-            { key: 'gloves',  label: 'Gloves',  icon: '\u270B' },
-            { key: 'legs',    label: 'Legs',    icon: '\u{1F9B5}' },
+            { key: 'gloves',  label: 'Gloves',  icon: '\u{1F9E4}' },
+            { key: 'legs',    label: 'Legs',    icon: '\u{1F456}' },
             { key: 'boots',   label: 'Boots',   icon: '\u{1F462}' },
             { key: 'ring',    label: 'Ring',    icon: '\u{1F48D}' },
             { key: 'amulet',  label: 'Amulet',  icon: '\u{1F4FF}' },
             { key: 'crystal', label: 'Crystal', icon: '\u{1F48E}' },
         ];
 
-        // ── Live sprite preview with current equipment ─────────
-        const previewDiv = document.createElement('div');
-        previewDiv.style.cssText = 'display:flex;justify-content:center;margin-bottom:8px;';
-        const previewCanvas = document.createElement('canvas');
-        previewCanvas.width = 96;
-        previewCanvas.height = 96;
-        previewCanvas.style.cssText = 'width:96px;height:96px;image-rendering:pixelated;border:1px solid rgba(255,255,255,0.1);border-radius:6px;background:rgba(0,0,0,0.3);';
-        previewDiv.appendChild(previewCanvas);
-        container.appendChild(previewDiv);
+        // Slot groupings for paper-doll layout:
+        //   Row 1: helmet (centered)
+        //   Row 2: weapon | PREVIEW | chest
+        //   Row 3: gloves | PREVIEW | ring
+        //   Row 4: legs (centered)
+        //   Row 5: boots | amulet | crystal
+        const paperDollLayout = [
+            { type: 'row', slots: [null, 'helmet', null] },
+            { type: 'preview-row-top', slots: ['weapon', null, 'chest'] },
+            { type: 'preview-row-bot', slots: ['gloves', null, 'ring'] },
+            { type: 'row', slots: [null, 'legs', null] },
+            { type: 'row', slots: ['boots', 'amulet', 'crystal'] },
+        ];
 
-        // Draw the sprite with current equipment in the preview
+        // ── Paper-doll grid wrapper ──────────────────────────────
+        const dollWrapper = document.createElement('div');
+        dollWrapper.style.cssText = 'display:flex;flex-direction:column;gap:3px;align-items:center;';
+
+        // Create the animated preview canvas (128x128)
+        const previewCanvas = document.createElement('canvas');
+        previewCanvas.width = 128;
+        previewCanvas.height = 128;
+        previewCanvas.style.cssText = `
+            width:128px;height:128px;image-rendering:pixelated;
+            border:1px solid rgba(255,255,255,0.12);border-radius:8px;
+            background:rgba(0,0,0,0.4);
+        `;
+
+        // Register for animation
+        this._equipPreviewCanvas = previewCanvas;
+        this._equipPreviewInst = inst;
+        this._equipPreviewFrame = 0;
+        this._equipPreviewDir = 0;
+        this._equipPreviewAnimTimer = 0;
+
+        // Initial draw
         const pCtx = previewCanvas.getContext('2d');
         pCtx.imageSmoothingEnabled = false;
         const raceId = inst.raceId || inst.race_id || 1;
         const stage = inst.evolutionStage || inst.evolution_stage || 1;
         HumanoidSpriteSystem.drawWithEquipment(
             pCtx, raceId, stage, 0, 0,
-            48, 80, 64,
+            64, 100, 80,
             { equipment }
         );
 
-        // ── Equipment slots grid (3 columns) ──────────────────
-        const slotsGrid = document.createElement('div');
-        slotsGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;';
+        // Tap/click on preview to cycle direction
+        previewCanvas.style.cursor = 'pointer';
+        previewCanvas.addEventListener('click', () => {
+            this._equipPreviewDir = (this._equipPreviewDir + 1) % 4;
+        });
 
-        for (const slot of equipSlots) {
-            const eqId = equipment[slot.key];
-            const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
-            const rarityColor = eqData ? (RARITY_COLORS[eqData.rarity] || '#888') : '#333';
+        // Build paper-doll rows
+        for (const rowDef of paperDollLayout) {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;gap:3px;justify-content:center;align-items:center;width:100%;';
 
-            const slotDiv = document.createElement('div');
-            slotDiv.style.cssText = `
-                padding:4px;border-radius:4px;cursor:pointer;
-                border:1px solid ${eqData ? rarityColor + '88' : 'rgba(255,255,255,0.06)'};
-                background:${eqData ? rarityColor + '15' : 'rgba(255,255,255,0.02)'};
-                text-align:center;min-height:44px;position:relative;
-                transition:background 0.15s;
-            `;
-
-            // Slot label
-            const label = document.createElement('div');
-            label.style.cssText = 'font-size:0.45rem;color:#666;text-transform:uppercase;letter-spacing:0.5px;';
-            label.textContent = slot.label;
-            slotDiv.appendChild(label);
-
-            if (eqData) {
-                // Item name
-                const itemName = document.createElement('div');
-                itemName.style.cssText = `font-size:0.55rem;color:${rarityColor};font-weight:600;margin-top:1px;
-                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
-                itemName.textContent = eqData.equipment_name || 'Unknown';
-                slotDiv.appendChild(itemName);
-
-                // Key stat bonus
-                const bonuses = eqData.stat_bonuses || {};
-                const topStat = Object.entries(bonuses)
-                    .filter(([, v]) => v > 0)
-                    .sort((a, b) => b[1] - a[1])[0];
-                if (topStat) {
-                    const statLine = document.createElement('div');
-                    statLine.style.cssText = 'font-size:0.45rem;color:#aaa;';
-                    statLine.textContent = `+${topStat[1]} ${topStat[0].toUpperCase()}`;
-                    slotDiv.appendChild(statLine);
-                }
+            if (rowDef.type === 'preview-row-top') {
+                // Left slot | preview canvas top half | right slot
+                const leftSlot = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === rowDef.slots[0]), equipment, RARITY_COLORS);
+                row.appendChild(leftSlot);
+                // We attach the preview canvas spanning two rows using a container
+                const previewContainer = document.createElement('div');
+                previewContainer.style.cssText = 'display:flex;align-items:flex-start;justify-content:center;';
+                previewContainer.id = 'equip-preview-container';
+                previewContainer.appendChild(previewCanvas);
+                row.appendChild(previewContainer);
+                const rightSlot = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === rowDef.slots[2]), equipment, RARITY_COLORS);
+                row.appendChild(rightSlot);
+                // We need the preview to span two rows, so use a grid instead
+                // Actually, we'll use a different approach: combine rows 2 and 3 into a single grid
+            } else if (rowDef.type === 'preview-row-bot') {
+                const leftSlot = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === rowDef.slots[0]), equipment, RARITY_COLORS);
+                row.appendChild(leftSlot);
+                // Spacer matching preview width
+                const spacer = document.createElement('div');
+                spacer.style.cssText = 'width:128px;flex-shrink:0;';
+                row.appendChild(spacer);
+                const rightSlot = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === rowDef.slots[2]), equipment, RARITY_COLORS);
+                row.appendChild(rightSlot);
             } else {
-                const emptyIcon = document.createElement('div');
-                emptyIcon.style.cssText = 'font-size:0.7rem;color:#333;margin-top:2px;';
-                emptyIcon.textContent = '--';
-                slotDiv.appendChild(emptyIcon);
+                for (const slotKey of rowDef.slots) {
+                    if (slotKey === null) {
+                        const spacer = document.createElement('div');
+                        spacer.style.cssText = 'width:56px;flex-shrink:0;';
+                        row.appendChild(spacer);
+                    } else {
+                        const slotDef = equipSlots.find(s => s.key === slotKey);
+                        const cell = this._createEquipSlotCell(inst, slotDef, equipment, RARITY_COLORS);
+                        row.appendChild(cell);
+                    }
+                }
             }
 
-            // Click handler: show equip/unequip popup
-            slotDiv.addEventListener('click', () => {
-                this._showEquipmentSlotPopup(inst, slot, eqData, container);
-            });
-            slotDiv.addEventListener('mouseenter', () => {
-                slotDiv.style.background = eqData ? rarityColor + '25' : 'rgba(255,255,255,0.05)';
-            });
-            slotDiv.addEventListener('mouseleave', () => {
-                slotDiv.style.background = eqData ? rarityColor + '15' : 'rgba(255,255,255,0.02)';
-            });
+            dollWrapper.appendChild(row);
 
-            slotsGrid.appendChild(slotDiv);
+            // After first preview row, we need to make the preview span down
+            // We already added the canvas in row-top; the bot row just has a spacer
         }
 
-        container.appendChild(slotsGrid);
+        // Restructure: use CSS grid for the paper-doll so preview spans center
+        dollWrapper.innerHTML = '';
+        const paperGrid = document.createElement('div');
+        paperGrid.style.cssText = `
+            display:grid;
+            grid-template-columns:56px 128px 56px;
+            grid-template-rows:auto auto auto auto auto;
+            gap:3px;
+            justify-items:center;
+            align-items:center;
+            justify-content:center;
+        `;
 
-        // ── Total stat bonuses summary ─────────────────────────
+        // Row 1: _ | helmet | _
+        const r1spacerL = document.createElement('div');
+        paperGrid.appendChild(r1spacerL);
+        paperGrid.appendChild(this._createEquipSlotCell(inst, equipSlots.find(s => s.key === 'helmet'), equipment, RARITY_COLORS));
+        const r1spacerR = document.createElement('div');
+        paperGrid.appendChild(r1spacerR);
+
+        // Row 2-3: weapon/gloves | PREVIEW (span 2 rows) | chest/ring
+        const weaponCell = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === 'weapon'), equipment, RARITY_COLORS);
+        weaponCell.style.gridRow = '2';
+        weaponCell.style.gridColumn = '1';
+        paperGrid.appendChild(weaponCell);
+
+        const previewCell = document.createElement('div');
+        previewCell.style.cssText = 'grid-row:2/4;grid-column:2;display:flex;align-items:center;justify-content:center;';
+        previewCell.appendChild(previewCanvas);
+        paperGrid.appendChild(previewCell);
+
+        const chestCell = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === 'chest'), equipment, RARITY_COLORS);
+        chestCell.style.gridRow = '2';
+        chestCell.style.gridColumn = '3';
+        paperGrid.appendChild(chestCell);
+
+        const glovesCell = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === 'gloves'), equipment, RARITY_COLORS);
+        glovesCell.style.gridRow = '3';
+        glovesCell.style.gridColumn = '1';
+        paperGrid.appendChild(glovesCell);
+
+        const ringCell = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === 'ring'), equipment, RARITY_COLORS);
+        ringCell.style.gridRow = '3';
+        ringCell.style.gridColumn = '3';
+        paperGrid.appendChild(ringCell);
+
+        // Row 4: _ | legs | _
+        const r4spacerL = document.createElement('div');
+        r4spacerL.style.gridRow = '4';
+        r4spacerL.style.gridColumn = '1';
+        paperGrid.appendChild(r4spacerL);
+
+        const legsCell = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === 'legs'), equipment, RARITY_COLORS);
+        legsCell.style.gridRow = '4';
+        legsCell.style.gridColumn = '2';
+        paperGrid.appendChild(legsCell);
+
+        const r4spacerR = document.createElement('div');
+        r4spacerR.style.gridRow = '4';
+        r4spacerR.style.gridColumn = '3';
+        paperGrid.appendChild(r4spacerR);
+
+        // Row 5: boots | amulet | crystal
+        const bootsCell = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === 'boots'), equipment, RARITY_COLORS);
+        bootsCell.style.gridRow = '5';
+        bootsCell.style.gridColumn = '1';
+        paperGrid.appendChild(bootsCell);
+
+        const amuletCell = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === 'amulet'), equipment, RARITY_COLORS);
+        amuletCell.style.gridRow = '5';
+        amuletCell.style.gridColumn = '2';
+        paperGrid.appendChild(amuletCell);
+
+        const crystalCell = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === 'crystal'), equipment, RARITY_COLORS);
+        crystalCell.style.gridRow = '5';
+        crystalCell.style.gridColumn = '3';
+        paperGrid.appendChild(crystalCell);
+
+        container.appendChild(paperGrid);
+
+        // ══════════════════════════════════════════════════════════════
+        // Equipment Summary Panel — Total bonuses, synergies, power score
+        // ══════════════════════════════════════════════════════════════
+        this._renderEquipmentSummary(container, inst, equipSlots, equipment);
+    }
+
+    /**
+     * Create a single equipment slot cell for the paper-doll grid.
+     * Includes rarity glow, slot icon, stat preview on hover, and empty dashed style.
+     */
+    _createEquipSlotCell(inst, slotDef, equipment, RARITY_COLORS) {
+        if (!slotDef) {
+            const empty = document.createElement('div');
+            empty.style.cssText = 'width:56px;';
+            return empty;
+        }
+
+        const eqId = equipment[slotDef.key];
+        const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
+        const rarityColor = eqData ? (RARITY_COLORS[eqData.rarity] || '#888') : '#555';
+        const rarity = eqData ? (eqData.rarity || 'common') : null;
+
+        const slotDiv = document.createElement('div');
+
+        // Determine border and animation styles based on rarity
+        let borderStyle = '1px dashed rgba(255,255,255,0.12)';
+        let animationStyle = '';
+        if (eqData) {
+            borderStyle = `1px solid ${rarityColor}88`;
+            if (rarity === 'epic') {
+                animationStyle = 'animation:equip-slot-pulse-epic 2s ease-in-out infinite;';
+            } else if (rarity === 'legendary') {
+                animationStyle = 'animation:equip-slot-pulse-legendary 1.5s ease-in-out infinite;';
+            }
+        }
+
+        slotDiv.style.cssText = `
+            width:56px;min-height:56px;padding:3px;border-radius:6px;cursor:pointer;
+            border:${borderStyle};
+            background:${eqData ? rarityColor + '12' : 'rgba(255,255,255,0.02)'};
+            text-align:center;position:relative;
+            transition:background 0.15s,transform 0.1s;
+            ${animationStyle}
+        `;
+
+        // Slot icon + label row
+        const iconLabel = document.createElement('div');
+        iconLabel.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:2px;margin-bottom:2px;';
+        const iconSpan = document.createElement('span');
+        iconSpan.style.cssText = 'font-size:0.6rem;';
+        iconSpan.textContent = slotDef.icon;
+        iconLabel.appendChild(iconSpan);
+        const labelSpan = document.createElement('span');
+        labelSpan.style.cssText = 'font-size:0.4rem;color:#666;text-transform:uppercase;letter-spacing:0.5px;';
+        labelSpan.textContent = slotDef.label;
+        iconLabel.appendChild(labelSpan);
+        slotDiv.appendChild(iconLabel);
+
+        if (eqData) {
+            // Item name (truncated)
+            const itemName = document.createElement('div');
+            itemName.style.cssText = `
+                font-size:0.5rem;color:${rarityColor};font-weight:600;margin-top:1px;
+                white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+                max-width:100%;
+            `;
+            itemName.textContent = eqData.equipment_name || 'Unknown';
+            slotDiv.appendChild(itemName);
+
+            // Key stat bonus
+            const bonuses = eqData.stat_bonuses || {};
+            const topStat = Object.entries(bonuses)
+                .filter(([, v]) => v > 0)
+                .sort((a, b) => b[1] - a[1])[0];
+            if (topStat) {
+                const statLine = document.createElement('div');
+                const statColor = STAT_COLORS[topStat[0]] || '#aaa';
+                statLine.style.cssText = `font-size:0.45rem;color:${statColor};`;
+                statLine.textContent = `+${topStat[1]} ${(STAT_LABELS[topStat[0]] || topStat[0]).toUpperCase()}`;
+                slotDiv.appendChild(statLine);
+            }
+
+            // Rarity dot indicator
+            const rarityDot = document.createElement('div');
+            rarityDot.style.cssText = `
+                position:absolute;top:2px;right:2px;width:5px;height:5px;
+                border-radius:50%;background:${rarityColor};
+            `;
+            slotDiv.appendChild(rarityDot);
+        } else {
+            // Empty slot: dashed border + "+" icon
+            const emptyIcon = document.createElement('div');
+            emptyIcon.style.cssText = 'font-size:1rem;color:#333;margin-top:2px;line-height:1;';
+            emptyIcon.textContent = '+';
+            slotDiv.appendChild(emptyIcon);
+        }
+
+        // ── Stat comparison tooltip on hover/tap ─────────────────
+        let tooltipEl = null;
+        const showTooltip = () => {
+            if (tooltipEl) return;
+            if (!eqData) return;
+            tooltipEl = this._createStatTooltip(eqData, inst);
+            slotDiv.appendChild(tooltipEl);
+            slotDiv.style.transform = 'scale(1.05)';
+            slotDiv.style.zIndex = '2';
+        };
+        const hideTooltip = () => {
+            if (tooltipEl) { tooltipEl.remove(); tooltipEl = null; }
+            slotDiv.style.transform = 'scale(1)';
+            slotDiv.style.zIndex = '';
+        };
+
+        slotDiv.addEventListener('mouseenter', () => {
+            showTooltip();
+            slotDiv.style.background = eqData ? rarityColor + '25' : 'rgba(255,255,255,0.05)';
+        });
+        slotDiv.addEventListener('mouseleave', () => {
+            hideTooltip();
+            slotDiv.style.background = eqData ? rarityColor + '12' : 'rgba(255,255,255,0.02)';
+        });
+
+        // Click handler: show equip/unequip popup
+        slotDiv.addEventListener('click', () => {
+            hideTooltip();
+            this._showEquipmentSlotPopup(inst, slotDef, eqData, null);
+        });
+
+        return slotDiv;
+    }
+
+    /**
+     * Create a floating stat tooltip for an equipped item.
+     * Shows all stat bonuses from the item.
+     */
+    _createStatTooltip(eqData, inst) {
+        const tip = document.createElement('div');
+        tip.style.cssText = `
+            position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+            background:rgba(10,10,25,0.95);border:1px solid rgba(255,255,255,0.15);
+            border-radius:6px;padding:6px 8px;white-space:nowrap;z-index:10;
+            pointer-events:none;min-width:80px;
+        `;
+
+        const titleEl = document.createElement('div');
+        const rc = RARITY_COLORS_GLOBAL[eqData.rarity] || '#888';
+        titleEl.style.cssText = `font-size:0.55rem;font-weight:700;color:${rc};margin-bottom:3px;`;
+        titleEl.textContent = eqData.equipment_name || 'Unknown';
+        tip.appendChild(titleEl);
+
+        const bonuses = eqData.stat_bonuses || {};
+        for (const [key, val] of Object.entries(bonuses)) {
+            if (val === 0) continue;
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;justify-content:space-between;gap:8px;font-size:0.5rem;';
+            const label = document.createElement('span');
+            label.style.color = '#888';
+            label.textContent = STAT_LABELS[key] || key.toUpperCase();
+            row.appendChild(label);
+            const value = document.createElement('span');
+            value.style.cssText = `color:${val > 0 ? '#44ee66' : '#ee4444'};font-weight:600;`;
+            value.textContent = `${val > 0 ? '+' : ''}${val}`;
+            row.appendChild(value);
+            tip.appendChild(row);
+        }
+
+        // Synergy info
+        if (eqData.element_synergy && eqData.element_synergy_multiplier > 1) {
+            const raceData = SPRITE_RACES.find(r => r.race_id === (inst.raceId || inst.race_id));
+            const hasMatch = raceData && raceData.element_types && raceData.element_types.includes(eqData.element_synergy);
+            const synRow = document.createElement('div');
+            const elemColor = ELEMENT_COLORS[eqData.element_synergy] || '#888';
+            synRow.style.cssText = `
+                font-size:0.45rem;margin-top:3px;padding:2px 4px;border-radius:3px;
+                background:${hasMatch ? elemColor + '33' : 'rgba(255,255,255,0.05)'};
+                color:${hasMatch ? elemColor : '#666'};
+            `;
+            synRow.textContent = `${eqData.element_synergy} \u00D7${eqData.element_synergy_multiplier}${hasMatch ? ' \u2714' : ''}`;
+            tip.appendChild(synRow);
+        }
+
+        return tip;
+    }
+
+    /**
+     * Render the Equipment Summary Panel below the paper-doll grid.
+     * Shows total bonuses, active synergies, and power score.
+     */
+    _renderEquipmentSummary(container, inst, equipSlots, equipment) {
+        // ── Calculate total stat bonuses ─────────────────────────
         const totalBonuses = { hp: 0, atk: 0, def: 0, spd: 0, sp_atk: 0, sp_def: 0 };
+        const activeSynergies = []; // { type: 'element'|'class', name, multiplier }
+        const raceData = SPRITE_RACES.find(r => r.race_id === (inst.raceId || inst.race_id));
+        const spriteElements = (raceData && raceData.element_types) ? raceData.element_types : [];
+        const spriteClass = (raceData && raceData.class_type) ? raceData.class_type : '';
+
         for (const slot of equipSlots) {
             const eqId = equipment[slot.key];
             const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
-            if (eqData && eqData.stat_bonuses) {
+            if (!eqData) continue;
+
+            if (eqData.stat_bonuses) {
                 for (const k of Object.keys(totalBonuses)) {
                     totalBonuses[k] += (eqData.stat_bonuses[k] || 0);
                 }
             }
-        }
 
-        const hasBonuses = Object.values(totalBonuses).some(v => v !== 0);
-        if (hasBonuses) {
-            const summaryDiv = document.createElement('div');
-            summaryDiv.style.cssText = 'margin-top:6px;padding:4px 6px;background:rgba(255,255,255,0.03);border-radius:4px;';
-            const summaryLabel = document.createElement('div');
-            summaryLabel.style.cssText = 'font-size:0.45rem;color:#666;margin-bottom:2px;text-transform:uppercase;';
-            summaryLabel.textContent = 'Equipment Bonuses';
-            summaryDiv.appendChild(summaryLabel);
-
-            const statsRow = document.createElement('div');
-            statsRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;';
-            const statLabels = { hp: 'HP', atk: 'ATK', def: 'DEF', spd: 'SPD', sp_atk: 'SP.A', sp_def: 'SP.D' };
-            for (const [key, val] of Object.entries(totalBonuses)) {
-                if (val === 0) continue;
-                const statEl = document.createElement('span');
-                const color = val > 0 ? '#44cc66' : '#cc4444';
-                statEl.style.cssText = `font-size:0.5rem;color:${color};`;
-                statEl.textContent = `${statLabels[key]}: ${val > 0 ? '+' : ''}${val}`;
-                statsRow.appendChild(statEl);
+            // Check element synergy
+            if (eqData.element_synergy && eqData.element_synergy_multiplier > 1 && spriteElements.includes(eqData.element_synergy)) {
+                activeSynergies.push({
+                    type: 'element',
+                    name: eqData.element_synergy,
+                    multiplier: eqData.element_synergy_multiplier,
+                    source: eqData.equipment_name,
+                });
             }
-            summaryDiv.appendChild(statsRow);
-            container.appendChild(summaryDiv);
+            // Check class synergy
+            if (eqData.class_synergy && eqData.class_synergy_multiplier > 1 && spriteClass === eqData.class_synergy) {
+                activeSynergies.push({
+                    type: 'class',
+                    name: eqData.class_synergy,
+                    multiplier: eqData.class_synergy_multiplier,
+                    source: eqData.equipment_name,
+                });
+            }
         }
+
+        // ── Power Score ──────────────────────────────────────────
+        let powerScore = 0;
+        for (const [key, val] of Object.entries(totalBonuses)) {
+            powerScore += val * (STAT_WEIGHTS[key] || 1);
+        }
+        // Synergy multiplier bonus adds to power
+        for (const syn of activeSynergies) {
+            powerScore += (syn.multiplier - 1) * 50;
+        }
+        powerScore = Math.round(powerScore);
+
+        const hasBonuses = Object.values(totalBonuses).some(v => v !== 0) || activeSynergies.length > 0;
+
+        // ── Summary container ────────────────────────────────────
+        const summaryDiv = document.createElement('div');
+        summaryDiv.style.cssText = `
+            margin-top:8px;padding:8px;
+            background:rgba(255,255,255,0.03);border-radius:6px;
+            border:1px solid rgba(255,255,255,0.06);
+        `;
+
+        // Title with power score
+        const titleRow = document.createElement('div');
+        titleRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;';
+
+        const titleLabel = document.createElement('span');
+        titleLabel.style.cssText = 'font-size:0.55rem;color:#888;text-transform:uppercase;font-weight:700;letter-spacing:0.5px;';
+        titleLabel.textContent = 'Total Equipment Bonuses';
+        titleRow.appendChild(titleLabel);
+
+        const powerBadge = document.createElement('span');
+        const powerColor = powerScore >= 100 ? '#ffaa00' : powerScore >= 50 ? '#aa44ff' : powerScore >= 20 ? '#3399ff' : '#888';
+        powerBadge.style.cssText = `
+            font-size:0.55rem;font-weight:700;color:${powerColor};
+            padding:2px 6px;border-radius:8px;
+            background:${powerColor}22;border:1px solid ${powerColor}44;
+        `;
+        if (powerScore > 60) {
+            powerBadge.style.cssText += `
+                background:linear-gradient(90deg, ${powerColor}22, ${powerColor}44, ${powerColor}22);
+                background-size:200% 100%;
+                animation:equip-power-shimmer 3s linear infinite;
+            `;
+        }
+        powerBadge.textContent = `\u2B50 ${powerScore} PWR`;
+        titleRow.appendChild(powerBadge);
+        summaryDiv.appendChild(titleRow);
+
+        if (!hasBonuses) {
+            const noneMsg = document.createElement('div');
+            noneMsg.style.cssText = 'font-size:0.55rem;color:#444;text-align:center;padding:6px 0;';
+            noneMsg.textContent = 'No equipment bonuses active';
+            summaryDiv.appendChild(noneMsg);
+            container.appendChild(summaryDiv);
+            return;
+        }
+
+        // ── Stat bonus bars ──────────────────────────────────────
+        const statsGrid = document.createElement('div');
+        statsGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;margin-bottom:6px;';
+
+        for (const [key, val] of Object.entries(totalBonuses)) {
+            if (val === 0) continue;
+            const statRow = document.createElement('div');
+            statRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;';
+
+            const label = document.createElement('span');
+            label.style.cssText = `font-size:0.5rem;color:${STAT_COLORS[key] || '#888'};`;
+            label.textContent = STAT_LABELS[key] || key.toUpperCase();
+            statRow.appendChild(label);
+
+            const value = document.createElement('span');
+            const vColor = val > 0 ? '#44ee66' : '#ee4444';
+            value.style.cssText = `font-size:0.55rem;font-weight:700;color:${vColor};`;
+            value.textContent = `${val > 0 ? '+' : ''}${val}`;
+            statRow.appendChild(value);
+
+            statsGrid.appendChild(statRow);
+        }
+        summaryDiv.appendChild(statsGrid);
+
+        // ── Active Synergies ─────────────────────────────────────
+        if (activeSynergies.length > 0) {
+            const synLabel = document.createElement('div');
+            synLabel.style.cssText = 'font-size:0.45rem;color:#666;text-transform:uppercase;margin-bottom:3px;margin-top:4px;';
+            synLabel.textContent = 'Active Synergies';
+            summaryDiv.appendChild(synLabel);
+
+            for (const syn of activeSynergies) {
+                const synRow = document.createElement('div');
+                const elemColor = syn.type === 'element' ? (ELEMENT_COLORS[syn.name] || '#888') : '#ffcc33';
+                synRow.style.cssText = `
+                    display:inline-flex;align-items:center;gap:4px;
+                    padding:2px 6px;margin:1px 2px;border-radius:10px;
+                    background:${elemColor}22;border:1px solid ${elemColor}44;
+                    font-size:0.45rem;color:${elemColor};
+                `;
+                const typeIcon = syn.type === 'element' ? '\u2B50' : '\u{1F6E1}';
+                synRow.textContent = `${typeIcon} ${syn.name.toUpperCase()} SYNERGY \u00D7${syn.multiplier}`;
+                summaryDiv.appendChild(synRow);
+            }
+        }
+
+        container.appendChild(summaryDiv);
     }
 
     /**
