@@ -225,6 +225,8 @@ export class SpriteCenterScene extends Scene {
         this._detailPanelEl = null;
         this._previewCanvasEl = null;
         this._previewCtx = null;
+        this._equipPreviewCanvas = null;
+        this._equipPreviewInst = null;
 
         eventBus.emit(GameEvents.SCREEN_CLOSED, 'sprite_center');
     }
@@ -936,6 +938,10 @@ export class SpriteCenterScene extends Scene {
 
     _renderDetailPanel() {
         this._detailPanelEl.innerHTML = '';
+        // Clear equipment animation state when re-rendering (it'll be re-created if equipment mode)
+        this._equipPreviewCanvas = null;
+        this._equipPreviewInst = null;
+
         const sprite = this._detailSprite;
         if (!sprite) {
             this._detailPanelEl.style.display = 'none';
@@ -1801,23 +1807,25 @@ export class SpriteCenterScene extends Scene {
 
     /**
      * Show popup for a specific equipment slot — allows equipping, unequipping, or viewing details.
+     * Enhanced with sorting, stat comparison, synergy badges, and mini sprite previews.
      */
     _showEquipmentSlotPopup(inst, slot, currentEqData, parentContainer) {
         const RARITY_COLORS = {
             common: '#888', uncommon: '#33cc66', rare: '#3399ff', epic: '#aa44ff', legendary: '#ffaa00',
         };
 
+        const raceData = SPRITE_RACES.find(r => r.race_id === (inst.raceId || inst.race_id));
+        const spriteElements = (raceData && raceData.element_types) ? raceData.element_types : [];
+        const spriteClass = (raceData && raceData.class_type) ? raceData.class_type : '';
+
         // Find compatible items from inventory and EquipmentData
         const inventoryItems = (this._inventory || []).filter(
             it => it && (it.equipSlot === slot.key || it.slot_type === slot.key)
         );
-        // Also check EquipmentData for items matching this slot that player owns
         const eqDataItems = EQUIPMENT.filter(e =>
             e.slot_type === slot.key && e.level_requirement <= (inst.level || 1)
         );
-        // Merge: inventory items + any EquipmentData items the player might have
         const compatibleItems = [...inventoryItems];
-        // Add equipment data items not already in inventory (for demo/testing purposes)
         for (const eqItem of eqDataItems) {
             const alreadyInList = compatibleItems.some(
                 it => (it.equipment_id || it.equipmentId) === eqItem.equipment_id
@@ -1828,64 +1836,141 @@ export class SpriteCenterScene extends Scene {
             }
         }
 
+        // ── Sort function ────────────────────────────────────────
+        const sortItems = (items, mode) => {
+            const sorted = [...items];
+            switch (mode) {
+                case 'rarity':
+                    sorted.sort((a, b) => (RARITY_ORDER[b.rarity] || 0) - (RARITY_ORDER[a.rarity] || 0));
+                    break;
+                case 'stat': {
+                    const totalBonus = (it) => {
+                        const b = it.stat_bonuses || {};
+                        return Object.values(b).reduce((sum, v) => sum + (v || 0), 0);
+                    };
+                    sorted.sort((a, b) => totalBonus(b) - totalBonus(a));
+                    break;
+                }
+                case 'level':
+                    sorted.sort((a, b) => (a.level_requirement || 0) - (b.level_requirement || 0));
+                    break;
+            }
+            return sorted;
+        };
+
+        // ── Stat delta calculator ────────────────────────────────
+        const calcStatDelta = (newItem) => {
+            const currentBonuses = currentEqData ? (currentEqData.stat_bonuses || {}) : {};
+            const newBonuses = newItem ? (newItem.stat_bonuses || {}) : {};
+            const delta = {};
+            const allKeys = new Set([...Object.keys(currentBonuses), ...Object.keys(newBonuses)]);
+            for (const key of allKeys) {
+                const oldVal = currentBonuses[key] || 0;
+                const newVal = newBonuses[key] || 0;
+                const diff = newVal - oldVal;
+                if (diff !== 0) {
+                    delta[key] = { old: oldVal, new: newVal, diff };
+                }
+            }
+            return delta;
+        };
+
         // Create overlay popup
         const overlay = document.createElement('div');
         overlay.style.cssText = `
             position:absolute;top:0;left:0;width:100%;height:100%;
-            background:rgba(5,5,15,0.95);z-index:5;overflow-y:auto;padding:8px;
+            background:rgba(5,5,15,0.97);z-index:5;overflow-y:auto;padding:10px;
         `;
 
-        // Header
+        // ── Header ───────────────────────────────────────────────
         const header = document.createElement('div');
         header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;';
         const title = document.createElement('span');
-        title.style.cssText = 'font-size:0.75rem;font-weight:700;color:#ffcc33;';
-        title.textContent = `${slot.label} Slot`;
+        title.style.cssText = 'font-size:0.8rem;font-weight:700;color:#ffcc33;';
+        title.textContent = `${EQUIP_SLOT_ICONS[slot.key] || ''} ${slot.label} Slot`;
         header.appendChild(title);
 
         const closeBtn = document.createElement('button');
-        closeBtn.style.cssText = 'padding:2px 8px;font-size:0.65rem;border:1px solid #555;border-radius:3px;background:rgba(0,0,0,0.5);color:#aaa;cursor:pointer;';
-        closeBtn.textContent = 'Close';
+        closeBtn.style.cssText = `
+            padding:6px 14px;font-size:0.65rem;border:1px solid #555;border-radius:4px;
+            background:rgba(0,0,0,0.5);color:#aaa;cursor:pointer;
+            min-height:44px;min-width:44px;
+        `;
+        closeBtn.textContent = '\u2715 Close';
         closeBtn.addEventListener('click', () => { overlay.remove(); });
         header.appendChild(closeBtn);
         overlay.appendChild(header);
 
-        // Currently equipped
+        // ── Currently equipped section ───────────────────────────
         if (currentEqData) {
             const currentDiv = document.createElement('div');
+            const curRarity = RARITY_COLORS[currentEqData.rarity] || '#888';
             currentDiv.style.cssText = `
-                padding:6px;margin-bottom:6px;border-radius:4px;
-                border:1px solid ${(RARITY_COLORS[currentEqData.rarity] || '#888') + '66'};
-                background:rgba(255,255,255,0.04);
+                padding:8px;margin-bottom:8px;border-radius:6px;
+                border:1px solid ${curRarity}66;
+                background:${curRarity}12;
             `;
+
+            const curHeader = document.createElement('div');
+            curHeader.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:4px;';
+
             const curLabel = document.createElement('div');
-            curLabel.style.cssText = 'font-size:0.5rem;color:#666;margin-bottom:2px;';
+            curLabel.style.cssText = 'font-size:0.45rem;color:#666;text-transform:uppercase;letter-spacing:1px;';
             curLabel.textContent = 'CURRENTLY EQUIPPED';
             currentDiv.appendChild(curLabel);
 
-            const curName = document.createElement('div');
-            const curRarity = RARITY_COLORS[currentEqData.rarity] || '#888';
-            curName.style.cssText = `font-size:0.7rem;color:${curRarity};font-weight:600;`;
-            curName.textContent = currentEqData.equipment_name || 'Unknown';
-            currentDiv.appendChild(curName);
+            // Mini sprite preview of current equipment
+            const curPreviewRow = document.createElement('div');
+            curPreviewRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:4px;';
 
+            const curMiniCanvas = document.createElement('canvas');
+            curMiniCanvas.width = 48;
+            curMiniCanvas.height = 48;
+            curMiniCanvas.style.cssText = 'width:48px;height:48px;image-rendering:pixelated;border-radius:4px;background:rgba(0,0,0,0.3);flex-shrink:0;';
+            const cmCtx = curMiniCanvas.getContext('2d');
+            cmCtx.imageSmoothingEnabled = false;
+            const raceId = inst.raceId || inst.race_id || 1;
+            const stg = inst.evolutionStage || inst.evolution_stage || 1;
+            HumanoidSpriteSystem.drawWithEquipment(
+                cmCtx, raceId, stg, 0, 0, 24, 40, 32, { equipment: inst.equipment || {} }
+            );
+            curPreviewRow.appendChild(curMiniCanvas);
+
+            const curInfo = document.createElement('div');
+            curInfo.style.cssText = 'flex:1;';
+
+            const curName = document.createElement('div');
+            curName.style.cssText = `font-size:0.7rem;color:${curRarity};font-weight:700;`;
+            curName.textContent = currentEqData.equipment_name || 'Unknown';
+            curInfo.appendChild(curName);
+
+            // Stat bonuses line
             if (currentEqData.stat_bonuses) {
                 const statsLine = document.createElement('div');
-                statsLine.style.cssText = 'font-size:0.5rem;color:#aaa;margin-top:1px;';
-                statsLine.textContent = Object.entries(currentEqData.stat_bonuses)
-                    .filter(([, v]) => v !== 0)
-                    .map(([k, v]) => `${k}:${v > 0 ? '+' : ''}${v}`)
-                    .join(' ');
-                currentDiv.appendChild(statsLine);
+                statsLine.style.cssText = 'font-size:0.5rem;color:#aaa;margin-top:2px;display:flex;flex-wrap:wrap;gap:4px;';
+                for (const [k, v] of Object.entries(currentEqData.stat_bonuses)) {
+                    if (v === 0) continue;
+                    const statSpan = document.createElement('span');
+                    const sc = STAT_COLORS[k] || '#aaa';
+                    statSpan.style.cssText = `color:${sc};`;
+                    statSpan.textContent = `${STAT_LABELS[k] || k}:${v > 0 ? '+' : ''}${v}`;
+                    statsLine.appendChild(statSpan);
+                }
+                curInfo.appendChild(statsLine);
             }
 
+            curPreviewRow.appendChild(curInfo);
+            currentDiv.appendChild(curPreviewRow);
+
+            // Unequip button
             const unequipBtn = document.createElement('button');
             unequipBtn.style.cssText = `
-                margin-top:4px;padding:3px 10px;font-size:0.55rem;
-                border:1px solid #884444;border-radius:3px;
-                background:rgba(80,30,30,0.3);color:#cc8888;cursor:pointer;width:100%;
+                margin-top:6px;padding:8px 10px;font-size:0.6rem;font-weight:600;
+                border:1px solid #884444;border-radius:4px;
+                background:rgba(80,30,30,0.3);color:#cc8888;cursor:pointer;
+                width:100%;min-height:44px;
             `;
-            unequipBtn.textContent = 'Unequip';
+            unequipBtn.textContent = '\u2716 Unequip';
             unequipBtn.addEventListener('click', () => {
                 this._unequipItem(inst, slot.key);
                 overlay.remove();
@@ -1894,59 +1979,223 @@ export class SpriteCenterScene extends Scene {
             overlay.appendChild(currentDiv);
         }
 
-        // Available items
+        // ── Sort controls ────────────────────────────────────────
+        if (compatibleItems.length > 1) {
+            const sortBar = document.createElement('div');
+            sortBar.style.cssText = 'display:flex;gap:4px;margin-bottom:6px;align-items:center;';
+
+            const sortLabel = document.createElement('span');
+            sortLabel.style.cssText = 'font-size:0.5rem;color:#666;margin-right:4px;';
+            sortLabel.textContent = 'Sort:';
+            sortBar.appendChild(sortLabel);
+
+            const sortModes = [
+                { id: 'rarity', label: 'Rarity' },
+                { id: 'stat', label: 'Stats' },
+                { id: 'level', label: 'Level' },
+            ];
+            for (const mode of sortModes) {
+                const sortBtn = document.createElement('button');
+                const isActive = this._equipSortMode === mode.id;
+                sortBtn.style.cssText = `
+                    padding:4px 10px;font-size:0.5rem;border-radius:10px;cursor:pointer;
+                    min-height:28px;
+                    border:1px solid ${isActive ? '#ffcc33' : '#444'};
+                    background:${isActive ? 'rgba(255,204,51,0.12)' : 'transparent'};
+                    color:${isActive ? '#ffcc33' : '#888'};
+                `;
+                sortBtn.textContent = mode.label;
+                sortBtn.addEventListener('click', () => {
+                    this._equipSortMode = mode.id;
+                    // Re-render the popup
+                    overlay.remove();
+                    this._showEquipmentSlotPopup(inst, slot, currentEqData, parentContainer);
+                });
+                sortBar.appendChild(sortBtn);
+            }
+            overlay.appendChild(sortBar);
+        }
+
+        // ── Available items list ─────────────────────────────────
         if (compatibleItems.length > 0) {
+            const sorted = sortItems(compatibleItems, this._equipSortMode);
+
             const availLabel = document.createElement('div');
-            availLabel.style.cssText = 'font-size:0.5rem;color:#666;margin:6px 0 4px;';
-            availLabel.textContent = `AVAILABLE (${compatibleItems.length})`;
+            availLabel.style.cssText = 'font-size:0.5rem;color:#666;margin:4px 0 6px;text-transform:uppercase;letter-spacing:0.5px;';
+            availLabel.textContent = `AVAILABLE (${sorted.length})`;
             overlay.appendChild(availLabel);
 
-            for (const item of compatibleItems) {
+            for (const item of sorted) {
                 const rarity = item.rarity || 'common';
                 const rarityColor = RARITY_COLORS[rarity] || '#888';
-                const itemRow = document.createElement('div');
-                itemRow.style.cssText = `
-                    padding:5px;margin-bottom:3px;border-radius:4px;cursor:pointer;
-                    border:1px solid ${rarityColor}33;
+                const delta = calcStatDelta(item);
+
+                const itemCard = document.createElement('div');
+                itemCard.style.cssText = `
+                    padding:8px;margin-bottom:4px;border-radius:6px;cursor:pointer;
+                    border:1px solid ${rarityColor}44;
                     background:rgba(255,255,255,0.02);
-                    transition:background 0.1s;
+                    transition:background 0.1s,border-color 0.1s;
+                    min-height:44px;
                 `;
 
+                // Top row: mini sprite preview + name + rarity
+                const topRow = document.createElement('div');
+                topRow.style.cssText = 'display:flex;align-items:center;gap:8px;';
+
+                // Mini sprite preview with this item equipped
+                const miniCanvas = document.createElement('canvas');
+                miniCanvas.width = 40;
+                miniCanvas.height = 40;
+                miniCanvas.style.cssText = 'width:40px;height:40px;image-rendering:pixelated;border-radius:4px;background:rgba(0,0,0,0.3);flex-shrink:0;';
+                const mCtx = miniCanvas.getContext('2d');
+                mCtx.imageSmoothingEnabled = false;
+
+                // Build hypothetical equipment with this item
+                const hypotheticalEquip = { ...(inst.equipment || {}) };
+                hypotheticalEquip[slot.key] = item.equipment_id || item;
+                const rId = inst.raceId || inst.race_id || 1;
+                const stge = inst.evolutionStage || inst.evolution_stage || 1;
+                HumanoidSpriteSystem.drawWithEquipment(
+                    mCtx, rId, stge, 0, 0, 20, 34, 28, { equipment: hypotheticalEquip }
+                );
+                topRow.appendChild(miniCanvas);
+
+                // Name + level req
+                const nameCol = document.createElement('div');
+                nameCol.style.cssText = 'flex:1;min-width:0;';
+
                 const nameRow = document.createElement('div');
-                nameRow.style.cssText = `font-size:0.65rem;color:${rarityColor};font-weight:600;`;
+                nameRow.style.cssText = `font-size:0.65rem;color:${rarityColor};font-weight:700;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
                 nameRow.textContent = item.equipment_name || item.name || 'Unknown';
-                itemRow.appendChild(nameRow);
+                nameCol.appendChild(nameRow);
 
-                const bonuses = item.stat_bonuses || item.stats || {};
-                const statsLine = document.createElement('div');
-                statsLine.style.cssText = 'font-size:0.45rem;color:#999;';
-                statsLine.textContent = Object.entries(bonuses)
-                    .filter(([, v]) => v !== 0)
-                    .map(([k, v]) => `${k}:${v > 0 ? '+' : ''}${v}`)
-                    .join(' ');
-                itemRow.appendChild(statsLine);
+                // Level and rarity badge
+                const metaRow = document.createElement('div');
+                metaRow.style.cssText = 'display:flex;gap:4px;align-items:center;margin-top:1px;';
+                const rarityBadge = document.createElement('span');
+                rarityBadge.style.cssText = `
+                    font-size:0.4rem;padding:1px 4px;border-radius:6px;text-transform:uppercase;
+                    background:${rarityColor}22;color:${rarityColor};border:1px solid ${rarityColor}44;
+                `;
+                rarityBadge.textContent = rarity;
+                metaRow.appendChild(rarityBadge);
 
-                // Element synergy indicator
-                const synergy = item.element_synergy;
-                const raceData = SPRITE_RACES.find(r => r.race_id === (inst.raceId || inst.race_id));
-                if (synergy && raceData && raceData.element_types.includes(synergy)) {
-                    const synergyBadge = document.createElement('span');
-                    synergyBadge.style.cssText = 'font-size:0.4rem;color:#ffcc33;margin-left:4px;';
-                    synergyBadge.textContent = `[${synergy} SYNERGY]`;
-                    nameRow.appendChild(synergyBadge);
+                if (item.level_requirement && item.level_requirement > 1) {
+                    const lvlBadge = document.createElement('span');
+                    lvlBadge.style.cssText = 'font-size:0.4rem;color:#888;';
+                    lvlBadge.textContent = `Lv${item.level_requirement}`;
+                    metaRow.appendChild(lvlBadge);
+                }
+                nameCol.appendChild(metaRow);
+                topRow.appendChild(nameCol);
+
+                itemCard.appendChild(topRow);
+
+                // ── Stat comparison: Current -> New ──────────────
+                const deltaKeys = Object.keys(delta);
+                if (deltaKeys.length > 0) {
+                    const statCompDiv = document.createElement('div');
+                    statCompDiv.style.cssText = 'margin-top:4px;padding:4px 6px;background:rgba(0,0,0,0.2);border-radius:4px;';
+
+                    const compLabel = document.createElement('div');
+                    compLabel.style.cssText = 'font-size:0.4rem;color:#555;margin-bottom:2px;text-transform:uppercase;';
+                    compLabel.textContent = 'STAT CHANGE';
+                    statCompDiv.appendChild(compLabel);
+
+                    const compGrid = document.createElement('div');
+                    compGrid.style.cssText = 'display:flex;flex-wrap:wrap;gap:3px 8px;';
+
+                    for (const [key, info] of Object.entries(delta)) {
+                        const compRow = document.createElement('div');
+                        compRow.style.cssText = 'display:flex;align-items:center;gap:2px;font-size:0.45rem;';
+
+                        const statLabel = document.createElement('span');
+                        statLabel.style.cssText = `color:${STAT_COLORS[key] || '#888'};`;
+                        statLabel.textContent = STAT_LABELS[key] || key.toUpperCase();
+                        compRow.appendChild(statLabel);
+
+                        const oldVal = document.createElement('span');
+                        oldVal.style.cssText = 'color:#666;';
+                        oldVal.textContent = `${info.old > 0 ? '+' : ''}${info.old}`;
+                        compRow.appendChild(oldVal);
+
+                        const arrow = document.createElement('span');
+                        arrow.style.cssText = 'color:#555;';
+                        arrow.textContent = '\u2192';
+                        compRow.appendChild(arrow);
+
+                        const newVal = document.createElement('span');
+                        const diffColor = info.diff > 0 ? '#44ee66' : '#ee4444';
+                        newVal.style.cssText = `color:${diffColor};font-weight:700;`;
+                        newVal.textContent = `${info.new > 0 ? '+' : ''}${info.new}`;
+                        compRow.appendChild(newVal);
+
+                        const diffSpan = document.createElement('span');
+                        diffSpan.style.cssText = `color:${diffColor};font-size:0.4rem;`;
+                        diffSpan.textContent = `(${info.diff > 0 ? '+' : ''}${info.diff})`;
+                        compRow.appendChild(diffSpan);
+
+                        compGrid.appendChild(compRow);
+                    }
+
+                    statCompDiv.appendChild(compGrid);
+                    itemCard.appendChild(statCompDiv);
                 }
 
-                itemRow.addEventListener('click', () => {
+                // ── Element synergy badge ────────────────────────
+                if (item.element_synergy && item.element_synergy_multiplier > 1) {
+                    const hasElemMatch = spriteElements.includes(item.element_synergy);
+                    const elemColor = ELEMENT_COLORS[item.element_synergy] || '#888';
+                    const synergyBadge = document.createElement('div');
+                    synergyBadge.style.cssText = `
+                        display:inline-flex;align-items:center;gap:3px;
+                        margin-top:4px;padding:3px 8px;border-radius:10px;
+                        font-size:0.45rem;font-weight:600;
+                        background:${hasElemMatch ? elemColor + '25' : 'rgba(255,255,255,0.04)'};
+                        color:${hasElemMatch ? elemColor : '#555'};
+                        border:1px solid ${hasElemMatch ? elemColor + '55' : 'rgba(255,255,255,0.06)'};
+                    `;
+                    synergyBadge.textContent = `${hasElemMatch ? '\u2714 ' : ''}${item.element_synergy.toUpperCase()} SYNERGY \u00D7${item.element_synergy_multiplier}`;
+                    itemCard.appendChild(synergyBadge);
+                }
+
+                // ── Class synergy badge ──────────────────────────
+                if (item.class_synergy && item.class_synergy_multiplier > 1) {
+                    const hasClassMatch = spriteClass === item.class_synergy;
+                    const classBadge = document.createElement('div');
+                    classBadge.style.cssText = `
+                        display:inline-flex;align-items:center;gap:3px;
+                        margin-top:3px;margin-left:${item.element_synergy ? '4px' : '0'};
+                        padding:3px 8px;border-radius:10px;
+                        font-size:0.45rem;font-weight:600;
+                        background:${hasClassMatch ? 'rgba(255,204,51,0.15)' : 'rgba(255,255,255,0.04)'};
+                        color:${hasClassMatch ? '#ffcc33' : '#555'};
+                        border:1px solid ${hasClassMatch ? 'rgba(255,204,51,0.4)' : 'rgba(255,255,255,0.06)'};
+                    `;
+                    classBadge.textContent = `${hasClassMatch ? '\u2714 ' : ''}${item.class_synergy.toUpperCase()} SYNERGY \u00D7${item.class_synergy_multiplier}`;
+                    itemCard.appendChild(classBadge);
+                }
+
+                // ── Equip on click ───────────────────────────────
+                itemCard.addEventListener('click', () => {
                     this._equipItem(inst, slot.key, item);
                     overlay.remove();
                 });
-                itemRow.addEventListener('mouseenter', () => { itemRow.style.background = 'rgba(255,255,255,0.06)'; });
-                itemRow.addEventListener('mouseleave', () => { itemRow.style.background = 'rgba(255,255,255,0.02)'; });
-                overlay.appendChild(itemRow);
+                itemCard.addEventListener('mouseenter', () => {
+                    itemCard.style.background = 'rgba(255,255,255,0.06)';
+                    itemCard.style.borderColor = rarityColor + '88';
+                });
+                itemCard.addEventListener('mouseleave', () => {
+                    itemCard.style.background = 'rgba(255,255,255,0.02)';
+                    itemCard.style.borderColor = rarityColor + '44';
+                });
+                overlay.appendChild(itemCard);
             }
         } else if (!currentEqData) {
             const emptyMsg = document.createElement('div');
-            emptyMsg.style.cssText = 'font-size:0.6rem;color:#555;text-align:center;margin-top:20px;';
+            emptyMsg.style.cssText = 'font-size:0.65rem;color:#555;text-align:center;margin-top:30px;';
             emptyMsg.textContent = 'No items available for this slot';
             overlay.appendChild(emptyMsg);
         }
