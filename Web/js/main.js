@@ -181,7 +181,9 @@ async function startGame(user) {
         loadingText.textContent = 'Loading status effects...';
         loadingBar.style.width = '30%';
         const { STATUS_EFFECTS } = await import('./data/StatusEffectData.js');
-        engine.data.statusEffects = STATUS_EFFECTS;
+        const statusMap = {};
+        STATUS_EFFECTS.forEach(e => { statusMap[e.effect_id] = e; });
+        engine.data.statusEffects = statusMap;
 
         loadingText.textContent = 'Loading equipment data...';
         loadingBar.style.width = '35%';
@@ -193,6 +195,9 @@ async function startGame(user) {
         const itemDataModule = await import('./data/ItemData.js');
         engine.data.consumables = itemDataModule.CONSUMABLES;
         engine.data.crystals = itemDataModule.CRYSTALS;
+        engine.data.statusCures = itemDataModule.STATUS_CURES;
+        engine.data.evolutionItems = itemDataModule.EVOLUTION_ITEMS;
+        engine.data.keyItems = itemDataModule.KEY_ITEMS;
 
         loadingText.textContent = 'Loading temple data...';
         loadingBar.style.width = '45%';

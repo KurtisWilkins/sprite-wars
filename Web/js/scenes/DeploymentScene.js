@@ -646,8 +646,10 @@ export class DeploymentScene extends Scene {
 
     _goBack() {
         this.engine.audio.stopMusic(300);
-        this.engine.scenes.popScene().catch(() => {
-            this.engine.scenes.changeTo('overworld', {});
+        const returnData = this._encounterData?.returnData || {};
+        this.engine.scenes.changeTo('overworld', {
+            spawnPoint: returnData.spawnPoint || null,
+            gameData: returnData.gameData || null,
         });
     }
 

@@ -2676,7 +2676,7 @@ export const ABILITIES = {
 	155: {
 		ability_id: 155,
 		ability_name: "Tackle",
-		element_type: "None",
+		element_type: "",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 35,
@@ -2693,7 +2693,7 @@ export const ABILITIES = {
 	156: {
 		ability_id: 156,
 		ability_name: "Guard",
-		element_type: "None",
+		element_type: "",
 		class_affinity: "Guardian",
 		targeting_type: "self",
 		base_power: 0,
@@ -2710,7 +2710,7 @@ export const ABILITIES = {
 	157: {
 		ability_id: 157,
 		ability_name: "Quick Strike",
-		element_type: "None",
+		element_type: "",
 		class_affinity: "Striker",
 		targeting_type: "single_enemy",
 		base_power: 40,
@@ -2727,7 +2727,7 @@ export const ABILITIES = {
 	158: {
 		ability_id: 158,
 		ability_name: "Focus Energy",
-		element_type: "None",
+		element_type: "",
 		class_affinity: "Any",
 		targeting_type: "self",
 		base_power: 0,
@@ -2744,7 +2744,7 @@ export const ABILITIES = {
 	159: {
 		ability_id: 159,
 		ability_name: "Rest",
-		element_type: "None",
+		element_type: "",
 		class_affinity: "Any",
 		targeting_type: "self",
 		base_power: 0,
@@ -2761,7 +2761,7 @@ export const ABILITIES = {
 	160: {
 		ability_id: 160,
 		ability_name: "Rage",
-		element_type: "None",
+		element_type: "",
 		class_affinity: "Berserker",
 		targeting_type: "self",
 		base_power: 0,

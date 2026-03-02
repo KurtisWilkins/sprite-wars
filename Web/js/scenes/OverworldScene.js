@@ -235,7 +235,18 @@ export class OverworldScene extends Scene {
 
         // Load the region (prefer explicit spawnPoint, then extract from returnData)
         const spawnPoint = data.spawnPoint || (data.returnData && data.returnData.spawnPoint) || null;
-        this._loadRegion(this._currentRegion, spawnPoint);
+        this._loadRegion(this._currentRegion, spawnPoint).then(() => {
+            // Restore saved player position when returning via popScene (e.g. Bag, SpriteCenter)
+            // with no explicit spawnPoint. This overrides the default spawn set by _loadRegion.
+            if (!spawnPoint && this._savedPlayerPos) {
+                this._player.x = this._savedPlayerPos.x;
+                this._player.y = this._savedPlayerPos.y;
+                this._updateCameraTarget();
+                this._camera.x = this._cameraTarget.x;
+                this._camera.y = this._cameraTarget.y;
+                this._savedPlayerPos = null;
+            }
+        });
 
         // Show overworld HUD
         this._showHud = true;
@@ -344,6 +355,11 @@ export class OverworldScene extends Scene {
     }
 
     exit() {
+        // Save current player pixel position for popScene returns (Bag, SpriteCenter, etc.)
+        if (this._player) {
+            this._savedPlayerPos = { x: this._player.x, y: this._player.y };
+        }
+
         for (const unsub of this._unsubs) {
             if (typeof unsub === 'function') unsub();
         }
@@ -875,9 +891,9 @@ export class OverworldScene extends Scene {
             if (ground[my * w + mx] === 0) S(mx, my, 24);
         }
 
-        // Collidable tiles: trees, rocks, walls, roofs, fences, pond, stumps, big trees, barrels, crates
+        // Collidable tiles: trees, rocks, walls, roofs, fences, pond, stumps, big trees, barrels, crates, signs, chests, lamps, fountains
         const collision = ground.map(t =>
-            [4, 5, 6, 7, 9, 10, 11, 13, 20, 21, 22, 25, 26, 27, 28, 29, 30, 31, 32, 33].includes(t) ? 1 : 0
+            [4, 5, 6, 7, 9, 10, 11, 13, 15, 16, 17, 18, 20, 21, 22, 25, 26, 27, 28, 29, 30, 31, 32, 33].includes(t) ? 1 : 0
         );
 
         return {
@@ -996,7 +1012,7 @@ export class OverworldScene extends Scene {
         // Lamps
         S(15,6,17); S(25,14,17);
 
-        const collision = ground.map(t=>[4,5,6,7,9,10,11,13].includes(t)?1:0);
+        const collision = ground.map(t=>[4,5,6,7,9,10,11,13,15,16,17].includes(t)?1:0);
 
         return {
             id: 'starter_route', width: w, height: h,
@@ -1094,7 +1110,7 @@ export class OverworldScene extends Scene {
             10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
         ];
 
-        // Collision: walls(10,11), lava(4), lava-edge(5), stalagmites(6,7), rocks(9), pillars(13)
+        // Collision: walls(10,11), lava(4), lava-edge(5), stalagmites(6,7), rocks(9), pillars(13), chests(16), torches(17), altars(18)
         const collision = ground.map(tile => {
             switch (tile) {
                 case 4:  // lava
@@ -1105,6 +1121,9 @@ export class OverworldScene extends Scene {
                 case 10: // cave wall
                 case 11: // cave wall top
                 case 13: // pillar
+                case 16: // chest/crate
+                case 17: // torch/brazier
+                case 18: // altar/shrine
                     return 1;
                 default:
                     return 0;
@@ -1880,6 +1899,7 @@ export class OverworldScene extends Scene {
             gameData: this._gameData,
             returnScene: 'overworld',
             returnData: {
+                trainerId: npc.id,
                 gameData: this._gameData,
                 spawnPoint: {
                     x: Math.floor(this._player.x / TILE_SIZE),

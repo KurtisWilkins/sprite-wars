@@ -55,8 +55,7 @@ const WEAPON_TYPE_CELLS = {
     default:{ col: 0, row: 0 },
 };
 
-// ── Character sheet layout (128x128, 4x4 grid = 32x32 frames) ──────────────
-const CHAR_SHEET_SIZE = 128;
+// ── Character sheet layout (4 columns of 32x32 frames) ─────────────────────
 const CHAR_FRAME_SIZE = 32;
 const CHAR_COLS = 4;
 
@@ -262,17 +261,17 @@ export class UnitRenderer {
 
         // ── HP Bar ──────────────────────────────────────────────────
         if (showHpBar) {
-            UnitRenderer._drawHpBar(ctx, left, top + size + 2, size, hpFraction);
+            UnitRenderer._drawHpBar(ctx, left, top + size + 2 + bobOffset, size, hpFraction);
         }
 
         // ── Element badge(s) ────────────────────────────────────────
         if (showElementBadge) {
-            UnitRenderer._drawElementBadges(ctx, elements, left + size - 2, top - 2, size);
+            UnitRenderer._drawElementBadges(ctx, elements, left + size - 2, top - 2 + bobOffset, size);
         }
 
         // ── Level badge ─────────────────────────────────────────────
         if (showLevel) {
-            UnitRenderer._drawLevelBadge(ctx, level, left - 1, top - 1, size);
+            UnitRenderer._drawLevelBadge(ctx, level, left - 1, top - 1 + bobOffset, size);
         }
 
         // ── Status effect icons ─────────────────────────────────────
@@ -320,15 +319,19 @@ export class UnitRenderer {
                 const row = direction % 4;
                 const sx = animFrame * CHAR_FRAME_SIZE;
                 const sy = row * CHAR_FRAME_SIZE;
+                ctx.imageSmoothingEnabled = false;
                 ctx.drawImage(img, sx, sy, CHAR_FRAME_SIZE, CHAR_FRAME_SIZE,
                     cx - halfSize, cy - halfSize, size, size);
+                ctx.imageSmoothingEnabled = true;
             } else if (imgW > 64 && imgH > 64) {
                 // Larger sprite sheet — extract a suitable frame
                 const frameW = Math.min(64, imgW / 4);
                 const frameH = Math.min(64, imgH / 4);
                 const animFrame = Math.floor(time * 3) % 4;
+                ctx.imageSmoothingEnabled = false;
                 ctx.drawImage(img, animFrame * frameW, 0, frameW, frameH,
                     cx - halfSize, cy - halfSize, size, size);
+                ctx.imageSmoothingEnabled = true;
             } else {
                 // Small standalone sprite (e.g., 30x34 monster sprites)
                 // Draw with slight scaling to fill the cell
@@ -349,8 +352,8 @@ export class UnitRenderer {
     static _drawFallbackSprite(ctx, cx, cy, size, elemColor, level, team, time) {
         const halfSize = size / 2;
 
-        // Idle bob animation
-        const bob = Math.sin(time * 2.5 * Math.PI) * (size * 0.02);
+        // Bob already applied via cy parameter from caller; avoid double-bob
+        const bob = 0;
 
         // Proportions relative to size
         const headR = size * 0.15;
@@ -468,6 +471,7 @@ export class UnitRenderer {
         // Floating particles (3-5 small dots orbiting the unit)
         const numParticles = Math.min(elements.length * 2 + 1, 5);
         for (let i = 0; i < numParticles; i++) {
+            ctx.save();
             const angle = (time * 0.8 + (i / numParticles) * Math.PI * 2) % (Math.PI * 2);
             const orbitR = r + 2 + Math.sin(time * 1.5 + i) * 3;
             const px = cx + Math.cos(angle) * orbitR;
@@ -480,7 +484,7 @@ export class UnitRenderer {
             ctx.beginPath();
             ctx.arc(px, py, pSize, 0, Math.PI * 2);
             ctx.fill();
-            ctx.globalAlpha = ctx.globalAlpha; // reset within save/restore
+            ctx.restore();
         }
     }
 

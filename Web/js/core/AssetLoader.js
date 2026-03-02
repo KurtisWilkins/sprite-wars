@@ -87,23 +87,31 @@ export class AssetLoader {
         if (this._cache[resolvedPath]) {
             return Promise.resolve(this._cache[resolvedPath]);
         }
+        if (this._loading[resolvedPath]) {
+            return this._loading[resolvedPath];
+        }
 
         this._totalAssets++;
-        return new Promise((resolve) => {
+        const promise = new Promise((resolve) => {
             const audio = new Audio();
             audio.preload = 'auto';
             audio.oncanplaythrough = () => {
                 this._cache[resolvedPath] = audio;
                 this._loadedAssets++;
+                delete this._loading[resolvedPath];
                 resolve(audio);
             };
             audio.onerror = () => {
                 console.warn(`Failed to load audio: ${resolvedPath}`);
                 this._loadedAssets++;
+                delete this._loading[resolvedPath];
                 resolve(null);
             };
             audio.src = resolvedPath;
         });
+
+        this._loading[resolvedPath] = promise;
+        return promise;
     }
 
     /**
@@ -149,13 +157,6 @@ export class AssetLoader {
         this._totalAssets = 0;
         this._loadedAssets = 0;
 
-        const allPaths = [
-            ...(manifest.images || []),
-            ...(manifest.audio || []),
-        ];
-
-        this._totalAssets = allPaths.length + (manifest.json || []).length;
-
         const promises = [];
 
         for (const path of (manifest.images || [])) {
@@ -171,6 +172,7 @@ export class AssetLoader {
         }
 
         for (const path of (manifest.json || [])) {
+            this._totalAssets++;
             promises.push(this.loadJSON(path).then(() => {
                 this._loadedAssets++;
                 if (onProgress) onProgress(this.progress);

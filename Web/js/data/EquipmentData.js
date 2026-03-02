@@ -45,7 +45,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 1,
 		description: "A basic iron blade. Reliable if unremarkable.",
-		icon_path: "res://Sprites/Icons/Equipment/weapon_iron_sword.png",
+		icon_path: "../Sprites/Icons/Equipment/weapon_iron_sword.png",
 		source: "shop",
 	},
 	{
@@ -60,7 +60,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 10,
 		description: "A well-forged steel blade with a keen edge.",
-		icon_path: "res://Sprites/Icons/Equipment/weapon_steel_blade.png",
+		icon_path: "../Sprites/Icons/Equipment/weapon_steel_blade.png",
 		source: "shop",
 	},
 	{
@@ -75,7 +75,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 15,
 		description: "A blade imbued with fire essence. Glows faintly with heat.",
-		icon_path: "res://Sprites/Icons/Equipment/weapon_flame_sword.png",
+		icon_path: "../Sprites/Icons/Equipment/weapon_flame_sword.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -90,7 +90,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.15,
 		level_requirement: 25,
 		description: "A windswept blade that hums with storm energy.",
-		icon_path: "res://Sprites/Icons/Equipment/weapon_tempest_blade.png",
+		icon_path: "../Sprites/Icons/Equipment/weapon_tempest_blade.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -105,7 +105,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.2,
 		level_requirement: 35,
 		description: "A blade forged from condensed shadow. Cuts through light itself.",
-		icon_path: "res://Sprites/Icons/Equipment/weapon_shadow_edge.png",
+		icon_path: "../Sprites/Icons/Equipment/weapon_shadow_edge.png",
 		source: "boss_drop",
 	},
 	{
@@ -120,7 +120,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.25,
 		level_requirement: 45,
 		description: "The legendary holy sword. Its radiance inspires courage in all who behold it.",
-		icon_path: "res://Sprites/Icons/Equipment/weapon_excalibur.png",
+		icon_path: "../Sprites/Icons/Equipment/weapon_excalibur.png",
 		source: "legendary_quest",
 	},
 
@@ -139,7 +139,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 1,
 		description: "A simple leather cap offering basic protection.",
-		icon_path: "res://Sprites/Icons/Equipment/helmet_leather_cap.png",
+		icon_path: "../Sprites/Icons/Equipment/helmet_leather_cap.png",
 		source: "shop",
 	},
 	{
@@ -154,7 +154,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 10,
 		description: "A sturdy iron helmet that absorbs heavy blows.",
-		icon_path: "res://Sprites/Icons/Equipment/helmet_iron_helm.png",
+		icon_path: "../Sprites/Icons/Equipment/helmet_iron_helm.png",
 		source: "shop",
 	},
 	{
@@ -169,7 +169,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 15,
 		description: "A circlet of perpetual ice that sharpens the mind.",
-		icon_path: "res://Sprites/Icons/Equipment/helmet_frost_circlet.png",
+		icon_path: "../Sprites/Icons/Equipment/helmet_frost_circlet.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -184,7 +184,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.15,
 		level_requirement: 25,
 		description: "A crown crackling with electric arcs. Worn by storm mages.",
-		icon_path: "res://Sprites/Icons/Equipment/helmet_thunder_crown.png",
+		icon_path: "../Sprites/Icons/Equipment/helmet_thunder_crown.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -199,7 +199,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.2,
 		level_requirement: 35,
 		description: "Forged from dragon scales. Nearly indestructible.",
-		icon_path: "res://Sprites/Icons/Equipment/helmet_dragonscale_helm.png",
+		icon_path: "../Sprites/Icons/Equipment/helmet_dragonscale_helm.png",
 		source: "boss_drop",
 	},
 	{
@@ -214,7 +214,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.25,
 		level_requirement: 45,
 		description: "An ancient crown pulsing with spiritual energy. Said to grant visions of the past.",
-		icon_path: "res://Sprites/Icons/Equipment/helmet_crown_of_ancients.png",
+		icon_path: "../Sprites/Icons/Equipment/helmet_crown_of_ancients.png",
 		source: "legendary_quest",
 	},
 
@@ -233,7 +233,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 1,
 		description: "A simple cloth tunic. Better than nothing.",
-		icon_path: "res://Sprites/Icons/Equipment/chest_cloth_tunic.png",
+		icon_path: "../Sprites/Icons/Equipment/chest_cloth_tunic.png",
 		source: "shop",
 	},
 	{
@@ -248,7 +248,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 10,
 		description: "Interlocking steel rings offer solid protection at a slight speed cost.",
-		icon_path: "res://Sprites/Icons/Equipment/chest_chainmail_vest.png",
+		icon_path: "../Sprites/Icons/Equipment/chest_chainmail_vest.png",
 		source: "shop",
 	},
 	{
@@ -263,7 +263,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 15,
 		description: "A robe woven from enchanted vines. It regenerates slowly over time.",
-		icon_path: "res://Sprites/Icons/Equipment/chest_verdant_robe.png",
+		icon_path: "../Sprites/Icons/Equipment/chest_verdant_robe.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -278,7 +278,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.15,
 		level_requirement: 25,
 		description: "Armor forged in the abyss. Absorbs incoming darkness.",
-		icon_path: "res://Sprites/Icons/Equipment/chest_abyssal_plate.png",
+		icon_path: "../Sprites/Icons/Equipment/chest_abyssal_plate.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -293,7 +293,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.2,
 		level_requirement: 35,
 		description: "Lightweight armor infused with lightning threads. Crackles with energy.",
-		icon_path: "res://Sprites/Icons/Equipment/chest_stormweave_armor.png",
+		icon_path: "../Sprites/Icons/Equipment/chest_stormweave_armor.png",
 		source: "boss_drop",
 	},
 	{
@@ -308,7 +308,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.25,
 		level_requirement: 45,
 		description: "The divine chestplate of Solarius. Its golden surface is impervious to corruption.",
-		icon_path: "res://Sprites/Icons/Equipment/chest_aegis_of_solarius.png",
+		icon_path: "../Sprites/Icons/Equipment/chest_aegis_of_solarius.png",
 		source: "legendary_quest",
 	},
 
@@ -327,7 +327,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 1,
 		description: "Simple cloth leggings. Light and comfortable.",
-		icon_path: "res://Sprites/Icons/Equipment/legs_cloth_leggings.png",
+		icon_path: "../Sprites/Icons/Equipment/legs_cloth_leggings.png",
 		source: "shop",
 	},
 	{
@@ -342,7 +342,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 10,
 		description: "Steel-reinforced greaves for heavy frontline combat.",
-		icon_path: "res://Sprites/Icons/Equipment/legs_reinforced_greaves.png",
+		icon_path: "../Sprites/Icons/Equipment/legs_reinforced_greaves.png",
 		source: "shop",
 	},
 	{
@@ -357,7 +357,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 15,
 		description: "Leg guards carved from enchanted sandstone. Unbreakable once set.",
-		icon_path: "res://Sprites/Icons/Equipment/legs_sandstone_guards.png",
+		icon_path: "../Sprites/Icons/Equipment/legs_sandstone_guards.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -372,7 +372,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.15,
 		level_requirement: 25,
 		description: "Leg armor coated in a thin layer of toxin. Kicks leave a nasty sting.",
-		icon_path: "res://Sprites/Icons/Equipment/legs_venom_cuisses.png",
+		icon_path: "../Sprites/Icons/Equipment/legs_venom_cuisses.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -387,7 +387,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.2,
 		level_requirement: 35,
 		description: "Legplates of eternal frost. They slow enemies on contact.",
-		icon_path: "res://Sprites/Icons/Equipment/legs_glacial_legplates.png",
+		icon_path: "../Sprites/Icons/Equipment/legs_glacial_legplates.png",
 		source: "boss_drop",
 	},
 	{
@@ -402,7 +402,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.25,
 		level_requirement: 45,
 		description: "Legendary greaves that let the wearer stride across any terrain effortlessly.",
-		icon_path: "res://Sprites/Icons/Equipment/legs_worldwalker_greaves.png",
+		icon_path: "../Sprites/Icons/Equipment/legs_worldwalker_greaves.png",
 		source: "legendary_quest",
 	},
 
@@ -421,7 +421,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 1,
 		description: "Light sandals that allow quick movement.",
-		icon_path: "res://Sprites/Icons/Equipment/boots_worn_sandals.png",
+		icon_path: "../Sprites/Icons/Equipment/boots_worn_sandals.png",
 		source: "shop",
 	},
 	{
@@ -436,7 +436,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 10,
 		description: "Sturdy leather boots favored by scouts and rangers.",
-		icon_path: "res://Sprites/Icons/Equipment/boots_scout_boots.png",
+		icon_path: "../Sprites/Icons/Equipment/boots_scout_boots.png",
 		source: "shop",
 	},
 	{
@@ -451,7 +451,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 15,
 		description: "Enchanted boots that let the wearer run on air currents.",
-		icon_path: "res://Sprites/Icons/Equipment/boots_windrunner.png",
+		icon_path: "../Sprites/Icons/Equipment/boots_windrunner.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -466,7 +466,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.15,
 		level_requirement: 25,
 		description: "Boots that glide over water as if it were solid ground.",
-		icon_path: "res://Sprites/Icons/Equipment/boots_tidewalker.png",
+		icon_path: "../Sprites/Icons/Equipment/boots_tidewalker.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -481,7 +481,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.2,
 		level_requirement: 35,
 		description: "Boots that meld with shadows, allowing near-instant repositioning.",
-		icon_path: "res://Sprites/Icons/Equipment/boots_shadowstep_treads.png",
+		icon_path: "../Sprites/Icons/Equipment/boots_shadowstep_treads.png",
 		source: "boss_drop",
 	},
 	{
@@ -496,7 +496,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.25,
 		level_requirement: 45,
 		description: "Winged boots of divine origin. The wearer moves faster than thought.",
-		icon_path: "res://Sprites/Icons/Equipment/boots_hermes_wings.png",
+		icon_path: "../Sprites/Icons/Equipment/boots_hermes_wings.png",
 		source: "legendary_quest",
 	},
 
@@ -515,7 +515,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 1,
 		description: "Simple cloth gloves. Provide minimal protection.",
-		icon_path: "res://Sprites/Icons/Equipment/gloves_cloth.png",
+		icon_path: "../Sprites/Icons/Equipment/gloves_cloth.png",
 		source: "shop",
 	},
 	{
@@ -530,7 +530,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 10,
 		description: "Heavy gauntlets designed for close-quarters combat.",
-		icon_path: "res://Sprites/Icons/Equipment/gloves_battle_gauntlets.png",
+		icon_path: "../Sprites/Icons/Equipment/gloves_battle_gauntlets.png",
 		source: "shop",
 	},
 	{
@@ -545,7 +545,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 15,
 		description: "Gloves radiating volcanic heat. Punches leave scorch marks.",
-		icon_path: "res://Sprites/Icons/Equipment/gloves_magma_grips.png",
+		icon_path: "../Sprites/Icons/Equipment/gloves_magma_grips.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -560,7 +560,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.15,
 		level_requirement: 25,
 		description: "Gauntlets grown from living ironbark. They harden on impact.",
-		icon_path: "res://Sprites/Icons/Equipment/gloves_ironbark_gauntlets.png",
+		icon_path: "../Sprites/Icons/Equipment/gloves_ironbark_gauntlets.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -575,7 +575,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.2,
 		level_requirement: 35,
 		description: "Wraps that amplify telekinetic force. Objects move at the wearer's will.",
-		icon_path: "res://Sprites/Icons/Equipment/gloves_psychic_wraps.png",
+		icon_path: "../Sprites/Icons/Equipment/gloves_psychic_wraps.png",
 		source: "boss_drop",
 	},
 	{
@@ -590,7 +590,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.25,
 		level_requirement: 45,
 		description: "Legendary gauntlets said to have shattered a mountain with a single strike.",
-		icon_path: "res://Sprites/Icons/Equipment/gloves_fists_of_colossus.png",
+		icon_path: "../Sprites/Icons/Equipment/gloves_fists_of_colossus.png",
 		source: "legendary_quest",
 	},
 
@@ -609,7 +609,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 1,
 		description: "A plain copper ring with a faint magical aura.",
-		icon_path: "res://Sprites/Icons/Equipment/ring_copper.png",
+		icon_path: "../Sprites/Icons/Equipment/ring_copper.png",
 		source: "shop",
 	},
 	{
@@ -624,7 +624,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 10,
 		description: "A polished silver band that sharpens reflexes.",
-		icon_path: "res://Sprites/Icons/Equipment/ring_silver_band.png",
+		icon_path: "../Sprites/Icons/Equipment/ring_silver_band.png",
 		source: "shop",
 	},
 	{
@@ -639,7 +639,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 15,
 		description: "A ring set with a serpent's fang. Attacks may inflict poison.",
-		icon_path: "res://Sprites/Icons/Equipment/ring_venomfang.png",
+		icon_path: "../Sprites/Icons/Equipment/ring_venomfang.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -654,7 +654,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.15,
 		level_requirement: 25,
 		description: "A ring forged from a fallen meteor. Pulses with chaotic energy.",
-		icon_path: "res://Sprites/Icons/Equipment/ring_meteors.png",
+		icon_path: "../Sprites/Icons/Equipment/ring_meteors.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -669,7 +669,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.2,
 		level_requirement: 35,
 		description: "A dark signet ring that whispers forbidden knowledge to its wearer.",
-		icon_path: "res://Sprites/Icons/Equipment/ring_signet_abyss.png",
+		icon_path: "../Sprites/Icons/Equipment/ring_signet_abyss.png",
 		source: "boss_drop",
 	},
 	{
@@ -684,7 +684,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.25,
 		level_requirement: 45,
 		description: "A ring that exists outside of time. Its power transcends mortal understanding.",
-		icon_path: "res://Sprites/Icons/Equipment/ring_band_of_eternity.png",
+		icon_path: "../Sprites/Icons/Equipment/ring_band_of_eternity.png",
 		source: "legendary_quest",
 	},
 
@@ -703,7 +703,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 1,
 		description: "A simple wooden pendant carved with a protective rune.",
-		icon_path: "res://Sprites/Icons/Equipment/amulet_wooden_pendant.png",
+		icon_path: "../Sprites/Icons/Equipment/amulet_wooden_pendant.png",
 		source: "shop",
 	},
 	{
@@ -718,7 +718,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 10,
 		description: "A string of lustrous pearls that bolster magical defense.",
-		icon_path: "res://Sprites/Icons/Equipment/amulet_pearl_necklace.png",
+		icon_path: "../Sprites/Icons/Equipment/amulet_pearl_necklace.png",
 		source: "shop",
 	},
 	{
@@ -733,7 +733,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 15,
 		description: "An amulet shaped like a cresting wave. It hums near water.",
-		icon_path: "res://Sprites/Icons/Equipment/amulet_tidecaller.png",
+		icon_path: "../Sprites/Icons/Equipment/amulet_tidecaller.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -748,7 +748,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.15,
 		level_requirement: 25,
 		description: "A pendant housing a fragment of captured sunlight.",
-		icon_path: "res://Sprites/Icons/Equipment/amulet_sunstone.png",
+		icon_path: "../Sprites/Icons/Equipment/amulet_sunstone.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -763,7 +763,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.2,
 		level_requirement: 35,
 		description: "A locket that bridges the material and spirit realms. Ghosts are drawn to it.",
-		icon_path: "res://Sprites/Icons/Equipment/amulet_specters_locket.png",
+		icon_path: "../Sprites/Icons/Equipment/amulet_specters_locket.png",
 		source: "boss_drop",
 	},
 	{
@@ -778,7 +778,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.25,
 		level_requirement: 45,
 		description: "A crystallized fragment of Eclipsar's essence. Reality warps around it.",
-		icon_path: "res://Sprites/Icons/Equipment/amulet_heart_of_eclipsar.png",
+		icon_path: "../Sprites/Icons/Equipment/amulet_heart_of_eclipsar.png",
 		source: "legendary_quest",
 	},
 
@@ -797,7 +797,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 1,
 		description: "A faintly glowing crystal shard. Provides balanced minor bonuses.",
-		icon_path: "res://Sprites/Icons/Equipment/crystal_dim_shard.png",
+		icon_path: "../Sprites/Icons/Equipment/crystal_dim_shard.png",
 		source: "shop",
 	},
 	{
@@ -812,7 +812,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 10,
 		description: "A brightly glowing shard. Provides balanced moderate bonuses.",
-		icon_path: "res://Sprites/Icons/Equipment/crystal_bright_shard.png",
+		icon_path: "../Sprites/Icons/Equipment/crystal_bright_shard.png",
 		source: "shop",
 	},
 	{
@@ -827,7 +827,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.0,
 		level_requirement: 15,
 		description: "A prism of condensed metallic energy. Favors physical resilience.",
-		icon_path: "res://Sprites/Icons/Equipment/crystal_metallic_prism.png",
+		icon_path: "../Sprites/Icons/Equipment/crystal_metallic_prism.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -842,7 +842,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.15,
 		level_requirement: 25,
 		description: "A volatile gem that flickers between colors. Amplifies raw power.",
-		icon_path: "res://Sprites/Icons/Equipment/crystal_chaosfire_gem.png",
+		icon_path: "../Sprites/Icons/Equipment/crystal_chaosfire_gem.png",
 		source: "dungeon_drop",
 	},
 	{
@@ -857,7 +857,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.2,
 		level_requirement: 35,
 		description: "A crystal resonating with psychic energy. Balances all stats at a high level.",
-		icon_path: "res://Sprites/Icons/Equipment/crystal_nexus_core.png",
+		icon_path: "../Sprites/Icons/Equipment/crystal_nexus_core.png",
 		source: "boss_drop",
 	},
 	{
@@ -872,7 +872,7 @@ export const EQUIPMENT = [
 		class_synergy_multiplier: 1.25,
 		level_requirement: 45,
 		description: "A crystal from the dawn of creation. Its power is absolute and perfectly balanced.",
-		icon_path: "res://Sprites/Icons/Equipment/crystal_primordial.png",
+		icon_path: "../Sprites/Icons/Equipment/crystal_primordial.png",
 		source: "legendary_quest",
 	},
 ];

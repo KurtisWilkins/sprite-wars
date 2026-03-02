@@ -222,6 +222,58 @@ export const CONSUMABLES = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
+// STATUS CURES (300-range)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** @type {Consumable[]} */
+export const STATUS_CURES = [
+	{
+		item_id: 301,
+		name: "Burn Heal",
+		category: "status_cure",
+		effect_type: "cure_status",
+		effect_value: { cure_status: 1 },
+		description: "Cures burn status from one Sprite.",
+		buy_price: 150,
+	},
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EVOLUTION ITEMS (400-range)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const EVOLUTION_ITEMS = [
+	{
+		item_id: 401,
+		name: "Evolution Catalyst",
+		category: "evolution",
+		description: "Triggers evolution when conditions are met.",
+		buy_price: 0,
+	},
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// KEY ITEMS (500-range)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const KEY_ITEMS = [
+	{
+		item_id: 501,
+		name: "Rival's Badge",
+		category: "key_item",
+		description: "Proof of victory over your rival.",
+		buy_price: 0,
+	},
+	{
+		item_id: 502,
+		name: "Dark Temple Key",
+		category: "key_item",
+		description: "Unlocks the entrance to the Dark Temple.",
+		buy_price: 0,
+	},
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
 // CRYSTALS (catching items)
 // ─────────────────────────────────────────────────────────────────────────────
 

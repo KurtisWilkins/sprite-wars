@@ -118,7 +118,7 @@ export class AudioManager {
         this.audio.setMasterVolume(this._settings.masterVolume);
         this.audio.setMusicVolume(this._settings.musicVolume);
         this.audio.setSfxVolume(this._settings.sfxVolume);
-        if (this._settings.muted) this.audio.toggleMute();
+        this.audio.setMuted(this._settings.muted);
     }
 
     getSettings() {
