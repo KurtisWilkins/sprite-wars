@@ -15,6 +15,7 @@ import { eventBus, GameEvents } from '../core/EventBus.js';
 import { BattleGrid } from '../systems/battle/BattleGrid.js';
 import { SPRITE_RACES } from '../data/SpriteData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
+import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
 
 function _getSpriteName(inst) {
     if (!inst) return '???';
@@ -97,6 +98,7 @@ export class DeploymentScene extends Scene {
     // ═══════════════════════════════════════════════════════════════════
 
     async init() {
+        await HumanoidSpriteSystem.preloadAssets(this.engine.assets).catch(() => {});
         this.initialized = true;
     }
 
@@ -315,37 +317,79 @@ export class DeploymentScene extends Scene {
         if (!inst && !spriteData.raceData) return;
 
         const centerX = cellX + GRID_CELL_SIZE / 2;
-        const centerY = cellY + GRID_CELL_SIZE / 2;
+        const centerY = cellY + GRID_CELL_SIZE - 4;
+        const size = GRID_CELL_SIZE - 6;
+        const isSelected = deployedIdx !== undefined && deployedIdx === this._selectedDeployedIndex;
 
-        UnitRenderer.draw(ctx, inst, centerX, centerY, GRID_CELL_SIZE - 6, {
-            time: this._time,
-            team: 0,
-            showHpBar: false,
-            showLevel: true,
-            showAura: true,
-            showWeapon: true,
-            showArmorGlow: true,
-            showElementBadge: true,
-            isSelected: deployedIdx !== undefined && deployedIdx === this._selectedDeployedIndex,
-        });
+        // Draw humanoid sprite with equipment
+        const raceId = inst.raceId || inst.race_id || 1;
+        const stage = inst.evolutionStage || inst.evolution_stage || 1;
+        const equipment = inst.equipment || {};
+        const animFrame = Math.floor(this._time * 2) % 4;
+
+        HumanoidSpriteSystem.drawWithEquipment(
+            ctx, raceId, stage, 0, animFrame,
+            centerX, centerY, size,
+            { equipment }
+        );
+
+        // Selection highlight
+        if (isSelected) {
+            ctx.strokeStyle = 'rgba(255, 220, 60, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(cellX + 1, cellY + 1, GRID_CELL_SIZE - 2, GRID_CELL_SIZE - 2);
+        }
+
+        // Level badge
+        const level = inst.level || 1;
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(cellX, cellY, 14, 10);
+        ctx.fillStyle = '#fff';
+        ctx.font = '7px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${level}`, cellX + 7, cellY + 8);
+        ctx.textAlign = 'left';
+
+        // Element badge (bottom-right)
+        const raceData = SPRITE_RACES.find(r => r.race_id === raceId);
+        if (raceData && raceData.element_types && raceData.element_types[0]) {
+            const elem = raceData.element_types[0];
+            const ec = ELEMENT_COLORS[elem] || '#888';
+            ctx.fillStyle = ec;
+            ctx.beginPath();
+            ctx.arc(cellX + GRID_CELL_SIZE - 5, cellY + GRID_CELL_SIZE - 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 
     _renderEnemyInCell(ctx, renderer, enemyData, cellX, cellY) {
         const inst = enemyData.instance || enemyData;
         const centerX = cellX + GRID_CELL_SIZE / 2;
-        const centerY = cellY + GRID_CELL_SIZE / 2;
+        const centerY = cellY + GRID_CELL_SIZE - 4;
+        const size = GRID_CELL_SIZE - 6;
 
-        UnitRenderer.draw(ctx, inst, centerX, centerY, GRID_CELL_SIZE - 6, {
-            time: this._time,
-            team: 1,
-            alpha: 0.7,
-            showHpBar: false,
-            showLevel: true,
-            showAura: true,
-            showWeapon: true,
-            showArmorGlow: true,
-            showElementBadge: true,
-        });
+        const raceId = inst.raceId || inst.race_id || 1;
+        const stage = inst.evolutionStage || inst.evolution_stage || 1;
+        const equipment = inst.equipment || {};
+        const animFrame = Math.floor(this._time * 2) % 4;
+
+        ctx.globalAlpha = 0.75;
+        HumanoidSpriteSystem.drawWithEquipment(
+            ctx, raceId, stage, 0, animFrame,
+            centerX, centerY, size,
+            { equipment }
+        );
+        ctx.globalAlpha = 1;
+
+        // Level badge
+        const level = inst.level || enemyData.level || 1;
+        ctx.fillStyle = 'rgba(100,20,20,0.7)';
+        ctx.fillRect(cellX, cellY, 14, 10);
+        ctx.fillStyle = '#ff8888';
+        ctx.font = '7px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${level}`, cellX + 7, cellY + 8);
+        ctx.textAlign = 'left';
     }
 
     _renderDragSprite(ctx, renderer) {
@@ -359,18 +403,18 @@ export class DeploymentScene extends Scene {
         ctx.fillRect(drawX, drawY, GRID_CELL_SIZE, GRID_CELL_SIZE);
 
         const inst = spriteData.instance || spriteData;
-        UnitRenderer.draw(ctx, inst, this._dragScreenX, this._dragScreenY, GRID_CELL_SIZE - 6, {
-            time: this._time,
-            team: 0,
-            alpha: 0.7,
-            showHpBar: false,
-            showLevel: true,
-            showAura: true,
-            showWeapon: true,
-            showArmorGlow: true,
-            showElementBadge: false,
-            isSelected: true,
-        });
+        const raceId = inst.raceId || inst.race_id || 1;
+        const stage = inst.evolutionStage || inst.evolution_stage || 1;
+        const equipment = inst.equipment || {};
+        const animFrame = Math.floor(this._time * 2) % 4;
+
+        ctx.globalAlpha = 0.75;
+        HumanoidSpriteSystem.drawWithEquipment(
+            ctx, raceId, stage, 0, animFrame,
+            this._dragScreenX, this._dragScreenY + GRID_CELL_SIZE / 2 - 4, GRID_CELL_SIZE - 6,
+            { equipment }
+        );
+        ctx.globalAlpha = 1;
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -781,20 +825,20 @@ export class DeploymentScene extends Scene {
         const stageData = sprite.stageData;
         const abilities = sprite.abilities || [];
 
-        // ── Sprite preview canvas (composite render at top) ──────────
+        // ── Sprite preview canvas (humanoid sprite with equipment) ──
         const detailCanvas = document.createElement('canvas');
         detailCanvas.width = 64;
         detailCanvas.height = 72;
-        detailCanvas.style.cssText = 'width:64px;height:72px;display:block;margin:0 auto 4px;';
+        detailCanvas.style.cssText = 'width:64px;height:72px;display:block;margin:0 auto 4px;image-rendering:pixelated;';
         const dCtx = detailCanvas.getContext('2d');
-        UnitRenderer.draw(dCtx, inst, 32, 32, 56, {
-            time: this._time,
-            showLevel: true,
-            showAura: true,
-            showWeapon: true,
-            showArmorGlow: true,
-            showElementBadge: true,
-        });
+        const previewRaceId = inst.raceId || inst.race_id || 1;
+        const previewStage = inst.evolutionStage || inst.evolution_stage || 1;
+        const previewEquip = inst.equipment || {};
+        HumanoidSpriteSystem.drawWithEquipment(
+            dCtx, previewRaceId, previewStage, 0, 0,
+            32, 60, 48,
+            { equipment: previewEquip }
+        );
         this._detailPanelEl.appendChild(detailCanvas);
 
         // ── Equipment display (paper-doll layout) ────────────────────

@@ -27,6 +27,14 @@ const INTRO_DURATION = 2.0;
 const END_SCREEN_DELAY = 1.5;
 const SPEED_LABELS = { 1: '1x', 2: '2x', 3: '3x' };
 
+// ── Element Colors (for info panel) ──────────────────────────────────────────
+const ELEMENT_COLORS_PANEL = {
+    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
+    Electric: '#ffcc00', Ice: '#99ddff', Nature: '#33aa33', Poison: '#aa33aa',
+    Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Psychic: '#ff66aa',
+    Dragon: '#6633cc', Spirit: '#ccccff',
+};
+
 // ── Ability wrapper (same as BattleScene) ───────────────────────────────────
 function _wrapAbility(raw) {
     return {
@@ -100,6 +108,10 @@ export class RTSBattleScene extends Scene {
         // ── Input ──────────────────────────────────────────────
         this._playerTeamData = [];
         this._enemyTeamData = [];
+
+        // ── Unit Selection ────────────────────────────────────
+        this._selectedUnit = null;
+        this._unitInfoPanelEl = null;
 
         // ── DOM ────────────────────────────────────────────────
         this._domContainer = null;
@@ -187,6 +199,8 @@ export class RTSBattleScene extends Scene {
         this._pauseBtnEl = null;
         this._logPanelEl = null;
         this._endScreenEl = null;
+        this._unitInfoPanelEl = null;
+        this._selectedUnit = null;
         this._renderer.clear();
         HumanoidSpriteSystem.clearCache();
     }
@@ -242,11 +256,34 @@ export class RTSBattleScene extends Scene {
 
     onInput(input) {
         if (this._phase === 'battle') {
-            // Space or tap: pause
-            if (input.isKeyJustPressed('Space') || (input.pointerJustPressed && input.isTap && input.isTap())) {
+            // Tap: try to select a unit first; if no unit hit, toggle pause
+            if (input.pointerJustPressed && input.isTap && input.isTap()) {
+                const tappedUnit = this._hitTestUnit(input.pointerPos.x, input.pointerPos.y);
+                if (tappedUnit) {
+                    this._selectUnit(tappedUnit);
+                } else if (this._selectedUnit) {
+                    // Tapped empty space — deselect
+                    this._deselectUnit();
+                } else {
+                    const isPaused = this._battleManager.togglePause();
+                    if (this._pauseBtnEl) {
+                        this._pauseBtnEl.textContent = isPaused ? '▶ PLAY' : '⏸ PAUSE';
+                    }
+                }
+            }
+
+            // Space: pause (keyboard only)
+            if (input.isKeyJustPressed('Space')) {
                 const isPaused = this._battleManager.togglePause();
                 if (this._pauseBtnEl) {
                     this._pauseBtnEl.textContent = isPaused ? '▶ PLAY' : '⏸ PAUSE';
+                }
+            }
+
+            // Escape: deselect unit or close info panel
+            if (input.isKeyJustPressed('Escape')) {
+                if (this._selectedUnit) {
+                    this._deselectUnit();
                 }
             }
 
@@ -267,6 +304,234 @@ export class RTSBattleScene extends Scene {
                 this._exitBattle();
             }
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // Unit Selection
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * Hit-test: find the nearest alive unit within tap radius of screen coords.
+     * @param {number} sx - Screen X
+     * @param {number} sy - Screen Y
+     * @returns {import('../systems/battle/RTSUnit.js').RTSUnit|null}
+     */
+    _hitTestUnit(sx, sy) {
+        const field = this._battleManager.field;
+        if (!field) return null;
+
+        const world = field.screenToWorld(sx, sy);
+        const TAP_RADIUS = 24; // pixels in world space
+        let closest = null;
+        let closestDist = TAP_RADIUS;
+
+        for (const unit of field.units) {
+            if (!unit.isAlive) continue;
+            const dx = unit.worldPos.x - world.x;
+            const dy = unit.worldPos.y - world.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < closestDist) {
+                closestDist = dist;
+                closest = unit;
+            }
+        }
+        return closest;
+    }
+
+    /**
+     * Select a unit and show the info panel.
+     * @param {import('../systems/battle/RTSUnit.js').RTSUnit} unit
+     */
+    _selectUnit(unit) {
+        this._selectedUnit = unit;
+        this._renderer.selectedUnit = unit;
+        this._showUnitInfoPanel(unit);
+    }
+
+    /** Deselect the current unit and hide the info panel. */
+    _deselectUnit() {
+        this._selectedUnit = null;
+        this._renderer.selectedUnit = null;
+        this._hideUnitInfoPanel();
+    }
+
+    /**
+     * Build and show the DOM info panel for a selected unit.
+     * @param {import('../systems/battle/RTSUnit.js').RTSUnit} unit
+     */
+    _showUnitInfoPanel(unit) {
+        this._hideUnitInfoPanel();
+        if (!this._domContainer) return;
+
+        const panel = document.createElement('div');
+        panel.id = 'unit-info-panel';
+        panel.style.cssText = `
+            position: absolute; top: 60px; left: 8px; width: 200px;
+            background: rgba(0,0,0,0.88); color: #ddd;
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
+            padding: 10px; font: 11px monospace; pointer-events: auto;
+            max-height: 380px; overflow-y: auto;
+        `;
+
+        // ── Close button ──
+        const closeBtn = document.createElement('div');
+        closeBtn.textContent = '\u2715';
+        closeBtn.style.cssText = `
+            position:absolute;top:4px;right:8px;cursor:pointer;
+            color:#888;font-size:14px;
+        `;
+        closeBtn.addEventListener('click', () => this._deselectUnit());
+        panel.appendChild(closeBtn);
+
+        // ── Name + Team ──
+        const teamLabel = unit.team === 0 ? 'ALLY' : 'ENEMY';
+        const teamColor = unit.team === 0 ? '#4488ff' : '#ff4444';
+        const name = unit.getDisplayName();
+
+        const nameEl = document.createElement('div');
+        nameEl.style.cssText = `font-weight:bold;font-size:13px;color:#ffcc33;margin-bottom:2px;`;
+        nameEl.textContent = name;
+        panel.appendChild(nameEl);
+
+        const teamEl = document.createElement('div');
+        teamEl.style.cssText = `font-size:9px;color:${teamColor};margin-bottom:6px;`;
+        teamEl.textContent = `${teamLabel}  Lv.${unit.getLevel()}  ${unit.classType}`;
+        panel.appendChild(teamEl);
+
+        // ── Element Types ──
+        if (unit.elementTypes.length > 0) {
+            const elemEl = document.createElement('div');
+            elemEl.style.cssText = 'margin-bottom:6px;';
+            for (const elem of unit.elementTypes) {
+                const badge = document.createElement('span');
+                const ec = ELEMENT_COLORS_PANEL[elem] || '#888';
+                badge.style.cssText = `
+                    display:inline-block;padding:1px 5px;margin-right:3px;
+                    border-radius:3px;font-size:9px;font-weight:bold;
+                    background:${ec};color:#fff;
+                `;
+                badge.textContent = elem;
+                elemEl.appendChild(badge);
+            }
+            panel.appendChild(elemEl);
+        }
+
+        // ── Evolution Stage ──
+        const evoEl = document.createElement('div');
+        evoEl.style.cssText = 'font-size:10px;color:#aaa;margin-bottom:6px;';
+        const stageNames = { 1: 'Base', 2: 'Evolved', 3: 'Final' };
+        const stageName = stageNames[unit.evolutionStage] || `Stage ${unit.evolutionStage}`;
+        const stageStars = '\u2605'.repeat(unit.evolutionStage);
+        evoEl.innerHTML = `Evolution: <span style="color:#ffcc44">${stageName} ${stageStars}</span>`;
+        panel.appendChild(evoEl);
+
+        // ── HP Bar ──
+        const hpFrac = unit.getHpFraction();
+        const hpColor = hpFrac > 0.5 ? '#33cc66' : hpFrac > 0.25 ? '#cccc33' : '#cc3333';
+        const hpBarContainer = document.createElement('div');
+        hpBarContainer.style.cssText = 'margin-bottom:8px;';
+        hpBarContainer.innerHTML = `
+            <div style="font-size:9px;color:#888;margin-bottom:2px;">
+                HP: ${unit.currentHp}/${unit.maxHp}
+            </div>
+            <div style="width:100%;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">
+                <div style="width:${hpFrac * 100}%;height:100%;background:${hpColor};border-radius:3px;"></div>
+            </div>
+        `;
+        panel.appendChild(hpBarContainer);
+
+        // ── Stats ──
+        const statsHeader = document.createElement('div');
+        statsHeader.style.cssText = 'font-size:10px;font-weight:bold;color:#aaa;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:2px;';
+        statsHeader.textContent = 'STATS';
+        panel.appendChild(statsHeader);
+
+        const statsGrid = document.createElement('div');
+        statsGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;margin-bottom:8px;';
+        const es = unit.effectiveStats;
+        const statEntries = [
+            { key: 'atk', label: 'ATK', color: '#ff7744' },
+            { key: 'def', label: 'DEF', color: '#4488ff' },
+            { key: 'sp_atk', label: 'SP.ATK', color: '#cc44ff' },
+            { key: 'sp_def', label: 'SP.DEF', color: '#44ccaa' },
+            { key: 'spd', label: 'SPD', color: '#ffcc33' },
+        ];
+        for (const s of statEntries) {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;justify-content:space-between;font-size:9px;';
+            row.innerHTML = `<span style="color:#888">${s.label}</span><span style="color:${s.color};font-weight:bold">${Math.floor(es[s.key] || 0)}</span>`;
+            statsGrid.appendChild(row);
+        }
+        // Move speed + attack range
+        const moveRow = document.createElement('div');
+        moveRow.style.cssText = 'display:flex;justify-content:space-between;font-size:9px;';
+        moveRow.innerHTML = `<span style="color:#888">MOVE</span><span style="color:#88cc88;font-weight:bold">${Math.floor(unit.moveSpeed)}</span>`;
+        statsGrid.appendChild(moveRow);
+        panel.appendChild(statsGrid);
+
+        // ── Targeting Style ──
+        const targetHeader = document.createElement('div');
+        targetHeader.style.cssText = 'font-size:10px;font-weight:bold;color:#aaa;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:2px;';
+        targetHeader.textContent = 'TARGETING';
+        panel.appendChild(targetHeader);
+
+        const targetEl = document.createElement('div');
+        targetEl.style.cssText = 'font-size:9px;margin-bottom:8px;';
+        const rangeType = unit.isRanged ? 'Ranged' : 'Melee';
+        const rangeColor = unit.isRanged ? '#88ccff' : '#ff8844';
+        targetEl.innerHTML = `
+            <div style="margin-bottom:2px;">
+                Type: <span style="color:${rangeColor};font-weight:bold">${rangeType}</span>
+                (${unit.attackRange}px range)
+            </div>
+            <div style="color:#999;">
+                Cooldown: ${unit.attackRate.toFixed(1)}s
+            </div>
+        `;
+        panel.appendChild(targetEl);
+
+        // ── Abilities ──
+        if (unit.equippedAbilities.length > 0) {
+            const abHeader = document.createElement('div');
+            abHeader.style.cssText = 'font-size:10px;font-weight:bold;color:#aaa;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:2px;';
+            abHeader.textContent = 'ABILITIES';
+            panel.appendChild(abHeader);
+
+            for (const abilityId of unit.equippedAbilities) {
+                const ability = ABILITIES[abilityId];
+                if (!ability) continue;
+
+                const abEl = document.createElement('div');
+                abEl.style.cssText = 'margin-bottom:4px;padding:3px 4px;background:rgba(255,255,255,0.04);border-radius:3px;';
+
+                const elemColor = ELEMENT_COLORS_PANEL[ability.element_type] || '#888';
+                const targetType = ability.targeting_type || 'single';
+                const isPhys = ability.is_physical ? 'Physical' : 'Special';
+
+                abEl.innerHTML = `
+                    <div style="font-size:10px;font-weight:bold;color:#ddd;">
+                        <span style="color:${elemColor};">\u25CF</span> ${ability.ability_name}
+                    </div>
+                    <div style="font-size:8px;color:#999;margin-top:1px;">
+                        ${ability.element_type} | ${isPhys} | ${targetType}
+                        ${ability.base_power ? ` | Pwr: ${ability.base_power}` : ''}
+                        ${ability.accuracy ? ` | Acc: ${ability.accuracy}%` : ''}
+                    </div>
+                `;
+                panel.appendChild(abEl);
+            }
+        }
+
+        this._unitInfoPanelEl = panel;
+        this._domContainer.appendChild(panel);
+    }
+
+    /** Remove the unit info panel from the DOM. */
+    _hideUnitInfoPanel() {
+        if (this._unitInfoPanelEl && this._unitInfoPanelEl.parentNode) {
+            this._unitInfoPanelEl.parentNode.removeChild(this._unitInfoPanelEl);
+        }
+        this._unitInfoPanelEl = null;
     }
 
     // ═══════════════════════════════════════════════════════════════

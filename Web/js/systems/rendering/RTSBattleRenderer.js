@@ -69,10 +69,14 @@ export class RTSBattleRenderer {
     /** Elapsed render time for idle animations. */
     _elapsedTime = 0;
 
+    /** Currently selected unit (for highlight ring). @type {import('../battle/RTSUnit.js').RTSUnit|null} */
+    selectedUnit = null;
+
     constructor() {
         this._floatingTexts = [];
         this._effects = [];
         this._elapsedTime = 0;
+        this.selectedUnit = null;
     }
 
     /**
@@ -272,6 +276,26 @@ export class RTSBattleRenderer {
             ctx.ellipse(drawX, drawY + 2, 11, 5, 0, 0, Math.PI * 2);
             ctx.stroke();
 
+            // Selection highlight ring (pulsing golden ring)
+            if (this.selectedUnit === unit) {
+                const pulse = 0.6 + Math.sin(this._elapsedTime * 4) * 0.4;
+                ctx.strokeStyle = `rgba(255, 220, 60, ${pulse})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.ellipse(drawX, drawY + 2, 14, 7, 0, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Selection arrow above unit
+                const arrowY = drawY - UNIT_DRAW_SIZE - 10 + Math.sin(this._elapsedTime * 3) * 3;
+                ctx.fillStyle = `rgba(255, 220, 60, ${pulse})`;
+                ctx.beginPath();
+                ctx.moveTo(drawX, arrowY + 6);
+                ctx.lineTo(drawX - 4, arrowY);
+                ctx.lineTo(drawX + 4, arrowY);
+                ctx.closePath();
+                ctx.fill();
+            }
+
             ctx.globalAlpha = 1;
         }
     }
@@ -454,5 +478,6 @@ export class RTSBattleRenderer {
         this._effects = [];
         this._bgImage = null;
         this._field = null;
+        this.selectedUnit = null;
     }
 }
