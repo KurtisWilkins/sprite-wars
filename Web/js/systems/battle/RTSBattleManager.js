@@ -577,6 +577,11 @@ export class RTSBattleManager {
             return null;
         }
 
+        if (typeof instance.calculateAllEffectiveStats !== 'function') {
+            console.warn('RTSBattleManager: instance missing calculateAllEffectiveStats, skipping.');
+            return null;
+        }
+
         const stats = instance.calculateAllEffectiveStats(raceData, stageData);
         const elemTypes = raceData.element_types || [];
         const stage = stageData.stage_number || 1;

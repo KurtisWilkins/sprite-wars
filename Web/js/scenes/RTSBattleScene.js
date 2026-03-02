@@ -65,7 +65,7 @@ function _resolveAbilities(raw, raceData, stageData, level) {
     const matching = [];
     for (const id in ABILITIES) {
         const ab = ABILITIES[id];
-        if (ab.element_type === elemType || ab.element_type === '') {
+        if (ab.element_type === elemType || ab.element_type === 'None') {
             matching.push(ab);
         }
     }
@@ -579,14 +579,60 @@ export class RTSBattleScene extends Scene {
     _resolveTeam(teamData) {
         const resolved = [];
         for (const raw of teamData) {
-            const instance = raw.instance || raw;
-            const raceId = instance.raceId || raw.raceId || 1;
-            const raceData = SPRITE_RACES.find(r => r.race_id === raceId);
-            if (!raceData) continue;
+            // Already enriched (has instance, raceData, stageData) — pass through
+            if (raw.instance && raw.raceData && raw.stageData) {
+                resolved.push(raw);
+                continue;
+            }
 
-            const formId = raw.formId || instance.formId || raceData.evolution_chain[0];
+            const raceId = (raw.instance || raw).raceId || raw.raceId || 1;
+            const raceData = SPRITE_RACES.find(r => r.race_id === raceId);
+            if (!raceData) {
+                console.warn(`RTSBattleScene._resolveTeam: No race data for raceId=${raceId}, skipping.`);
+                continue;
+            }
+
+            // Resolve formId: player data has formId, enemies have stage (0-2)
+            let formId = raw.formId || (raw.instance || raw).formId;
+            if (formId == null) {
+                const stageIdx = raw.stage != null ? raw.stage : 0;
+                formId = raceId * 3 - 2 + stageIdx;
+            }
             const stageData = EVOLUTION_FORMS[formId] || EVOLUTION_FORMS[1];
-            const level = instance.level || raw.level || 1;
+            const level = (raw.instance || raw).level || raw.level || 1;
+
+            // Build instance object with calculateAllEffectiveStats method
+            // (mirrors BattleScene._enrichTeamData pattern)
+            const instance = {
+                ...(raw.instance || raw),
+                raceId,
+                formId,
+                level,
+                calculateAllEffectiveStats(rd, sd) {
+                    // Player sprites have pre-computed stats — use them
+                    if (this.stats && this.maxHp) {
+                        return {
+                            hp: this.maxHp,
+                            atk: this.stats.attack || this.stats.atk || 1,
+                            def: this.stats.defense || this.stats.def || 1,
+                            spd: this.stats.speed || this.stats.spd || 1,
+                            sp_atk: this.stats.specialAttack || this.stats.sp_atk || 1,
+                            sp_def: this.stats.specialDefense || this.stats.sp_def || 1,
+                        };
+                    }
+                    // Enemy sprites: compute from base_stats, growth, level, stage mult
+                    const result = {};
+                    const keys = ['hp', 'atk', 'def', 'spd', 'sp_atk', 'sp_def'];
+                    for (const key of keys) {
+                        const base = rd.base_stats[key] || 10;
+                        const growth = rd.growth_rates[key] || 1;
+                        const mult = sd.stat_multipliers[key] || 1;
+                        result[key] = Math.max(1, Math.floor((base + growth * this.level) * mult));
+                    }
+                    return result;
+                },
+            };
+
             const abilities = _resolveAbilities(raw, raceData, stageData, level);
 
             resolved.push({
