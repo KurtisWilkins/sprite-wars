@@ -216,42 +216,49 @@ export class BattleManager {
     processTurn() {
         if (!this.isBattleActive) return;
 
-        // Get the next unit that can act.
-        this.currentUnit = this.turnOrder.getNextUnit();
-
-        if (this.currentUnit === null) {
-            // All units have acted this round -- start a new round.
-            this._startNewRound();
+        // Use a loop instead of recursion to skip dead/stunned units safely.
+        while (this.isBattleActive) {
+            // Get the next unit that can act.
             this.currentUnit = this.turnOrder.getNextUnit();
+
             if (this.currentUnit === null) {
-                // No units can act at all (shouldn't happen in normal play).
-                this.endBattle('draw');
-                return;
+                // All units have acted this round -- start a new round.
+                this._startNewRound();
+                this.currentUnit = this.turnOrder.getNextUnit();
+                if (this.currentUnit === null) {
+                    // No units can act at all (shouldn't happen in normal play).
+                    this.endBattle('draw');
+                    return;
+                }
             }
+
+            // -- Pre-turn processing: reduce cooldowns, process status effects ----
+            this._processPreTurn(this.currentUnit);
+
+            // Check if the unit died from status effects (DoT).
+            if (!this.currentUnit.isAlive) {
+                this._handleStatusFaint(this.currentUnit);
+                if (!this.isBattleActive) return;
+                continue; // Skip to next unit.
+            }
+
+            // Check if the unit is action-prevented (stunned/frozen/sleeping).
+            if (!this.currentUnit.canAct) {
+                this.eventLog.addEvent(EVENT_TURN_START, {
+                    unitName: this.currentUnit.getDisplayName(),
+                    turnNumber: this._roundNumber,
+                    cannotAct: true,
+                });
+                eventBus.emit(GameEvents.TURN_STARTED, this.currentUnit.spriteInstance);
+                eventBus.emit(GameEvents.TURN_ENDED, this.currentUnit.spriteInstance);
+                continue; // Skip to next unit.
+            }
+
+            // Found a unit that can act -- break out of the loop.
+            break;
         }
 
-        // -- Pre-turn processing: reduce cooldowns, process status effects --------
-        this._processPreTurn(this.currentUnit);
-
-        // Check if the unit can still act after status processing.
-        if (!this.currentUnit.isAlive) {
-            this._handleStatusFaint(this.currentUnit);
-            // Continue to the next unit.
-            this.processTurn();
-            return;
-        }
-
-        if (!this.currentUnit.canAct) {
-            // Unit is action-prevented (stunned/frozen/sleeping).
-            this.eventLog.addEvent(EVENT_TURN_START, {
-                unitName: this.currentUnit.getDisplayName(),
-                turnNumber: this._roundNumber,
-                cannotAct: true,
-            });
-            eventBus.emit(GameEvents.TURN_ENDED, this.currentUnit.spriteInstance);
-            this.processTurn();
-            return;
-        }
+        if (!this.isBattleActive) return;
 
         // -- Emit turn start signal -----------------------------------------------
         this.eventLog.addEvent(EVENT_TURN_START, {

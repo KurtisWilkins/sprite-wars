@@ -326,8 +326,8 @@ export class BattleScene extends Scene {
         // Update floating texts
         this._updateFloatingTexts(dt);
 
-        // Update turn advance delay
-        if (this._turnAdvanceDelay > 0) {
+        // Update turn advance delay (skip if battle already ended)
+        if (this._turnAdvanceDelay > 0 && this._phase !== PHASE_BATTLE_END) {
             this._turnAdvanceDelay -= dt;
             if (this._turnAdvanceDelay <= 0) {
                 this._turnAdvanceDelay = 0;
@@ -898,8 +898,9 @@ export class BattleScene extends Scene {
             this._battleManager.endBattle('draw');
         } else {
             this._addLogEntry('Could not escape!');
-            // Skip player's turn as a penalty
+            // Skip player's turn as a penalty — properly end the turn
             this._battleManager.awaitingPlayerInput = false;
+            this._battleManager._endCurrentTurn();
             this._hideAbilityBar();
             this._phase = PHASE_TURNS;
             this._turnAdvanceDelay = 0.6;
