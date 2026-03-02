@@ -186,7 +186,31 @@ async function startGame(user) {
         loadingBar.style.width = '30%';
         const { STATUS_EFFECTS } = await import('./data/StatusEffectData.js');
         const statusMap = {};
-        STATUS_EFFECTS.forEach(e => { statusMap[e.effect_id] = e; });
+        STATUS_EFFECTS.forEach(e => {
+            // Wrap raw snake_case data with camelCase getters and methods
+            // needed by StatusEffectSystem
+            statusMap[e.effect_id] = {
+                // Preserve raw data
+                ...e,
+                // camelCase aliases expected by StatusEffectSystem
+                effectId: e.effect_id,
+                effectName: e.effect_name,
+                effectType: e.effect_type,
+                durationTurns: e.duration_turns,
+                statModifiers: e.stat_modifiers || {},
+                damagePerTurn: e.damage_per_turn || 0,
+                preventsAction: !!e.prevents_action,
+                stackingRule: e.stacking_rule || 'none',
+                maxStacks: e.max_stacks || 1,
+                canBeCleansed: e.can_be_cleansed !== false,
+                breakFreeChance: e.break_free_chance || (e.effect_name === 'Freeze' ? 0.25 : (e.effect_name === 'Sleep' ? 0.33 : 0)),
+                forcesMovement: !!e.forces_movement,
+                // Methods expected by StatusEffectSystem
+                hasDot() { return this.damagePerTurn !== 0; },
+                getDotDamage(maxHp) { return Math.floor(this.damagePerTurn * maxHp); },
+                hasStatModifiers() { return Object.keys(this.statModifiers).length > 0; },
+            };
+        });
         engine.data.statusEffects = statusMap;
 
         loadingText.textContent = 'Loading equipment data...';

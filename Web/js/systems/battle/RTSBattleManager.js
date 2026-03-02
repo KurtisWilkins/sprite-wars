@@ -337,22 +337,66 @@ export class RTSBattleManager {
             target.spriteInstance ? [target.spriteInstance] : []
         );
 
-        // Check if healing
-        if (!ability.isDamaging()) {
-            // Healing ability
-            const healPower = ability.basePower || 30;
-            const spAtk = caster.effectiveStats.sp_atk || 50;
-            const healAmount = Math.floor(healPower * (1 + spAtk / 200));
-            const healed = target.heal(healAmount);
+        // Check targeting type to determine behavior
+        const targetingType = ability.targetingType || '';
+        const isHealingAbility = targetingType === 'single_ally' || targetingType === 'self';
+        const isStatusOnly = !ability.isDamaging() && !isHealingAbility;
+
+        if (isHealingAbility) {
+            // Healing ability — use proper DamageCalculator formula
+            // For self-targeting, heal the caster instead of the passed target
+            const healTarget = targetingType === 'self' ? caster : target;
+            const healAmount = this.damageCalc.calculateHeal(caster, ability);
+            const healed = healTarget.heal(healAmount);
 
             if (healed > 0) {
                 this._logEvent('heal', {
                     caster: caster.getDisplayName(),
-                    target: target.getDisplayName(),
+                    target: healTarget.getDisplayName(),
                     amount: healed,
                 });
-                eventBus.emit(GameEvents.UNIT_HEALED, target.spriteInstance, healed);
+                eventBus.emit(GameEvents.UNIT_HEALED, healTarget.spriteInstance, healed);
             }
+
+            // Healing abilities can also apply status effects (e.g., Regen)
+            if (ability.hasStatusEffects() && ability.statusApplyChance > 0) {
+                if (Math.random() < ability.statusApplyChance) {
+                    for (const effectId of ability.statusEffectIds) {
+                        const effectData = this._statusDb[effectId];
+                        if (effectData) {
+                            this.statusSystem.applyEffect(healTarget, effectData);
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
+        if (isStatusOnly) {
+            // Non-damaging offensive ability (debuffs, status effects targeting enemies)
+            // Apply status effects directly, no damage and no healing
+            if (ability.hasStatusEffects() && ability.statusApplyChance > 0) {
+                if (Math.random() < ability.statusApplyChance) {
+                    for (const effectId of ability.statusEffectIds) {
+                        const effectData = this._statusDb[effectId];
+                        if (effectData) {
+                            this.statusSystem.applyEffect(target, effectData);
+                            this._logEvent('status', {
+                                target: target.getDisplayName(),
+                                effect: effectData.effectName || effectData.effect_name || 'Unknown',
+                            });
+                        }
+                    }
+                }
+            }
+            this._logEvent('ability', {
+                caster: caster.getDisplayName(),
+                target: target.getDisplayName(),
+                ability: ability.abilityName,
+                damage: 0,
+                isCrit: false,
+                effectiveness: 'neutral',
+            });
             return;
         }
 
@@ -377,19 +421,34 @@ export class RTSBattleManager {
 
         this.stats.totalDamageDealt[teamKey] += result.finalDamage;
 
-        // AoE: hit nearby enemies too (simplified)
-        if (ability.basePower >= 50) {
+        // AoE: hit nearby enemies if ability has AoE targeting type
+        const aoeTypes = new Set(['row', 'aoe_circle', 'all_enemies']);
+        if (aoeTypes.has(ability.targetingType || '')) {
+            const aoeRadius = ability.targetingType === 'aoe_circle' ? 40 : 30;
+            const maxTargets = ability.targetingType === 'all_enemies' ? 6 : 2;
             const nearby = this.field.getUnitsInRadius(
-                target.worldPos.x, target.worldPos.y, 30
+                target.worldPos.x, target.worldPos.y, aoeRadius
             ).filter(u => u.team !== caster.team && u !== target && u.isAlive);
 
-            for (const aoeTarget of nearby.slice(0, 2)) {
-                const aoeDmg = Math.floor(result.finalDamage * 0.5);
-                const aoeResult = aoeTarget.takeDamage(aoeDmg);
+            for (const aoeTarget of nearby.slice(0, maxTargets)) {
+                const aoeResult = this.damageCalc.calculateDamage(
+                    caster, aoeTarget, ability, this._elementChart
+                );
+                const aoeDmg = Math.floor(aoeResult.finalDamage * 0.5);
+                const aoeDamageResult = aoeTarget.takeDamage(aoeDmg);
                 aoeTarget.onHit();
                 this.stats.totalDamageDealt[teamKey] += aoeDmg;
 
-                if (aoeResult.isFainted) {
+                // Emit damage event for AoE targets (floating text + visual feedback)
+                eventBus.emit(GameEvents.UNIT_DAMAGED,
+                    caster.spriteInstance,
+                    aoeTarget.spriteInstance,
+                    aoeDmg,
+                    aoeResult.isCritical,
+                    aoeResult.effectiveness
+                );
+
+                if (aoeDamageResult.isFainted) {
                     this._handleUnitFaint(aoeTarget, caster);
                 }
             }

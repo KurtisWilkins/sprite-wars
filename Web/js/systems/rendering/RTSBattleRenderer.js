@@ -66,9 +66,13 @@ export class RTSBattleRenderer {
     /** Reference to the battle field for coordinate conversion. */
     _field = null;
 
+    /** Elapsed render time for idle animations. */
+    _elapsedTime = 0;
+
     constructor() {
         this._floatingTexts = [];
         this._effects = [];
+        this._elapsedTime = 0;
     }
 
     /**
@@ -97,6 +101,7 @@ export class RTSBattleRenderer {
      */
     render(ctx, field, dt) {
         this._field = field;
+        this._elapsedTime += dt;
 
         // 1. Background
         this._drawBackground(ctx, field);
@@ -209,7 +214,7 @@ export class RTSBattleRenderer {
             // Dead units fade out
             if (!unit.isAlive) {
                 ctx.globalAlpha = 0.3;
-                this._drawUnitSprite(ctx, unit, screen.x, screen.y);
+                this._drawUnitSprite(ctx, unit, screen.x, screen.y, 0);
                 ctx.globalAlpha = 1;
                 continue;
             }
@@ -248,8 +253,17 @@ export class RTSBattleRenderer {
                 ctx.globalAlpha = 1;
             }
 
+            // Idle animation: gentle bob and slow frame cycling for non-moving units
+            let spriteFrame = unit.walkFrame;
+            if (unit.state !== UnitState.MOVING) {
+                // Slow idle frame cycling (alternates between 0 and 2)
+                spriteFrame = Math.floor(this._elapsedTime * 1.5) % 2 === 0 ? 0 : 2;
+                // Subtle idle bob
+                drawY += Math.sin(this._elapsedTime * 2.5 + unit.worldPos.x * 0.1) * 1.5;
+            }
+
             // Draw the unit sprite
-            this._drawUnitSprite(ctx, unit, drawX, drawY);
+            this._drawUnitSprite(ctx, unit, drawX, drawY, spriteFrame);
 
             // Team indicator ring
             ctx.strokeStyle = unit.team === 0 ? COLOR_PLAYER_BORDER : COLOR_ENEMY_BORDER;
@@ -262,11 +276,11 @@ export class RTSBattleRenderer {
         }
     }
 
-    _drawUnitSprite(ctx, unit, x, y) {
+    _drawUnitSprite(ctx, unit, x, y, frame) {
         // Use HumanoidSpriteSystem for composite sprites
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, unit.raceId, unit.evolutionStage,
-            unit.facing, unit.walkFrame,
+            unit.facing, frame != null ? frame : unit.walkFrame,
             x, y, UNIT_DRAW_SIZE,
             { showWeapon: true }
         );

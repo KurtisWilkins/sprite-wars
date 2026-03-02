@@ -222,35 +222,78 @@ export class DamageCalculator {
      */
     _calculateEffectiveness(ability, defender, elementChart) {
         if (!ability.elementType || ability.elementType === '') return 1.0;
+        if (!elementChart || typeof elementChart !== 'object') return 1.0;
 
-        // Find the attacking element's data in the chart.
-        let atkElement = null;
-        for (const eid in elementChart) {
-            const ed = elementChart[eid];
-            if (ed.elementName === ability.elementType) {
-                atkElement = ed;
-                break;
+        // Resolve attacking element ID from name.
+        // elementChart can be either:
+        //   (a) { atkElemId: { defElemId: multiplier } }  (raw EFFECTIVENESS_CHART)
+        //   (b) { eid: { elementName, getMultiplierAgainst() } }  (wrapped)
+        // We support both formats.
+
+        // Try to find atkElementId from ELEMENT_IDS-style name mapping.
+        // First check if the chart has a helper attached; otherwise do a name→id lookup.
+        let atkElementId = null;
+
+        // Check if chart entries have elementName (wrapped format)
+        const firstKey = Object.keys(elementChart)[0];
+        const isWrapped = firstKey && elementChart[firstKey] && typeof elementChart[firstKey].elementName === 'string';
+
+        if (isWrapped) {
+            // Wrapped format: find by elementName, use getMultiplierAgainst
+            let atkElement = null;
+            for (const eid in elementChart) {
+                const ed = elementChart[eid];
+                if (ed.elementName === ability.elementType) {
+                    atkElement = ed;
+                    break;
+                }
             }
+            if (!atkElement) return 1.0;
+
+            const defendingElementIds = [];
+            const defenderTypes = defender.getElementTypes();
+            for (const eid in elementChart) {
+                const ed = elementChart[eid];
+                if (defenderTypes.includes(ed.elementName)) {
+                    defendingElementIds.push(parseInt(eid, 10));
+                }
+            }
+            if (defendingElementIds.length === 0) return 1.0;
+
+            let total = 1.0;
+            for (const defEid of defendingElementIds) {
+                total *= atkElement.getMultiplierAgainst(defEid);
+            }
+            return total;
         }
 
-        if (atkElement === null) return 1.0;
+        // Raw format: { atkElemId: { defElemId: multiplier } }
+        // Need a name→id mapping. Build one from common element names.
+        const NAME_TO_ID = {
+            Fire: 1, Water: 2, Earth: 3, Air: 4, Light: 5, Dark: 6,
+            Nature: 7, Electric: 8, Ice: 9, Metal: 10, Poison: 11,
+            Psychic: 12, Spirit: 13, Chaos: 14,
+        };
 
-        // Get the defender's element IDs from the chart.
-        const defendingElementIds = [];
+        atkElementId = NAME_TO_ID[ability.elementType];
+        if (atkElementId == null) return 1.0;
+
+        const atkMatchups = elementChart[atkElementId];
+        if (!atkMatchups) return 1.0;
+
+        // Get the defender's element IDs
         const defenderTypes = defender.getElementTypes();
-        for (const eid in elementChart) {
-            const ed = elementChart[eid];
-            if (defenderTypes.includes(ed.elementName)) {
-                defendingElementIds.push(parseInt(eid, 10));
-            }
-        }
+        if (!defenderTypes || defenderTypes.length === 0) return 1.0;
 
-        if (defendingElementIds.length === 0) return 1.0;
-
-        // Multiply effectiveness across all defender types.
         let total = 1.0;
-        for (const defEid of defendingElementIds) {
-            total *= atkElement.getMultiplierAgainst(defEid);
+        for (const defType of defenderTypes) {
+            const defId = NAME_TO_ID[defType];
+            if (defId == null) continue;
+            const mult = atkMatchups[defId];
+            if (mult !== undefined) {
+                total *= mult;
+            }
+            // Missing entry = 1.0 (neutral), so no multiplication needed
         }
 
         return total;

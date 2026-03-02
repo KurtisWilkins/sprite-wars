@@ -200,6 +200,12 @@ export class RTSBattleScene extends Scene {
                 this._introTimer += dt;
                 if (this._introTimer >= INTRO_DURATION) {
                     this._phase = 'battle';
+                    // Ensure battle is not paused from intro-phase button presses
+                    this._battleManager.isPaused = false;
+                    if (this._pauseBtnEl) this._pauseBtnEl.textContent = '⏸ PAUSE';
+                    // Show controls now that battle has started
+                    if (this._speedBtnEl) this._speedBtnEl.style.display = '';
+                    if (this._pauseBtnEl) this._pauseBtnEl.style.display = '';
                 }
                 break;
 
@@ -423,6 +429,10 @@ export class RTSBattleScene extends Scene {
             pointer-events: auto;
         `;
 
+        // Hide buttons during intro phase — they'll be shown when battle starts
+        this._speedBtnEl.style.display = 'none';
+        this._pauseBtnEl.style.display = 'none';
+
         this._domContainer.appendChild(this._speedBtnEl);
         this._domContainer.appendChild(this._pauseBtnEl);
         this._domContainer.appendChild(this._logPanelEl);
@@ -525,8 +535,14 @@ export class RTSBattleScene extends Scene {
             }
         }));
 
-        // Ability used → log update
+        // Update battle log on all combat events
         this._unsubs.push(eventBus.on(GameEvents.ABILITY_USED, () => {
+            this._updateBattleLog();
+        }));
+        this._unsubs.push(eventBus.on(GameEvents.UNIT_DAMAGED, () => {
+            this._updateBattleLog();
+        }));
+        this._unsubs.push(eventBus.on(GameEvents.UNIT_DEFEATED, () => {
             this._updateBattleLog();
         }));
 
@@ -610,7 +626,10 @@ export class RTSBattleScene extends Scene {
                 level,
                 calculateAllEffectiveStats(rd, sd) {
                     // Player sprites have pre-computed stats — use them
-                    if (this.stats && this.maxHp) {
+                    // Check that stats actually has meaningful values (not empty object)
+                    const hasStats = this.stats && this.maxHp &&
+                        (this.stats.attack || this.stats.atk || this.stats.defense || this.stats.def);
+                    if (hasStats) {
                         return {
                             hp: this.maxHp,
                             atk: this.stats.attack || this.stats.atk || 1,

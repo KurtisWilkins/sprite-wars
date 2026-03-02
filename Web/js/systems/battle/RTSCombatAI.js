@@ -208,10 +208,10 @@ export class RTSCombatAI {
         if (dist <= RANGED_RANGE + target.radius) {
             this._faceTarget(unit, target);
 
-            // Prefer abilities when available
+            // Prefer damaging abilities when available (don't use healing on enemy target)
             if (unit.canCastAbility) {
                 const ability = unit.getBestAbility(abilityDb);
-                if (ability) {
+                if (ability && this._isOffensiveAbility(ability)) {
                     unit.startCast(ability, target);
                     return { action: 'ability', target, ability };
                 }
@@ -315,10 +315,10 @@ export class RTSCombatAI {
         const target = unit.target;
         const dist = unit.distanceTo(target);
 
-        // Prefer abilities over auto-attacks
+        // Prefer offensive abilities over auto-attacks (don't heal enemies)
         if (unit.canCastAbility) {
             const ability = unit.getBestAbility(abilityDb);
-            if (ability && dist <= RANGED_RANGE + target.radius) {
+            if (ability && this._isOffensiveAbility(ability) && dist <= RANGED_RANGE + target.radius) {
                 this._faceTarget(unit, target);
                 unit.startCast(ability, target);
                 return { action: 'ability', target, ability };
@@ -361,6 +361,14 @@ export class RTSCombatAI {
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
+    static _isOffensiveAbility(ability) {
+        if (!ability) return false;
+        if (ability.isDamaging()) return true;
+        // Non-damaging but targets enemies (debuffs, status effects)
+        const tt = ability.targetingType || '';
+        return tt === 'single_enemy' || tt === 'row' || tt === 'aoe_circle' || tt === 'all_enemies';
+    }
+
     static _faceTarget(unit, target) {
         const dx = target.worldPos.x - unit.worldPos.x;
         const dy = target.worldPos.y - unit.worldPos.y;
@@ -376,7 +384,10 @@ export class RTSCombatAI {
             if ((unit.rtsCooldowns[abilityId] || 0) > 0) continue;
             if ((unit.abilityPp[abilityId] || 0) <= 0) continue;
             const ability = abilityDb[abilityId];
-            if (ability && !ability.isDamaging() && ability.basePower > 0) {
+            if (!ability) continue;
+            // Healing abilities: target allies/self, or have basePower > 0 but target single_ally/self
+            const tt = ability.targetingType || '';
+            if (tt === 'single_ally' || tt === 'self') {
                 return ability;
             }
         }

@@ -166,7 +166,7 @@ export class RTSUnit extends BattleUnit {
         this.state = UnitState.IDLE;
         this.target = null;
         this.attackCooldownTimer = 0;
-        this.abilityCooldownTimer = Math.random() * 3; // Stagger first ability use
+        this.abilityCooldownTimer = Math.random() * 1.0; // Stagger first ability use
         this.animTimer = 0;
         this.hitFlashTimer = 0;
         this.path = [];
