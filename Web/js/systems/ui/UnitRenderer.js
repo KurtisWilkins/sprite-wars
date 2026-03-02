@@ -16,6 +16,7 @@
 import { assetRegistry } from '../../data/AssetRegistry.js';
 import { SPRITE_RACES } from '../../data/SpriteData.js';
 import { EQUIPMENT } from '../../data/EquipmentData.js';
+import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 
 // ── Element colors ──────────────────────────────────────────────────────────
 export const ELEMENT_COLORS = {
@@ -340,8 +341,16 @@ export class UnitRenderer {
                 ctx.imageSmoothingEnabled = true;
             }
         } else {
-            // Fallback: draw an element-colored silhouette with body shape
-            UnitRenderer._drawFallbackSprite(ctx, cx, cy, size, elemColor, level, team, time);
+            // Fallback: use HumanoidSpriteSystem for pixel-art humanoid with equipment
+            const raceId = inst.raceId || inst.race_id || Math.ceil(formId / 3);
+            const stage = inst.evolutionStage || inst.evolution_stage || (((formId - 1) % 3) + 1);
+            const equipment = inst.equipment || {};
+            const animFrame = Math.floor(time * 3) % 4;
+            HumanoidSpriteSystem.drawWithEquipment(
+                ctx, raceId, stage, direction, animFrame,
+                cx, cy + halfSize, size,
+                { equipment }
+            );
         }
     }
 

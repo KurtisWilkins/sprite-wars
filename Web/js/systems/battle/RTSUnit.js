@@ -106,6 +106,9 @@ export class RTSUnit extends BattleUnit {
     /** Evolution stage (1-3). */
     evolutionStage = 1;
 
+    /** Equipment loadout for visual rendering. @type {object|null} */
+    equipment = null;
+
     // ── Ability Tracking ────────────────────────────────────────────────────
 
     /** Real-time ability cooldowns: abilityId -> seconds remaining. */
@@ -142,6 +145,9 @@ export class RTSUnit extends BattleUnit {
         this.raceId = raceData ? raceData.race_id : 1;
         this.evolutionStage = stage || 1;
         this.classType = raceData ? raceData.class_type : 'Knight';
+
+        // Equipment for visual rendering (copied from sprite instance)
+        this.equipment = (instance && instance.equipment) ? { ...instance.equipment } : null;
 
         // Determine if ranged
         this.isRanged = RANGED_CLASSES.has(this.classType);

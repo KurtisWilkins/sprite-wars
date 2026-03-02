@@ -277,12 +277,12 @@ export class RTSBattleRenderer {
     }
 
     _drawUnitSprite(ctx, unit, x, y, frame) {
-        // Use HumanoidSpriteSystem for composite sprites
+        // Use HumanoidSpriteSystem for composite sprites with equipment
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, unit.raceId, unit.evolutionStage,
             unit.facing, frame != null ? frame : unit.walkFrame,
             x, y, UNIT_DRAW_SIZE,
-            { showWeapon: true }
+            { equipment: unit.equipment || null }
         );
     }
 

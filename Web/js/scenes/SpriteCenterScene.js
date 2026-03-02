@@ -19,6 +19,8 @@ import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { SPRITE_RACES } from '../data/SpriteData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
+import { EQUIPMENT } from '../data/EquipmentData.js';
+import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function _getSpriteName(inst) {
@@ -1181,89 +1183,300 @@ export class SpriteCenterScene extends Scene {
 
     _renderEquipmentMode(container, inst) {
         const equipment = inst.equipment || {};
+        const RARITY_COLORS = {
+            common: '#888', uncommon: '#33cc66', rare: '#3399ff', epic: '#aa44ff', legendary: '#ffaa00',
+        };
+
+        // Full 9-slot equipment system
         const equipSlots = [
-            { key: 'weapon', label: 'Weapon' },
-            { key: 'armor', label: 'Armor' },
-            { key: 'accessory', label: 'Accessory' },
-            { key: 'charm', label: 'Charm' },
+            { key: 'helmet',  label: 'Helmet',  icon: '\u{1F3A9}' },
+            { key: 'weapon',  label: 'Weapon',  icon: '\u2694' },
+            { key: 'chest',   label: 'Chest',   icon: '\u{1F6E1}' },
+            { key: 'gloves',  label: 'Gloves',  icon: '\u270B' },
+            { key: 'legs',    label: 'Legs',    icon: '\u{1F9B5}' },
+            { key: 'boots',   label: 'Boots',   icon: '\u{1F462}' },
+            { key: 'ring',    label: 'Ring',    icon: '\u{1F48D}' },
+            { key: 'amulet',  label: 'Amulet',  icon: '\u{1F4FF}' },
+            { key: 'crystal', label: 'Crystal', icon: '\u{1F48E}' },
         ];
 
+        // ── Live sprite preview with current equipment ─────────
+        const previewDiv = document.createElement('div');
+        previewDiv.style.cssText = 'display:flex;justify-content:center;margin-bottom:8px;';
+        const previewCanvas = document.createElement('canvas');
+        previewCanvas.width = 96;
+        previewCanvas.height = 96;
+        previewCanvas.style.cssText = 'width:96px;height:96px;image-rendering:pixelated;border:1px solid rgba(255,255,255,0.1);border-radius:6px;background:rgba(0,0,0,0.3);';
+        previewDiv.appendChild(previewCanvas);
+        container.appendChild(previewDiv);
+
+        // Draw the sprite with current equipment in the preview
+        const pCtx = previewCanvas.getContext('2d');
+        pCtx.imageSmoothingEnabled = false;
+        const raceId = inst.raceId || inst.race_id || 1;
+        const stage = inst.evolutionStage || inst.evolution_stage || 1;
+        HumanoidSpriteSystem.drawWithEquipment(
+            pCtx, raceId, stage, 0, 0,
+            48, 80, 64,
+            { equipment }
+        );
+
+        // ── Equipment slots grid (3 columns) ──────────────────
+        const slotsGrid = document.createElement('div');
+        slotsGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;';
+
         for (const slot of equipSlots) {
-            const item = equipment[slot.key];
+            const eqId = equipment[slot.key];
+            const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
+            const rarityColor = eqData ? (RARITY_COLORS[eqData.rarity] || '#888') : '#333';
+
             const slotDiv = document.createElement('div');
             slotDiv.style.cssText = `
-                padding:6px;margin-bottom:4px;border-radius:6px;
-                border:1px solid rgba(255,255,255,0.06);
-                background:rgba(255,255,255,0.02);
+                padding:4px;border-radius:4px;cursor:pointer;
+                border:1px solid ${eqData ? rarityColor + '88' : 'rgba(255,255,255,0.06)'};
+                background:${eqData ? rarityColor + '15' : 'rgba(255,255,255,0.02)'};
+                text-align:center;min-height:44px;position:relative;
+                transition:background 0.15s;
             `;
 
-            const labelRow = document.createElement('div');
-            labelRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;';
-
-            const label = document.createElement('span');
-            label.style.cssText = 'font-size:0.6rem;color:#888;';
+            // Slot label
+            const label = document.createElement('div');
+            label.style.cssText = 'font-size:0.45rem;color:#666;text-transform:uppercase;letter-spacing:0.5px;';
             label.textContent = slot.label;
-            labelRow.appendChild(label);
+            slotDiv.appendChild(label);
 
-            if (item) {
-                const unequipBtn = document.createElement('button');
-                unequipBtn.style.cssText = `
-                    padding:1px 6px;font-size:0.5rem;border:1px solid #884444;
-                    border-radius:3px;background:rgba(80,30,30,0.3);color:#cc8888;cursor:pointer;
-                `;
-                unequipBtn.textContent = 'Remove';
-                unequipBtn.addEventListener('click', () => {
-                    this._unequipItem(inst, slot.key);
-                });
-                labelRow.appendChild(unequipBtn);
-            }
-
-            slotDiv.appendChild(labelRow);
-
-            if (item) {
+            if (eqData) {
+                // Item name
                 const itemName = document.createElement('div');
-                itemName.style.cssText = 'font-size:0.7rem;color:#ccddee;font-weight:600;margin-top:2px;';
-                itemName.textContent = item.name || 'Unknown Item';
+                itemName.style.cssText = `font-size:0.55rem;color:${rarityColor};font-weight:600;margin-top:1px;
+                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
+                itemName.textContent = eqData.equipment_name || 'Unknown';
                 slotDiv.appendChild(itemName);
 
-                // Item stats
-                if (item.stats) {
-                    const statsLine = document.createElement('div');
-                    statsLine.style.cssText = 'font-size:0.55rem;color:#888;margin-top:1px;';
-                    const parts = [];
-                    for (const key in item.stats) {
-                        parts.push(`${key}: +${item.stats[key]}`);
-                    }
-                    statsLine.textContent = parts.join(' | ');
-                    slotDiv.appendChild(statsLine);
+                // Key stat bonus
+                const bonuses = eqData.stat_bonuses || {};
+                const topStat = Object.entries(bonuses)
+                    .filter(([, v]) => v > 0)
+                    .sort((a, b) => b[1] - a[1])[0];
+                if (topStat) {
+                    const statLine = document.createElement('div');
+                    statLine.style.cssText = 'font-size:0.45rem;color:#aaa;';
+                    statLine.textContent = `+${topStat[1]} ${topStat[0].toUpperCase()}`;
+                    slotDiv.appendChild(statLine);
                 }
             } else {
-                const emptyLabel = document.createElement('div');
-                emptyLabel.style.cssText = 'font-size:0.6rem;color:#444;margin-top:2px;';
-                emptyLabel.textContent = '(empty)';
-                slotDiv.appendChild(emptyLabel);
-
-                // Show equip button if we have items in inventory
-                const compatibleItems = this._inventory.filter(
-                    it => it && it.equipSlot === slot.key
-                );
-                if (compatibleItems.length > 0) {
-                    const equipBtn = document.createElement('button');
-                    equipBtn.style.cssText = `
-                        margin-top:4px;padding:2px 8px;font-size:0.55rem;
-                        border:1px solid #338833;border-radius:3px;
-                        background:rgba(30,60,30,0.3);color:#88cc88;cursor:pointer;
-                    `;
-                    equipBtn.textContent = `Equip (${compatibleItems.length} available)`;
-                    equipBtn.addEventListener('click', () => {
-                        this._showEquipSelection(inst, slot.key, compatibleItems);
-                    });
-                    slotDiv.appendChild(equipBtn);
-                }
+                const emptyIcon = document.createElement('div');
+                emptyIcon.style.cssText = 'font-size:0.7rem;color:#333;margin-top:2px;';
+                emptyIcon.textContent = '--';
+                slotDiv.appendChild(emptyIcon);
             }
 
-            container.appendChild(slotDiv);
+            // Click handler: show equip/unequip popup
+            slotDiv.addEventListener('click', () => {
+                this._showEquipmentSlotPopup(inst, slot, eqData, container);
+            });
+            slotDiv.addEventListener('mouseenter', () => {
+                slotDiv.style.background = eqData ? rarityColor + '25' : 'rgba(255,255,255,0.05)';
+            });
+            slotDiv.addEventListener('mouseleave', () => {
+                slotDiv.style.background = eqData ? rarityColor + '15' : 'rgba(255,255,255,0.02)';
+            });
+
+            slotsGrid.appendChild(slotDiv);
         }
+
+        container.appendChild(slotsGrid);
+
+        // ── Total stat bonuses summary ─────────────────────────
+        const totalBonuses = { hp: 0, atk: 0, def: 0, spd: 0, sp_atk: 0, sp_def: 0 };
+        for (const slot of equipSlots) {
+            const eqId = equipment[slot.key];
+            const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
+            if (eqData && eqData.stat_bonuses) {
+                for (const k of Object.keys(totalBonuses)) {
+                    totalBonuses[k] += (eqData.stat_bonuses[k] || 0);
+                }
+            }
+        }
+
+        const hasBonuses = Object.values(totalBonuses).some(v => v !== 0);
+        if (hasBonuses) {
+            const summaryDiv = document.createElement('div');
+            summaryDiv.style.cssText = 'margin-top:6px;padding:4px 6px;background:rgba(255,255,255,0.03);border-radius:4px;';
+            const summaryLabel = document.createElement('div');
+            summaryLabel.style.cssText = 'font-size:0.45rem;color:#666;margin-bottom:2px;text-transform:uppercase;';
+            summaryLabel.textContent = 'Equipment Bonuses';
+            summaryDiv.appendChild(summaryLabel);
+
+            const statsRow = document.createElement('div');
+            statsRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;';
+            const statLabels = { hp: 'HP', atk: 'ATK', def: 'DEF', spd: 'SPD', sp_atk: 'SP.A', sp_def: 'SP.D' };
+            for (const [key, val] of Object.entries(totalBonuses)) {
+                if (val === 0) continue;
+                const statEl = document.createElement('span');
+                const color = val > 0 ? '#44cc66' : '#cc4444';
+                statEl.style.cssText = `font-size:0.5rem;color:${color};`;
+                statEl.textContent = `${statLabels[key]}: ${val > 0 ? '+' : ''}${val}`;
+                statsRow.appendChild(statEl);
+            }
+            summaryDiv.appendChild(statsRow);
+            container.appendChild(summaryDiv);
+        }
+    }
+
+    /**
+     * Show popup for a specific equipment slot — allows equipping, unequipping, or viewing details.
+     */
+    _showEquipmentSlotPopup(inst, slot, currentEqData, parentContainer) {
+        const RARITY_COLORS = {
+            common: '#888', uncommon: '#33cc66', rare: '#3399ff', epic: '#aa44ff', legendary: '#ffaa00',
+        };
+
+        // Find compatible items from inventory and EquipmentData
+        const inventoryItems = (this._inventory || []).filter(
+            it => it && (it.equipSlot === slot.key || it.slot_type === slot.key)
+        );
+        // Also check EquipmentData for items matching this slot that player owns
+        const eqDataItems = EQUIPMENT.filter(e =>
+            e.slot_type === slot.key && e.level_requirement <= (inst.level || 1)
+        );
+        // Merge: inventory items + any EquipmentData items the player might have
+        const compatibleItems = [...inventoryItems];
+        // Add equipment data items not already in inventory (for demo/testing purposes)
+        for (const eqItem of eqDataItems) {
+            const alreadyInList = compatibleItems.some(
+                it => (it.equipment_id || it.equipmentId) === eqItem.equipment_id
+            );
+            const isCurrentlyEquipped = currentEqData && currentEqData.equipment_id === eqItem.equipment_id;
+            if (!alreadyInList && !isCurrentlyEquipped) {
+                compatibleItems.push(eqItem);
+            }
+        }
+
+        // Create overlay popup
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position:absolute;top:0;left:0;width:100%;height:100%;
+            background:rgba(5,5,15,0.95);z-index:5;overflow-y:auto;padding:8px;
+        `;
+
+        // Header
+        const header = document.createElement('div');
+        header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;';
+        const title = document.createElement('span');
+        title.style.cssText = 'font-size:0.75rem;font-weight:700;color:#ffcc33;';
+        title.textContent = `${slot.label} Slot`;
+        header.appendChild(title);
+
+        const closeBtn = document.createElement('button');
+        closeBtn.style.cssText = 'padding:2px 8px;font-size:0.65rem;border:1px solid #555;border-radius:3px;background:rgba(0,0,0,0.5);color:#aaa;cursor:pointer;';
+        closeBtn.textContent = 'Close';
+        closeBtn.addEventListener('click', () => { overlay.remove(); });
+        header.appendChild(closeBtn);
+        overlay.appendChild(header);
+
+        // Currently equipped
+        if (currentEqData) {
+            const currentDiv = document.createElement('div');
+            currentDiv.style.cssText = `
+                padding:6px;margin-bottom:6px;border-radius:4px;
+                border:1px solid ${(RARITY_COLORS[currentEqData.rarity] || '#888') + '66'};
+                background:rgba(255,255,255,0.04);
+            `;
+            const curLabel = document.createElement('div');
+            curLabel.style.cssText = 'font-size:0.5rem;color:#666;margin-bottom:2px;';
+            curLabel.textContent = 'CURRENTLY EQUIPPED';
+            currentDiv.appendChild(curLabel);
+
+            const curName = document.createElement('div');
+            const curRarity = RARITY_COLORS[currentEqData.rarity] || '#888';
+            curName.style.cssText = `font-size:0.7rem;color:${curRarity};font-weight:600;`;
+            curName.textContent = currentEqData.equipment_name || 'Unknown';
+            currentDiv.appendChild(curName);
+
+            if (currentEqData.stat_bonuses) {
+                const statsLine = document.createElement('div');
+                statsLine.style.cssText = 'font-size:0.5rem;color:#aaa;margin-top:1px;';
+                statsLine.textContent = Object.entries(currentEqData.stat_bonuses)
+                    .filter(([, v]) => v !== 0)
+                    .map(([k, v]) => `${k}:${v > 0 ? '+' : ''}${v}`)
+                    .join(' ');
+                currentDiv.appendChild(statsLine);
+            }
+
+            const unequipBtn = document.createElement('button');
+            unequipBtn.style.cssText = `
+                margin-top:4px;padding:3px 10px;font-size:0.55rem;
+                border:1px solid #884444;border-radius:3px;
+                background:rgba(80,30,30,0.3);color:#cc8888;cursor:pointer;width:100%;
+            `;
+            unequipBtn.textContent = 'Unequip';
+            unequipBtn.addEventListener('click', () => {
+                this._unequipItem(inst, slot.key);
+                overlay.remove();
+            });
+            currentDiv.appendChild(unequipBtn);
+            overlay.appendChild(currentDiv);
+        }
+
+        // Available items
+        if (compatibleItems.length > 0) {
+            const availLabel = document.createElement('div');
+            availLabel.style.cssText = 'font-size:0.5rem;color:#666;margin:6px 0 4px;';
+            availLabel.textContent = `AVAILABLE (${compatibleItems.length})`;
+            overlay.appendChild(availLabel);
+
+            for (const item of compatibleItems) {
+                const rarity = item.rarity || 'common';
+                const rarityColor = RARITY_COLORS[rarity] || '#888';
+                const itemRow = document.createElement('div');
+                itemRow.style.cssText = `
+                    padding:5px;margin-bottom:3px;border-radius:4px;cursor:pointer;
+                    border:1px solid ${rarityColor}33;
+                    background:rgba(255,255,255,0.02);
+                    transition:background 0.1s;
+                `;
+
+                const nameRow = document.createElement('div');
+                nameRow.style.cssText = `font-size:0.65rem;color:${rarityColor};font-weight:600;`;
+                nameRow.textContent = item.equipment_name || item.name || 'Unknown';
+                itemRow.appendChild(nameRow);
+
+                const bonuses = item.stat_bonuses || item.stats || {};
+                const statsLine = document.createElement('div');
+                statsLine.style.cssText = 'font-size:0.45rem;color:#999;';
+                statsLine.textContent = Object.entries(bonuses)
+                    .filter(([, v]) => v !== 0)
+                    .map(([k, v]) => `${k}:${v > 0 ? '+' : ''}${v}`)
+                    .join(' ');
+                itemRow.appendChild(statsLine);
+
+                // Element synergy indicator
+                const synergy = item.element_synergy;
+                const raceData = SPRITE_RACES.find(r => r.race_id === (inst.raceId || inst.race_id));
+                if (synergy && raceData && raceData.element_types.includes(synergy)) {
+                    const synergyBadge = document.createElement('span');
+                    synergyBadge.style.cssText = 'font-size:0.4rem;color:#ffcc33;margin-left:4px;';
+                    synergyBadge.textContent = `[${synergy} SYNERGY]`;
+                    nameRow.appendChild(synergyBadge);
+                }
+
+                itemRow.addEventListener('click', () => {
+                    this._equipItem(inst, slot.key, item);
+                    overlay.remove();
+                });
+                itemRow.addEventListener('mouseenter', () => { itemRow.style.background = 'rgba(255,255,255,0.06)'; });
+                itemRow.addEventListener('mouseleave', () => { itemRow.style.background = 'rgba(255,255,255,0.02)'; });
+                overlay.appendChild(itemRow);
+            }
+        } else if (!currentEqData) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.style.cssText = 'font-size:0.6rem;color:#555;text-align:center;margin-top:20px;';
+            emptyMsg.textContent = 'No items available for this slot';
+            overlay.appendChild(emptyMsg);
+        }
+
+        this._detailPanelEl.appendChild(overlay);
     }
 
     _renderEvolutionMode(container, inst, raceData, stageData) {
@@ -1475,13 +1688,23 @@ export class SpriteCenterScene extends Scene {
 
     _unequipItem(inst, slotKey) {
         const equipment = inst.equipment || {};
-        const item = equipment[slotKey];
-        if (!item) return;
+        const eqId = equipment[slotKey];
+        if (!eqId && eqId !== 0) return;
 
-        // Return item to inventory
-        this._inventory.push(item);
+        // Return item to inventory (store the equipment data object)
+        const eqData = typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId);
+        if (eqData) {
+            this._inventory.push(eqData);
+        }
         delete equipment[slotKey];
         inst.equipment = equipment;
+
+        // Invalidate sprite cache for this unit
+        HumanoidSpriteSystem.invalidateCache(
+            inst.raceId || inst.race_id || 1,
+            inst.evolutionStage || inst.evolution_stage || 1,
+            equipment
+        );
 
         this._savePlayerData();
         this._renderDetailPanel();
@@ -1558,19 +1781,34 @@ export class SpriteCenterScene extends Scene {
     _equipItem(inst, slotKey, item) {
         const equipment = inst.equipment || {};
 
-        // If there is already an item, put it back in inventory
-        if (equipment[slotKey]) {
-            this._inventory.push(equipment[slotKey]);
+        // If there is already an item in this slot, return it to inventory
+        const oldId = equipment[slotKey];
+        if (oldId) {
+            const oldData = typeof oldId === 'object' ? oldId : EQUIPMENT.find(e => e.equipment_id === oldId);
+            if (oldData) {
+                this._inventory.push(oldData);
+            }
         }
 
-        // Equip the new item and remove from inventory
-        equipment[slotKey] = item;
+        // Equip the new item (store equipment_id for data-driven lookup)
+        const newEqId = item.equipment_id || item.equipmentId;
+        equipment[slotKey] = newEqId || item;
+
+        // Remove from inventory
         const invIdx = this._inventory.indexOf(item);
         if (invIdx >= 0) {
             this._inventory.splice(invIdx, 1);
         }
 
         inst.equipment = equipment;
+
+        // Invalidate sprite cache so the new equipment is rendered
+        HumanoidSpriteSystem.invalidateCache(
+            inst.raceId || inst.race_id || 1,
+            inst.evolutionStage || inst.evolution_stage || 1,
+            equipment
+        );
+
         this._savePlayerData();
         this._renderDetailPanel();
 

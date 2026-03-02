@@ -20,6 +20,7 @@ import { RTSBattleRenderer } from '../systems/rendering/RTSBattleRenderer.js';
 import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
 import { ABILITIES } from '../data/AbilityData.js';
+import { EQUIPMENT } from '../data/EquipmentData.js';
 
 // ── UI Constants ────────────────────────────────────────────────────────────
 const INTRO_DURATION = 2.0;
@@ -652,6 +653,11 @@ export class RTSBattleScene extends Scene {
                 },
             };
 
+            // Ensure equipment is present — generate tier-appropriate gear for enemies
+            if (!instance.equipment || Object.keys(instance.equipment).length === 0) {
+                instance.equipment = RTSBattleScene._generateEquipmentForLevel(level, raceData);
+            }
+
             const abilities = _resolveAbilities(raw, raceData, stageData, level);
 
             resolved.push({
@@ -663,6 +669,46 @@ export class RTSBattleScene extends Scene {
             });
         }
         return resolved;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // Equipment Generation (for enemies / units without gear)
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * Generate level-appropriate equipment for a unit.
+     * Picks items the unit qualifies for by level, biased toward matching element.
+     */
+    static _generateEquipmentForLevel(level, raceData) {
+        const eq = {};
+        const slots = ['weapon', 'helmet', 'chest', 'boots'];
+        const elemTypes = raceData ? raceData.element_types : [];
+
+        for (const slot of slots) {
+            // Find items for this slot that the unit can equip
+            const candidates = EQUIPMENT.filter(e =>
+                e.slot_type === slot && e.level_requirement <= level
+            );
+            if (candidates.length === 0) continue;
+
+            // Prefer element synergy matches, then pick the best by level req
+            let best = null;
+            let bestScore = -1;
+            for (const c of candidates) {
+                let score = c.level_requirement;
+                if (c.element_synergy && elemTypes.includes(c.element_synergy)) {
+                    score += 10; // Prefer synergy matches
+                }
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = c;
+                }
+            }
+            if (best) {
+                eq[slot] = best.equipment_id;
+            }
+        }
+        return eq;
     }
 
     // ═══════════════════════════════════════════════════════════════
