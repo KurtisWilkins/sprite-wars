@@ -14,6 +14,7 @@ import { AudioManager } from './systems/audio/AudioManager.js';
 // ============================================================
 let engine = null;
 let audioManager = null;
+let _gameStarting = false;
 
 // ============================================================
 // Authentication UI
@@ -136,6 +137,9 @@ function showAuthError(message) {
 // Game Initialization
 // ============================================================
 async function startGame(user) {
+    if (_gameStarting) return;
+    _gameStarting = true;
+
     const loginScreen = document.getElementById('login-screen');
     const gameContainer = document.getElementById('game-container');
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -305,6 +309,10 @@ async function startGame(user) {
         console.error('Failed to initialize game:', error);
         loadingText.textContent = `Error: ${error.message}. Check console for details.`;
         loadingBar.style.width = '0%';
+        if (engine) { engine.stop(); engine = null; }
+        _gameStarting = false;
+        loginScreen.classList.add('active');
+        gameContainer.classList.remove('active');
     }
 }
 

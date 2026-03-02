@@ -312,7 +312,7 @@ export class OverworldScene extends Scene {
             [GameEvents.BATTLE_STARTED, 'event', 'Battle started'],
             [GameEvents.BATTLE_ENDED, 'event', 'Battle ended'],
             [GameEvents.ENCOUNTER_TRIGGERED, 'event', 'Wild encounter triggered'],
-            [GameEvents.NPC_INTERACTED, 'info', data => `NPC interaction: ${data?.name || 'unknown'}`],
+            [GameEvents.NPC_INTERACTED, 'info', data => `NPC interaction: ${data?.npcName || data?.name || 'unknown'}`],
             [GameEvents.SCENE_CHANGED, 'info', data => `Scene changed: ${data || 'unknown'}`],
             [GameEvents.ITEM_OBTAINED, 'info', data => `Item obtained: ${data?.name || data}`],
             [GameEvents.ITEM_USED, 'info', data => `Item used: ${data?.name || data}`],
@@ -1638,7 +1638,10 @@ export class OverworldScene extends Scene {
         const enemyCount = 1 + Math.floor(Math.random() * 3); // 1-3 enemies
 
         // Look up the current region in the curated encounter tables
-        const table = ENCOUNTER_TABLES[this._currentRegion];
+        // Map internal region names to encounter table keys where they differ
+        const regionKeyMap = { fire_temple: 'volcanic_cave' };
+        const tableKey = regionKeyMap[this._currentRegion] || this._currentRegion;
+        const table = ENCOUNTER_TABLES[tableKey];
 
         const enemies = [];
         for (let i = 0; i < enemyCount; i++) {
@@ -1824,7 +1827,10 @@ export class OverworldScene extends Scene {
                     this._openShop(this._dialogueNpc);
                     break;
                 case 'quest':
-                    // Quest handling would check quest state and advance
+                    eventBus.emit(GameEvents.QUEST_STARTED, {
+                        npcId: this._dialogueNpc?.id,
+                        npcName: this._dialogueNpc?.name,
+                    });
                     break;
                 case 'trainer':
                     this._startTrainerBattle(this._dialogueNpc);
@@ -2028,7 +2034,7 @@ export class OverworldScene extends Scene {
         };
 
         localStorage.setItem('sprite_wars_save_0', JSON.stringify(saveData));
-        eventBus.emit(GameEvents.GAME_SAVED, saveData);
+        eventBus.emit(GameEvents.GAME_SAVED, { slot: 0, auto: false });
         eventBus.emit(GameEvents.NOTIFICATION, 'Game saved!');
     }
 

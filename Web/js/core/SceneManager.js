@@ -156,6 +156,7 @@ export class SceneManager {
 
     async _fadeOut(duration = 400) {
         const overlay = document.getElementById('transition-overlay');
+        if (!overlay) return;
         overlay.classList.remove('hidden', 'fade-out');
         overlay.classList.add('fade-in');
         await this._wait(duration);
@@ -163,6 +164,7 @@ export class SceneManager {
 
     async _fadeIn(duration = 400) {
         const overlay = document.getElementById('transition-overlay');
+        if (!overlay) return;
         overlay.classList.remove('fade-in');
         overlay.classList.add('fade-out');
         await this._wait(duration);

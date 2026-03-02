@@ -143,6 +143,10 @@ export class MainMenuScene extends Scene {
             this._domContainer = null;
         }
 
+        // Hide screen panel (settings/credits) so it doesn't leak into the next scene
+        const screenPanel = document.getElementById('screen-panel');
+        if (screenPanel) { screenPanel.classList.add('hidden'); screenPanel.innerHTML = ''; }
+
         eventBus.emit(GameEvents.SCREEN_CLOSED, 'main_menu');
     }
 
