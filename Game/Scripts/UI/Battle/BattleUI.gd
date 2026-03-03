@@ -282,6 +282,7 @@ func _on_battle_started(_battle_data: Dictionary) -> void:
 
 func _on_battle_ended(result: Dictionary) -> void:
 	hide_player_turn_ui()
+	_hide_inspect_popup()
 	# The results screen is shown separately when result data is fully prepared.
 	var outcome: String = result.get("result", "draw")
 	match outcome:
@@ -296,6 +297,9 @@ func _on_battle_ended(result: Dictionary) -> void:
 func _on_turn_started(unit_resource: Resource) -> void:
 	if unit_resource == null:
 		return
+
+	# Dismiss the inspect popup when a new turn begins.
+	_hide_inspect_popup()
 
 	# Update turn order bar highlight.
 	var unit_id: int = unit_resource.instance_id if unit_resource is SpriteInstance else 0

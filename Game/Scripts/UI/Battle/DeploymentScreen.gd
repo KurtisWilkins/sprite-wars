@@ -184,10 +184,11 @@ func auto_deploy() -> void:
 	var available: Array[Dictionary] = _get_unplaced_sprites()
 	var positions: Array[Vector2i] = []
 
-	# Fill from the back row (row 0 = front, row 3 = back for player).
+	# Fill from the back row (row 0 = front line closest to enemy, row 3 = back).
 	# Deploy back-to-front, centering units in each row.
+	# Only place on player rows 0 through PLAYER_ROWS-1 (i.e. 0-3).
 	var placed_count: int = 0
-	for row in range(_grid_size.y - 1, -1, -1):
+	for row in range(PLAYER_ROWS - 1, -1, -1):
 		var units_this_row: int = mini(_grid_size.x, available.size() - placed_count)
 		if units_this_row <= 0:
 			break
@@ -451,27 +452,58 @@ func _create_drag_visual(pos: Vector2) -> void:
 
 ## -- Private: Coordinate Conversion -------------------------------------------
 
-## Convert screen position to player grid position. Returns (-1,-1) if outside.
+## Convert screen position to player grid position. Returns (-1,-1) if outside
+## the player's deployable area (rows 0-3). The deployment screen uses the same
+## row mapping as the battle grid: enemy rows (4-7) display at the top of the
+## screen (display rows 0-3) and player rows (0-3) display at the bottom
+## (display rows 4-7).
 func _screen_to_player_grid(screen_pos: Vector2) -> Vector2i:
 	var local := screen_pos - GRID_ORIGIN
 	if local.x < 0 or local.y < 0:
 		return Vector2i(-1, -1)
 
 	var col: int = int(local.x / CELL_SIZE)
-	var row: int = int(local.y / CELL_SIZE)
+	var display_row: int = int(local.y / CELL_SIZE)
 
-	if col < 0 or col >= _grid_size.x or row < 0 or row >= _grid_size.y:
+	if col < 0 or col >= _grid_size.x or display_row < 0 or display_row >= _grid_size.y:
 		return Vector2i(-1, -1)
 
-	return Vector2i(col, row)
+	# Map display row to grid row (bottom half = player rows 0-3).
+	var grid_row: int = _display_row_to_grid_row(display_row)
+
+	# Only allow placement on player rows (0-3).
+	if grid_row < 0 or grid_row >= PLAYER_ROWS:
+		return Vector2i(-1, -1)
+
+	return Vector2i(col, grid_row)
 
 
 ## Convert player grid position to screen position (center of cell).
+## Uses the same row mapping as GridDisplay: player rows 0-3 map to display
+## rows 4-7 (bottom half), enemy rows 4-7 map to display rows 0-3 (top half).
 func _player_grid_to_screen(grid_pos: Vector2i) -> Vector2:
+	var display_row: int = _grid_row_to_display_row(grid_pos.y)
 	return GRID_ORIGIN + Vector2(
 		(float(grid_pos.x) + 0.5) * CELL_SIZE,
-		(float(grid_pos.y) + 0.5) * CELL_SIZE
+		(float(display_row) + 0.5) * CELL_SIZE
 	)
+
+
+## Map grid row to display row. Enemy rows (4-7) display at top (0-3),
+## player rows (0-3) display at bottom (4-7). Matches GridDisplay mapping.
+func _grid_row_to_display_row(grid_row: int) -> int:
+	if grid_row >= 4:
+		return grid_row - 4  # Enemy rows at top.
+	else:
+		return grid_row + 4  # Player rows at bottom.
+
+
+## Reverse mapping from display row to grid row.
+func _display_row_to_grid_row(display_row: int) -> int:
+	if display_row < 4:
+		return display_row + 4  # Top of screen = enemy rows.
+	else:
+		return display_row - 4  # Bottom of screen = player rows.
 
 ## -- Private: Display Refresh -------------------------------------------------
 
@@ -490,21 +522,30 @@ func _clear_grid_visuals() -> void:
 
 
 func _draw_grid_cells() -> void:
-	for row in range(_grid_size.y):
+	for display_row in range(_grid_size.y):
 		for col in range(_grid_size.x):
-			var pos := GRID_ORIGIN + Vector2(float(col) * CELL_SIZE, float(row) * CELL_SIZE)
+			var pos := GRID_ORIGIN + Vector2(float(col) * CELL_SIZE, float(display_row) * CELL_SIZE)
 			var cell := Panel.new()
 			cell.position = pos
 			cell.size = Vector2(CELL_SIZE, CELL_SIZE)
 			cell.add_to_group("deploy_grid_visual")
 			cell.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-			var grid_pos := Vector2i(col, row)
+			# Map display row to grid row for correct coloring and placement lookup.
+			var grid_row: int = _display_row_to_grid_row(display_row)
+			var grid_pos := Vector2i(col, grid_row)
+			var is_player_row: bool = grid_row >= 0 and grid_row < PLAYER_ROWS
+
 			var style := StyleBoxFlat.new()
 			if placed_units.has(grid_pos):
+				# Occupied player cell -- highlighted blue.
 				style.bg_color = Color(0.2, 0.35, 0.55, 0.3)
+			elif is_player_row:
+				# Empty player cell -- subtle blue tint.
+				style.bg_color = Color(0.15, 0.22, 0.35, 0.4)
 			else:
-				style.bg_color = Color(0.15, 0.18, 0.25, 0.4)
+				# Enemy cell -- subtle red tint.
+				style.bg_color = Color(0.35, 0.15, 0.15, 0.4)
 			style.set_border_width_all(1)
 			style.border_color = Color(0.3, 0.35, 0.45, 0.5)
 			style.set_corner_radius_all(2)
