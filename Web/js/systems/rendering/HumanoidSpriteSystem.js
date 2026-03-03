@@ -18,6 +18,12 @@
 import { RACE_THEME_MAP, THEME_PATHS, EQUIPMENT_ROWS, STAGE_ARMOR_TIER } from '../../data/WeaponThemeData.js';
 import { SPRITE_RACES } from '../../data/SpriteData.js';
 import { EQUIPMENT } from '../../data/EquipmentData.js';
+import { getVisualConfig, getSlotVisualDefaults } from '../../data/EquipmentVisualConfig.js';
+import {
+    drawWeaponByConfig, drawHelmetByConfig, drawChestByConfig,
+    drawLegsArmorByConfig, drawBootsByConfig, drawGlovesByConfig,
+    drawRingByConfig, drawAmuletByConfig, drawCrystalByConfig
+} from './EquipmentRenderers.js';
 
 // ── Frame Constants ──────────────────────────────────────────────────────────
 const FRAME_SIZE = 32;
@@ -463,19 +469,21 @@ export class HumanoidSpriteSystem {
         }
 
         // ── Helmet overlay ─────────────────────────────────────
-        if (helmetData && themeImg && themeImg.complete) {
-            this._overlayEquipmentPiece(ctx, themeImg, 'helmet', armorTier,
-                x - 1, y - 2, w + 2, h + 1);
-        } else if (helmetData) {
-            // Procedural helmet (when no theme sheet available)
-            const rarity = helmetData.rarity || 'common';
-            const helmColor = this._getArmorColor(rarity, colors);
-            ctx.fillStyle = helmColor;
-            ctx.fillRect(x - 1, y - 2, w + 2, 4);
-            ctx.fillRect(x, y - 3, w, 1);
-            // Visor highlight
-            ctx.fillStyle = 'rgba(255,255,255,0.3)';
-            ctx.fillRect(x, y - 2, Math.floor(w * 0.4), 3);
+        if (helmetData) {
+            const helmetId = helmetData.equipment_id || 0;
+            const helmetVisual = helmetId ? getVisualConfig(helmetId) : null;
+
+            if (helmetVisual && helmetVisual.style) {
+                // Per-item unique helmet rendering
+                drawHelmetByConfig(ctx, x - 1, y - 2, w + 2, h + 1, helmetVisual, colors);
+            } else if (themeImg && themeImg.complete) {
+                this._overlayEquipmentPiece(ctx, themeImg, 'helmet', armorTier,
+                    x - 1, y - 2, w + 2, h + 1);
+            } else {
+                // Fallback
+                const fallbackHelmet = getSlotVisualDefaults('helmet');
+                drawHelmetByConfig(ctx, x - 1, y - 2, w + 2, h + 1, fallbackHelmet, colors);
+            }
         }
     }
 
@@ -496,22 +504,20 @@ export class HumanoidSpriteSystem {
         ctx.fillRect(x + Math.floor(w * 0.55), y, Math.ceil(w * 0.45), h);
 
         // ── Chest armor overlay ─────────────────────────────────
-        if (chestData && themeImg && themeImg.complete) {
-            this._overlayEquipmentPiece(ctx, themeImg, 'chestplate', armorTier,
-                x - 1, y - 1, w + 2, h + 2);
-        } else if (chestData) {
-            // Procedural chest armor
-            const rarity = chestData.rarity || 'common';
-            const armorColor = this._getArmorColor(rarity, colors);
-            ctx.fillStyle = armorColor;
-            ctx.fillRect(x, y, w, h);
-            // Armor plates
-            ctx.fillStyle = 'rgba(255,255,255,0.2)';
-            ctx.fillRect(x + 1, y + 1, Math.floor(w * 0.4), h - 2);
-            // Dark trim
-            ctx.fillStyle = 'rgba(0,0,0,0.3)';
-            ctx.fillRect(x, y + h - 1, w, 1);
-            ctx.fillRect(cx - 1, y, 2, h);
+        if (chestData) {
+            const chestId = chestData.equipment_id || 0;
+            const chestVisual = chestId ? getVisualConfig(chestId) : null;
+
+            if (chestVisual && chestVisual.style) {
+                // Per-item unique chest armor rendering
+                drawChestByConfig(ctx, x, y, w, h, chestVisual, colors);
+            } else if (themeImg && themeImg.complete) {
+                this._overlayEquipmentPiece(ctx, themeImg, 'chestplate', armorTier,
+                    x - 1, y - 1, w + 2, h + 2);
+            } else {
+                const fallbackChest = getSlotVisualDefaults('chest');
+                drawChestByConfig(ctx, x, y, w, h, fallbackChest, colors);
+            }
         } else {
             // Basic tunic when no armor
             const tunicColor = this._shiftColor(colors.skin, -30);
@@ -548,29 +554,35 @@ export class HumanoidSpriteSystem {
 
         // ── Leg armor overlay ───────────────────────────────────
         if (legsData) {
-            const rarity = legsData.rarity || 'common';
-            const armorColor = this._getArmorColor(rarity, colors);
-            ctx.fillStyle = armorColor;
-            ctx.fillRect(leftLegX, lly, legW, Math.floor(legH * 0.6));
-            ctx.fillRect(rightLegX, rly, legW, Math.floor(legH * 0.6));
-            // Knee plates
-            ctx.fillStyle = 'rgba(255,255,255,0.2)';
-            ctx.fillRect(leftLegX, lly + 1, legW, 2);
-            ctx.fillRect(rightLegX, rly + 1, legW, 2);
+            const legsId = legsData.equipment_id || 0;
+            const legsVisual = legsId ? getVisualConfig(legsId) : null;
+
+            if (legsVisual && legsVisual.style) {
+                // Per-item unique leg armor rendering
+                drawLegsArmorByConfig(ctx, leftLegX, lly, legW, Math.floor(legH * 0.6), legsVisual);
+                drawLegsArmorByConfig(ctx, rightLegX, rly, legW, Math.floor(legH * 0.6), legsVisual);
+            } else {
+                const fallbackLegs = getSlotVisualDefaults('legs');
+                drawLegsArmorByConfig(ctx, leftLegX, lly, legW, Math.floor(legH * 0.6), fallbackLegs);
+                drawLegsArmorByConfig(ctx, rightLegX, rly, legW, Math.floor(legH * 0.6), fallbackLegs);
+            }
         }
 
         // ── Boot overlay ────────────────────────────────────────
         const bootH = 3;
         if (bootsData) {
-            const rarity = bootsData.rarity || 'common';
-            const bootColor = this._getArmorColor(rarity, colors);
-            ctx.fillStyle = bootColor;
-            ctx.fillRect(leftLegX - 1, lly + legH - bootH, legW + 2, bootH + 1);
-            ctx.fillRect(rightLegX - 1, rly + legH - bootH, legW + 2, bootH + 1);
-            // Boot highlight
-            ctx.fillStyle = 'rgba(255,255,255,0.15)';
-            ctx.fillRect(leftLegX, lly + legH - bootH, Math.floor(legW * 0.4), bootH);
-            ctx.fillRect(rightLegX, rly + legH - bootH, Math.floor(legW * 0.4), bootH);
+            const bootsId = bootsData.equipment_id || 0;
+            const bootsVisual = bootsId ? getVisualConfig(bootsId) : null;
+
+            if (bootsVisual && bootsVisual.style) {
+                // Per-item unique boot rendering
+                drawBootsByConfig(ctx, leftLegX - 1, lly + legH - bootH, legW + 2, bootH + 1, bootsVisual);
+                drawBootsByConfig(ctx, rightLegX - 1, rly + legH - bootH, legW + 2, bootH + 1, bootsVisual);
+            } else {
+                const fallbackBoots = getSlotVisualDefaults('boots');
+                drawBootsByConfig(ctx, leftLegX - 1, lly + legH - bootH, legW + 2, bootH + 1, fallbackBoots);
+                drawBootsByConfig(ctx, rightLegX - 1, rly + legH - bootH, legW + 2, bootH + 1, fallbackBoots);
+            }
         } else {
             // Simple shoes
             ctx.fillStyle = '#553322';
@@ -597,10 +609,15 @@ export class HumanoidSpriteSystem {
 
         // Glove overlay (covers hand = bottom 3px of arm)
         if (glovesData) {
-            const rarity = glovesData.rarity || 'common';
-            const gloveColor = this._getArmorColor(rarity, colors);
-            ctx.fillStyle = gloveColor;
-            ctx.fillRect(ax, ay + h - 3, w, 3);
+            const glovesId = glovesData.equipment_id || 0;
+            const glovesVisual = glovesId ? getVisualConfig(glovesId) : null;
+
+            if (glovesVisual && glovesVisual.style) {
+                drawGlovesByConfig(ctx, ax, ay, w, h, side, glovesVisual);
+            } else {
+                const fallbackGloves = getSlotVisualDefaults('gloves');
+                drawGlovesByConfig(ctx, ax, ay, w, h, side, fallbackGloves);
+            }
         }
     }
 
@@ -670,99 +687,26 @@ export class HumanoidSpriteSystem {
     }
 
     /**
-     * Draw a procedural pixel-art weapon.
+     * Draw a procedural pixel-art weapon using per-item visual config.
+     * Each of the 144 weapons renders with its own unique shape, colors, and effects.
      */
     static _drawProceduralWeapon(ctx, wx, wy, dir, weaponType, weaponData, colors) {
-        const rarity = weaponData ? (weaponData.rarity || 'common') : 'common';
-        const bladeTint = this._getWeaponColor(rarity);
-        const handleColor = '#553311';
-        const pommelColor = '#887744';
+        // Look up unique visual config for this specific weapon
+        const eqId = weaponData ? (weaponData.equipment_id || 0) : 0;
+        const visualConfig = eqId ? getVisualConfig(eqId) : null;
 
-        switch (weaponType) {
-            case 'sword': {
-                // Blade
-                ctx.fillStyle = bladeTint;
-                if (dir === DIR_LEFT) {
-                    ctx.fillRect(wx - 1, wy - 8, 2, 12);
-                    ctx.fillRect(wx - 2, wy - 9, 4, 2); // tip
-                } else {
-                    ctx.fillRect(wx, wy - 8, 2, 12);
-                    ctx.fillRect(wx - 1, wy - 9, 4, 2);
-                }
-                // Highlight
-                ctx.fillStyle = 'rgba(255,255,255,0.4)';
-                ctx.fillRect(wx, wy - 7, 1, 8);
-                // Guard
-                ctx.fillStyle = pommelColor;
-                ctx.fillRect(wx - 2, wy + 3, 6, 2);
-                // Handle
-                ctx.fillStyle = handleColor;
-                ctx.fillRect(wx, wy + 5, 2, 4);
-                break;
-            }
-            case 'axe': {
-                // Handle
-                ctx.fillStyle = handleColor;
-                ctx.fillRect(wx, wy - 4, 2, 14);
-                // Axe head
-                ctx.fillStyle = bladeTint;
-                ctx.fillRect(wx - 3, wy - 6, 6, 5);
-                ctx.fillRect(wx - 4, wy - 5, 2, 3);
-                // Highlight
-                ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                ctx.fillRect(wx - 3, wy - 5, 1, 3);
-                break;
-            }
-            case 'staff': {
-                // Shaft
-                ctx.fillStyle = '#665533';
-                ctx.fillRect(wx, wy - 10, 2, 18);
-                // Crystal top
-                const crystalColor = weaponData && weaponData.element_synergy
-                    ? (ELEMENT_SKIN[weaponData.element_synergy] || ELEMENT_SKIN.Light).eye
-                    : '#aaccff';
-                ctx.fillStyle = crystalColor;
-                ctx.fillRect(wx - 1, wy - 12, 4, 4);
-                ctx.fillRect(wx, wy - 13, 2, 1);
-                // Glow
-                ctx.fillStyle = crystalColor;
-                ctx.globalAlpha = 0.3;
-                ctx.fillRect(wx - 2, wy - 13, 6, 6);
-                ctx.globalAlpha = 1;
-                break;
-            }
-            case 'spear': {
-                // Shaft
-                ctx.fillStyle = handleColor;
-                ctx.fillRect(wx, wy - 6, 2, 16);
-                // Spearhead
-                ctx.fillStyle = bladeTint;
-                ctx.fillRect(wx - 1, wy - 10, 4, 5);
-                ctx.fillRect(wx, wy - 11, 2, 2);
-                break;
-            }
-            case 'crossbow': {
-                // Stock
-                ctx.fillStyle = handleColor;
-                ctx.fillRect(wx - 1, wy, 6, 2);
-                ctx.fillRect(wx + 3, wy + 1, 2, 4);
-                // Bow limbs
-                ctx.fillStyle = '#776644';
-                ctx.fillRect(wx - 3, wy - 3, 2, 6);
-                ctx.fillRect(wx + 5, wy - 3, 2, 6);
-                // String
-                ctx.fillStyle = '#ccccaa';
-                ctx.fillRect(wx - 2, wy - 3, 8, 1);
-                break;
-            }
-            default: {
-                // Generic weapon
-                ctx.fillStyle = bladeTint;
-                ctx.fillRect(wx, wy - 6, 2, 10);
-                ctx.fillStyle = handleColor;
-                ctx.fillRect(wx - 1, wy + 3, 4, 3);
-            }
+        if (visualConfig && visualConfig.shape) {
+            // Use the per-item unique renderer
+            drawWeaponByConfig(ctx, wx, wy, dir, visualConfig, colors);
+            return;
         }
+
+        // Fallback: generic rarity-based rendering for unknown weapons
+        const rarity = weaponData ? (weaponData.rarity || 'common') : 'common';
+        const fallbackConfig = getSlotVisualDefaults('weapon');
+        fallbackConfig.bladeColor = this._getWeaponColor(rarity);
+        fallbackConfig.shape = weaponType || 'sword';
+        drawWeaponByConfig(ctx, wx, wy, dir, fallbackConfig, colors);
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -840,111 +784,51 @@ export class HumanoidSpriteSystem {
     }
 
     /**
-     * Render the ring pixels at the computed position.
+     * Render the ring pixels at the computed position using per-item visual config.
      */
     static _renderRing(ctx, ringPos, ringData) {
         if (!ringPos) return;
-        const rarity = ringData.rarity || 'common';
-        const color = this._getAccessoryColor(rarity);
+        const ringId = ringData.equipment_id || 0;
+        const ringVisual = ringId ? getVisualConfig(ringId) : null;
 
-        const rx = ringPos.x;
-        const ry = ringPos.y;
-
-        // Ring band (2px wide, 1px tall)
-        ctx.fillStyle = color;
-        ctx.fillRect(rx, ry, 3, 1);
-
-        // Ring body / gem (1px centered on band)
-        ctx.fillRect(rx + 1, ry - 1, 1, 1);
-
-        // Sparkle highlight (1px bright white pixel)
-        ctx.fillStyle = 'rgba(255,255,255,0.8)';
-        ctx.fillRect(rx + 1, ry - 1, 1, 1);
-
-        // Subtle glow around the ring
-        ctx.save();
-        ctx.globalAlpha = 0.2;
-        ctx.fillStyle = color;
-        ctx.fillRect(rx - 1, ry - 1, 5, 3);
-        ctx.restore();
+        if (ringVisual && ringVisual.bandColor) {
+            drawRingByConfig(ctx, ringPos.x, ringPos.y, ringVisual);
+        } else {
+            // Fallback
+            const fallback = getSlotVisualDefaults('ring');
+            fallback.bandColor = this._getAccessoryColor(ringData.rarity || 'common');
+            drawRingByConfig(ctx, ringPos.x, ringPos.y, fallback);
+        }
     }
 
     /**
      * Draw a small pendant/necklace below the head on the neck/upper chest area.
-     * 3-4px wide gem/circle with rarity-based coloring and a subtle glow.
+     * Uses per-item visual config for unique appearance per amulet.
      */
     static _drawAmuletEffect(ctx, cx, torsoTopY, bob, dir, amuletData) {
         if (dir === DIR_UP) return; // Amulet not visible from behind
 
-        const rarity = amuletData.rarity || 'common';
-        const gemColor = this._getAccessoryColor(rarity);
-
-        // Necklace sits at the top of the torso (neck area)
         const neckY = Math.floor(torsoTopY + bob);
         const neckCx = Math.floor(cx);
 
-        // Chain (thin line from shoulders down to pendant)
-        ctx.fillStyle = '#888877';
-        if (dir === DIR_DOWN) {
-            // V-shaped chain visible from front
-            ctx.fillRect(neckCx - 2, neckY, 1, 2);
-            ctx.fillRect(neckCx + 1, neckY, 1, 2);
-            ctx.fillRect(neckCx - 1, neckY + 1, 1, 1);
-            ctx.fillRect(neckCx,     neckY + 1, 1, 1);
+        const amuletId = amuletData.equipment_id || 0;
+        const amuletVisual = amuletId ? getVisualConfig(amuletId) : null;
+
+        if (amuletVisual && amuletVisual.pendantShape) {
+            drawAmuletByConfig(ctx, neckCx, neckY, dir, amuletVisual);
         } else {
-            // Side view: single chain line
-            const chainX = dir === DIR_RIGHT ? neckCx + 1 : neckCx - 1;
-            ctx.fillRect(chainX, neckY, 1, 2);
+            // Fallback
+            const fallback = getSlotVisualDefaults('amulet');
+            fallback.pendantColor = this._getAccessoryColor(amuletData.rarity || 'common');
+            drawAmuletByConfig(ctx, neckCx, neckY, dir, fallback);
         }
-
-        // Pendant gem (centered below chain)
-        const gemY = neckY + 2;
-        const gemX = dir === DIR_DOWN ? neckCx - 1 : (dir === DIR_RIGHT ? neckCx : neckCx - 1);
-
-        // Gem body
-        ctx.fillStyle = gemColor;
-        if (dir === DIR_DOWN) {
-            // Front view: 3px wide diamond/circle shape
-            ctx.fillRect(gemX, gemY, 3, 2);
-            ctx.fillRect(gemX + 1, gemY - 1, 1, 1); // top point
-            ctx.fillRect(gemX + 1, gemY + 2, 1, 1);  // bottom point
-        } else {
-            // Side view: 2px visible
-            ctx.fillRect(gemX, gemY, 2, 2);
-        }
-
-        // Gem highlight (1px bright spot)
-        ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        if (dir === DIR_DOWN) {
-            ctx.fillRect(gemX, gemY, 1, 1);
-        } else {
-            ctx.fillRect(gemX, gemY, 1, 1);
-        }
-
-        // Subtle glow around the gem
-        ctx.save();
-        ctx.globalAlpha = 0.15;
-        ctx.fillStyle = gemColor;
-        ctx.fillRect(gemX - 1, gemY - 1, dir === DIR_DOWN ? 5 : 4, 4);
-        ctx.restore();
     }
 
     /**
      * Draw a small floating crystal above/behind the shoulder area.
-     * 3-5px diamond shape with element-based or rarity coloring.
-     * Pulsing opacity effect based on frame number.
+     * Uses per-item visual config for unique shape, color, and animation per crystal.
      */
     static _drawCrystalEffect(ctx, cx, headTopY, torsoW, dir, frame, crystalData) {
-        const rarity = crystalData.rarity || 'common';
-
-        // Determine crystal color: element_synergy takes priority, then rarity
-        let crystalColor;
-        if (crystalData.element_synergy && ELEMENT_SKIN[crystalData.element_synergy]) {
-            crystalColor = ELEMENT_SKIN[crystalData.element_synergy].eye;
-        } else {
-            crystalColor = this._getAccessoryColor(rarity);
-        }
-
         // Position: floating above/behind the shoulder
         let crx, cry;
         if (dir === DIR_DOWN) {
@@ -961,31 +845,26 @@ export class HumanoidSpriteSystem {
             cry = Math.floor(headTopY - 2);
         }
 
-        // Pulsing opacity (alternates brightness based on frame number)
-        const pulse = [0.7, 0.85, 1.0, 0.85][frame];
+        const crystalId = crystalData.equipment_id || 0;
+        const crystalVisual = crystalId ? getVisualConfig(crystalId) : null;
 
-        ctx.save();
-        ctx.globalAlpha = pulse;
-
-        // Diamond shape (5px tall, 3px wide at center)
-        //     X       (top)
-        //    XXX      (middle)
-        //     X       (bottom)
-        ctx.fillStyle = crystalColor;
-        ctx.fillRect(crx + 1, cry, 1, 1);       // top point
-        ctx.fillRect(crx,     cry + 1, 3, 2);   // middle body
-        ctx.fillRect(crx + 1, cry + 3, 1, 1);   // bottom point
-
-        // Inner highlight (bright center pixel)
-        ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        ctx.fillRect(crx + 1, cry + 1, 1, 1);
-
-        // Outer glow
-        ctx.globalAlpha = pulse * 0.2;
-        ctx.fillStyle = crystalColor;
-        ctx.fillRect(crx - 1, cry - 1, 5, 6);
-
-        ctx.restore();
+        if (crystalVisual && crystalVisual.crystalColor) {
+            drawCrystalByConfig(ctx, crx, cry, dir, frame, crystalVisual);
+        } else {
+            // Fallback: determine color from element or rarity
+            const rarity = crystalData.rarity || 'common';
+            let fallbackColor;
+            if (crystalData.element_synergy && ELEMENT_SKIN[crystalData.element_synergy]) {
+                fallbackColor = ELEMENT_SKIN[crystalData.element_synergy].eye;
+            } else {
+                fallbackColor = this._getAccessoryColor(rarity);
+            }
+            const fallback = getSlotVisualDefaults('crystal');
+            fallback.crystalColor = fallbackColor;
+            fallback.innerColor = fallbackColor;
+            fallback.glowColor = fallbackColor;
+            drawCrystalByConfig(ctx, crx, cry, dir, frame, fallback);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

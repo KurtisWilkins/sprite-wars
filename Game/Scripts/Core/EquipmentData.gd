@@ -94,6 +94,18 @@ const RARITY_SELL_MULTIPLIER: Dictionary = {
 }
 
 
+## ── Visual Config ────────────────────────────────────────────────────────────
+
+## Get the unique visual rendering config for this equipment piece.
+## Returns a Dictionary with slot-specific visual properties (colors, shapes,
+## styles, etc.) used by the sprite compositor to draw unique equipment overlays.
+func get_visual_config() -> Dictionary:
+	var config: Dictionary = EquipmentVisualDatabase.get_visual_config(equipment_id)
+	if config.is_empty():
+		config = EquipmentVisualDatabase.get_slot_defaults(slot_type)
+	return config
+
+
 ## ── Helpers ───────────────────────────────────────────────────────────────────
 
 ## Calculate the effective stat bonuses for a Sprite with the given element(s)
