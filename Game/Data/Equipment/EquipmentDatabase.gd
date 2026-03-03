@@ -903,7 +903,7 @@ static func get_all_equipment() -> Array[Dictionary]:
 			"level_requirement": 25,
 			"description": "Whisper-thin and impossibly sharp, this dagger seems to flicker between realities.",
 			"icon_path": "res://Sprites/Icons/Equipment/weapon_voidfang_dagger.png",
-			"source": "dungeon_drop",
+			"source": "temple_drop",
 		},
 		{
 			"equipment_id": 1103,
@@ -963,7 +963,7 @@ static func get_all_equipment() -> Array[Dictionary]:
 			"level_requirement": 28,
 			"description": "Heavy enough to shatter stone. Each impact sends shockwaves through the ground.",
 			"icon_path": "res://Sprites/Icons/Equipment/weapon_bonecrusher_mace.png",
-			"source": "dungeon_drop",
+			"source": "temple_drop",
 		},
 		{
 			"equipment_id": 1107,
@@ -1087,7 +1087,7 @@ static func get_all_equipment() -> Array[Dictionary]:
 			"level_requirement": 24,
 			"description": "Smells of salt and ancient tides. Whispers of the deep sea fill the wearer's mind.",
 			"icon_path": "res://Sprites/Icons/Equipment/helmet_deepwater_cowl.png",
-			"source": "dungeon_drop",
+			"source": "quest_reward",
 		},
 		{
 			"equipment_id": 1115,
@@ -1226,7 +1226,7 @@ static func get_all_equipment() -> Array[Dictionary]:
 			"level_requirement": 24,
 			"description": "Woven from ocean currents. It flows like water and deflects magical attacks.",
 			"icon_path": "res://Sprites/Icons/Equipment/chest_tidewoven_cloak.png",
-			"source": "dungeon_drop",
+			"source": "temple_drop",
 		},
 		{
 			"equipment_id": 1124,
@@ -1410,7 +1410,7 @@ static func get_all_equipment() -> Array[Dictionary]:
 			"level_requirement": 25,
 			"description": "Shimmer with lunar energy. Movement becomes fluid and graceful under moonlight.",
 			"icon_path": "res://Sprites/Icons/Equipment/legs_moonlit_trousers.png",
-			"source": "dungeon_drop",
+			"source": "quest_reward",
 		},
 		{
 			"equipment_id": 1136,
@@ -1534,7 +1534,7 @@ static func get_all_equipment() -> Array[Dictionary]:
 			"level_requirement": 22,
 			"description": "Glide across any surface as if it were ice. Enemies can't keep up.",
 			"icon_path": "res://Sprites/Icons/Equipment/boots_frostglide_sabatons.png",
-			"source": "dungeon_drop",
+			"source": "temple_drop",
 		},
 		{
 			"equipment_id": 1144,
@@ -1703,7 +1703,7 @@ static func get_all_equipment() -> Array[Dictionary]:
 			"level_requirement": 22,
 			"description": "Air currents swirl around the wrists, adding velocity to every thrown projectile.",
 			"icon_path": "res://Sprites/Icons/Equipment/gloves_windrider_bracers.png",
-			"source": "dungeon_drop",
+			"source": "quest_reward",
 		},
 		{
 			"equipment_id": 1155,
