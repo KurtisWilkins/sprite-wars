@@ -1397,6 +1397,7 @@ export class BattleScene extends Scene {
         this._resultTimer = 0;
         this._phase = PHASE_BATTLE_END;
         this._hideAbilityBar();
+        this._hideUnitInspect();
 
         const isVictory = data.result === 'player_win';
         const label = isVictory ? 'VICTORY!' : data.result === 'draw' ? 'DRAW' : 'DEFEAT';
@@ -1677,6 +1678,7 @@ export class BattleScene extends Scene {
         inspectContent.className = 'inspect-content';
         inspectContent.style.cssText = `
             width:100%;height:100%;overflow-y:auto;overflow-x:hidden;
+            padding-top:20px;box-sizing:border-box;
         `;
         this._inspectPanelEl.appendChild(inspectContent);
 

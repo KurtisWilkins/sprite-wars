@@ -282,7 +282,7 @@ func _on_battle_started(_battle_data: Dictionary) -> void:
 
 func _on_battle_ended(result: Dictionary) -> void:
 	hide_player_turn_ui()
-	_hide_inspect_popup()
+	_hide_unit_inspect()
 	# The results screen is shown separately when result data is fully prepared.
 	var outcome: String = result.get("result", "draw")
 	match outcome:
@@ -299,7 +299,7 @@ func _on_turn_started(unit_resource: Resource) -> void:
 		return
 
 	# Dismiss the inspect popup when a new turn begins.
-	_hide_inspect_popup()
+	_hide_unit_inspect()
 
 	# Update turn order bar highlight.
 	var unit_id: int = unit_resource.instance_id if unit_resource is SpriteInstance else 0
@@ -579,3 +579,434 @@ func _on_catch_cancelled() -> void:
 	# Re-show the ability bar if it's still the player's turn.
 	if not _active_unit_data.is_empty():
 		ability_bar.show_bar()
+
+## -- Unit Inspection Popup ---------------------------------------------------
+
+## Build the full-screen inspection overlay and detail panel.
+## Called once during _instantiate_components; nodes are hidden by default.
+func _build_inspect_popup() -> void:
+	# Semi-transparent full-screen overlay to dim the background and capture
+	# dismiss taps.
+	inspect_overlay = ColorRect.new()
+	inspect_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	inspect_overlay.color = Color(0.0, 0.0, 0.0, 0.55)
+	inspect_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	inspect_overlay.visible = false
+	add_child(inspect_overlay)
+
+	# Centered detail panel.
+	const PANEL_WIDTH: float = 720.0
+	const PANEL_HEIGHT: float = 1200.0
+	inspect_panel = PanelContainer.new()
+	inspect_panel.custom_minimum_size = Vector2(PANEL_WIDTH, PANEL_HEIGHT)
+	inspect_panel.size = Vector2(PANEL_WIDTH, PANEL_HEIGHT)
+	inspect_panel.position = Vector2(
+		(1080.0 - PANEL_WIDTH) / 2.0,
+		(1920.0 - PANEL_HEIGHT) / 2.0
+	)
+	inspect_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.08, 0.08, 0.14, 0.97)
+	panel_style.set_corner_radius_all(16)
+	panel_style.set_border_width_all(2)
+	panel_style.border_color = Color(0.3, 0.3, 0.45)
+	panel_style.set_content_margin_all(20)
+	inspect_panel.add_theme_stylebox_override("panel", panel_style)
+
+	# Scroll container so content can overflow on small panels.
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	inspect_panel.add_child(scroll)
+
+	var content := VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_theme_constant_override("separation", 12)
+	scroll.add_child(content)
+
+	# -- Portrait --
+	var portrait_center := CenterContainer.new()
+	portrait_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(portrait_center)
+
+	var portrait_frame := PanelContainer.new()
+	portrait_frame.custom_minimum_size = Vector2(200.0, 200.0)
+	var portrait_style := StyleBoxFlat.new()
+	portrait_style.bg_color = Color(0.1, 0.1, 0.18, 1.0)
+	portrait_style.set_corner_radius_all(12)
+	portrait_style.set_border_width_all(2)
+	portrait_style.border_color = Color(0.25, 0.25, 0.4)
+	portrait_frame.add_theme_stylebox_override("panel", portrait_style)
+	portrait_center.add_child(portrait_frame)
+
+	_inspect_portrait = TextureRect.new()
+	_inspect_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_inspect_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_inspect_portrait.custom_minimum_size = Vector2(200.0, 200.0)
+	portrait_frame.add_child(_inspect_portrait)
+
+	# -- Name label --
+	_inspect_name_label = Label.new()
+	_inspect_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_inspect_name_label.add_theme_font_size_override("font_size", 28)
+	_inspect_name_label.add_theme_color_override("font_color", Color.WHITE)
+	content.add_child(_inspect_name_label)
+
+	# -- Team label --
+	_inspect_team_label = Label.new()
+	_inspect_team_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_inspect_team_label.add_theme_font_size_override("font_size", 18)
+	content.add_child(_inspect_team_label)
+
+	# -- Level label --
+	_inspect_level_label = Label.new()
+	_inspect_level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_inspect_level_label.add_theme_font_size_override("font_size", 20)
+	_inspect_level_label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.5))
+	content.add_child(_inspect_level_label)
+
+	# -- Element badges row --
+	var elem_center := CenterContainer.new()
+	elem_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(elem_center)
+
+	_inspect_element_row = HBoxContainer.new()
+	_inspect_element_row.add_theme_constant_override("separation", 8)
+	elem_center.add_child(_inspect_element_row)
+
+	# -- HP bar --
+	var hp_section := VBoxContainer.new()
+	hp_section.add_theme_constant_override("separation", 4)
+	content.add_child(hp_section)
+
+	_inspect_hp_bar = ProgressBar.new()
+	_inspect_hp_bar.custom_minimum_size = Vector2(0.0, 18.0)
+	_inspect_hp_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_inspect_hp_bar.show_percentage = false
+	var hp_fill := StyleBoxFlat.new()
+	hp_fill.bg_color = Color(0.2, 0.85, 0.3)
+	hp_fill.set_corner_radius_all(4)
+	_inspect_hp_bar.add_theme_stylebox_override("fill", hp_fill)
+	var hp_bg := StyleBoxFlat.new()
+	hp_bg.bg_color = Color(0.15, 0.15, 0.2)
+	hp_bg.set_corner_radius_all(4)
+	_inspect_hp_bar.add_theme_stylebox_override("background", hp_bg)
+	hp_section.add_child(_inspect_hp_bar)
+
+	_inspect_hp_label = Label.new()
+	_inspect_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_inspect_hp_label.add_theme_font_size_override("font_size", 16)
+	_inspect_hp_label.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
+	hp_section.add_child(_inspect_hp_label)
+
+	# -- Separator --
+	var sep1 := HSeparator.new()
+	sep1.add_theme_constant_override("separation", 8)
+	content.add_child(sep1)
+
+	# -- Stats header --
+	var stats_header := Label.new()
+	stats_header.text = "Stats"
+	stats_header.add_theme_font_size_override("font_size", 22)
+	stats_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
+	content.add_child(stats_header)
+
+	# -- Stats grid (2-column) --
+	_inspect_stats_grid = GridContainer.new()
+	_inspect_stats_grid.columns = 2
+	_inspect_stats_grid.add_theme_constant_override("h_separation", 24)
+	_inspect_stats_grid.add_theme_constant_override("v_separation", 8)
+	content.add_child(_inspect_stats_grid)
+
+	var stat_keys: Array[String] = ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]
+	var stat_display: Dictionary = {
+		"hp": "HP", "atk": "ATK", "def": "DEF",
+		"spd": "SPD", "sp_atk": "SP.ATK", "sp_def": "SP.DEF",
+	}
+	_inspect_stat_labels.clear()
+	for key in stat_keys:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+
+		var stat_name := Label.new()
+		stat_name.text = stat_display.get(key, key.to_upper())
+		stat_name.custom_minimum_size = Vector2(80.0, 0.0)
+		stat_name.add_theme_font_size_override("font_size", 18)
+		stat_name.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
+		row.add_child(stat_name)
+
+		var stat_val := Label.new()
+		stat_val.text = "--"
+		stat_val.add_theme_font_size_override("font_size", 20)
+		stat_val.add_theme_color_override("font_color", Color.WHITE)
+		row.add_child(stat_val)
+
+		_inspect_stat_labels[key] = stat_val
+		_inspect_stats_grid.add_child(row)
+
+	# -- Separator --
+	var sep2 := HSeparator.new()
+	sep2.add_theme_constant_override("separation", 8)
+	content.add_child(sep2)
+
+	# -- Abilities header --
+	var abilities_header := Label.new()
+	abilities_header.text = "Abilities"
+	abilities_header.add_theme_font_size_override("font_size", 22)
+	abilities_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
+	content.add_child(abilities_header)
+
+	# -- Abilities list --
+	_inspect_abilities_box = VBoxContainer.new()
+	_inspect_abilities_box.add_theme_constant_override("separation", 6)
+	content.add_child(_inspect_abilities_box)
+
+	# -- Separator --
+	var sep3 := HSeparator.new()
+	sep3.add_theme_constant_override("separation", 8)
+	content.add_child(sep3)
+
+	# -- Status effects header --
+	var status_header := Label.new()
+	status_header.text = "Status Effects"
+	status_header.add_theme_font_size_override("font_size", 22)
+	status_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
+	content.add_child(status_header)
+
+	# -- Status effects list --
+	_inspect_status_box = VBoxContainer.new()
+	_inspect_status_box.add_theme_constant_override("separation", 6)
+	content.add_child(_inspect_status_box)
+
+	# -- Close button --
+	var close_center := CenterContainer.new()
+	close_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(close_center)
+
+	var close_btn := Button.new()
+	close_btn.text = "Close"
+	close_btn.custom_minimum_size = Vector2(200.0, 48.0)
+	close_btn.add_theme_font_size_override("font_size", 20)
+	close_btn.focus_mode = Control.FOCUS_NONE
+
+	var close_style := StyleBoxFlat.new()
+	close_style.bg_color = Color(0.2, 0.2, 0.3)
+	close_style.set_corner_radius_all(10)
+	close_style.set_content_margin_all(8)
+	close_btn.add_theme_stylebox_override("normal", close_style)
+
+	var close_pressed := close_style.duplicate()
+	close_pressed.bg_color = Color(0.15, 0.15, 0.22)
+	close_btn.add_theme_stylebox_override("pressed", close_pressed)
+	close_btn.pressed.connect(_hide_inspect_popup)
+	close_center.add_child(close_btn)
+
+	inspect_panel.visible = false
+	inspect_overlay.add_child(inspect_panel)
+
+
+## Show the inspect popup for a given unit, populating all fields from
+## _tracked_units data. Works for both player (team 0) and enemy (team 1) units.
+func _show_inspect_popup(unit_id: int) -> void:
+	if not _tracked_units.has(unit_id):
+		return
+
+	var data: Dictionary = _tracked_units[unit_id]
+	_inspected_unit_id = unit_id
+
+	# -- Portrait --
+	if _inspect_portrait != null:
+		_inspect_portrait.texture = data.get("texture", null)
+
+	# -- Name --
+	if _inspect_name_label != null:
+		_inspect_name_label.text = str(data.get("name", "Unknown"))
+
+	# -- Team --
+	if _inspect_team_label != null:
+		var team: int = data.get("team", -1)
+		if team == 0:
+			_inspect_team_label.text = "Ally"
+			_inspect_team_label.add_theme_color_override("font_color", Color(0.3, 0.75, 1.0))
+		elif team == 1:
+			_inspect_team_label.text = "Enemy"
+			_inspect_team_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.35))
+		else:
+			_inspect_team_label.text = "Unknown Team"
+			_inspect_team_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+
+	# -- Level --
+	if _inspect_level_label != null:
+		_inspect_level_label.text = "Lv. %d" % data.get("level", 1)
+
+	# -- Elements --
+	if _inspect_element_row != null:
+		for child in _inspect_element_row.get_children():
+			child.queue_free()
+		var elements: Array = data.get("elements", [])
+		for elem in elements:
+			var badge := Label.new()
+			badge.text = " %s " % str(elem)
+			badge.add_theme_font_size_override("font_size", 16)
+			badge.add_theme_color_override("font_color", Color.WHITE)
+			var badge_style := StyleBoxFlat.new()
+			badge_style.bg_color = Color(0.25, 0.25, 0.35, 0.9)
+			badge_style.set_corner_radius_all(6)
+			badge_style.set_content_margin_all(4)
+			badge.add_theme_stylebox_override("normal", badge_style)
+			_inspect_element_row.add_child(badge)
+
+	# -- HP bar --
+	var current_hp: int = data.get("current_hp", 0)
+	var max_hp: int = data.get("max_hp", 1)
+	if _inspect_hp_bar != null:
+		_inspect_hp_bar.max_value = max_hp
+		_inspect_hp_bar.value = current_hp
+	if _inspect_hp_label != null:
+		_inspect_hp_label.text = "HP: %d / %d" % [current_hp, max_hp]
+
+	# -- Stats --
+	var stats: Dictionary = data.get("stats", {})
+	for key in _inspect_stat_labels:
+		var label: Label = _inspect_stat_labels[key]
+		if label != null:
+			label.text = str(stats.get(key, "--"))
+
+	# -- Abilities --
+	if _inspect_abilities_box != null:
+		for child in _inspect_abilities_box.get_children():
+			child.queue_free()
+		var abilities: Array = data.get("abilities", [])
+		if abilities.is_empty():
+			var none_lbl := Label.new()
+			none_lbl.text = "None"
+			none_lbl.add_theme_font_size_override("font_size", 16)
+			none_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+			_inspect_abilities_box.add_child(none_lbl)
+		else:
+			for ab in abilities:
+				var ab_label := Label.new()
+				var ab_name: String = str(ab.get("name", ab.get("ability_name", "???")))
+				var ab_element: String = str(ab.get("element", ""))
+				if not ab_element.is_empty():
+					ab_label.text = "%s  [%s]" % [ab_name, ab_element]
+				else:
+					ab_label.text = ab_name
+				ab_label.add_theme_font_size_override("font_size", 18)
+				ab_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.95))
+				_inspect_abilities_box.add_child(ab_label)
+
+	# -- Status effects --
+	if _inspect_status_box != null:
+		for child in _inspect_status_box.get_children():
+			child.queue_free()
+		var statuses: Array = data.get("status_effects", [])
+		if statuses.is_empty():
+			var none_lbl := Label.new()
+			none_lbl.text = "None"
+			none_lbl.add_theme_font_size_override("font_size", 16)
+			none_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+			_inspect_status_box.add_child(none_lbl)
+		else:
+			for status in statuses:
+				var s_label := Label.new()
+				s_label.text = str(status)
+				s_label.add_theme_font_size_override("font_size", 18)
+				s_label.add_theme_color_override("font_color", Color(0.85, 0.7, 1.0))
+				_inspect_status_box.add_child(s_label)
+
+	# Show the overlay and panel.
+	if inspect_overlay != null:
+		inspect_overlay.visible = true
+	if inspect_panel != null:
+		inspect_panel.visible = true
+
+
+## Hide the inspect popup and reset the inspected unit.
+func _hide_inspect_popup() -> void:
+	_inspected_unit_id = -1
+	if inspect_overlay != null:
+		inspect_overlay.visible = false
+	if inspect_panel != null:
+		inspect_panel.visible = false
+
+
+## -- Input: Tap-to-Inspect ---------------------------------------------------
+
+## Handle touch / mouse input for tapping a unit on the grid to inspect it.
+## This is deliberately skipped when the targeting overlay is active or when
+## any modal overlay (results, deployment, crystal throw) is showing.
+func _input(event: InputEvent) -> void:
+	# Do not process inspect taps while targeting is active.
+	if targeting_overlay != null and targeting_overlay.active:
+		return
+
+	# Do not process while modal screens are visible.
+	if results_screen != null and results_screen.visible:
+		return
+	if deployment_screen != null and deployment_screen.visible:
+		return
+
+	# If the inspect popup is open, tapping the overlay (outside the panel)
+	# dismisses it.
+	if inspect_overlay != null and inspect_overlay.visible:
+		if event is InputEventScreenTouch and event.pressed:
+			var pos: Vector2 = event.position
+			var panel_rect := Rect2(inspect_panel.position, inspect_panel.size)
+			if not panel_rect.has_point(pos):
+				_hide_inspect_popup()
+				get_viewport().set_input_as_handled()
+			return
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			var pos: Vector2 = event.position
+			var panel_rect := Rect2(inspect_panel.position, inspect_panel.size)
+			if not panel_rect.has_point(pos):
+				_hide_inspect_popup()
+				get_viewport().set_input_as_handled()
+			return
+		return  # Consume all other input while popup is open.
+
+	# Detect short taps on units for inspection. Track press position to
+	# distinguish taps from drags.
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			_touch_press_pos = event.position
+			_touch_pressed = true
+		else:
+			if _touch_pressed:
+				var release_pos: Vector2 = event.position
+				_touch_pressed = false
+				if _touch_press_pos.distance_to(release_pos) < 20.0:
+					_try_inspect_at(release_pos)
+	elif event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				_touch_press_pos = event.position
+				_touch_pressed = true
+			else:
+				if _touch_pressed:
+					var release_pos: Vector2 = event.position
+					_touch_pressed = false
+					if _touch_press_pos.distance_to(release_pos) < 20.0:
+						_try_inspect_at(release_pos)
+
+
+## Attempt to find a unit at the given screen position and open the inspect
+## popup for it. Works for both team 0 (player) and team 1 (enemy) units.
+func _try_inspect_at(screen_pos: Vector2) -> void:
+	if grid_display == null:
+		return
+	if not grid_display.is_screen_pos_on_grid(screen_pos):
+		return
+
+	var grid_pos: Vector2i = grid_display.screen_to_grid(screen_pos)
+
+	# Search all tracked units for one at this grid position.
+	for unit_id in _tracked_units:
+		var data: Dictionary = _tracked_units[unit_id]
+		if data.get("grid_pos", Vector2i(-99, -99)) == grid_pos:
+			_show_inspect_popup(unit_id)
+			get_viewport().set_input_as_handled()
+			return

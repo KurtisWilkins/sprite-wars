@@ -1,6 +1,7 @@
 ## DeploymentScreen -- Pre-battle placement screen.
-## Shows the player's half of the grid and a team panel. The player drags
-## sprites from the team panel onto grid cells to set their starting positions.
+## Shows the full battle grid (6x8) with enemy preview at the top and the
+## player's deployable rows at the bottom. The player drags sprites from the
+## team panel onto grid cells to set their starting positions.
 ## Includes auto-deploy and start battle buttons.
 extends CanvasLayer
 
@@ -102,7 +103,7 @@ func _build_ui() -> void:
 	subtitle.size = Vector2(1080, 30)
 	_root.add_child(subtitle)
 
-	# Grid display for the player's half.
+	# Grid display for the full battle map (enemy preview + player deployment).
 	grid_display = Node2D.new()
 	grid_display.set_script(null)  # We draw the grid manually here.
 	_root.add_child(grid_display)
@@ -110,7 +111,7 @@ func _build_ui() -> void:
 	# Team panel (scrollable).
 	var panel_bg := Panel.new()
 	panel_bg.position = Vector2(PANEL_X, 120)
-	panel_bg.size = Vector2(PANEL_WIDTH, 1500)
+	panel_bg.size = Vector2(PANEL_WIDTH, 1560)
 	var panel_style := StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.1, 0.1, 0.16, 0.9)
 	panel_style.set_corner_radius_all(8)
@@ -130,7 +131,7 @@ func _build_ui() -> void:
 
 	var scroll := ScrollContainer.new()
 	scroll.position = Vector2(8, 42)
-	scroll.size = Vector2(PANEL_WIDTH - 16, 1440)
+	scroll.size = Vector2(PANEL_WIDTH - 16, 1500)
 	panel_bg.add_child(scroll)
 
 	team_panel = VBoxContainer.new()
@@ -139,12 +140,12 @@ func _build_ui() -> void:
 	scroll.add_child(team_panel)
 
 	# Auto-deploy button.
-	auto_deploy_button = _create_button("Auto Deploy", Vector2(80, 1720), Vector2(400, BUTTON_HEIGHT))
+	auto_deploy_button = _create_button("Auto Deploy", Vector2(80, 1800), Vector2(400, BUTTON_HEIGHT))
 	auto_deploy_button.pressed.connect(_on_auto_deploy_pressed)
 	_root.add_child(auto_deploy_button)
 
 	# Start battle button.
-	start_battle_button = _create_button("Start Battle", Vector2(540, 1720), Vector2(400, BUTTON_HEIGHT))
+	start_battle_button = _create_button("Start Battle", Vector2(540, 1800), Vector2(400, BUTTON_HEIGHT))
 	start_battle_button.pressed.connect(_on_start_battle_pressed)
 	var start_style: StyleBoxFlat = start_battle_button.get_theme_stylebox("normal").duplicate()
 	start_style.bg_color = Color(0.2, 0.5, 0.3)
@@ -160,7 +161,7 @@ func _build_ui() -> void:
 
 ## Show the deployment screen with team and grid data.
 ## team: Array of {id: int, name: String, texture: Texture2D, level: int, hp: int, element_types: Array}
-## grid_size: Vector2i (columns x player rows, typically 6x4)
+## grid_size: Vector2i (columns x total rows, typically 6x8 for full battle map)
 ## enemy_preview: Array of {name: String, texture: Texture2D, position: Vector2i}
 func show_deployment(team: Array, grid_size: Vector2i, enemy_preview: Array) -> void:
 	_team_sprites = []
@@ -174,6 +175,7 @@ func show_deployment(team: Array, grid_size: Vector2i, enemy_preview: Array) -> 
 
 	_populate_team_panel()
 	_root.visible = true
+	_refresh_display()
 
 
 ## Auto-deploy: place sprites in a default formation (centered, back row first).
@@ -390,15 +392,28 @@ func _create_team_entry(sprite_data: Dictionary) -> PanelContainer:
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 8)
 
-	# Portrait.
+	# Portrait with visible frame for prominence.
+	var portrait_frame := PanelContainer.new()
+	portrait_frame.custom_minimum_size = Vector2(56, 56)
+	var portrait_style := StyleBoxFlat.new()
+	portrait_style.bg_color = Color(0.08, 0.08, 0.15, 1.0)
+	portrait_style.set_corner_radius_all(4)
+	portrait_style.set_border_width_all(2)
+	portrait_style.border_color = Color(0.4, 0.4, 0.55)
+	portrait_style.set_content_margin_all(2)
+	portrait_frame.add_theme_stylebox_override("panel", portrait_style)
+	portrait_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 	var portrait := TextureRect.new()
 	portrait.custom_minimum_size = Vector2(56, 56)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var tex: Texture2D = sprite_data.get("texture", null)
 	if tex != null:
 		portrait.texture = tex
-	hbox.add_child(portrait)
+	portrait_frame.add_child(portrait)
+	hbox.add_child(portrait_frame)
 
 	# Info vbox.
 	var info := VBoxContainer.new()
@@ -510,6 +525,7 @@ func _display_row_to_grid_row(display_row: int) -> int:
 func _refresh_display() -> void:
 	_clear_grid_visuals()
 	_draw_grid_cells()
+	_draw_enemy_preview()
 	_draw_placed_units()
 	_update_panel_placed_indicators()
 
@@ -541,17 +557,27 @@ func _draw_grid_cells() -> void:
 				# Occupied player cell -- highlighted blue.
 				style.bg_color = Color(0.2, 0.35, 0.55, 0.3)
 			elif is_player_row:
-				# Empty player cell -- subtle blue tint.
-				style.bg_color = Color(0.15, 0.22, 0.35, 0.4)
+				# Empty player cell -- blue tint.
+				style.bg_color = Color(0.2, 0.35, 0.55, 0.15)
 			else:
-				# Enemy cell -- subtle red tint.
-				style.bg_color = Color(0.35, 0.15, 0.15, 0.4)
+				# Enemy cell -- red tint.
+				style.bg_color = Color(0.55, 0.2, 0.2, 0.15)
 			style.set_border_width_all(1)
 			style.border_color = Color(0.3, 0.35, 0.45, 0.5)
 			style.set_corner_radius_all(2)
 			cell.add_theme_stylebox_override("panel", style)
 
 			_root.add_child(cell)
+
+	# Gold divider line between enemy rows (display rows 0-3) and player rows (display rows 4-7).
+	var divider := ColorRect.new()
+	var divider_y: float = GRID_ORIGIN.y + float(PLAYER_ROWS) * CELL_SIZE - 1.5
+	divider.position = Vector2(GRID_ORIGIN.x, divider_y)
+	divider.size = Vector2(float(_grid_size.x) * CELL_SIZE, 3.0)
+	divider.color = Color(0.85, 0.7, 0.2, 0.9)
+	divider.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	divider.add_to_group("deploy_grid_visual")
+	_root.add_child(divider)
 
 
 func _draw_placed_units() -> void:
@@ -571,6 +597,47 @@ func _draw_placed_units() -> void:
 			tex_rect.texture = tex
 
 		_root.add_child(tex_rect)
+
+
+## Draw enemy preview sprites in the top 4 rows (enemy side) with a
+## semi-transparent red tint so the player can see what they are facing.
+func _draw_enemy_preview() -> void:
+	for enemy_data in _enemy_preview:
+		var enemy_pos: Vector2i = enemy_data.get("position", Vector2i(-1, -1))
+		if enemy_pos == Vector2i(-1, -1):
+			continue
+
+		# Enemy positions use grid rows 4-7. Convert to screen via row mapping.
+		var screen_pos: Vector2 = _player_grid_to_screen(enemy_pos)
+
+		var tex_rect := TextureRect.new()
+		tex_rect.custom_minimum_size = Vector2(CELL_SIZE * 0.8, CELL_SIZE * 0.8)
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.position = screen_pos - Vector2(CELL_SIZE * 0.4, CELL_SIZE * 0.4)
+		tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tex_rect.add_to_group("deploy_grid_visual")
+		# Semi-transparent red tint for enemy preview.
+		tex_rect.modulate = Color(1.0, 0.5, 0.5, 0.55)
+
+		var tex: Texture2D = enemy_data.get("texture", null)
+		if tex != null:
+			tex_rect.texture = tex
+
+		_root.add_child(tex_rect)
+
+		# Draw enemy name below the sprite for identification.
+		var enemy_name: String = str(enemy_data.get("name", ""))
+		if not enemy_name.is_empty():
+			var name_label := Label.new()
+			name_label.text = enemy_name
+			name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			name_label.add_theme_font_size_override("font_size", 12)
+			name_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.6, 0.7))
+			name_label.position = Vector2(screen_pos.x - CELL_SIZE * 0.4, screen_pos.y + CELL_SIZE * 0.3)
+			name_label.size = Vector2(CELL_SIZE * 0.8, 16.0)
+			name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			name_label.add_to_group("deploy_grid_visual")
+			_root.add_child(name_label)
 
 
 func _update_panel_placed_indicators() -> void:
