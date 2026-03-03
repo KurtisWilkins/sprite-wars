@@ -7,7 +7,7 @@
  * - Registry tab: Pokedex-style grid showing all 72 forms (seen/caught)
  * - Sprite detail: stats, abilities, equipment, evolution progress
  * - Equipment management (equip/unequip items)
- * - Ability management (select 4 active from learned pool)
+ * - RTS ability management (1 basic + 1 advanced/passive ability with targeting)
  *
  * Uses DOM panels for the UI and Canvas for sprite previews.
  *
@@ -17,7 +17,9 @@
 
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
-import { SPRITE_RACES } from '../data/SpriteData.js';
+import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
+import { ABILITIES } from '../data/AbilityData.js';
+import { LEARNSETS } from '../data/LearnsetData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
 import { EQUIPMENT } from '../data/EquipmentData.js';
 import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
@@ -36,7 +38,7 @@ const TOTAL_RACES = 24;
 const STAGES_PER_RACE = 3;
 const TOTAL_FORMS = TOTAL_RACES * STAGES_PER_RACE; // 72
 const MAX_PARTY_SIZE = 6;
-const MAX_EQUIPPED_ABILITIES = 4;
+const MAX_EQUIPPED_ABILITIES = 2; // RTS auto-battle: 1 basic + 1 advanced/passive
 const STORAGE_BOX_SIZE = 30; // sprites per box
 const STORAGE_BOX_COLS = 6;
 const REGISTRY_COLS = 8;
@@ -74,6 +76,63 @@ const ELEMENT_COLORS = {
     Electric: '#ffcc00', Ice: '#99ddff', Nature: '#33aa33', Poison: '#aa33aa',
     Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Psychic: '#ff66aa',
     Chaos: '#ff8833', Spirit: '#ccccff',
+};
+
+// ── Targeting Type Icons & Descriptions ──────────────────────────────────────
+const TARGETING_ICONS = {
+    single_enemy:    '\u{1F3AF}', // direct hit
+    row:             '\u2194',    // left-right arrow (row sweep)
+    column:          '\u2195',    // up-down arrow (column pierce)
+    aoe_circle:      '\u{1F4A5}', // explosion (area)
+    all_enemies:     '\u{1F525}', // fire (hits all enemies)
+    random:          '\u{1F3B2}', // dice (random)
+    cross:           '\u271A',    // cross pattern
+    diamond:         '\u{1F537}', // diamond
+    line:            '\u2192',    // arrow right (piercing line)
+    adjacent:        '\u{1F91C}', // fist (adjacent)
+    self:            '\u{1F6E1}', // shield (self)
+    single_ally:     '\u{1F49A}', // green heart (heal ally)
+    all_allies:      '\u{1F49B}', // yellow heart (team heal)
+    adjacent_allies: '\u{1F91D}', // handshake (nearby allies)
+    random_ally:     '\u2728',    // sparkle (random ally)
+};
+
+const TARGETING_DESCRIPTIONS = {
+    single_enemy:    'Targets one enemy',
+    row:             'Hits all enemies in a row',
+    column:          'Hits all enemies in a column',
+    aoe_circle:      'Hits all enemies in an area',
+    all_enemies:     'Strikes every enemy on the field',
+    random:          'Hits a random enemy',
+    cross:           'Hits enemies in a cross pattern',
+    diamond:         'Hits enemies in a diamond pattern',
+    line:            'Pierces through enemies in a line',
+    adjacent:        'Hits enemies on adjacent tiles',
+    self:            'Affects the user only',
+    single_ally:     'Targets one ally',
+    all_allies:      'Affects the entire team',
+    adjacent_allies: 'Affects nearby allies',
+    random_ally:     'Affects a random ally',
+};
+
+// ── Ability classification for RTS auto-battle ──────────────────────────────
+// Basic: low power, no cooldown, bread-and-butter damage/heal
+// Advanced/Passive: high power, cooldown > 0, AoE, or status-focused
+function _classifyAbility(ability) {
+    if (!ability) return 'basic';
+    if (ability.cooldown_turns > 0) return 'advanced';
+    if (ability.base_power >= 70) return 'advanced';
+    if (['aoe_circle', 'all_enemies', 'row', 'column', 'cross', 'diamond', 'all_allies'].includes(ability.targeting_type)) return 'advanced';
+    if (ability.base_power === 0 && ability.status_effect_ids && ability.status_effect_ids.length > 0) return 'advanced';
+    return 'basic';
+}
+
+// ── Evolution stage names ────────────────────────────────────────────────────
+const STAGE_NAMES = { 1: 'Hatchling', 2: 'Adept', 3: 'Apex' };
+const STAGE_DESCRIPTIONS = {
+    1: 'The base form of this Sprite. Young and still developing its full potential.',
+    2: 'An evolved form with heightened stats and new combat abilities.',
+    3: 'The final evolution. A fully realized Sprite at the peak of its power.',
 };
 
 const COLOR_BG = '#0b0b1a';
@@ -398,9 +457,9 @@ export class SpriteCenterScene extends Scene {
 
         this._detailPanelEl = document.createElement('div');
         this._detailPanelEl.style.cssText = `
-            width:200px;background:rgba(0,0,0,0.4);
+            width:280px;background:rgba(0,0,0,0.4);
             border-left:1px solid rgba(255,255,255,0.06);
-            overflow-y:auto;padding:8px;display:none;
+            overflow-y:auto;padding:10px;display:none;
         `;
         mainArea.appendChild(this._detailPanelEl);
 
@@ -999,13 +1058,16 @@ export class SpriteCenterScene extends Scene {
             this._detailPanelEl.appendChild(elemDiv);
         }
 
-        // Large sprite preview (rich composite via UnitRenderer)
+        // Sprite preview + class/race info row
+        const previewRow = document.createElement('div');
+        previewRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
+
         const detailCanvas = document.createElement('canvas');
-        detailCanvas.width = 80;
-        detailCanvas.height = 90;
-        detailCanvas.style.cssText = 'width:80px;height:90px;display:block;margin:0 auto 6px;';
+        detailCanvas.width = 64;
+        detailCanvas.height = 72;
+        detailCanvas.style.cssText = 'width:64px;height:72px;flex-shrink:0;image-rendering:pixelated;';
         const dCtx = detailCanvas.getContext('2d');
-        UnitRenderer.draw(dCtx, inst, 40, 40, 72, {
+        UnitRenderer.draw(dCtx, inst, 32, 32, 56, {
             time: this._time,
             showHpBar: true,
             hpFraction: (inst.currentHp || inst.maxHp || 100) / (inst.maxHp || 100),
@@ -1014,19 +1076,37 @@ export class SpriteCenterScene extends Scene {
             showWeapon: true,
             showArmorGlow: true,
             showElementBadge: true,
-            showStatusIcons: true,
+            showStatusIcons: false,
         });
-        this._detailPanelEl.appendChild(detailCanvas);
+        previewRow.appendChild(detailCanvas);
         this._previewCanvases.push({
             canvas: detailCanvas,
             inst,
-            opts: { cx: 40, cy: 40, size: 72, showHpBar: true, hpFraction: (inst.currentHp || inst.maxHp || 100) / (inst.maxHp || 100), showLevel: true, showAura: true, showWeapon: true, showArmorGlow: true, showElementBadge: true, showStatusIcons: true },
+            opts: { cx: 32, cy: 32, size: 56, showHpBar: true, hpFraction: (inst.currentHp || inst.maxHp || 100) / (inst.maxHp || 100), showLevel: true, showAura: true, showWeapon: true, showArmorGlow: true, showElementBadge: true, showStatusIcons: false },
         });
 
-        // Equipment paper-doll display
-        const eqDisplay = UnitRenderer.createEquipmentDisplay(inst.equipment || {}, 100);
-        eqDisplay.style.margin = '4px auto';
-        this._detailPanelEl.appendChild(eqDisplay);
+        // Class & race summary next to preview
+        const summaryCol = document.createElement('div');
+        summaryCol.style.cssText = 'flex:1;min-width:0;';
+        const classType = raceData.classType || raceData.class_type || 'Unknown';
+        const rarity = raceData.rarity || 'common';
+        const rarityColor = RARITY_COLORS_GLOBAL[rarity] || '#888';
+        const classLine = document.createElement('div');
+        classLine.style.cssText = `font-size:0.6rem;color:${rarityColor};font-weight:600;`;
+        classLine.textContent = `${classType} \u2022 ${rarity.charAt(0).toUpperCase() + rarity.slice(1)}`;
+        summaryCol.appendChild(classLine);
+        const stageLine = document.createElement('div');
+        const currentStage = inst.evolutionStage || 1;
+        stageLine.style.cssText = 'font-size:0.55rem;color:#777;';
+        stageLine.textContent = `Stage ${currentStage}/3 \u2022 ${STAGE_NAMES[currentStage] || 'Unknown'}`;
+        summaryCol.appendChild(stageLine);
+        // HP bar text
+        const hpLine = document.createElement('div');
+        hpLine.style.cssText = 'font-size:0.55rem;color:#33cc66;margin-top:2px;';
+        hpLine.textContent = `HP: ${inst.currentHp || inst.maxHp || '???'}/${inst.maxHp || '???'}`;
+        summaryCol.appendChild(hpLine);
+        previewRow.appendChild(summaryCol);
+        this._detailPanelEl.appendChild(previewRow);
 
         // Mode tabs (Stats, Abilities, Equipment, Evolution)
         const modeTabs = document.createElement('div');
@@ -1184,96 +1264,337 @@ export class SpriteCenterScene extends Scene {
     }
 
     _renderAbilitiesMode(container, inst, abilities) {
-        // Equipped abilities
-        const equippedHeader = document.createElement('div');
-        equippedHeader.style.cssText = 'font-size:0.65rem;font-weight:700;color:#aaa;margin-bottom:4px;';
-        equippedHeader.textContent = `Active Abilities (${Math.min(abilities.length, MAX_EQUIPPED_ABILITIES)}/${MAX_EQUIPPED_ABILITIES})`;
-        container.appendChild(equippedHeader);
+        // Resolve full ability data from ABILITIES dictionary
+        const raceId = inst.raceId || inst.race_id || 1;
+        const learnset = LEARNSETS[raceId] || [];
+        const instLevel = inst.level || 1;
 
-        const equippedIds = inst.equippedAbilities || abilities.slice(0, MAX_EQUIPPED_ABILITIES).map(a => a.abilityId);
-        const equippedList = document.createElement('div');
-        equippedList.style.cssText = 'margin-bottom:10px;';
+        // Build full ability list from learnset (abilities learned up to current level)
+        const learnedAbilityIds = learnset
+            .filter(entry => entry.learn_level <= instLevel)
+            .map(entry => entry.ability_id);
 
-        for (let i = 0; i < MAX_EQUIPPED_ABILITIES; i++) {
-            const ability = abilities.find(a => a && a.abilityId === equippedIds[i]) || abilities[i];
-            const slot = document.createElement('div');
+        // Merge with any abilities already on the instance
+        const instAbilityIds = (abilities || []).map(a => a.abilityId || a.ability_id);
+        const allAbilityIds = [...new Set([...learnedAbilityIds, ...instAbilityIds])];
 
-            if (ability) {
-                const elemColor = ELEMENT_COLORS[ability.elementType] || '#666';
-                slot.style.cssText = `
-                    padding:4px 6px;margin-bottom:2px;border-radius:4px;
-                    border-left:3px solid ${elemColor};
-                    background:rgba(255,255,255,0.03);font-size:0.6rem;
-                `;
+        // Resolve to full ability objects from ABILITIES data
+        const fullAbilities = allAbilityIds
+            .map(id => ABILITIES[id])
+            .filter(a => !!a);
 
-                const nameRow = document.createElement('div');
-                nameRow.style.cssText = 'display:flex;justify-content:space-between;';
+        // Split into basic and advanced/passive
+        const basicPool = fullAbilities.filter(a => _classifyAbility(a) === 'basic');
+        const advancedPool = fullAbilities.filter(a => _classifyAbility(a) === 'advanced');
 
-                const nameSpan = document.createElement('span');
-                nameSpan.style.cssText = 'color:#ccddee;font-weight:600;';
-                nameSpan.textContent = ability.abilityName || `Ability #${ability.abilityId}`;
-                nameRow.appendChild(nameSpan);
+        // Determine equipped abilities (pick best if not explicitly set)
+        const equippedIds = inst.equippedAbilities || [];
+        let basicAbility = basicPool.find(a => equippedIds.includes(a.ability_id)) || basicPool[basicPool.length - 1] || null;
+        let advancedAbility = advancedPool.find(a => equippedIds.includes(a.ability_id)) || advancedPool[advancedPool.length - 1] || null;
 
-                const pwrSpan = document.createElement('span');
-                pwrSpan.style.cssText = `color:${elemColor};`;
-                pwrSpan.textContent = ability.basePower ? `Pwr:${ability.basePower}` : 'Status';
-                nameRow.appendChild(pwrSpan);
+        // ── Section header ──
+        const header = document.createElement('div');
+        header.style.cssText = 'font-size:0.65rem;font-weight:700;color:#aaa;margin-bottom:6px;';
+        header.textContent = 'Combat Abilities (RTS Auto-Battle)';
+        container.appendChild(header);
 
-                slot.appendChild(nameRow);
+        const helpText = document.createElement('div');
+        helpText.style.cssText = 'font-size:0.5rem;color:#666;margin-bottom:8px;line-height:1.4;';
+        helpText.textContent = 'In auto-battle, each Sprite uses one basic attack and one advanced ability. The AI selects targets based on type advantage and HP.';
+        container.appendChild(helpText);
 
-                const infoRow = document.createElement('div');
-                infoRow.style.cssText = 'font-size:0.55rem;color:#777;';
-                infoRow.textContent = `${ability.elementType || '???'} | PP:${ability.ppMax || '?'} | Acc:${Math.round((ability.accuracy || 1) * 100)}%`;
-                slot.appendChild(infoRow);
-            } else {
-                slot.style.cssText = `
-                    padding:4px 6px;margin-bottom:2px;border-radius:4px;
-                    border-left:3px solid #333;
-                    background:rgba(255,255,255,0.01);font-size:0.6rem;
-                    color:#444;
-                `;
-                slot.textContent = `Slot ${i + 1} - Empty`;
-            }
+        // ── Basic Ability Card ──
+        this._renderAbilityCard(container, basicAbility, 'Basic Attack', '#ff6644', basicPool, inst, 'basic');
 
-            equippedList.appendChild(slot);
-        }
-        container.appendChild(equippedList);
+        // ── Advanced/Passive Ability Card ──
+        this._renderAbilityCard(container, advancedAbility, 'Advanced / Passive', '#aa44ff', advancedPool, inst, 'advanced');
 
-        // Learned abilities pool (those not equipped)
-        const learnedAbilities = abilities.filter(a => a && !equippedIds.includes(a.abilityId));
-        if (learnedAbilities.length > 0) {
-            const learnedHeader = document.createElement('div');
-            learnedHeader.style.cssText = 'font-size:0.6rem;font-weight:700;color:#666;margin-bottom:3px;';
-            learnedHeader.textContent = 'Learned Pool';
-            container.appendChild(learnedHeader);
+        // ── Learned Pool (collapsed) ──
+        if (fullAbilities.length > 2) {
+            const poolHeader = document.createElement('div');
+            poolHeader.style.cssText = 'font-size:0.6rem;font-weight:700;color:#666;margin-top:8px;margin-bottom:4px;';
+            poolHeader.textContent = `Learned Pool (${fullAbilities.length} total)`;
+            container.appendChild(poolHeader);
 
-            for (const ability of learnedAbilities) {
-                const elemColor = ELEMENT_COLORS[ability.elementType] || '#444';
+            for (const ability of fullAbilities) {
+                if (ability === basicAbility || ability === advancedAbility) continue;
+                const elemColor = ELEMENT_COLORS[ability.element_type] || '#444';
+                const typeLabel = _classifyAbility(ability) === 'basic' ? 'B' : 'A';
+                const targetIcon = TARGETING_ICONS[ability.targeting_type] || '\u2753';
+
                 const row = document.createElement('div');
                 row.style.cssText = `
-                    display:flex;justify-content:space-between;align-items:center;
+                    display:flex;align-items:center;gap:4px;
                     padding:3px 6px;margin-bottom:1px;border-radius:3px;
-                    font-size:0.55rem;color:#888;cursor:pointer;
+                    font-size:0.55rem;color:#888;
                     border-left:2px solid ${elemColor}66;
                 `;
-                row.textContent = `${ability.abilityName || '???'} (${ability.elementType || '???'})`;
 
-                // Swap button
-                const swapBtn = document.createElement('button');
-                swapBtn.style.cssText = `
-                    padding:1px 6px;font-size:0.5rem;border:1px solid #555;
-                    border-radius:3px;background:rgba(0,0,0,0.3);color:#aaa;cursor:pointer;
-                `;
-                swapBtn.textContent = 'Equip';
-                swapBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this._equipAbility(inst, ability, equippedIds);
-                });
-                row.appendChild(swapBtn);
+                const typeTag = document.createElement('span');
+                typeTag.style.cssText = `font-size:0.45rem;padding:0 3px;border-radius:2px;
+                    background:${typeLabel === 'B' ? '#ff664433' : '#aa44ff33'};
+                    color:${typeLabel === 'B' ? '#ff6644' : '#aa44ff'};font-weight:700;`;
+                typeTag.textContent = typeLabel;
+                row.appendChild(typeTag);
+
+                const targetSpan = document.createElement('span');
+                targetSpan.style.cssText = 'font-size:0.55rem;';
+                targetSpan.textContent = targetIcon;
+                targetSpan.title = TARGETING_DESCRIPTIONS[ability.targeting_type] || '';
+                row.appendChild(targetSpan);
+
+                const nameSpan = document.createElement('span');
+                nameSpan.style.cssText = 'flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+                nameSpan.textContent = ability.ability_name;
+                row.appendChild(nameSpan);
+
+                if (ability.base_power > 0) {
+                    const pwrSpan = document.createElement('span');
+                    pwrSpan.style.cssText = `color:${elemColor};font-size:0.5rem;`;
+                    pwrSpan.textContent = `${ability.base_power}`;
+                    row.appendChild(pwrSpan);
+                }
 
                 container.appendChild(row);
             }
         }
+    }
+
+    /**
+     * Render a single ability card with icon, name, description, targeting, and stats.
+     */
+    _renderAbilityCard(container, ability, slotLabel, accentColor, pool, inst, slotType) {
+        const card = document.createElement('div');
+        card.style.cssText = `
+            padding:8px;margin-bottom:6px;border-radius:6px;
+            border:1px solid ${ability ? accentColor + '55' : '#33333388'};
+            background:${ability ? accentColor + '0a' : 'rgba(255,255,255,0.01)'};
+        `;
+
+        // Slot label header
+        const slotHeader = document.createElement('div');
+        slotHeader.style.cssText = `font-size:0.55rem;font-weight:700;color:${accentColor};margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;`;
+        slotHeader.textContent = slotLabel;
+        card.appendChild(slotHeader);
+
+        if (!ability) {
+            const emptyText = document.createElement('div');
+            emptyText.style.cssText = 'font-size:0.6rem;color:#555;font-style:italic;';
+            emptyText.textContent = 'No ability available for this slot.';
+            card.appendChild(emptyText);
+            container.appendChild(card);
+            return;
+        }
+
+        const elemColor = ELEMENT_COLORS[ability.element_type] || '#888';
+        const targetIcon = TARGETING_ICONS[ability.targeting_type] || '\u2753';
+        const targetDesc = TARGETING_DESCRIPTIONS[ability.targeting_type] || 'Unknown targeting';
+
+        // ── Row 1: Icon + Name + Element badge ──
+        const nameRow = document.createElement('div');
+        nameRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:4px;';
+
+        // Ability icon (targeting type icon as visual indicator)
+        const iconEl = document.createElement('span');
+        iconEl.style.cssText = `
+            font-size:1.1rem;width:28px;height:28px;
+            display:flex;align-items:center;justify-content:center;
+            background:${elemColor}22;border-radius:4px;border:1px solid ${elemColor}44;
+            flex-shrink:0;
+        `;
+        iconEl.textContent = targetIcon;
+        iconEl.title = targetDesc;
+        nameRow.appendChild(iconEl);
+
+        const nameCol = document.createElement('div');
+        nameCol.style.cssText = 'flex:1;min-width:0;';
+        const abilityName = document.createElement('div');
+        abilityName.style.cssText = 'font-size:0.7rem;font-weight:700;color:#ddddee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+        abilityName.textContent = ability.ability_name;
+        nameCol.appendChild(abilityName);
+
+        // Element + Physical/Special tag
+        const tagsRow = document.createElement('div');
+        tagsRow.style.cssText = 'display:flex;gap:4px;align-items:center;margin-top:1px;';
+        if (ability.element_type) {
+            const elemTag = document.createElement('span');
+            elemTag.style.cssText = `font-size:0.5rem;padding:0 4px;border-radius:6px;
+                background:${elemColor}33;color:${elemColor};border:1px solid ${elemColor}55;`;
+            elemTag.textContent = ability.element_type;
+            tagsRow.appendChild(elemTag);
+        }
+        const physTag = document.createElement('span');
+        physTag.style.cssText = `font-size:0.5rem;padding:0 4px;border-radius:6px;
+            background:rgba(255,255,255,0.05);color:#888;border:1px solid rgba(255,255,255,0.1);`;
+        physTag.textContent = ability.is_physical ? 'Physical' : 'Special';
+        tagsRow.appendChild(physTag);
+        nameCol.appendChild(tagsRow);
+        nameRow.appendChild(nameCol);
+        card.appendChild(nameRow);
+
+        // ── Row 2: Description ──
+        if (ability.description) {
+            const descEl = document.createElement('div');
+            descEl.style.cssText = 'font-size:0.55rem;color:#999;line-height:1.4;margin-bottom:6px;';
+            descEl.textContent = ability.description;
+            card.appendChild(descEl);
+        }
+
+        // ── Row 3: Targeting description ──
+        const targetRow = document.createElement('div');
+        targetRow.style.cssText = 'display:flex;align-items:center;gap:4px;margin-bottom:4px;';
+        const targetLabel = document.createElement('span');
+        targetLabel.style.cssText = 'font-size:0.5rem;color:#666;font-weight:700;';
+        targetLabel.textContent = 'TARGET:';
+        targetRow.appendChild(targetLabel);
+        const targetText = document.createElement('span');
+        targetText.style.cssText = 'font-size:0.5rem;color:#aaa;';
+        targetText.textContent = `${targetIcon} ${targetDesc}`;
+        targetRow.appendChild(targetText);
+        card.appendChild(targetRow);
+
+        // ── Row 4: Stats grid ──
+        const statsGrid = document.createElement('div');
+        statsGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;';
+
+        const statItems = [
+            { label: 'PWR', value: ability.base_power || '—', color: '#ff6644' },
+            { label: 'ACC', value: ability.accuracy ? `${Math.round(ability.accuracy * 100)}%` : '—', color: '#66ffcc' },
+            { label: 'PP', value: ability.pp_max || '—', color: '#66aaff' },
+        ];
+        if (ability.cooldown_turns > 0) {
+            statItems.push({ label: 'CD', value: `${ability.cooldown_turns}T`, color: '#cc9933' });
+        }
+        if (ability.priority_modifier > 0) {
+            statItems.push({ label: 'PRI', value: `+${ability.priority_modifier}`, color: '#ffcc33' });
+        }
+        if (ability.crit_rate_bonus > 0) {
+            statItems.push({ label: 'CRIT', value: `+${Math.round(ability.crit_rate_bonus * 100)}%`, color: '#ff66aa' });
+        }
+
+        for (const s of statItems) {
+            const cell = document.createElement('div');
+            cell.style.cssText = `
+                text-align:center;padding:2px 0;border-radius:3px;
+                background:rgba(255,255,255,0.03);
+            `;
+            const labelEl = document.createElement('div');
+            labelEl.style.cssText = 'font-size:0.4rem;color:#666;font-weight:700;letter-spacing:0.5px;';
+            labelEl.textContent = s.label;
+            cell.appendChild(labelEl);
+            const valEl = document.createElement('div');
+            valEl.style.cssText = `font-size:0.6rem;color:${s.color};font-weight:600;`;
+            valEl.textContent = s.value;
+            cell.appendChild(valEl);
+            statsGrid.appendChild(cell);
+        }
+        card.appendChild(statsGrid);
+
+        // ── Swap button (if pool has alternatives) ──
+        if (pool.length > 1) {
+            const swapBtn = document.createElement('button');
+            swapBtn.style.cssText = `
+                margin-top:6px;width:100%;padding:4px;font-size:0.5rem;
+                border:1px solid ${accentColor}66;border-radius:4px;
+                background:${accentColor}11;color:${accentColor};cursor:pointer;
+            `;
+            swapBtn.textContent = `Change ${slotLabel} (${pool.length} available)`;
+            swapBtn.addEventListener('click', () => {
+                this._showAbilitySwapPopup(inst, pool, ability, slotType);
+            });
+            card.appendChild(swapBtn);
+        }
+
+        container.appendChild(card);
+    }
+
+    /**
+     * Show a popup to swap an ability in a slot.
+     */
+    _showAbilitySwapPopup(inst, pool, currentAbility, slotType) {
+        // Overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.7);z-index:10000;
+            display:flex;align-items:center;justify-content:center;
+        `;
+
+        const popup = document.createElement('div');
+        popup.style.cssText = `
+            background:#1a1a2e;border:1px solid #333;border-radius:8px;
+            padding:12px;width:260px;max-height:80vh;overflow-y:auto;
+        `;
+
+        const title = document.createElement('div');
+        title.style.cssText = 'font-size:0.75rem;font-weight:700;color:#ffcc33;margin-bottom:8px;';
+        title.textContent = `Select ${slotType === 'basic' ? 'Basic Attack' : 'Advanced / Passive'}`;
+        popup.appendChild(title);
+
+        for (const ability of pool) {
+            const isEquipped = ability === currentAbility;
+            const elemColor = ELEMENT_COLORS[ability.element_type] || '#888';
+            const targetIcon = TARGETING_ICONS[ability.targeting_type] || '\u2753';
+
+            const row = document.createElement('div');
+            row.style.cssText = `
+                display:flex;align-items:center;gap:6px;
+                padding:6px 8px;margin-bottom:3px;border-radius:4px;
+                border:1px solid ${isEquipped ? '#ffcc3366' : 'rgba(255,255,255,0.06)'};
+                background:${isEquipped ? 'rgba(255,204,51,0.08)' : 'rgba(255,255,255,0.02)'};
+                cursor:pointer;min-height:44px;
+            `;
+
+            const icon = document.createElement('span');
+            icon.style.cssText = `font-size:0.9rem;width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+                background:${elemColor}22;border-radius:3px;flex-shrink:0;`;
+            icon.textContent = targetIcon;
+            row.appendChild(icon);
+
+            const infoCol = document.createElement('div');
+            infoCol.style.cssText = 'flex:1;min-width:0;';
+            const nameEl = document.createElement('div');
+            nameEl.style.cssText = `font-size:0.6rem;font-weight:600;color:${isEquipped ? '#ffcc33' : '#ccddee'};`;
+            nameEl.textContent = `${ability.ability_name}${isEquipped ? ' (equipped)' : ''}`;
+            infoCol.appendChild(nameEl);
+            const descEl = document.createElement('div');
+            descEl.style.cssText = 'font-size:0.5rem;color:#777;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+            descEl.textContent = `${ability.element_type || 'None'} | Pwr:${ability.base_power || '—'} | ${TARGETING_DESCRIPTIONS[ability.targeting_type] || ''}`;
+            infoCol.appendChild(descEl);
+            row.appendChild(infoCol);
+
+            if (!isEquipped) {
+                row.addEventListener('click', () => {
+                    // Set this ability as the equipped one for this slot type
+                    if (!inst.equippedAbilities) inst.equippedAbilities = [];
+                    // Remove any existing ability of same classification
+                    inst.equippedAbilities = inst.equippedAbilities.filter(id => {
+                        const ab = ABILITIES[id];
+                        return ab && _classifyAbility(ab) !== slotType;
+                    });
+                    inst.equippedAbilities.push(ability.ability_id);
+                    overlay.remove();
+                    this._renderDetailPanel();
+                });
+            }
+
+            popup.appendChild(row);
+        }
+
+        const closeBtn = document.createElement('button');
+        closeBtn.style.cssText = `
+            margin-top:8px;width:100%;padding:6px;font-size:0.6rem;
+            border:1px solid #555;border-radius:4px;
+            background:rgba(0,0,0,0.4);color:#aaa;cursor:pointer;
+            min-height:44px;
+        `;
+        closeBtn.textContent = '\u2715 Close';
+        closeBtn.addEventListener('click', () => overlay.remove());
+        popup.appendChild(closeBtn);
+
+        overlay.appendChild(popup);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+        document.body.appendChild(overlay);
     }
 
     _renderEquipmentMode(container, inst) {
@@ -2206,90 +2527,256 @@ export class SpriteCenterScene extends Scene {
     _renderEvolutionMode(container, inst, raceData, stageData) {
         const currentStage = inst.evolutionStage || stageData.stageNumber || 1;
         const maxStage = STAGES_PER_RACE;
+        const raceId = inst.raceId || inst.race_id || 1;
 
-        // Evolution chain visual
+        // Look up evolution forms from data
+        const evoChain = raceData.evolutionChain || raceData.evolution_chain || [];
+        const race = SPRITE_RACES.find(r => r.race_id === raceId);
+        const chainFormIds = race ? race.evolution_chain : [];
+
+        // ── Evolution chain visual with stage names ──
         const chainDiv = document.createElement('div');
-        chainDiv.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:12px;justify-content:center;';
+        chainDiv.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:8px;justify-content:center;';
 
         for (let s = 1; s <= maxStage; s++) {
-            const stageCircle = document.createElement('div');
             const isActive = s === currentStage;
             const isPast = s < currentStage;
             const bgColor = isActive ? '#ffcc33' : isPast ? '#33aa66' : '#333';
             const textColor = isActive || isPast ? '#fff' : '#555';
+            const borderColor = isActive ? '#ffdd55' : isPast ? '#44cc77' : '#444';
 
-            stageCircle.style.cssText = `
-                width:32px;height:32px;border-radius:50%;background:${bgColor};
+            const stageEl = document.createElement('div');
+            stageEl.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;';
+
+            const circle = document.createElement('div');
+            circle.style.cssText = `
+                width:30px;height:30px;border-radius:50%;background:${bgColor};
                 display:flex;align-items:center;justify-content:center;
-                font-size:0.7rem;font-weight:700;color:${textColor};
-                border:2px solid ${isActive ? '#ffdd55' : isPast ? '#44cc77' : '#444'};
+                font-size:0.65rem;font-weight:700;color:${textColor};
+                border:2px solid ${borderColor};
             `;
-            stageCircle.textContent = `${s}`;
-            chainDiv.appendChild(stageCircle);
+            circle.textContent = `${s}`;
+            stageEl.appendChild(circle);
 
-            // Arrow between stages
+            const stageName = document.createElement('div');
+            stageName.style.cssText = `font-size:0.45rem;color:${isActive ? '#ffcc33' : isPast ? '#44cc77' : '#555'};font-weight:600;`;
+            stageName.textContent = STAGE_NAMES[s] || `Stage ${s}`;
+            stageEl.appendChild(stageName);
+
+            chainDiv.appendChild(stageEl);
+
             if (s < maxStage) {
                 const arrow = document.createElement('span');
-                arrow.style.cssText = `color:${s < currentStage ? '#44cc77' : '#444'};font-size:0.8rem;`;
+                arrow.style.cssText = `color:${s < currentStage ? '#44cc77' : '#444'};font-size:0.8rem;margin-bottom:12px;`;
                 arrow.textContent = '\u2192';
                 chainDiv.appendChild(arrow);
             }
         }
         container.appendChild(chainDiv);
 
-        // Current stage info
-        const stageInfo = document.createElement('div');
-        stageInfo.style.cssText = 'font-size:0.7rem;color:#aaa;text-align:center;margin-bottom:8px;';
-        stageInfo.textContent = `Current Stage: ${currentStage}/${maxStage}`;
-        container.appendChild(stageInfo);
+        // ── Current stage description ──
+        const stageDesc = document.createElement('div');
+        stageDesc.style.cssText = 'font-size:0.55rem;color:#999;line-height:1.4;margin-bottom:8px;text-align:center;';
+        stageDesc.textContent = STAGE_DESCRIPTIONS[currentStage] || '';
+        container.appendChild(stageDesc);
 
+        // ── Lore description ──
+        const lore = race ? race.lore_description : (raceData.loreDescription || raceData.lore_description || '');
+        if (lore) {
+            const loreBox = document.createElement('div');
+            loreBox.style.cssText = `
+                padding:6px 8px;border-radius:4px;margin-bottom:8px;
+                background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);
+                font-size:0.5rem;color:#887766;line-height:1.5;font-style:italic;
+            `;
+            loreBox.textContent = `"${lore}"`;
+            container.appendChild(loreBox);
+        }
+
+        // ── Stat multipliers for current stage ──
+        const formId = chainFormIds[currentStage - 1];
+        const form = formId ? EVOLUTION_FORMS[formId] : null;
+        if (form && form.stat_multipliers) {
+            const multHeader = document.createElement('div');
+            multHeader.style.cssText = 'font-size:0.6rem;font-weight:700;color:#888;margin-bottom:4px;';
+            multHeader.textContent = 'Stage Stat Multipliers';
+            container.appendChild(multHeader);
+
+            const multGrid = document.createElement('div');
+            multGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin-bottom:8px;';
+            const statDefs = [
+                { key: 'hp', label: 'HP', color: '#33cc66' },
+                { key: 'atk', label: 'ATK', color: '#ff6644' },
+                { key: 'def', label: 'DEF', color: '#4488ff' },
+                { key: 'sp_atk', label: 'SP.A', color: '#ff66aa' },
+                { key: 'sp_def', label: 'SP.D', color: '#66aaff' },
+                { key: 'spd', label: 'SPD', color: '#66ffcc' },
+            ];
+            for (const s of statDefs) {
+                const mult = form.stat_multipliers[s.key] || 1.0;
+                const cell = document.createElement('div');
+                cell.style.cssText = `text-align:center;padding:2px;border-radius:3px;background:rgba(255,255,255,0.03);`;
+                const lbl = document.createElement('div');
+                lbl.style.cssText = 'font-size:0.4rem;color:#666;font-weight:700;';
+                lbl.textContent = s.label;
+                cell.appendChild(lbl);
+                const val = document.createElement('div');
+                val.style.cssText = `font-size:0.6rem;font-weight:600;color:${mult > 1.0 ? s.color : '#666'};`;
+                val.textContent = `\u00D7${mult.toFixed(1)}`;
+                cell.appendChild(val);
+                multGrid.appendChild(cell);
+            }
+            container.appendChild(multGrid);
+        }
+
+        // ── Abilities gained at next evolution ──
+        if (currentStage < maxStage) {
+            const nextFormId = chainFormIds[currentStage]; // index = currentStage because 0-based
+            const nextForm = nextFormId ? EVOLUTION_FORMS[nextFormId] : null;
+            if (nextForm && nextForm.ability_changes && nextForm.ability_changes.length > 0) {
+                const abilHeader = document.createElement('div');
+                abilHeader.style.cssText = 'font-size:0.6rem;font-weight:700;color:#888;margin-bottom:4px;';
+                abilHeader.textContent = 'New Abilities on Evolution';
+                container.appendChild(abilHeader);
+
+                for (const change of nextForm.ability_changes) {
+                    const newAbility = ABILITIES[change.ability_id];
+                    const replacesAbility = change.replaces_ability_id > 0 ? ABILITIES[change.replaces_ability_id] : null;
+                    const elemColor = newAbility ? (ELEMENT_COLORS[newAbility.element_type] || '#888') : '#888';
+                    const targetIcon = newAbility ? (TARGETING_ICONS[newAbility.targeting_type] || '\u2753') : '\u2753';
+
+                    const changeRow = document.createElement('div');
+                    changeRow.style.cssText = `
+                        padding:4px 6px;margin-bottom:3px;border-radius:4px;
+                        border-left:3px solid ${elemColor};
+                        background:rgba(255,255,255,0.03);
+                    `;
+
+                    const nameRow = document.createElement('div');
+                    nameRow.style.cssText = 'display:flex;align-items:center;gap:4px;';
+                    const icon = document.createElement('span');
+                    icon.style.cssText = 'font-size:0.7rem;';
+                    icon.textContent = targetIcon;
+                    nameRow.appendChild(icon);
+                    const name = document.createElement('span');
+                    name.style.cssText = 'font-size:0.6rem;font-weight:600;color:#ccddee;';
+                    name.textContent = newAbility ? newAbility.ability_name : `Ability #${change.ability_id}`;
+                    nameRow.appendChild(name);
+                    const lvlTag = document.createElement('span');
+                    lvlTag.style.cssText = 'font-size:0.45rem;color:#888;margin-left:auto;';
+                    lvlTag.textContent = `Lv${change.learn_level}`;
+                    nameRow.appendChild(lvlTag);
+                    changeRow.appendChild(nameRow);
+
+                    if (newAbility && newAbility.description) {
+                        const desc = document.createElement('div');
+                        desc.style.cssText = 'font-size:0.5rem;color:#777;margin-top:2px;';
+                        desc.textContent = newAbility.description;
+                        changeRow.appendChild(desc);
+                    }
+
+                    if (replacesAbility) {
+                        const replTag = document.createElement('div');
+                        replTag.style.cssText = 'font-size:0.45rem;color:#cc6633;margin-top:2px;';
+                        replTag.textContent = `Replaces: ${replacesAbility.ability_name}`;
+                        changeRow.appendChild(replTag);
+                    }
+
+                    container.appendChild(changeRow);
+                }
+            }
+        }
+
+        // ── Fully evolved message ──
         if (currentStage >= maxStage) {
             const maxedLabel = document.createElement('div');
-            maxedLabel.style.cssText = 'color:#ffcc33;font-size:0.75rem;font-weight:700;text-align:center;margin:12px 0;';
-            maxedLabel.textContent = 'Fully Evolved!';
+            maxedLabel.style.cssText = 'color:#ffcc33;font-size:0.75rem;font-weight:700;text-align:center;margin:8px 0;';
+            maxedLabel.textContent = '\u2728 Fully Evolved \u2014 Apex Form \u2728';
             container.appendChild(maxedLabel);
+            const maxedDesc = document.createElement('div');
+            maxedDesc.style.cssText = 'font-size:0.55rem;color:#999;text-align:center;margin-bottom:8px;';
+            maxedDesc.textContent = 'This Sprite has reached its final evolution and is at the peak of its power.';
+            container.appendChild(maxedDesc);
             return;
         }
 
-        // Evolution requirements
+        // ── Evolution requirements ──
+        const nextFormId = chainFormIds[currentStage];
+        const nextForm = nextFormId ? EVOLUTION_FORMS[nextFormId] : null;
+        const triggerType = nextForm ? nextForm.evolution_trigger_type : 'level';
+        const triggerValue = nextForm ? nextForm.evolution_trigger_value : ((currentStage) * 15);
+        const triggerDesc = nextForm ? nextForm.evolution_trigger_description : '';
+
+        // Merge with any requirements from stageData/raceData
         const evoRequirements = stageData.evolutionRequirements || raceData.evolutionRequirements || {};
+
         const reqDiv = document.createElement('div');
-        reqDiv.style.cssText = 'margin-bottom:10px;';
+        reqDiv.style.cssText = 'margin-bottom:8px;';
 
         const reqHeader = document.createElement('div');
-        reqHeader.style.cssText = 'font-size:0.65rem;font-weight:700;color:#888;margin-bottom:4px;';
-        reqHeader.textContent = 'Requirements for Next Evolution';
+        reqHeader.style.cssText = 'font-size:0.6rem;font-weight:700;color:#888;margin-bottom:4px;';
+        reqHeader.textContent = 'Evolution Requirements';
         reqDiv.appendChild(reqHeader);
 
-        // Level requirement
-        const reqLevel = evoRequirements.level || ((currentStage) * 15);
+        // Trigger description
+        if (triggerDesc) {
+            const triggerDescEl = document.createElement('div');
+            triggerDescEl.style.cssText = 'font-size:0.55rem;color:#aaa;margin-bottom:4px;font-style:italic;';
+            triggerDescEl.textContent = triggerDesc;
+            reqDiv.appendChild(triggerDescEl);
+        }
+
         const currentLevel = inst.level || 1;
-        const levelMet = currentLevel >= reqLevel;
-        const levelRow = document.createElement('div');
-        levelRow.style.cssText = `font-size:0.6rem;color:${levelMet ? '#33cc66' : '#cc6633'};margin-bottom:2px;`;
-        levelRow.textContent = `${levelMet ? '\u2714' : '\u2718'} Level ${reqLevel} (current: ${currentLevel})`;
-        reqDiv.appendChild(levelRow);
+        let canEvolve = true;
 
-        // Level progress bar
-        const levelProgress = Math.min(1, currentLevel / reqLevel);
-        const levelBar = document.createElement('div');
-        levelBar.style.cssText = 'width:100%;height:4px;background:#1a1a2e;border-radius:2px;overflow:hidden;margin-bottom:4px;';
-        const levelFill = document.createElement('div');
-        levelFill.style.cssText = `width:${levelProgress * 100}%;height:100%;background:${levelMet ? '#33cc66' : '#cc6633'};`;
-        levelBar.appendChild(levelFill);
-        reqDiv.appendChild(levelBar);
+        // Level requirement
+        if (triggerType === 'level' || triggerType === 'none') {
+            const reqLevel = (triggerType === 'level') ? triggerValue : (evoRequirements.level || ((currentStage) * 15));
+            const levelMet = currentLevel >= reqLevel;
+            if (!levelMet) canEvolve = false;
 
-        // Item requirement (if any)
-        if (evoRequirements.item) {
-            const hasItem = this._inventory.some(it => it && it.id === evoRequirements.item);
+            const levelRow = document.createElement('div');
+            levelRow.style.cssText = `font-size:0.6rem;color:${levelMet ? '#33cc66' : '#cc6633'};margin-bottom:2px;`;
+            levelRow.textContent = `${levelMet ? '\u2714' : '\u2718'} Level ${reqLevel} (current: ${currentLevel})`;
+            reqDiv.appendChild(levelRow);
+
+            const levelProgress = Math.min(1, currentLevel / reqLevel);
+            const levelBar = document.createElement('div');
+            levelBar.style.cssText = 'width:100%;height:4px;background:#1a1a2e;border-radius:2px;overflow:hidden;margin-bottom:4px;';
+            const levelFill = document.createElement('div');
+            levelFill.style.cssText = `width:${levelProgress * 100}%;height:100%;background:${levelMet ? '#33cc66' : '#cc6633'};`;
+            levelBar.appendChild(levelFill);
+            reqDiv.appendChild(levelBar);
+        }
+
+        // Item requirement
+        if (triggerType === 'item') {
+            const hasItem = this._inventory && this._inventory.some(it => it && (it.id === triggerValue || it.item_id === triggerValue));
+            if (!hasItem) canEvolve = false;
+            const itemRow = document.createElement('div');
+            itemRow.style.cssText = `font-size:0.6rem;color:${hasItem ? '#33cc66' : '#cc6633'};margin-bottom:2px;`;
+            itemRow.textContent = `${hasItem ? '\u2714' : '\u2718'} ${triggerDesc || 'Requires evolution item'}`;
+            reqDiv.appendChild(itemRow);
+
+            // Also check level (item-based still may need a level)
+            if (triggerValue > 0) {
+                const levelMet = currentLevel >= (triggerValue > 200 ? 1 : triggerValue);
+                // For item triggers, level is not always required
+            }
+        }
+
+        // Fallback check for evoRequirements
+        if (evoRequirements.item && triggerType !== 'item') {
+            const hasItem = this._inventory && this._inventory.some(it => it && it.id === evoRequirements.item);
+            if (!hasItem) canEvolve = false;
             const itemRow = document.createElement('div');
             itemRow.style.cssText = `font-size:0.6rem;color:${hasItem ? '#33cc66' : '#cc6633'};margin-bottom:2px;`;
             itemRow.textContent = `${hasItem ? '\u2714' : '\u2718'} ${evoRequirements.itemName || 'Evolution Item'}`;
             reqDiv.appendChild(itemRow);
         }
 
-        // Special condition (if any)
         if (evoRequirements.condition) {
+            canEvolve = false; // Conditions need special handling
             const condRow = document.createElement('div');
             condRow.style.cssText = 'font-size:0.6rem;color:#cc9933;margin-bottom:2px;';
             condRow.textContent = `\u25CB ${evoRequirements.conditionDescription || evoRequirements.condition}`;
@@ -2298,10 +2785,44 @@ export class SpriteCenterScene extends Scene {
 
         container.appendChild(reqDiv);
 
-        // Evolve button (if all requirements met)
-        const canEvolve = levelMet && (!evoRequirements.item ||
-            this._inventory.some(it => it && it.id === evoRequirements.item));
+        // ── Stat preview for next stage ──
+        if (nextForm && nextForm.stat_multipliers) {
+            const previewHeader = document.createElement('div');
+            previewHeader.style.cssText = 'font-size:0.55rem;font-weight:700;color:#666;margin-bottom:3px;';
+            previewHeader.textContent = 'After Evolution:';
+            container.appendChild(previewHeader);
 
+            const compGrid = document.createElement('div');
+            compGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin-bottom:8px;';
+            const currentForm = formId ? EVOLUTION_FORMS[formId] : null;
+            const statDefs = [
+                { key: 'hp', label: 'HP', color: '#33cc66' },
+                { key: 'atk', label: 'ATK', color: '#ff6644' },
+                { key: 'def', label: 'DEF', color: '#4488ff' },
+                { key: 'sp_atk', label: 'SP.A', color: '#ff66aa' },
+                { key: 'sp_def', label: 'SP.D', color: '#66aaff' },
+                { key: 'spd', label: 'SPD', color: '#66ffcc' },
+            ];
+            for (const s of statDefs) {
+                const curMult = currentForm ? (currentForm.stat_multipliers[s.key] || 1.0) : 1.0;
+                const nextMult = nextForm.stat_multipliers[s.key] || 1.0;
+                const increase = nextMult - curMult;
+                const cell = document.createElement('div');
+                cell.style.cssText = 'text-align:center;padding:2px;border-radius:3px;background:rgba(255,255,255,0.03);';
+                const lbl = document.createElement('div');
+                lbl.style.cssText = 'font-size:0.4rem;color:#666;font-weight:700;';
+                lbl.textContent = s.label;
+                cell.appendChild(lbl);
+                const val = document.createElement('div');
+                val.style.cssText = `font-size:0.55rem;font-weight:600;color:#33cc66;`;
+                val.textContent = `+${increase.toFixed(1)}`;
+                cell.appendChild(val);
+                compGrid.appendChild(cell);
+            }
+            container.appendChild(compGrid);
+        }
+
+        // ── Evolve button ──
         const evolveBtn = document.createElement('button');
         evolveBtn.style.cssText = `
             width:100%;padding:8px;font-size:0.75rem;font-weight:700;
@@ -2310,8 +2831,9 @@ export class SpriteCenterScene extends Scene {
             background:${canEvolve ? 'rgba(200,150,30,0.2)' : 'rgba(40,40,40,0.3)'};
             color:${canEvolve ? '#ffcc33' : '#555'};
             cursor:${canEvolve ? 'pointer' : 'not-allowed'};
+            min-height:44px;
         `;
-        evolveBtn.textContent = canEvolve ? 'Evolve!' : 'Not Ready';
+        evolveBtn.textContent = canEvolve ? '\u2728 Evolve!' : 'Not Ready';
 
         if (canEvolve) {
             evolveBtn.addEventListener('click', () => {
@@ -2555,6 +3077,22 @@ export class SpriteCenterScene extends Scene {
             const itemIdx = this._inventory.findIndex(it => it && it.id === evoReqs.item);
             if (itemIdx >= 0) {
                 this._inventory.splice(itemIdx, 1);
+            }
+        }
+
+        // Also consume items from EVOLUTION_FORMS triggers (e.g., Frost Shard, Shadow Gem)
+        const evoRaceId = inst.raceId || inst.race_id || 1;
+        const evoRace = SPRITE_RACES.find(r => r.race_id === evoRaceId);
+        const evoChainIds = evoRace ? evoRace.evolution_chain : [];
+        const nextEvoFormId = evoChainIds[currentStage]; // next stage index
+        const nextEvoForm = nextEvoFormId ? EVOLUTION_FORMS[nextEvoFormId] : null;
+        if (nextEvoForm && nextEvoForm.evolution_trigger_type === 'item' && nextEvoForm.evolution_trigger_value) {
+            const trigItemId = nextEvoForm.evolution_trigger_value;
+            const trigIdx = this._inventory.findIndex(
+                it => it && (it.id === trigItemId || it.item_id === trigItemId)
+            );
+            if (trigIdx >= 0) {
+                this._inventory.splice(trigIdx, 1);
             }
         }
 
