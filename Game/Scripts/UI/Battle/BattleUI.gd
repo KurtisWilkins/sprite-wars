@@ -19,6 +19,28 @@ var results_screen: CanvasLayer = null   # BattleResultsScreen.gd
 var deployment_screen: CanvasLayer = null # DeploymentScreen.gd
 var crystal_throw_ui: PanelContainer = null # CrystalThrowUI.gd
 
+## Unit inspection popup.
+var inspect_overlay: ColorRect = null
+var inspect_panel: PanelContainer = null
+var _inspected_unit_id: int = -1
+
+## Internal references to inspection popup child nodes for data population.
+var _inspect_portrait: TextureRect = null
+var _inspect_name_label: Label = null
+var _inspect_team_label: Label = null
+var _inspect_level_label: Label = null
+var _inspect_element_row: HBoxContainer = null
+var _inspect_hp_bar: ProgressBar = null
+var _inspect_hp_label: Label = null
+var _inspect_stats_grid: GridContainer = null
+var _inspect_stat_labels: Dictionary = {}  # stat_key -> Label
+var _inspect_abilities_box: VBoxContainer = null
+var _inspect_status_box: VBoxContainer = null
+
+## Touch tracking for tap detection (press vs drag).
+var _touch_press_pos: Vector2 = Vector2.ZERO
+var _touch_pressed: bool = false
+
 ## -- State --------------------------------------------------------------------
 
 ## Currently active unit data during player turn.
@@ -100,6 +122,9 @@ func _instantiate_components() -> void:
 	crystal_throw_ui = PanelContainer.new()
 	crystal_throw_ui.set_script(load(CRYSTAL_THROW_SCRIPT))
 	add_child(crystal_throw_ui)
+
+	# Unit Inspection Popup -- full-screen overlay with unit detail panel.
+	_build_inspect_popup()
 
 	# Results Screen (CanvasLayer) -- separate layer on top.
 	results_screen = CanvasLayer.new()
@@ -197,14 +222,24 @@ func update_all() -> void:
 ## -- Unit Tracking ------------------------------------------------------------
 
 ## Register a unit for visual tracking.
+## extra_data is an optional dictionary with extended info for the inspect popup:
+##   { "name": String, "level": int, "elements": Array[String],
+##     "abilities": Array[Dictionary], "stats": Dictionary,
+##     "status_effects": Array[String] }
 func register_unit(unit_id: int, grid_pos: Vector2i, texture: Texture2D, team: int,
-		max_hp: int, current_hp: int) -> void:
+		max_hp: int, current_hp: int, extra_data: Dictionary = {}) -> void:
 	_tracked_units[unit_id] = {
 		"grid_pos": grid_pos,
 		"texture": texture,
 		"team": team,
 		"max_hp": max_hp,
 		"current_hp": current_hp,
+		"name": extra_data.get("name", "Unknown"),
+		"level": extra_data.get("level", 1),
+		"elements": extra_data.get("elements", []),
+		"abilities": extra_data.get("abilities", []),
+		"stats": extra_data.get("stats", {}),
+		"status_effects": extra_data.get("status_effects", []),
 	}
 
 	# Place visual on grid.

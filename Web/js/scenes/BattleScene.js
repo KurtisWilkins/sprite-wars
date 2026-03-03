@@ -208,6 +208,10 @@ export class BattleScene extends Scene {
 
         // ── Time tracker for UnitRenderer animations ──────────────────
         this._time = 0;
+
+        // ── Unit inspection ───────────────────────────────────────────
+        this._inspectedUnit = null;
+        this._inspectPanelEl = null;
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -246,6 +250,7 @@ export class BattleScene extends Scene {
         this._autoBattle = false;
         this._turnAdvanceDelay = 0;
         this._unitRenderCache.clear();
+        this._inspectedUnit = null;
 
         // Calculate grid layout
         const designW = this.engine.designWidth;
@@ -294,6 +299,8 @@ export class BattleScene extends Scene {
         this._turnOrderBarEl = null;
         this._battleLogEl = null;
         this._endScreenEl = null;
+        this._inspectPanelEl = null;
+        this._inspectedUnit = null;
 
         this._unitRenderCache.clear();
 
@@ -692,6 +699,19 @@ export class BattleScene extends Scene {
             if (input.isKeyJustPressed('Escape') && !this._isBoss) {
                 this._attemptFlee();
             }
+
+            // Tap on grid: inspect unit or close inspect panel
+            if (input.isTap() && this._hoveredCell) {
+                const grid = this._battleManager.grid;
+                if (grid) {
+                    const tappedUnit = grid.getUnitAt(this._hoveredCell);
+                    if (tappedUnit && tappedUnit.isAlive) {
+                        this._showUnitInspect(tappedUnit);
+                    } else if (this._inspectedUnit) {
+                        this._hideUnitInspect();
+                    }
+                }
+            }
             return;
         }
 
@@ -708,10 +728,37 @@ export class BattleScene extends Scene {
                     p => p.x === this._hoveredCell.x && p.y === this._hoveredCell.y
                 );
                 if (isValid) {
+                    this._hideUnitInspect();
                     this._confirmTarget(this._hoveredCell);
+                } else {
+                    // Tapped a non-target cell — inspect if there is a living unit
+                    const grid = this._battleManager.grid;
+                    if (grid) {
+                        const tappedUnit = grid.getUnitAt(this._hoveredCell);
+                        if (tappedUnit && tappedUnit.isAlive) {
+                            this._showUnitInspect(tappedUnit);
+                        } else if (this._inspectedUnit) {
+                            this._hideUnitInspect();
+                        }
+                    }
                 }
             }
             return;
+        }
+
+        // During PHASE_TURNS or PHASE_ANIMATING: allow unit inspection on tap
+        if (this._phase === PHASE_TURNS || this._phase === PHASE_ANIMATING) {
+            if (input.isTap() && this._hoveredCell) {
+                const grid = this._battleManager.grid;
+                if (grid) {
+                    const tappedUnit = grid.getUnitAt(this._hoveredCell);
+                    if (tappedUnit && tappedUnit.isAlive) {
+                        this._showUnitInspect(tappedUnit);
+                    } else if (this._inspectedUnit) {
+                        this._hideUnitInspect();
+                    }
+                }
+            }
         }
     }
 
@@ -1601,6 +1648,40 @@ export class BattleScene extends Scene {
 
         this._domContainer.appendChild(this._battleLogEl);
 
+        // Unit inspection panel (hidden by default, slides up from bottom)
+        this._inspectPanelEl = document.createElement('div');
+        this._inspectPanelEl.id = 'unit-inspect-panel';
+        this._inspectPanelEl.style.cssText = `
+            position:absolute;bottom:0;left:0;width:100%;height:200px;
+            background:rgba(0,0,0,0.85);border-top:2px solid rgba(255,255,255,0.15);
+            border-radius:12px 12px 0 0;pointer-events:auto;display:none;
+            flex-direction:column;z-index:15;overflow:hidden;
+            box-sizing:border-box;padding:10px 12px 8px 12px;
+        `;
+
+        // Close button (X) in top-right
+        const inspectCloseBtn = document.createElement('div');
+        inspectCloseBtn.style.cssText = `
+            position:absolute;top:6px;right:10px;width:24px;height:24px;
+            display:flex;align-items:center;justify-content:center;
+            cursor:pointer;color:#aaa;font-size:1rem;font-weight:700;
+            border-radius:4px;background:rgba(255,255,255,0.08);
+            z-index:2;
+        `;
+        inspectCloseBtn.textContent = 'X';
+        inspectCloseBtn.addEventListener('click', () => this._hideUnitInspect());
+        this._inspectPanelEl.appendChild(inspectCloseBtn);
+
+        // Content area (populated dynamically by _showUnitInspect)
+        const inspectContent = document.createElement('div');
+        inspectContent.className = 'inspect-content';
+        inspectContent.style.cssText = `
+            width:100%;height:100%;overflow-y:auto;overflow-x:hidden;
+        `;
+        this._inspectPanelEl.appendChild(inspectContent);
+
+        this._domContainer.appendChild(this._inspectPanelEl);
+
         // End screen overlay (hidden by default)
         this._endScreenEl = document.createElement('div');
         this._endScreenEl.id = 'battle-end-screen';
@@ -1614,6 +1695,202 @@ export class BattleScene extends Scene {
         // Attach to game container
         const gameContainer = document.getElementById('game-container') || document.body;
         gameContainer.appendChild(this._domContainer);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // Unit Inspection
+    // ═══════════════════════════════════════════════════════════════════
+
+    _showUnitInspect(unit) {
+        if (!this._inspectPanelEl || !unit) return;
+
+        this._inspectedUnit = unit;
+
+        const content = this._inspectPanelEl.querySelector('.inspect-content');
+        if (!content) return;
+        content.innerHTML = '';
+
+        const isAlly = unit.team === 0;
+        const teamColor = isAlly ? '#3388cc' : '#cc3333';
+        const teamLabel = isAlly ? 'Ally' : 'Enemy';
+        const nameColor = isAlly ? '#ffcc33' : '#ff5555';
+
+        // ── Header row: name, team badge, level ──────────────────────
+        const header = document.createElement('div');
+        header.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;';
+
+        const nameEl = document.createElement('span');
+        nameEl.style.cssText = `font-weight:700;font-size:0.85rem;color:${nameColor};`;
+        nameEl.textContent = unit.getDisplayName();
+        header.appendChild(nameEl);
+
+        const teamBadge = document.createElement('span');
+        teamBadge.style.cssText = `
+            font-size:0.55rem;font-weight:700;color:#fff;background:${teamColor};
+            border-radius:3px;padding:1px 5px;
+        `;
+        teamBadge.textContent = teamLabel;
+        header.appendChild(teamBadge);
+
+        const levelEl = document.createElement('span');
+        levelEl.style.cssText = 'font-size:0.7rem;color:#aaa;margin-left:auto;';
+        levelEl.textContent = `Lv. ${unit.level || '?'}`;
+        header.appendChild(levelEl);
+
+        content.appendChild(header);
+
+        // ── Element badges ───────────────────────────────────────────
+        if (unit.elementTypes && unit.elementTypes.length > 0) {
+            const elemRow = document.createElement('div');
+            elemRow.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;';
+            for (const elem of unit.elementTypes) {
+                const badge = document.createElement('span');
+                const elemColor = ELEMENT_COLORS[elem] || '#666';
+                badge.style.cssText = `
+                    display:flex;align-items:center;gap:3px;
+                    font-size:0.6rem;color:#ddd;
+                `;
+                const dot = document.createElement('span');
+                dot.style.cssText = `
+                    display:inline-block;width:8px;height:8px;border-radius:50%;
+                    background:${elemColor};
+                `;
+                badge.appendChild(dot);
+                badge.appendChild(document.createTextNode(elem));
+                elemRow.appendChild(badge);
+            }
+            content.appendChild(elemRow);
+        }
+
+        // ── HP bar ───────────────────────────────────────────────────
+        const hpFrac = unit.getHpFraction ? unit.getHpFraction() : (unit.currentHp / unit.maxHp);
+        const hpColor = hpFrac > 0.5 ? COLOR_HP_GREEN : hpFrac > 0.25 ? COLOR_HP_YELLOW : COLOR_HP_RED;
+
+        const hpRow = document.createElement('div');
+        hpRow.style.cssText = 'margin-bottom:6px;';
+
+        const hpLabel = document.createElement('div');
+        hpLabel.style.cssText = 'font-size:0.6rem;color:#aaa;margin-bottom:2px;';
+        hpLabel.textContent = `HP: ${unit.currentHp}/${unit.maxHp}`;
+        hpRow.appendChild(hpLabel);
+
+        const hpBarOuter = document.createElement('div');
+        hpBarOuter.style.cssText = `
+            width:100%;height:6px;background:#1a1a2e;border-radius:3px;overflow:hidden;
+        `;
+        const hpBarInner = document.createElement('div');
+        hpBarInner.style.cssText = `
+            width:${Math.max(0, Math.min(100, hpFrac * 100))}%;height:100%;
+            background:${hpColor};border-radius:3px;
+            transition:width 0.3s ease;
+        `;
+        hpBarOuter.appendChild(hpBarInner);
+        hpRow.appendChild(hpBarOuter);
+        content.appendChild(hpRow);
+
+        // ── Stats grid (2 columns) ──────────────────────────────────
+        const statsGrid = document.createElement('div');
+        statsGrid.style.cssText = `
+            display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;
+            margin-bottom:6px;font-size:0.6rem;
+        `;
+
+        const stats = unit.stats || {};
+        const statEntries = [
+            { label: 'ATK', value: stats.atk },
+            { label: 'DEF', value: stats.def },
+            { label: 'SPD', value: stats.spd },
+            { label: 'SP.ATK', value: stats.sp_atk },
+            { label: 'SP.DEF', value: stats.sp_def },
+        ];
+
+        for (const entry of statEntries) {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;justify-content:space-between;';
+            const labelEl = document.createElement('span');
+            labelEl.style.cssText = 'color:#888;';
+            labelEl.textContent = entry.label;
+            const valueEl = document.createElement('span');
+            valueEl.style.cssText = 'color:#ddd;font-weight:600;';
+            valueEl.textContent = entry.value != null ? entry.value : '?';
+            row.appendChild(labelEl);
+            row.appendChild(valueEl);
+            statsGrid.appendChild(row);
+        }
+        content.appendChild(statsGrid);
+
+        // ── Abilities list ───────────────────────────────────────────
+        const abilityDb = this._battleManager._abilityDb;
+        if (unit.equippedAbilities && unit.equippedAbilities.length > 0 && abilityDb) {
+            const abilitiesLabel = document.createElement('div');
+            abilitiesLabel.style.cssText = 'font-size:0.6rem;color:#888;margin-bottom:3px;font-weight:700;';
+            abilitiesLabel.textContent = 'Abilities';
+            content.appendChild(abilitiesLabel);
+
+            const abilitiesList = document.createElement('div');
+            abilitiesList.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;';
+
+            for (const abilityId of unit.equippedAbilities) {
+                const ability = abilityDb[abilityId];
+                if (!ability) continue;
+
+                const elemColor = ELEMENT_COLORS[ability.elementType] || '#666';
+                const pp = unit.abilityPp ? (unit.abilityPp[abilityId] || 0) : '?';
+                const ppMax = ability.ppMax || '?';
+
+                const abEl = document.createElement('div');
+                abEl.style.cssText = `
+                    border:1px solid ${elemColor};border-radius:4px;
+                    padding:2px 6px;font-size:0.55rem;color:#ddd;
+                    background:rgba(0,0,0,0.4);
+                `;
+
+                const abName = document.createElement('div');
+                abName.style.cssText = 'font-weight:600;';
+                abName.textContent = ability.abilityName || `Ability ${abilityId}`;
+                abEl.appendChild(abName);
+
+                const abInfo = document.createElement('div');
+                abInfo.style.cssText = 'color:#999;';
+                abInfo.textContent = `Pwr:${ability.basePower || 0} PP:${pp}/${ppMax}`;
+                abEl.appendChild(abInfo);
+
+                abilitiesList.appendChild(abEl);
+            }
+            content.appendChild(abilitiesList);
+        }
+
+        // ── Active status effects ────────────────────────────────────
+        if (unit.activeStatusEffects && unit.activeStatusEffects.length > 0) {
+            const statusLabel = document.createElement('div');
+            statusLabel.style.cssText = 'font-size:0.6rem;color:#888;margin-bottom:3px;font-weight:700;';
+            statusLabel.textContent = 'Status Effects';
+            content.appendChild(statusLabel);
+
+            const statusRow = document.createElement('div');
+            statusRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;';
+
+            for (const effect of unit.activeStatusEffects) {
+                const tag = document.createElement('span');
+                tag.style.cssText = `
+                    font-size:0.55rem;color:#ffaa33;background:rgba(255,170,51,0.15);
+                    border:1px solid rgba(255,170,51,0.3);border-radius:3px;padding:1px 5px;
+                `;
+                tag.textContent = effect.effectName || effect.name || 'Unknown';
+                statusRow.appendChild(tag);
+            }
+            content.appendChild(statusRow);
+        }
+
+        // Show the panel
+        this._inspectPanelEl.style.display = 'flex';
+    }
+
+    _hideUnitInspect() {
+        this._inspectedUnit = null;
+        if (this._inspectPanelEl) {
+            this._inspectPanelEl.style.display = 'none';
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════

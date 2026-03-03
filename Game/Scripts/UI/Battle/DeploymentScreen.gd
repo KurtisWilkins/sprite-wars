@@ -24,8 +24,11 @@ var placed_units: Dictionary = {}
 ## Available team sprites for placement.
 var _team_sprites: Array[Dictionary] = []
 
-## Grid dimensions for the player's side.
-var _grid_size: Vector2i = Vector2i(6, 4)
+## Grid dimensions for the full battle map (columns x total rows).
+var _grid_size: Vector2i = Vector2i(6, 8)
+
+## Number of rows the player can deploy on (bottom half of grid).
+const PLAYER_ROWS: int = 4
 
 ## Enemy preview data.
 var _enemy_preview: Array[Dictionary] = []
@@ -35,17 +38,27 @@ var _dragging: bool = false
 var _drag_sprite_data: Dictionary = {}
 var _drag_visual: TextureRect = null
 var _drag_source_pos: Vector2i = Vector2i(-1, -1)  # -1,-1 means from panel.
+var _drag_start_screen_pos: Vector2 = Vector2.ZERO  # For tap detection.
+
+## Info panel state.
+var _info_overlay: ColorRect = null
+var _info_panel: PanelContainer = null
+var _info_visible: bool = false
+var _info_sprite_data: Dictionary = {}
 
 ## -- Constants ----------------------------------------------------------------
 
-const CELL_SIZE: float = 120.0
-const GRID_ORIGIN := Vector2(60.0, 400.0)  # Player half starts lower on screen.
+const CELL_SIZE: float = 110.0
+const GRID_ORIGIN := Vector2(60.0, 120.0)  # Full grid starts near top of screen.
 const PANEL_WIDTH: float = 280.0
 const PANEL_X: float = 800.0  # Right side of screen.
 const SPRITE_ENTRY_HEIGHT: float = 80.0
 const BUTTON_HEIGHT: float = 56.0
 const BUTTON_FONT_SIZE: int = 22
 const PANEL_FONT_SIZE: int = 18
+const TAP_TOLERANCE: float = 10.0  # Max px movement to count as tap (not drag).
+const INFO_PANEL_WIDTH: float = 600.0
+const INFO_PANEL_HEIGHT: float = 800.0
 
 ## -- Initialization -----------------------------------------------------------
 
@@ -138,6 +151,9 @@ func _build_ui() -> void:
 	start_battle_button.add_theme_stylebox_override("normal", start_style)
 	_root.add_child(start_battle_button)
 
+	# Info panel (added last so it renders on top of everything).
+	_build_info_panel()
+
 	add_child(_root)
 
 ## -- Public API ---------------------------------------------------------------
@@ -198,6 +214,19 @@ func validate_deployment() -> bool:
 func _input(event: InputEvent) -> void:
 	if not _root.visible:
 		return
+	# If the info panel is open, intercept touch/click releases to dismiss it.
+	if _info_visible:
+		if event is InputEventScreenTouch:
+			var touch: InputEventScreenTouch = event as InputEventScreenTouch
+			if not touch.pressed:
+				_hide_sprite_info()
+				get_viewport().set_input_as_handled()
+		elif event is InputEventMouseButton:
+			var mouse: InputEventMouseButton = event as InputEventMouseButton
+			if mouse.button_index == MOUSE_BUTTON_LEFT and not mouse.pressed:
+				_hide_sprite_info()
+				get_viewport().set_input_as_handled()
+		return
 	_handle_drag_drop(event)
 
 
@@ -225,6 +254,12 @@ func _handle_drag_drop(event: InputEvent) -> void:
 
 
 func _start_drag(pos: Vector2) -> void:
+	# If the info panel is visible, ignore drag starts (handled by overlay tap).
+	if _info_visible:
+		return
+
+	_drag_start_screen_pos = pos
+
 	# Check if we're touching a sprite in the team panel.
 	var panel_index: int = _get_panel_sprite_at(pos)
 	if panel_index >= 0:
@@ -256,7 +291,38 @@ func _update_drag(pos: Vector2) -> void:
 func _end_drag(pos: Vector2) -> void:
 	if not _dragging:
 		return
+
+	var drag_distance: float = pos.distance_to(_drag_start_screen_pos)
+	var is_tap: bool = drag_distance < TAP_TOLERANCE
+
 	_dragging = false
+
+	# Tap on a team panel sprite -> show info instead of placing.
+	if is_tap and _drag_source_pos == Vector2i(-1, -1) and not _drag_sprite_data.is_empty():
+		var tap_data: Dictionary = _drag_sprite_data.duplicate()
+		# Not a real drag -- nothing to place.
+		_drag_sprite_data = {}
+		_drag_source_pos = Vector2i(-1, -1)
+		if _drag_visual != null and is_instance_valid(_drag_visual):
+			_drag_visual.queue_free()
+			_drag_visual = null
+		_refresh_display()
+		_show_sprite_info(tap_data)
+		return
+
+	# Tap on a grid unit -> show info and return unit to its cell.
+	if is_tap and _drag_source_pos != Vector2i(-1, -1) and not _drag_sprite_data.is_empty():
+		var tap_data: Dictionary = _drag_sprite_data.duplicate()
+		# Return the unit to its original grid cell.
+		placed_units[_drag_source_pos] = _drag_sprite_data
+		_drag_sprite_data = {}
+		_drag_source_pos = Vector2i(-1, -1)
+		if _drag_visual != null and is_instance_valid(_drag_visual):
+			_drag_visual.queue_free()
+			_drag_visual = null
+		_refresh_display()
+		_show_sprite_info(tap_data)
+		return
 
 	var grid_pos: Vector2i = _screen_to_player_grid(pos)
 	if grid_pos != Vector2i(-1, -1) and not placed_units.has(grid_pos):
@@ -510,6 +576,314 @@ func _get_panel_sprite_at(screen_pos: Vector2) -> int:
 	if index >= 0 and index < unplaced.size():
 		return index
 	return -1
+
+## -- Sprite Info Panel --------------------------------------------------------
+
+## Build the info popup (initially hidden). Added as a child of _root last
+## so it renders on top of every other element.
+func _build_info_panel() -> void:
+	# Dark overlay — fills the screen, dismisses panel on tap.
+	_info_overlay = ColorRect.new()
+	_info_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_info_overlay.color = Color(0.0, 0.0, 0.0, 0.5)
+	_info_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_info_overlay.visible = false
+	_root.add_child(_info_overlay)
+
+	# Centered panel container.
+	_info_panel = PanelContainer.new()
+	_info_panel.custom_minimum_size = Vector2(INFO_PANEL_WIDTH, INFO_PANEL_HEIGHT)
+	_info_panel.size = Vector2(INFO_PANEL_WIDTH, INFO_PANEL_HEIGHT)
+	# Center on a 1080-wide screen.
+	_info_panel.position = Vector2(
+		(1080.0 - INFO_PANEL_WIDTH) / 2.0,
+		(1920.0 - INFO_PANEL_HEIGHT) / 2.0
+	)
+	_info_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.08, 0.08, 0.14, 0.97)
+	panel_style.set_corner_radius_all(16)
+	panel_style.set_border_width_all(2)
+	panel_style.border_color = Color(0.3, 0.3, 0.45)
+	panel_style.set_content_margin_all(20)
+	_info_panel.add_theme_stylebox_override("panel", panel_style)
+
+	# Scroll container for content (in case it overflows).
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_info_panel.add_child(scroll)
+
+	var content := VBoxContainer.new()
+	content.name = "InfoContent"
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_theme_constant_override("separation", 12)
+	scroll.add_child(content)
+
+	# -- Portrait --
+	var portrait_center := CenterContainer.new()
+	portrait_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(portrait_center)
+
+	var portrait_frame := PanelContainer.new()
+	portrait_frame.custom_minimum_size = Vector2(200.0, 200.0)
+	var portrait_style := StyleBoxFlat.new()
+	portrait_style.bg_color = Color(0.1, 0.1, 0.18, 1.0)
+	portrait_style.set_corner_radius_all(12)
+	portrait_style.set_border_width_all(2)
+	portrait_style.border_color = Color(0.25, 0.25, 0.4)
+	portrait_frame.add_theme_stylebox_override("panel", portrait_style)
+	portrait_center.add_child(portrait_frame)
+
+	var portrait := TextureRect.new()
+	portrait.name = "InfoPortrait"
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.custom_minimum_size = Vector2(200.0, 200.0)
+	portrait_frame.add_child(portrait)
+
+	# -- Name label --
+	var name_lbl := Label.new()
+	name_lbl.name = "InfoName"
+	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_lbl.add_theme_font_size_override("font_size", 28)
+	name_lbl.add_theme_color_override("font_color", Color.WHITE)
+	content.add_child(name_lbl)
+
+	# -- Level label --
+	var level_lbl := Label.new()
+	level_lbl.name = "InfoLevel"
+	level_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	level_lbl.add_theme_font_size_override("font_size", 20)
+	level_lbl.add_theme_color_override("font_color", Color(0.9, 0.85, 0.5))
+	content.add_child(level_lbl)
+
+	# -- Element badges container --
+	var elem_center := CenterContainer.new()
+	elem_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(elem_center)
+
+	var elem_row := HBoxContainer.new()
+	elem_row.name = "InfoElements"
+	elem_row.add_theme_constant_override("separation", 8)
+	elem_center.add_child(elem_row)
+
+	# -- Separator --
+	var sep := HSeparator.new()
+	sep.add_theme_constant_override("separation", 8)
+	content.add_child(sep)
+
+	# -- Stats header --
+	var stats_header := Label.new()
+	stats_header.text = "Stats"
+	stats_header.add_theme_font_size_override("font_size", 22)
+	stats_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
+	content.add_child(stats_header)
+
+	# -- Stats grid (2-column) --
+	var stats_grid := GridContainer.new()
+	stats_grid.name = "InfoStatsGrid"
+	stats_grid.columns = 2
+	stats_grid.add_theme_constant_override("h_separation", 24)
+	stats_grid.add_theme_constant_override("v_separation", 8)
+	content.add_child(stats_grid)
+
+	# Pre-build stat rows (will be populated in _show_sprite_info).
+	var stat_keys: Array[String] = ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]
+	var stat_display: Dictionary = {
+		"hp": "HP", "atk": "ATK", "def": "DEF",
+		"spd": "SPD", "sp_atk": "SP.ATK", "sp_def": "SP.DEF",
+	}
+	for key in stat_keys:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+
+		var stat_name := Label.new()
+		stat_name.text = stat_display.get(key, key.to_upper())
+		stat_name.custom_minimum_size = Vector2(80.0, 0.0)
+		stat_name.add_theme_font_size_override("font_size", 18)
+		stat_name.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
+		row.add_child(stat_name)
+
+		var stat_val := Label.new()
+		stat_val.name = "InfoStat_%s" % key
+		stat_val.text = "--"
+		stat_val.add_theme_font_size_override("font_size", 20)
+		stat_val.add_theme_color_override("font_color", Color.WHITE)
+		row.add_child(stat_val)
+
+		stats_grid.add_child(row)
+
+	# -- Separator --
+	var sep2 := HSeparator.new()
+	sep2.add_theme_constant_override("separation", 8)
+	content.add_child(sep2)
+
+	# -- Abilities header --
+	var abilities_header := Label.new()
+	abilities_header.text = "Abilities"
+	abilities_header.add_theme_font_size_override("font_size", 22)
+	abilities_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
+	content.add_child(abilities_header)
+
+	# -- Abilities list --
+	var abilities_box := VBoxContainer.new()
+	abilities_box.name = "InfoAbilities"
+	abilities_box.add_theme_constant_override("separation", 6)
+	content.add_child(abilities_box)
+
+	# -- Close button --
+	var close_center := CenterContainer.new()
+	close_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_child(close_center)
+
+	var close_btn := Button.new()
+	close_btn.text = "Close"
+	close_btn.custom_minimum_size = Vector2(200.0, 48.0)
+	close_btn.add_theme_font_size_override("font_size", 20)
+	close_btn.focus_mode = Control.FOCUS_NONE
+
+	var close_style := StyleBoxFlat.new()
+	close_style.bg_color = Color(0.2, 0.2, 0.3)
+	close_style.set_corner_radius_all(10)
+	close_style.set_content_margin_all(8)
+	close_btn.add_theme_stylebox_override("normal", close_style)
+
+	var close_pressed := close_style.duplicate()
+	close_pressed.bg_color = Color(0.15, 0.15, 0.22)
+	close_btn.add_theme_stylebox_override("pressed", close_pressed)
+	close_btn.pressed.connect(_hide_sprite_info)
+	close_center.add_child(close_btn)
+
+	_info_panel.visible = false
+	_root.add_child(_info_panel)
+
+
+## Populate and show the sprite info panel.
+func _show_sprite_info(sprite_data: Dictionary) -> void:
+	_info_sprite_data = sprite_data
+	_info_visible = true
+
+	# -- Portrait --
+	var portrait: TextureRect = _info_panel.find_child("InfoPortrait", true, false)
+	if portrait != null:
+		var tex: Texture2D = sprite_data.get("texture", null)
+		portrait.texture = tex
+
+	# -- Name --
+	var name_lbl: Label = _info_panel.find_child("InfoName", true, false)
+	if name_lbl != null:
+		name_lbl.text = str(sprite_data.get("name", "Unknown Sprite"))
+
+	# -- Level --
+	var level_lbl: Label = _info_panel.find_child("InfoLevel", true, false)
+	if level_lbl != null:
+		level_lbl.text = "Lv. %d" % sprite_data.get("level", 1)
+
+	# -- Elements --
+	var elem_row: HBoxContainer = _info_panel.find_child("InfoElements", true, false)
+	if elem_row != null:
+		for child in elem_row.get_children():
+			child.queue_free()
+		var elements: Array = sprite_data.get("element_types", [])
+		for element in elements:
+			var badge := Label.new()
+			badge.text = "  %s  " % str(element)
+			var elem_color: Color = _get_element_color(str(element))
+			var badge_settings := LabelSettings.new()
+			badge_settings.font_size = 16
+			badge_settings.font_color = elem_color
+
+			var badge_style := StyleBoxFlat.new()
+			badge_style.bg_color = elem_color.darkened(0.55)
+			badge_style.set_corner_radius_all(8)
+			badge.label_settings = badge_settings
+			elem_row.add_child(badge)
+
+	# -- Stats --
+	var stat_keys: Array[String] = ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]
+	for key in stat_keys:
+		var stat_lbl: Label = _info_panel.find_child("InfoStat_%s" % key, true, false)
+		if stat_lbl != null:
+			var value = sprite_data.get(key, sprite_data.get("stats", {}).get(key, -1))
+			if value is int and value >= 0:
+				stat_lbl.text = str(value)
+			elif value is float and value >= 0.0:
+				stat_lbl.text = str(int(value))
+			else:
+				stat_lbl.text = "--"
+
+	# -- Abilities --
+	var abilities_box: VBoxContainer = _info_panel.find_child("InfoAbilities", true, false)
+	if abilities_box != null:
+		for child in abilities_box.get_children():
+			child.queue_free()
+		var abilities: Array = sprite_data.get("abilities", sprite_data.get("equipped_abilities", []))
+		if abilities.is_empty():
+			var empty_lbl := Label.new()
+			empty_lbl.text = "No abilities equipped"
+			empty_lbl.add_theme_font_size_override("font_size", 16)
+			empty_lbl.add_theme_color_override("font_color", Color(0.45, 0.45, 0.55))
+			abilities_box.add_child(empty_lbl)
+		else:
+			for ability in abilities:
+				var ability_entry := HBoxContainer.new()
+				ability_entry.add_theme_constant_override("separation", 8)
+
+				var bullet := Label.new()
+				bullet.text = ">"
+				bullet.add_theme_font_size_override("font_size", 16)
+				bullet.add_theme_color_override("font_color", Color(0.5, 0.6, 0.8))
+				ability_entry.add_child(bullet)
+
+				var ability_name := Label.new()
+				if ability is String:
+					ability_name.text = ability
+				elif ability is Dictionary:
+					ability_name.text = str(ability.get("name", "Unknown"))
+				else:
+					ability_name.text = str(ability)
+				ability_name.add_theme_font_size_override("font_size", 18)
+				ability_name.add_theme_color_override("font_color", Color.WHITE)
+				ability_name.clip_text = true
+				ability_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				ability_entry.add_child(ability_name)
+
+				abilities_box.add_child(ability_entry)
+
+	_info_overlay.visible = true
+	_info_panel.visible = true
+
+
+## Hide the sprite info panel.
+func _hide_sprite_info() -> void:
+	_info_visible = false
+	_info_sprite_data = {}
+	_info_overlay.visible = false
+	_info_panel.visible = false
+
+
+## Return the color associated with an element type.
+func _get_element_color(element_name: String) -> Color:
+	match element_name:
+		"Fire": return Color(1.0, 0.4, 0.2)
+		"Water": return Color(0.3, 0.6, 1.0)
+		"Earth": return Color(0.6, 0.45, 0.25)
+		"Air": return Color(0.7, 0.9, 1.0)
+		"Light": return Color(1.0, 1.0, 0.6)
+		"Dark": return Color(0.5, 0.3, 0.7)
+		"Nature": return Color(0.3, 0.8, 0.3)
+		"Electric": return Color(1.0, 0.9, 0.2)
+		"Ice": return Color(0.6, 0.9, 1.0)
+		"Metal": return Color(0.7, 0.7, 0.75)
+		"Poison": return Color(0.7, 0.3, 0.8)
+		"Psychic": return Color(1.0, 0.5, 0.8)
+		"Spirit": return Color(0.6, 0.8, 0.9)
+		"Chaos": return Color(0.9, 0.2, 0.4)
+		_: return Color(0.7, 0.7, 0.7)
+
 
 ## -- Signal Handlers ----------------------------------------------------------
 
