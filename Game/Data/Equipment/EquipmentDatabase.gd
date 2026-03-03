@@ -1872,7 +1872,7 @@ static func get_all_equipment() -> Array[Dictionary]:
 			"level_requirement": 23,
 			"description": "A ring that drinks in light. The wearer can see perfectly in total darkness.",
 			"icon_path": "res://Sprites/Icons/Equipment/ring_shadow_circlet.png",
-			"source": "dungeon_drop",
+			"source": "temple_drop",
 		},
 		{
 			"equipment_id": 1166,
@@ -2026,7 +2026,7 @@ static func get_all_equipment() -> Array[Dictionary]:
 			"level_requirement": 25,
 			"description": "Contains a preserved nightshade blossom. Opens to release a paralyzing fragrance.",
 			"icon_path": "res://Sprites/Icons/Equipment/amulet_nightshade_locket.png",
-			"source": "dungeon_drop",
+			"source": "quest_reward",
 		},
 		{
 			"equipment_id": 1176,
@@ -2165,7 +2165,7 @@ static func get_all_equipment() -> Array[Dictionary]:
 			"level_requirement": 23,
 			"description": "A single crystallized tear from the World Tree. Overflows with life energy.",
 			"icon_path": "res://Sprites/Icons/Equipment/crystal_natures_tear.png",
-			"source": "dungeon_drop",
+			"source": "temple_drop",
 		},
 		{
 			"equipment_id": 1185,
