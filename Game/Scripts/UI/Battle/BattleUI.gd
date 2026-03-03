@@ -580,144 +580,212 @@ func _on_catch_cancelled() -> void:
 	if not _active_unit_data.is_empty():
 		ability_bar.show_bar()
 
-## -- Unit Inspection Popup ---------------------------------------------------
+## -- Unit Inspection Popup ----------------------------------------------------
 
 ## Build the full-screen inspection overlay and detail panel.
 ## Called once during _instantiate_components; nodes are hidden by default.
 func _build_inspect_popup() -> void:
-	# Semi-transparent full-screen overlay to dim the background and capture
-	# dismiss taps.
+	# Full-screen semi-transparent overlay that dismisses on tap.
 	inspect_overlay = ColorRect.new()
+	inspect_overlay.name = "InspectOverlay"
 	inspect_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	inspect_overlay.color = Color(0.0, 0.0, 0.0, 0.55)
+	inspect_overlay.color = Color(0.0, 0.0, 0.0, 0.4)
 	inspect_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	inspect_overlay.visible = false
+	inspect_overlay.z_index = 50
 	add_child(inspect_overlay)
 
-	# Centered detail panel.
-	const PANEL_WIDTH: float = 720.0
-	const PANEL_HEIGHT: float = 1200.0
+	# Centered detail panel (700x900 with dark background and rounded corners).
 	inspect_panel = PanelContainer.new()
-	inspect_panel.custom_minimum_size = Vector2(PANEL_WIDTH, PANEL_HEIGHT)
-	inspect_panel.size = Vector2(PANEL_WIDTH, PANEL_HEIGHT)
+	inspect_panel.name = "InspectPanel"
+	inspect_panel.custom_minimum_size = Vector2(700.0, 900.0)
+	inspect_panel.size = Vector2(700.0, 900.0)
 	inspect_panel.position = Vector2(
-		(1080.0 - PANEL_WIDTH) / 2.0,
-		(1920.0 - PANEL_HEIGHT) / 2.0
+		(1080.0 - 700.0) / 2.0,
+		(1920.0 - 900.0) / 2.0
 	)
 	inspect_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	inspect_panel.z_index = 51
 
 	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.08, 0.08, 0.14, 0.97)
-	panel_style.set_corner_radius_all(16)
-	panel_style.set_border_width_all(2)
-	panel_style.border_color = Color(0.3, 0.3, 0.45)
-	panel_style.set_content_margin_all(20)
+	panel_style.bg_color = Color(0.08, 0.08, 0.14, 0.95)
+	panel_style.corner_radius_top_left = 16
+	panel_style.corner_radius_top_right = 16
+	panel_style.corner_radius_bottom_left = 16
+	panel_style.corner_radius_bottom_right = 16
+	panel_style.border_width_left = 2
+	panel_style.border_width_right = 2
+	panel_style.border_width_top = 2
+	panel_style.border_width_bottom = 2
+	panel_style.border_color = Color(0.25, 0.25, 0.4, 1.0)
+	panel_style.content_margin_left = 24.0
+	panel_style.content_margin_right = 24.0
+	panel_style.content_margin_top = 16.0
+	panel_style.content_margin_bottom = 24.0
 	inspect_panel.add_theme_stylebox_override("panel", panel_style)
+	inspect_panel.visible = false
+	inspect_overlay.add_child(inspect_panel)
 
-	# Scroll container so content can overflow on small panels.
+	# Scroll container inside the panel to handle overflow.
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	inspect_panel.add_child(scroll)
 
+	# Main VBox layout inside scroll.
 	var content := VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_theme_constant_override("separation", 12)
 	scroll.add_child(content)
 
-	# -- Portrait --
+	# -- Close button (top-right, "X") --
+	var close_row := HBoxContainer.new()
+	close_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	close_row.alignment = BoxContainer.ALIGNMENT_END
+	content.add_child(close_row)
+
+	var close_btn := Button.new()
+	close_btn.name = "CloseButton"
+	close_btn.text = "X"
+	close_btn.custom_minimum_size = Vector2(48.0, 48.0)
+	close_btn.add_theme_font_size_override("font_size", 24)
+	close_btn.focus_mode = Control.FOCUS_NONE
+	var close_style := StyleBoxFlat.new()
+	close_style.bg_color = Color(0.3, 0.15, 0.15, 0.9)
+	close_style.corner_radius_top_left = 8
+	close_style.corner_radius_top_right = 8
+	close_style.corner_radius_bottom_left = 8
+	close_style.corner_radius_bottom_right = 8
+	close_btn.add_theme_stylebox_override("normal", close_style)
+	var close_pressed_style := close_style.duplicate()
+	close_pressed_style.bg_color = Color(0.4, 0.15, 0.15, 0.9)
+	close_btn.add_theme_stylebox_override("pressed", close_pressed_style)
+	close_btn.pressed.connect(_hide_unit_inspect)
+	close_row.add_child(close_btn)
+
+	# -- Sprite portrait (TextureRect, 160x160, centered) --
 	var portrait_center := CenterContainer.new()
 	portrait_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_child(portrait_center)
 
 	var portrait_frame := PanelContainer.new()
-	portrait_frame.custom_minimum_size = Vector2(200.0, 200.0)
+	portrait_frame.custom_minimum_size = Vector2(160.0, 160.0)
 	var portrait_style := StyleBoxFlat.new()
-	portrait_style.bg_color = Color(0.1, 0.1, 0.18, 1.0)
-	portrait_style.set_corner_radius_all(12)
-	portrait_style.set_border_width_all(2)
-	portrait_style.border_color = Color(0.25, 0.25, 0.4)
+	portrait_style.bg_color = Color(0.1, 0.1, 0.16, 1.0)
+	portrait_style.corner_radius_top_left = 12
+	portrait_style.corner_radius_top_right = 12
+	portrait_style.corner_radius_bottom_left = 12
+	portrait_style.corner_radius_bottom_right = 12
+	portrait_style.border_width_left = 2
+	portrait_style.border_width_right = 2
+	portrait_style.border_width_top = 2
+	portrait_style.border_width_bottom = 2
+	portrait_style.border_color = Color(0.25, 0.25, 0.35, 1.0)
 	portrait_frame.add_theme_stylebox_override("panel", portrait_style)
 	portrait_center.add_child(portrait_frame)
 
 	_inspect_portrait = TextureRect.new()
+	_inspect_portrait.name = "InspectPortrait"
 	_inspect_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_inspect_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_inspect_portrait.custom_minimum_size = Vector2(200.0, 200.0)
+	_inspect_portrait.custom_minimum_size = Vector2(160.0, 160.0)
 	portrait_frame.add_child(_inspect_portrait)
 
-	# -- Name label --
+	# -- Name label (large, colored by team) --
 	_inspect_name_label = Label.new()
+	_inspect_name_label.name = "InspectNameLabel"
 	_inspect_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_inspect_name_label.add_theme_font_size_override("font_size", 28)
-	_inspect_name_label.add_theme_color_override("font_color", Color.WHITE)
+	_inspect_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_inspect_name_label.add_theme_font_size_override("font_size", 30)
 	content.add_child(_inspect_name_label)
 
-	# -- Team label --
+	# -- Team label ("Ally" / "Enemy") --
 	_inspect_team_label = Label.new()
+	_inspect_team_label.name = "InspectTeamLabel"
 	_inspect_team_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_inspect_team_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_inspect_team_label.add_theme_font_size_override("font_size", 18)
 	content.add_child(_inspect_team_label)
 
 	# -- Level label --
 	_inspect_level_label = Label.new()
+	_inspect_level_label.name = "InspectLevelLabel"
 	_inspect_level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_inspect_level_label.add_theme_font_size_override("font_size", 20)
+	_inspect_level_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_inspect_level_label.add_theme_font_size_override("font_size", 22)
 	_inspect_level_label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.5))
 	content.add_child(_inspect_level_label)
 
-	# -- Element badges row --
+	# -- Element badges row (HBoxContainer with colored labels) --
 	var elem_center := CenterContainer.new()
 	elem_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_child(elem_center)
 
 	_inspect_element_row = HBoxContainer.new()
+	_inspect_element_row.name = "InspectElements"
 	_inspect_element_row.add_theme_constant_override("separation", 8)
 	elem_center.add_child(_inspect_element_row)
 
-	# -- HP bar --
+	# -- HP bar (ProgressBar showing current/max HP) --
 	var hp_section := VBoxContainer.new()
 	hp_section.add_theme_constant_override("separation", 4)
 	content.add_child(hp_section)
 
+	var hp_header := Label.new()
+	hp_header.text = "HP"
+	hp_header.add_theme_font_size_override("font_size", 18)
+	hp_header.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
+	hp_section.add_child(hp_header)
+
 	_inspect_hp_bar = ProgressBar.new()
-	_inspect_hp_bar.custom_minimum_size = Vector2(0.0, 18.0)
+	_inspect_hp_bar.name = "InspectHPBar"
+	_inspect_hp_bar.custom_minimum_size = Vector2(0.0, 24.0)
 	_inspect_hp_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_inspect_hp_bar.show_percentage = false
 	var hp_fill := StyleBoxFlat.new()
-	hp_fill.bg_color = Color(0.2, 0.85, 0.3)
-	hp_fill.set_corner_radius_all(4)
+	hp_fill.bg_color = Color(0.2, 0.8, 0.3, 1.0)
+	hp_fill.corner_radius_top_left = 6
+	hp_fill.corner_radius_top_right = 6
+	hp_fill.corner_radius_bottom_left = 6
+	hp_fill.corner_radius_bottom_right = 6
 	_inspect_hp_bar.add_theme_stylebox_override("fill", hp_fill)
 	var hp_bg := StyleBoxFlat.new()
-	hp_bg.bg_color = Color(0.15, 0.15, 0.2)
-	hp_bg.set_corner_radius_all(4)
+	hp_bg.bg_color = Color(0.12, 0.12, 0.18, 1.0)
+	hp_bg.corner_radius_top_left = 6
+	hp_bg.corner_radius_top_right = 6
+	hp_bg.corner_radius_bottom_left = 6
+	hp_bg.corner_radius_bottom_right = 6
 	_inspect_hp_bar.add_theme_stylebox_override("background", hp_bg)
 	hp_section.add_child(_inspect_hp_bar)
 
 	_inspect_hp_label = Label.new()
+	_inspect_hp_label.name = "InspectHPLabel"
 	_inspect_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_inspect_hp_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_inspect_hp_label.add_theme_font_size_override("font_size", 16)
-	_inspect_hp_label.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
+	_inspect_hp_label.add_theme_color_override("font_color", Color(0.7, 0.9, 0.7))
 	hp_section.add_child(_inspect_hp_label)
 
-	# -- Separator --
+	# -- Separator before stats --
 	var sep1 := HSeparator.new()
 	sep1.add_theme_constant_override("separation", 8)
 	content.add_child(sep1)
 
-	# -- Stats header --
+	# -- Stats section header --
 	var stats_header := Label.new()
 	stats_header.text = "Stats"
 	stats_header.add_theme_font_size_override("font_size", 22)
 	stats_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
 	content.add_child(stats_header)
 
-	# -- Stats grid (2-column) --
+	# -- Stats grid (2-column GridContainer: HP, ATK, DEF, SPD, SP.ATK, SP.DEF) --
 	_inspect_stats_grid = GridContainer.new()
+	_inspect_stats_grid.name = "InspectStatsGrid"
 	_inspect_stats_grid.columns = 2
 	_inspect_stats_grid.add_theme_constant_override("h_separation", 24)
 	_inspect_stats_grid.add_theme_constant_override("v_separation", 8)
+	_inspect_stats_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_child(_inspect_stats_grid)
 
 	var stat_keys: Array[String] = ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]
@@ -727,48 +795,46 @@ func _build_inspect_popup() -> void:
 	}
 	_inspect_stat_labels.clear()
 	for key in stat_keys:
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
+		var stat_name_label := Label.new()
+		stat_name_label.text = stat_display.get(key, key.to_upper())
+		stat_name_label.custom_minimum_size = Vector2(100.0, 0.0)
+		stat_name_label.add_theme_font_size_override("font_size", 18)
+		stat_name_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
+		_inspect_stats_grid.add_child(stat_name_label)
 
-		var stat_name := Label.new()
-		stat_name.text = stat_display.get(key, key.to_upper())
-		stat_name.custom_minimum_size = Vector2(80.0, 0.0)
-		stat_name.add_theme_font_size_override("font_size", 18)
-		stat_name.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
-		row.add_child(stat_name)
+		var stat_val_label := Label.new()
+		stat_val_label.text = "--"
+		stat_val_label.add_theme_font_size_override("font_size", 20)
+		stat_val_label.add_theme_color_override("font_color", Color.WHITE)
+		_inspect_stats_grid.add_child(stat_val_label)
 
-		var stat_val := Label.new()
-		stat_val.text = "--"
-		stat_val.add_theme_font_size_override("font_size", 20)
-		stat_val.add_theme_color_override("font_color", Color.WHITE)
-		row.add_child(stat_val)
+		_inspect_stat_labels[key] = stat_val_label
 
-		_inspect_stat_labels[key] = stat_val
-		_inspect_stats_grid.add_child(row)
-
-	# -- Separator --
+	# -- Separator before abilities --
 	var sep2 := HSeparator.new()
 	sep2.add_theme_constant_override("separation", 8)
 	content.add_child(sep2)
 
-	# -- Abilities header --
+	# -- Abilities section header --
 	var abilities_header := Label.new()
 	abilities_header.text = "Abilities"
 	abilities_header.add_theme_font_size_override("font_size", 22)
 	abilities_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
 	content.add_child(abilities_header)
 
-	# -- Abilities list --
+	# -- Abilities list (VBoxContainer, up to 4 abilities with element color badges) --
 	_inspect_abilities_box = VBoxContainer.new()
+	_inspect_abilities_box.name = "InspectAbilities"
 	_inspect_abilities_box.add_theme_constant_override("separation", 6)
+	_inspect_abilities_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_child(_inspect_abilities_box)
 
-	# -- Separator --
+	# -- Separator before status effects --
 	var sep3 := HSeparator.new()
 	sep3.add_theme_constant_override("separation", 8)
 	content.add_child(sep3)
 
-	# -- Status effects header --
+	# -- Status effects section header --
 	var status_header := Label.new()
 	status_header.text = "Status Effects"
 	status_header.add_theme_font_size_override("font_size", 22)
@@ -777,167 +843,220 @@ func _build_inspect_popup() -> void:
 
 	# -- Status effects list --
 	_inspect_status_box = VBoxContainer.new()
-	_inspect_status_box.add_theme_constant_override("separation", 6)
+	_inspect_status_box.name = "InspectStatusEffects"
+	_inspect_status_box.add_theme_constant_override("separation", 4)
+	_inspect_status_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_child(_inspect_status_box)
 
-	# -- Close button --
-	var close_center := CenterContainer.new()
-	close_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_child(close_center)
 
-	var close_btn := Button.new()
-	close_btn.text = "Close"
-	close_btn.custom_minimum_size = Vector2(200.0, 48.0)
-	close_btn.add_theme_font_size_override("font_size", 20)
-	close_btn.focus_mode = Control.FOCUS_NONE
-
-	var close_style := StyleBoxFlat.new()
-	close_style.bg_color = Color(0.2, 0.2, 0.3)
-	close_style.set_corner_radius_all(10)
-	close_style.set_content_margin_all(8)
-	close_btn.add_theme_stylebox_override("normal", close_style)
-
-	var close_pressed := close_style.duplicate()
-	close_pressed.bg_color = Color(0.15, 0.15, 0.22)
-	close_btn.add_theme_stylebox_override("pressed", close_pressed)
-	close_btn.pressed.connect(_hide_inspect_popup)
-	close_center.add_child(close_btn)
-
-	inspect_panel.visible = false
-	inspect_overlay.add_child(inspect_panel)
-
-
-## Show the inspect popup for a given unit, populating all fields from
-## _tracked_units data. Works for both player (team 0) and enemy (team 1) units.
-func _show_inspect_popup(unit_id: int) -> void:
+## Show the unit inspection popup for the given unit.
+## Looks up the unit in _tracked_units, populates the panel with the unit's
+## info, and shows the overlay and panel with a scale-in animation (tween).
+func _show_unit_inspect(unit_id: int) -> void:
 	if not _tracked_units.has(unit_id):
 		return
 
-	var data: Dictionary = _tracked_units[unit_id]
 	_inspected_unit_id = unit_id
+	var data: Dictionary = _tracked_units[unit_id]
 
 	# -- Portrait --
-	if _inspect_portrait != null:
-		_inspect_portrait.texture = data.get("texture", null)
+	_inspect_portrait.texture = data.get("texture", null)
 
-	# -- Name --
-	if _inspect_name_label != null:
-		_inspect_name_label.text = str(data.get("name", "Unknown"))
+	# -- Name (gold color for allies, red for enemies) --
+	var unit_name: String = str(data.get("name", "Unknown"))
+	_inspect_name_label.text = unit_name
+	var team: int = data.get("team", 0)
+	if team == 0:
+		_inspect_name_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	else:
+		_inspect_name_label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.3))
 
-	# -- Team --
-	if _inspect_team_label != null:
-		var team: int = data.get("team", -1)
-		if team == 0:
-			_inspect_team_label.text = "Ally"
-			_inspect_team_label.add_theme_color_override("font_color", Color(0.3, 0.75, 1.0))
-		elif team == 1:
-			_inspect_team_label.text = "Enemy"
-			_inspect_team_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.35))
-		else:
-			_inspect_team_label.text = "Unknown Team"
-			_inspect_team_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	# -- Team label --
+	if team == 0:
+		_inspect_team_label.text = "Ally"
+		_inspect_team_label.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0))
+	else:
+		_inspect_team_label.text = "Enemy"
+		_inspect_team_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
 
 	# -- Level --
-	if _inspect_level_label != null:
-		_inspect_level_label.text = "Lv. %d" % data.get("level", 1)
+	var unit_level: int = data.get("level", 1)
+	_inspect_level_label.text = "Lv. %d" % unit_level
 
-	# -- Elements --
-	if _inspect_element_row != null:
-		for child in _inspect_element_row.get_children():
-			child.queue_free()
-		var elements: Array = data.get("elements", [])
-		for elem in elements:
-			var badge := Label.new()
-			badge.text = " %s " % str(elem)
-			badge.add_theme_font_size_override("font_size", 16)
-			badge.add_theme_color_override("font_color", Color.WHITE)
-			var badge_style := StyleBoxFlat.new()
-			badge_style.bg_color = Color(0.25, 0.25, 0.35, 0.9)
-			badge_style.set_corner_radius_all(6)
-			badge_style.set_content_margin_all(4)
-			badge.add_theme_stylebox_override("normal", badge_style)
-			_inspect_element_row.add_child(badge)
+	# -- Element badges (colored labels using element color helper) --
+	for child in _inspect_element_row.get_children():
+		child.queue_free()
+	var elements: Array = data.get("elements", [])
+	for element in elements:
+		var badge := Label.new()
+		badge.text = "  %s  " % str(element)
+		var badge_color: Color = _get_element_color(str(element))
+		var badge_style := StyleBoxFlat.new()
+		badge_style.bg_color = badge_color.darkened(0.5)
+		badge_style.corner_radius_top_left = 8
+		badge_style.corner_radius_top_right = 8
+		badge_style.corner_radius_bottom_left = 8
+		badge_style.corner_radius_bottom_right = 8
+		badge_style.content_margin_left = 4.0
+		badge_style.content_margin_right = 4.0
+		badge_style.content_margin_top = 2.0
+		badge_style.content_margin_bottom = 2.0
+		badge.add_theme_stylebox_override("normal", badge_style)
+		var label_settings := LabelSettings.new()
+		label_settings.font_size = 16
+		label_settings.font_color = badge_color
+		badge.label_settings = label_settings
+		_inspect_element_row.add_child(badge)
 
-	# -- HP bar --
-	var current_hp: int = data.get("current_hp", 0)
+	# -- HP bar (current/max with color-coded fill) --
 	var max_hp: int = data.get("max_hp", 1)
-	if _inspect_hp_bar != null:
-		_inspect_hp_bar.max_value = max_hp
-		_inspect_hp_bar.value = current_hp
-	if _inspect_hp_label != null:
-		_inspect_hp_label.text = "HP: %d / %d" % [current_hp, max_hp]
+	var current_hp: int = data.get("current_hp", 0)
+	_inspect_hp_bar.max_value = float(max_hp)
+	_inspect_hp_bar.value = float(current_hp)
+	_inspect_hp_label.text = "%d / %d" % [current_hp, max_hp]
 
-	# -- Stats --
+	# Update HP bar fill color based on HP ratio.
+	var hp_ratio: float = float(current_hp) / float(maxi(1, max_hp))
+	var fill_color: Color
+	if hp_ratio > 0.5:
+		fill_color = Color(0.2, 0.8, 0.3, 1.0)
+	elif hp_ratio > 0.25:
+		fill_color = Color(0.9, 0.7, 0.1, 1.0)
+	else:
+		fill_color = Color(0.9, 0.2, 0.2, 1.0)
+	var hp_fill_style := StyleBoxFlat.new()
+	hp_fill_style.bg_color = fill_color
+	hp_fill_style.corner_radius_top_left = 6
+	hp_fill_style.corner_radius_top_right = 6
+	hp_fill_style.corner_radius_bottom_left = 6
+	hp_fill_style.corner_radius_bottom_right = 6
+	_inspect_hp_bar.add_theme_stylebox_override("fill", hp_fill_style)
+
+	# -- Stats grid --
 	var stats: Dictionary = data.get("stats", {})
-	for key in _inspect_stat_labels:
-		var label: Label = _inspect_stat_labels[key]
-		if label != null:
-			label.text = str(stats.get(key, "--"))
+	for stat_key in _inspect_stat_labels:
+		var val: int = int(stats.get(stat_key, 0))
+		_inspect_stat_labels[stat_key].text = str(val)
 
-	# -- Abilities --
-	if _inspect_abilities_box != null:
-		for child in _inspect_abilities_box.get_children():
-			child.queue_free()
-		var abilities: Array = data.get("abilities", [])
-		if abilities.is_empty():
-			var none_lbl := Label.new()
-			none_lbl.text = "None"
-			none_lbl.add_theme_font_size_override("font_size", 16)
-			none_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
-			_inspect_abilities_box.add_child(none_lbl)
-		else:
-			for ab in abilities:
-				var ab_label := Label.new()
-				var ab_name: String = str(ab.get("name", ab.get("ability_name", "???")))
-				var ab_element: String = str(ab.get("element", ""))
-				if not ab_element.is_empty():
-					ab_label.text = "%s  [%s]" % [ab_name, ab_element]
-				else:
-					ab_label.text = ab_name
-				ab_label.add_theme_font_size_override("font_size", 18)
-				ab_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.95))
-				_inspect_abilities_box.add_child(ab_label)
+	# -- Abilities list (up to 4, with element color badges) --
+	for child in _inspect_abilities_box.get_children():
+		child.queue_free()
+	var abilities: Array = data.get("abilities", [])
+	var ability_count: int = mini(abilities.size(), 4)
+	if ability_count == 0:
+		var none_label := Label.new()
+		none_label.text = "None"
+		none_label.add_theme_font_size_override("font_size", 16)
+		none_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+		_inspect_abilities_box.add_child(none_label)
+	else:
+		for i in range(ability_count):
+			var ab: Dictionary = abilities[i] if abilities[i] is Dictionary else {}
+			var ab_row := HBoxContainer.new()
+			ab_row.add_theme_constant_override("separation", 8)
 
-	# -- Status effects --
-	if _inspect_status_box != null:
-		for child in _inspect_status_box.get_children():
-			child.queue_free()
-		var statuses: Array = data.get("status_effects", [])
-		if statuses.is_empty():
-			var none_lbl := Label.new()
-			none_lbl.text = "None"
-			none_lbl.add_theme_font_size_override("font_size", 16)
-			none_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
-			_inspect_status_box.add_child(none_lbl)
-		else:
-			for status in statuses:
-				var s_label := Label.new()
-				s_label.text = str(status)
-				s_label.add_theme_font_size_override("font_size", 18)
-				s_label.add_theme_color_override("font_color", Color(0.85, 0.7, 1.0))
-				_inspect_status_box.add_child(s_label)
+			# Element color badge for the ability.
+			var ab_element: String = str(ab.get("element", ""))
+			if not ab_element.is_empty():
+				var ab_badge := Label.new()
+				ab_badge.text = " %s " % ab_element
+				var ab_color: Color = _get_element_color(ab_element)
+				var ab_badge_style := StyleBoxFlat.new()
+				ab_badge_style.bg_color = ab_color.darkened(0.5)
+				ab_badge_style.corner_radius_top_left = 6
+				ab_badge_style.corner_radius_top_right = 6
+				ab_badge_style.corner_radius_bottom_left = 6
+				ab_badge_style.corner_radius_bottom_right = 6
+				ab_badge_style.content_margin_left = 2.0
+				ab_badge_style.content_margin_right = 2.0
+				ab_badge.add_theme_stylebox_override("normal", ab_badge_style)
+				var ab_label_settings := LabelSettings.new()
+				ab_label_settings.font_size = 14
+				ab_label_settings.font_color = ab_color
+				ab_badge.label_settings = ab_label_settings
+				ab_row.add_child(ab_badge)
 
-	# Show the overlay and panel.
-	if inspect_overlay != null:
-		inspect_overlay.visible = true
-	if inspect_panel != null:
-		inspect_panel.visible = true
+			# Ability name.
+			var ab_name_label := Label.new()
+			ab_name_label.text = str(ab.get("name", ab.get("ability_name", "Ability #%d" % (i + 1))))
+			ab_name_label.add_theme_font_size_override("font_size", 18)
+			ab_name_label.add_theme_color_override("font_color", Color.WHITE)
+			ab_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			ab_row.add_child(ab_name_label)
+
+			# Power label (if available).
+			var ab_power: int = int(ab.get("power", 0))
+			if ab_power > 0:
+				var power_label := Label.new()
+				power_label.text = "Pow: %d" % ab_power
+				power_label.add_theme_font_size_override("font_size", 16)
+				power_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
+				ab_row.add_child(power_label)
+
+			_inspect_abilities_box.add_child(ab_row)
+
+	# -- Status effects list (if any active) --
+	for child in _inspect_status_box.get_children():
+		child.queue_free()
+	var status_effects: Array = data.get("status_effects", [])
+	if status_effects.is_empty():
+		var no_status := Label.new()
+		no_status.text = "None"
+		no_status.add_theme_font_size_override("font_size", 16)
+		no_status.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+		_inspect_status_box.add_child(no_status)
+	else:
+		for effect_name in status_effects:
+			var effect_label := Label.new()
+			effect_label.text = str(effect_name)
+			effect_label.add_theme_font_size_override("font_size", 16)
+			effect_label.add_theme_color_override("font_color", Color(0.85, 0.7, 1.0))
+			_inspect_status_box.add_child(effect_label)
+
+	# -- Show with scale-in animation (tween) --
+	inspect_overlay.visible = true
+	inspect_panel.visible = true
+	inspect_panel.scale = Vector2(0.8, 0.8)
+	inspect_panel.pivot_offset = Vector2(350.0, 450.0)
+	inspect_panel.modulate.a = 0.0
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_BACK)
+	tween.tween_property(inspect_panel, "scale", Vector2.ONE, 0.25)
+	tween.tween_property(inspect_panel, "modulate:a", 1.0, 0.2).set_trans(Tween.TRANS_QUAD)
 
 
-## Hide the inspect popup and reset the inspected unit.
-func _hide_inspect_popup() -> void:
+## Hide the unit inspection popup with a scale-out animation.
+## Resets _inspected_unit_id.
+func _hide_unit_inspect() -> void:
+	if not inspect_overlay.visible:
+		return
+
 	_inspected_unit_id = -1
-	if inspect_overlay != null:
+
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.set_ease(Tween.EASE_IN)
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(inspect_panel, "scale", Vector2(0.85, 0.85), 0.15)
+	tween.tween_property(inspect_panel, "modulate:a", 0.0, 0.15)
+	tween.chain().tween_callback(func() -> void:
 		inspect_overlay.visible = false
-	if inspect_panel != null:
 		inspect_panel.visible = false
+		inspect_panel.scale = Vector2.ONE
+		inspect_panel.modulate.a = 1.0
+	)
 
 
 ## -- Input: Tap-to-Inspect ---------------------------------------------------
 
 ## Handle touch / mouse input for tapping a unit on the grid to inspect it.
-## This is deliberately skipped when the targeting overlay is active or when
-## any modal overlay (results, deployment, crystal throw) is showing.
+## Only responds to touch/mouse taps (press + release at same position).
+## Skipped when the targeting overlay is active or when any modal overlay is
+## showing. If the inspect overlay is visible and tapped outside the panel,
+## hides it.
 func _input(event: InputEvent) -> void:
 	# Do not process inspect taps while targeting is active.
 	if targeting_overlay != null and targeting_overlay.active:
@@ -956,14 +1075,14 @@ func _input(event: InputEvent) -> void:
 			var pos: Vector2 = event.position
 			var panel_rect := Rect2(inspect_panel.position, inspect_panel.size)
 			if not panel_rect.has_point(pos):
-				_hide_inspect_popup()
+				_hide_unit_inspect()
 				get_viewport().set_input_as_handled()
 			return
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			var pos: Vector2 = event.position
 			var panel_rect := Rect2(inspect_panel.position, inspect_panel.size)
 			if not panel_rect.has_point(pos):
-				_hide_inspect_popup()
+				_hide_unit_inspect()
 				get_viewport().set_input_as_handled()
 			return
 		return  # Consume all other input while popup is open.
@@ -994,7 +1113,9 @@ func _input(event: InputEvent) -> void:
 
 
 ## Attempt to find a unit at the given screen position and open the inspect
-## popup for it. Works for both team 0 (player) and team 1 (enemy) units.
+## popup for it. Converts screen position to grid position using
+## grid_display.screen_to_grid(), checks if grid_display.is_screen_pos_on_grid()
+## is true, and looks up the unit at that grid position.
 func _try_inspect_at(screen_pos: Vector2) -> void:
 	if grid_display == null:
 		return
@@ -1007,6 +1128,29 @@ func _try_inspect_at(screen_pos: Vector2) -> void:
 	for unit_id in _tracked_units:
 		var data: Dictionary = _tracked_units[unit_id]
 		if data.get("grid_pos", Vector2i(-99, -99)) == grid_pos:
-			_show_inspect_popup(unit_id)
+			_show_unit_inspect(unit_id)
 			get_viewport().set_input_as_handled()
 			return
+
+
+## -- Element Color Helper ----------------------------------------------------
+
+## Return the theme color for a given element name.
+## Matches the pattern used in SpriteDetailScreen.gd.
+func _get_element_color(element_name: String) -> Color:
+	match element_name:
+		"Fire": return Color(1.0, 0.4, 0.2)
+		"Water": return Color(0.3, 0.6, 1.0)
+		"Earth": return Color(0.6, 0.45, 0.25)
+		"Air": return Color(0.7, 0.9, 1.0)
+		"Light": return Color(1.0, 1.0, 0.6)
+		"Dark": return Color(0.5, 0.3, 0.7)
+		"Nature": return Color(0.3, 0.8, 0.3)
+		"Electric": return Color(1.0, 0.9, 0.2)
+		"Ice": return Color(0.6, 0.9, 1.0)
+		"Metal": return Color(0.7, 0.7, 0.75)
+		"Poison": return Color(0.7, 0.3, 0.8)
+		"Psychic": return Color(1.0, 0.5, 0.8)
+		"Spirit": return Color(0.6, 0.8, 0.9)
+		"Chaos": return Color(0.9, 0.2, 0.4)
+		_: return Color(0.7, 0.7, 0.7)
