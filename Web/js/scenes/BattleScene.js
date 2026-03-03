@@ -24,6 +24,7 @@ import { AssetRegistry } from '../data/AssetRegistry.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
 import { ABILITIES } from '../data/AbilityData.js';
+import { rollBattleLoot, formatLootForDisplay } from '../systems/battle/BattleLootSystem.js';
 
 // ── Layout Constants ────────────────────────────────────────────────────────
 const GRID_PADDING_X = 24;
@@ -1460,8 +1461,40 @@ export class BattleScene extends Scene {
 
             container.appendChild(rewardsDiv);
 
+            // -- Equipment Loot Drops -----------------------------------------
+            // Determine battle type, difficulty, player level, and element
+            const battleType = this._isBoss ? 'boss' : 'normal';
+            const difficulty = this._deriveDifficulty();
+            const playerLevel = this._getHighestPlayerLevel();
+            const battleElement = this._deriveBattleElement();
+
+            const loot = rollBattleLoot(battleType, difficulty, playerLevel, battleElement);
+            const lootDisplay = formatLootForDisplay(loot);
+
+            if (lootDisplay.length > 0) {
+                const lootDiv = document.createElement('div');
+                lootDiv.style.cssText = 'margin-top:8px;text-align:center;';
+                lootDiv.innerHTML = '<div style="color:#ffcc33;font-weight:700;font-size:0.8rem;margin-bottom:6px;">Equipment Found</div>';
+
+                for (const item of lootDisplay) {
+                    const itemEl = document.createElement('div');
+                    itemEl.style.cssText = `
+                        display:inline-flex;align-items:center;gap:6px;
+                        background:rgba(255,255,255,0.06);border:1px solid ${item.rarityColor}40;
+                        border-radius:6px;padding:4px 10px;margin:3px;font-size:0.75rem;
+                    `;
+                    itemEl.innerHTML = `
+                        <span style="color:${item.rarityColor};font-weight:700;">${item.name}</span>
+                        <span style="color:${item.rarityColor};font-size:0.65rem;opacity:0.8;">[${item.rarityLabel}]</span>
+                        <span style="color:#aaa;font-size:0.65rem;">${item.statSummary}</span>
+                    `;
+                    lootDiv.appendChild(itemEl);
+                }
+                container.appendChild(lootDiv);
+            }
+
             // Store rewards so _exitBattle() can pass them back to the overworld
-            this._battleRewards = { xp: xpGained, gold: goldGained };
+            this._battleRewards = { xp: xpGained, gold: goldGained, loot: loot };
         }
 
         // Continue button
@@ -1476,6 +1509,81 @@ export class BattleScene extends Scene {
         container.appendChild(continueBtn);
 
         this._endScreenEl.appendChild(container);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // Loot Helpers
+    // ═══════════════════════════════════════════════════════════════════
+
+    /**
+     * Derive a 1-10 difficulty score from the enemy team data.
+     * Uses average enemy level relative to player level, boss flag, and team size.
+     * @returns {number}
+     */
+    _deriveDifficulty() {
+        const playerLevel = this._getHighestPlayerLevel();
+        let avgEnemyLevel = 1;
+
+        if (this._enemyTeamData.length > 0) {
+            let total = 0;
+            for (const e of this._enemyTeamData) {
+                const inst = e.instance || e;
+                total += inst.level || 1;
+            }
+            avgEnemyLevel = total / this._enemyTeamData.length;
+        }
+
+        // Base difficulty from level ratio (enemy vs player)
+        let diff = Math.round((avgEnemyLevel / Math.max(1, playerLevel)) * 5);
+
+        // Boss battles are harder
+        if (this._isBoss) diff += 2;
+
+        // More enemies = harder
+        if (this._enemyTeamData.length >= 5) diff += 1;
+
+        return Math.max(1, Math.min(10, diff));
+    }
+
+    /**
+     * Get the highest level among the player's team sprites.
+     * @returns {number}
+     */
+    _getHighestPlayerLevel() {
+        let highest = 1;
+        for (const p of this._playerTeamData) {
+            const inst = p.instance || p;
+            const level = inst.level || 1;
+            if (level > highest) highest = level;
+        }
+        return highest;
+    }
+
+    /**
+     * Derive the dominant element of the battle from enemy team composition.
+     * Returns the most common element type among enemies, or null if mixed.
+     * @returns {string|null}
+     */
+    _deriveBattleElement() {
+        const counts = {};
+        for (const e of this._enemyTeamData) {
+            const inst = e.instance || e;
+            const raceData = e.raceData;
+            const elems = (raceData && raceData.element_types) || inst.elementTypes || [];
+            for (const elem of elems) {
+                counts[elem] = (counts[elem] || 0) + 1;
+            }
+        }
+
+        let bestElem = null;
+        let bestCount = 0;
+        for (const [elem, count] of Object.entries(counts)) {
+            if (count > bestCount) {
+                bestCount = count;
+                bestElem = elem;
+            }
+        }
+        return bestElem;
     }
 
     // ═══════════════════════════════════════════════════════════════════

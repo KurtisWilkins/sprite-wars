@@ -303,12 +303,33 @@ func end_battle(result: String) -> void:
 		"rounds": _round_number,
 	})
 
+	# Roll equipment loot on victory.
+	var equipment_loot: Array[Dictionary] = []
+	if result == "player_win":
+		var battle_type: String = "normal"
+		if _battle_config.get("is_boss", false):
+			battle_type = "boss"
+		elif _battle_config.get("is_temple", false):
+			battle_type = "temple"
+
+		var difficulty: int = int(_battle_config.get("difficulty", 3))
+		var player_level: int = _get_highest_player_level()
+		var battle_element: String = str(_battle_config.get("dominant_element", ""))
+		equipment_loot = BattleLootSystem.roll_battle_loot(
+			battle_type, difficulty, player_level, battle_element
+		)
+
 	# Emit signal for GameManager and UI.
 	EventBus.battle_ended.emit({
 		"result": result,
 		"rounds": _round_number,
 		"event_log": event_log.get_full_log(),
+		"equipment": BattleLootSystem.format_loot_for_display(equipment_loot),
 	})
+
+	# Emit separate loot signal if any equipment was found.
+	if equipment_loot.size() > 0:
+		EventBus.equipment_looted.emit(equipment_loot)
 
 ## -- Private: Round Management ------------------------------------------------
 
@@ -587,3 +608,12 @@ func _generate_default_positions(team: int, count: int) -> Array[Vector2i]:
 		current_row += row_dir
 
 	return positions
+
+
+## Get the highest level among player team units for loot filtering.
+func _get_highest_player_level() -> int:
+	var highest: int = 1
+	for unit in grid.get_all_units(0):
+		if unit.get_level() > highest:
+			highest = unit.get_level()
+	return highest

@@ -100,6 +100,9 @@ export const GameEvents = {
     GOLD_CHANGED: 'gold_changed',
     TEAM_CHANGED: 'team_changed',
     EQUIPMENT_CHANGED: 'equipment_changed',
+    EQUIPMENT_DROPPED: 'equipment_dropped',
+    EQUIPMENT_LOOTED: 'equipment_looted',
+    BATTLE_LOOT_ROLLED: 'battle_loot_rolled',
 
     // System events
     GAME_SAVED: 'game_saved',

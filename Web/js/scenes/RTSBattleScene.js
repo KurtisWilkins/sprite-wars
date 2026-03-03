@@ -21,6 +21,7 @@ import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
 import { ABILITIES } from '../data/AbilityData.js';
 import { EQUIPMENT } from '../data/EquipmentData.js';
+import { rollBattleLoot, formatLootForDisplay } from '../systems/battle/BattleLootSystem.js';
 import { SpriteInspectPanel } from '../systems/ui/SpriteInspectPanel.js';
 
 // ── UI Constants ────────────────────────────────────────────────────────────
@@ -562,11 +563,33 @@ export class RTSBattleScene extends Scene {
             background: rgba(0,0,0,0.85); color: #fff; padding: 24px 40px;
             border-radius: 8px; text-align: center; pointer-events: auto;
             border: 2px solid ${this._battleResult === 'player_win' ? '#44ff88' : '#ff4444'};
-            min-width: 280px;
+            min-width: 280px; max-height: 80vh; overflow-y: auto;
         `;
 
         const isWin = this._battleResult === 'player_win';
         const stats = this._battleManager.stats;
+
+        // Build loot display HTML
+        let lootHtml = '';
+        if (isWin && this._battleRewards && this._battleRewards.loot && this._battleRewards.loot.length > 0) {
+            const lootDisplay = formatLootForDisplay(this._battleRewards.loot);
+            let itemsHtml = '';
+            for (const item of lootDisplay) {
+                itemsHtml += `
+                    <div style="display:inline-flex;align-items:center;gap:4px;
+                        background:rgba(255,255,255,0.06);border:1px solid ${item.rarityColor}40;
+                        border-radius:4px;padding:3px 8px;margin:2px;font:10px monospace;">
+                        <span style="color:${item.rarityColor};font-weight:700;">${item.name}</span>
+                        <span style="color:${item.rarityColor};font-size:9px;opacity:0.8;">[${item.rarityLabel}]</span>
+                        <span style="color:#aaa;font-size:9px;">${item.statSummary}</span>
+                    </div>
+                `;
+            }
+            lootHtml = `
+                <div style="font: bold 11px monospace; color: #ffcc44; margin-bottom: 4px;">Equipment Found</div>
+                <div style="margin-bottom: 12px;">${itemsHtml}</div>
+            `;
+        }
 
         this._endScreenEl.innerHTML = `
             <div style="font: bold 24px monospace; color: ${isWin ? '#44ff88' : '#ff4444'}; margin-bottom: 12px;">
@@ -598,6 +621,7 @@ export class RTSBattleScene extends Scene {
                     +${this._battleRewards.xp} XP &nbsp; +${this._battleRewards.gold} Gold
                 </div>
             ` : ''}
+            ${lootHtml}
             <div style="font: 11px monospace; color: #888;">
                 Tap or press any key to continue
             </div>
@@ -863,7 +887,90 @@ export class RTSBattleScene extends Scene {
         const xp = 50 + stats.unitsDefeated.enemy * 20 + Math.floor(this._battleManager.elapsedTime * 0.5);
         const gold = 25 + stats.unitsDefeated.enemy * 10;
 
-        this._battleRewards = { xp, gold };
+        // Roll equipment loot drops
+        const battleType = this._isBoss ? 'boss' : 'normal';
+        const difficulty = this._deriveDifficulty();
+        const playerLevel = this._getHighestPlayerLevel();
+        const battleElement = this._deriveBattleElement();
+
+        const loot = rollBattleLoot(battleType, difficulty, playerLevel, battleElement);
+
+        this._battleRewards = { xp, gold, loot };
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // Loot Helpers
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * Derive a 1-10 difficulty score from the enemy team data.
+     * Uses average enemy level relative to player level, boss flag, and team size.
+     * @returns {number}
+     */
+    _deriveDifficulty() {
+        const playerLevel = this._getHighestPlayerLevel();
+        let avgEnemyLevel = 1;
+
+        if (this._enemyTeamData.length > 0) {
+            let total = 0;
+            for (const e of this._enemyTeamData) {
+                const inst = e.instance || e;
+                total += inst.level || 1;
+            }
+            avgEnemyLevel = total / this._enemyTeamData.length;
+        }
+
+        // Base difficulty from level ratio (enemy vs player)
+        let diff = Math.round((avgEnemyLevel / Math.max(1, playerLevel)) * 5);
+
+        // Boss battles are harder
+        if (this._isBoss) diff += 2;
+
+        // More enemies = harder
+        if (this._enemyTeamData.length >= 5) diff += 1;
+
+        return Math.max(1, Math.min(10, diff));
+    }
+
+    /**
+     * Get the highest level among the player's team sprites.
+     * @returns {number}
+     */
+    _getHighestPlayerLevel() {
+        let highest = 1;
+        for (const p of this._playerTeamData) {
+            const inst = p.instance || p;
+            const level = inst.level || 1;
+            if (level > highest) highest = level;
+        }
+        return highest;
+    }
+
+    /**
+     * Derive the dominant element of the battle from enemy team composition.
+     * Returns the most common element type among enemies, or null if mixed.
+     * @returns {string|null}
+     */
+    _deriveBattleElement() {
+        const counts = {};
+        for (const e of this._enemyTeamData) {
+            const inst = e.instance || e;
+            const raceData = e.raceData;
+            const elems = (raceData && raceData.element_types) || inst.elementTypes || [];
+            for (const elem of elems) {
+                counts[elem] = (counts[elem] || 0) + 1;
+            }
+        }
+
+        let bestElem = null;
+        let bestCount = 0;
+        for (const [elem, count] of Object.entries(counts)) {
+            if (count > bestCount) {
+                bestCount = count;
+                bestElem = elem;
+            }
+        }
+        return bestElem;
     }
 
     _exitBattle() {

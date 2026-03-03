@@ -63,7 +63,7 @@ extends Resource
 ## ── Acquisition ───────────────────────────────────────────────────────────────
 
 ## Where this equipment can be obtained.
-@export_enum("shop", "temple_drop", "quest_reward", "boss_drop") var source: String = "shop"
+@export_enum("shop", "temple_drop", "quest_reward", "boss_drop", "dungeon_drop", "legendary_quest", "battle_drop") var source: String = "shop"
 
 
 ## ── Constants ─────────────────────────────────────────────────────────────────
@@ -79,6 +79,7 @@ const VALID_RARITIES: PackedStringArray = PackedStringArray([
 
 const VALID_SOURCES: PackedStringArray = PackedStringArray([
 	"shop", "temple_drop", "quest_reward", "boss_drop",
+	"dungeon_drop", "legendary_quest", "battle_drop",
 ])
 
 const STAT_KEYS := ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]

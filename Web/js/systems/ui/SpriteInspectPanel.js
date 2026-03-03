@@ -11,6 +11,7 @@
  *   panel.hide();
  */
 
+import { eventBus, GameEvents } from '../../core/EventBus.js';
 import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../../data/SpriteData.js';
 import { ABILITIES } from '../../data/AbilityData.js';
@@ -577,11 +578,115 @@ export class SpriteInspectPanel {
 
     _renderEquipTab(container, d) {
         const equipment = d.equipment || {};
-        const slots = ['helmet', 'weapon', 'chest', 'gloves', 'legs', 'boots', 'ring', 'amulet', 'crystal'];
+
+        // ── Paper-Doll Visual Layout ────────────────────────────────────
+        const paperDoll = document.createElement('div');
+        paperDoll.style.cssText = `
+            position: relative;
+            width: 100%; max-width: 340px; height: 220px;
+            margin: 0 auto 12px; border-radius: 8px;
+            background: rgba(13, 13, 26, 0.6);
+            border: 1px solid rgba(255,255,255,0.06);
+        `;
+
+        // Central sprite preview
+        const dollCanvas = document.createElement('canvas');
+        dollCanvas.width = 72;
+        dollCanvas.height = 84;
+        dollCanvas.style.cssText = `
+            position: absolute; left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            width: 72px; height: 84px;
+            image-rendering: pixelated;
+        `;
+        const dollCtx = dollCanvas.getContext('2d');
+        HumanoidSpriteSystem.drawWithEquipment(
+            dollCtx, d.raceId, d.evolutionStage, d.facing, 0,
+            36, 70, 56,
+            { equipment: equipment }
+        );
+        paperDoll.appendChild(dollCanvas);
+
+        // Slot positions around the paper-doll (absolute positioning)
+        const slotLayout = {
+            helmet:  { left: '50%', top: '4px',   tx: '-50%', ty: '0' },
+            weapon:  { left: '8px', top: '50%',   tx: '0',    ty: '-50%' },
+            chest:   { left: '50%', top: '50%',   tx: '-50%', ty: '-50%' },
+            gloves:  { left: '8px', top: 'auto',  tx: '0',    ty: '0',   bottom: '40px' },
+            legs:    { left: '50%', top: 'auto',   tx: '-50%', ty: '0',   bottom: '40px' },
+            boots:   { left: '50%', top: 'auto',   tx: '-50%', ty: '0',   bottom: '4px' },
+            ring:    { left: 'auto', top: '50%',  tx: '0',    ty: '-50%', right: '8px' },
+            amulet:  { left: 'auto', top: '30%',  tx: '0',    ty: '0',   right: '8px' },
+            crystal: { left: 'auto', top: 'auto', tx: '0',    ty: '0',   right: '8px', bottom: '40px' },
+        };
+
+        // Adjust chest slot to offset from the center sprite
+        slotLayout.chest.left = 'calc(50% + 52px)';
+        slotLayout.chest.top = '50%';
+        slotLayout.weapon.top = '36%';
+
+        const allSlots = ['helmet', 'weapon', 'chest', 'gloves', 'legs', 'boots', 'ring', 'amulet', 'crystal'];
+
+        for (const slot of allSlots) {
+            const pos = slotLayout[slot];
+            const eqId = equipment[slot];
+            const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
+            const hasItem = !!eqData;
+            const rarityColor = hasItem ? (RARITY_COLORS[eqData.rarity] || '#888') : '#333';
+            const icon = SLOT_ICONS[slot] || '\u2B24';
+
+            const slotEl = document.createElement('div');
+            slotEl.title = hasItem ? `${eqData.equipment_name} (${slot})` : `${slot.charAt(0).toUpperCase() + slot.slice(1)} - Empty`;
+            slotEl.style.cssText = `
+                position: absolute;
+                width: 40px; height: 40px;
+                border-radius: 6px;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 1.1rem;
+                cursor: ${hasItem ? 'pointer' : 'default'};
+                transition: border-color 0.2s, background 0.2s, transform 0.15s;
+                ${hasItem
+                    ? `background: rgba(30, 30, 46, 0.9); border: 2px solid ${rarityColor}; box-shadow: 0 0 6px ${rarityColor}44;`
+                    : 'background: rgba(20, 20, 30, 0.5); border: 2px dashed #444; opacity: 0.5;'
+                }
+                ${pos.left !== 'auto' ? `left: ${pos.left};` : ''}
+                ${pos.right ? `right: ${pos.right};` : ''}
+                ${pos.top !== 'auto' ? `top: ${pos.top};` : ''}
+                ${pos.bottom ? `bottom: ${pos.bottom};` : ''}
+                transform: translate(${pos.tx}, ${pos.ty});
+            `;
+            slotEl.textContent = icon;
+
+            // Hover effect for equipped items
+            if (hasItem) {
+                slotEl.addEventListener('mouseenter', () => {
+                    slotEl.style.transform = `translate(${pos.tx}, ${pos.ty}) scale(1.12)`;
+                    slotEl.style.boxShadow = `0 0 10px ${rarityColor}88`;
+                });
+                slotEl.addEventListener('mouseleave', () => {
+                    slotEl.style.transform = `translate(${pos.tx}, ${pos.ty})`;
+                    slotEl.style.boxShadow = `0 0 6px ${rarityColor}44`;
+                });
+            }
+
+            paperDoll.appendChild(slotEl);
+        }
+
+        container.appendChild(paperDoll);
+
+        // ── Scrollable Equipment List ───────────────────────────────────
+        const listHeader = document.createElement('div');
+        listHeader.style.cssText = 'font-size: 0.7rem; color: #888; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;';
+        const equippedCount = allSlots.filter(s => equipment[s]).length;
+        listHeader.textContent = `Equipped Items (${equippedCount}/${allSlots.length})`;
+        container.appendChild(listHeader);
+
+        const listContainer = document.createElement('div');
+        listContainer.style.cssText = 'max-height: 240px; overflow-y: auto; padding-right: 2px;';
 
         let hasAny = false;
 
-        for (const slot of slots) {
+        for (const slot of allSlots) {
             const eqId = equipment[slot];
             if (!eqId) continue;
             hasAny = true;
@@ -593,62 +698,179 @@ export class SpriteInspectPanel {
             const icon = SLOT_ICONS[slot] || '\u2B24';
             const rarityLabel = (eqData.rarity || 'common').charAt(0).toUpperCase() + (eqData.rarity || 'common').slice(1);
 
-            const row = document.createElement('div');
-            row.style.cssText = `
-                display: flex; align-items: center; gap: 8px;
-                padding: 5px 6px; margin-bottom: 5px;
-                background: rgba(255,255,255,0.03); border-radius: 4px;
+            const card = document.createElement('div');
+            card.style.cssText = `
+                padding: 8px 10px; margin-bottom: 6px;
+                background: rgba(30, 30, 46, 0.7); border-radius: 6px;
                 border-left: 3px solid ${rarityColor};
+                transition: background 0.15s;
             `;
+            card.addEventListener('mouseenter', () => { card.style.background = 'rgba(40, 40, 60, 0.8)'; });
+            card.addEventListener('mouseleave', () => { card.style.background = 'rgba(30, 30, 46, 0.7)'; });
 
-            // Icon
+            // Top row: icon + name + unequip button
+            const topRow = document.createElement('div');
+            topRow.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 4px;';
+
             const iconEl = document.createElement('span');
-            iconEl.style.cssText = 'font-size: 0.9rem; width: 24px; text-align: center;';
+            iconEl.style.cssText = 'font-size: 1rem; width: 24px; text-align: center; flex-shrink: 0;';
             iconEl.textContent = icon;
-            row.appendChild(iconEl);
-
-            // Info
-            const infoEl = document.createElement('div');
-            infoEl.style.cssText = 'flex: 1; min-width: 0;';
+            topRow.appendChild(iconEl);
 
             const nameEl = document.createElement('div');
-            nameEl.style.cssText = `font-size: 0.75rem; font-weight: 600; color: ${rarityColor}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`;
+            nameEl.style.cssText = `
+                flex: 1; min-width: 0;
+                font-size: 0.8rem; font-weight: 700;
+                color: ${rarityColor};
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            `;
             nameEl.textContent = eqData.equipment_name || 'Unknown';
-            infoEl.appendChild(nameEl);
+            topRow.appendChild(nameEl);
 
-            const metaEl = document.createElement('div');
-            metaEl.style.cssText = 'font-size: 0.65rem; color: #777;';
-            metaEl.textContent = `${slot.charAt(0).toUpperCase() + slot.slice(1)} \u2022 ${rarityLabel}`;
-            infoEl.appendChild(metaEl);
+            // Unequip button
+            const unequipBtn = document.createElement('button');
+            unequipBtn.textContent = 'Unequip';
+            unequipBtn.style.cssText = `
+                padding: 3px 8px; font-size: 0.6rem;
+                border: 1px solid #aa4444; border-radius: 3px;
+                background: rgba(120, 30, 30, 0.3); color: #ffaaaa;
+                cursor: pointer; font-family: sans-serif;
+                flex-shrink: 0;
+                min-height: 28px; min-width: 52px;
+                transition: background 0.15s, border-color 0.15s;
+            `;
+            unequipBtn.addEventListener('mouseenter', () => {
+                unequipBtn.style.background = 'rgba(160, 40, 40, 0.5)';
+                unequipBtn.style.borderColor = '#cc5555';
+            });
+            unequipBtn.addEventListener('mouseleave', () => {
+                unequipBtn.style.background = 'rgba(120, 30, 30, 0.3)';
+                unequipBtn.style.borderColor = '#aa4444';
+            });
+            unequipBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this._handleUnequip(slot);
+            });
+            topRow.appendChild(unequipBtn);
 
-            // Stat bonuses
+            card.appendChild(topRow);
+
+            // Slot + rarity meta row
+            const metaRow = document.createElement('div');
+            metaRow.style.cssText = 'font-size: 0.65rem; color: #777; margin-bottom: 3px;';
+            metaRow.innerHTML = `${icon} ${slot.charAt(0).toUpperCase() + slot.slice(1)} &middot; ${rarityLabel}`;
+            card.appendChild(metaRow);
+
+            // Stat bonuses in compact row
             if (eqData.stat_bonuses) {
-                const bonusStrs = [];
+                const statsRow = document.createElement('div');
+                statsRow.style.cssText = 'display: flex; flex-wrap: wrap; gap: 4px 8px; margin-bottom: 3px;';
+
                 for (const [statKey, val] of Object.entries(eqData.stat_bonuses)) {
                     if (val && val !== 0) {
+                        const statColor = STAT_COLORS[statKey] || '#888';
                         const label = STAT_LABELS[statKey] || statKey;
                         const sign = val > 0 ? '+' : '';
-                        bonusStrs.push(`${label} ${sign}${val}`);
+                        const badge = document.createElement('span');
+                        badge.style.cssText = `
+                            font-size: 0.6rem; font-weight: 600;
+                            color: ${statColor};
+                            background: ${statColor}18;
+                            padding: 1px 5px; border-radius: 3px;
+                        `;
+                        badge.textContent = `${label} ${sign}${val}`;
+                        statsRow.appendChild(badge);
                     }
                 }
-                if (bonusStrs.length > 0) {
-                    const bonusEl = document.createElement('div');
-                    bonusEl.style.cssText = 'font-size: 0.6rem; color: #66aa66; margin-top: 2px;';
-                    bonusEl.textContent = bonusStrs.join(', ');
-                    infoEl.appendChild(bonusEl);
+                if (statsRow.children.length > 0) {
+                    card.appendChild(statsRow);
                 }
             }
 
-            row.appendChild(infoEl);
-            container.appendChild(row);
+            // Element synergy badge
+            const elemSynergy = eqData.element_synergy || '';
+            const classSynergy = eqData.class_synergy || '';
+            if (elemSynergy || classSynergy) {
+                const synergyRow = document.createElement('div');
+                synergyRow.style.cssText = 'display: flex; gap: 6px; margin-bottom: 3px;';
+
+                if (elemSynergy) {
+                    const elemColor = ELEMENT_COLORS[elemSynergy] || '#888';
+                    const elemBadge = document.createElement('span');
+                    elemBadge.style.cssText = `
+                        font-size: 0.6rem; font-weight: 600;
+                        color: ${elemColor}; background: ${elemColor}20;
+                        padding: 1px 6px; border-radius: 3px;
+                        border: 1px solid ${elemColor}44;
+                    `;
+                    const mult = eqData.element_synergy_multiplier || 1;
+                    elemBadge.textContent = `${elemSynergy} x${mult}`;
+                    synergyRow.appendChild(elemBadge);
+                }
+                if (classSynergy) {
+                    const classBadge = document.createElement('span');
+                    classBadge.style.cssText = `
+                        font-size: 0.6rem; font-weight: 600;
+                        color: #ccaa66; background: rgba(204, 170, 102, 0.12);
+                        padding: 1px 6px; border-radius: 3px;
+                        border: 1px solid rgba(204, 170, 102, 0.3);
+                    `;
+                    const classMult = eqData.class_synergy_multiplier || 1;
+                    classBadge.textContent = `${classSynergy} x${classMult}`;
+                    synergyRow.appendChild(classBadge);
+                }
+
+                card.appendChild(synergyRow);
+            }
+
+            // Description
+            if (eqData.description) {
+                const descEl = document.createElement('div');
+                descEl.style.cssText = 'font-size: 0.6rem; color: #666; font-style: italic; line-height: 1.4;';
+                descEl.textContent = eqData.description;
+                card.appendChild(descEl);
+            }
+
+            listContainer.appendChild(card);
         }
 
         if (!hasAny) {
             const empty = document.createElement('div');
-            empty.style.cssText = 'font-size: 0.75rem; color: #666; text-align: center; padding: 14px 0;';
-            empty.textContent = 'No equipment';
-            container.appendChild(empty);
+            empty.style.cssText = 'font-size: 0.75rem; color: #555; text-align: center; padding: 20px 0; font-style: italic;';
+            empty.textContent = 'No equipment equipped';
+            listContainer.appendChild(empty);
         }
+
+        container.appendChild(listContainer);
+    }
+
+    /**
+     * Handle unequip action from the equip tab.
+     * Emits an event for the game system to process and refreshes the panel.
+     * @param {string} slot
+     */
+    _handleUnequip(slot) {
+        const d = this._d;
+        if (!d || !d.equipment || !d.equipment[slot]) return;
+
+        // Emit the unequip event for the EquipmentInventorySystem to handle
+        if (eventBus) {
+            eventBus.emit('equipment_unequip_requested', {
+                slot,
+                equipmentId: d.equipment[slot],
+                unitData: this._unitData,
+            });
+        }
+
+        // Optimistic UI update: remove from local data and refresh
+        delete d.equipment[slot];
+        if (this._unitData) {
+            const inst = this._unitData.instance || this._unitData;
+            if (inst.equipment) {
+                delete inst.equipment[slot];
+            }
+        }
+        this._renderTabContent();
     }
 
     // ── Evolution Tab ───────────────────────────────────────────────────────

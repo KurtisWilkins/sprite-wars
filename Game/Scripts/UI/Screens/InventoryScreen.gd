@@ -304,13 +304,34 @@ func switch_tab(tab: String) -> void:
 	populate_items(tab)
 
 
+## Rarity color mapping for equipment items.
+const RARITY_COLORS: Dictionary = {
+	"common": Color(0.55, 0.55, 0.55),
+	"uncommon": Color(0.2, 0.8, 0.38),
+	"rare": Color(0.2, 0.6, 1.0),
+	"epic": Color(0.67, 0.27, 1.0),
+	"legendary": Color(1.0, 0.67, 0.0),
+}
+
+const RARITY_BG_COLORS: Dictionary = {
+	"common": Color(0.12, 0.12, 0.15),
+	"uncommon": Color(0.08, 0.15, 0.1),
+	"rare": Color(0.08, 0.1, 0.2),
+	"epic": Color(0.12, 0.08, 0.2),
+	"legendary": Color(0.2, 0.15, 0.05),
+}
+
+
 func populate_items(category: String) -> void:
 	# Clear existing items.
 	for child in item_grid.get_children():
 		child.queue_free()
 
-	# In a full implementation, iterate GameManager.player_data.inventory filtered by category.
-	# Placeholder: create empty grid message.
+	if category == "equipment":
+		_populate_equipment_items()
+		return
+
+	# For non-equipment tabs, use placeholder for now.
 	var empty_label := Label.new()
 	empty_label.text = "No %s found." % category.replace("_", " ")
 	empty_label.add_theme_font_size_override("font_size", 20)
@@ -319,9 +340,167 @@ func populate_items(category: String) -> void:
 	item_grid.add_child(empty_label)
 
 
+## Populate the equipment tab with all equipment from the database.
+func _populate_equipment_items() -> void:
+	var all_equipment: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+
+	if all_equipment.is_empty():
+		var empty_label := Label.new()
+		empty_label.text = "No equipment found."
+		empty_label.add_theme_font_size_override("font_size", 20)
+		empty_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		item_grid.add_child(empty_label)
+		return
+
+	for equip in all_equipment:
+		var cell := _create_equipment_cell(equip)
+		item_grid.add_child(cell)
+
+
+## Create a grid cell for an equipment item with rarity-colored border.
+func _create_equipment_cell(equip_data: Dictionary) -> PanelContainer:
+	var rarity: String = str(equip_data.get("rarity", "common"))
+	var rarity_color: Color = RARITY_COLORS.get(rarity, RARITY_COLORS["common"])
+	var bg_color: Color = RARITY_BG_COLORS.get(rarity, RARITY_BG_COLORS["common"])
+
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = ITEM_CELL_SIZE
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg_color
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_left = 8
+	style.corner_radius_bottom_right = 8
+	style.border_width_left = 2
+	style.border_width_right = 2
+	style.border_width_top = 2
+	style.border_width_bottom = 2
+	style.border_color = rarity_color
+	style.content_margin_left = 4.0
+	style.content_margin_right = 4.0
+	style.content_margin_top = 4.0
+	style.content_margin_bottom = 4.0
+	panel.add_theme_stylebox_override("panel", style)
+
+	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	# Slot icon label.
+	var slot_type: String = str(equip_data.get("slot_type", "weapon"))
+	var slot_label := Label.new()
+	slot_label.text = slot_type.capitalize()
+	slot_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	slot_label.add_theme_font_size_override("font_size", 10)
+	slot_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+	vbox.add_child(slot_label)
+
+	# Equipment name.
+	var name_label := Label.new()
+	name_label.text = str(equip_data.get("equipment_name", "???"))
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_label.add_theme_font_size_override("font_size", 12)
+	name_label.add_theme_color_override("font_color", rarity_color)
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_label.custom_minimum_size.x = 80.0
+	vbox.add_child(name_label)
+
+	# Rarity label.
+	var rarity_lbl := Label.new()
+	rarity_lbl.text = rarity.capitalize()
+	rarity_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	rarity_lbl.add_theme_font_size_override("font_size", 10)
+	rarity_lbl.add_theme_color_override("font_color", rarity_color * 0.7)
+	vbox.add_child(rarity_lbl)
+
+	panel.add_child(vbox)
+
+	# Click handler.
+	var equip_id: int = int(equip_data.get("equipment_id", 0))
+	var btn := Button.new()
+	btn.set_anchors_preset(Control.PRESET_FULL_RECT)
+	btn.flat = true
+	var transparent := StyleBoxEmpty.new()
+	btn.add_theme_stylebox_override("normal", transparent)
+	btn.add_theme_stylebox_override("hover", transparent)
+	btn.add_theme_stylebox_override("pressed", transparent)
+	btn.add_theme_stylebox_override("focus", transparent)
+	btn.pressed.connect(func() -> void: _show_equipment_detail(equip_data))
+	panel.add_child(btn)
+
+	return panel
+
+
+## Show equipment detail popup with full stats.
+func _show_equipment_detail(equip_data: Dictionary) -> void:
+	var equip_id: int = int(equip_data.get("equipment_id", 0))
+	_selected_item_id = equip_id
+
+	var rarity: String = str(equip_data.get("rarity", "common"))
+	var rarity_color: Color = RARITY_COLORS.get(rarity, RARITY_COLORS["common"])
+
+	_detail_name.text = str(equip_data.get("equipment_name", "Unknown"))
+	_detail_name.add_theme_color_override("font_color", rarity_color)
+
+	var slot_type: String = str(equip_data.get("slot_type", "weapon"))
+	_detail_quantity.text = "%s | %s | Lv.%d Required" % [
+		slot_type.capitalize(),
+		rarity.capitalize(),
+		int(equip_data.get("level_requirement", 1)),
+	]
+
+	# Build description with stat bonuses.
+	var desc: String = str(equip_data.get("description", ""))
+	var stat_bonuses: Dictionary = equip_data.get("stat_bonuses", {})
+	var stat_parts: PackedStringArray = PackedStringArray()
+	for key in ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]:
+		var val: int = int(stat_bonuses.get(key, 0))
+		if val != 0:
+			var sign_str: String = "+" if val > 0 else ""
+			stat_parts.append("%s %s%d" % [key.to_upper().replace("_", "."), sign_str, val])
+
+	if stat_parts.size() > 0:
+		desc += "\n\nStat Bonuses: %s" % ", ".join(stat_parts)
+
+	var element_syn: String = str(equip_data.get("element_synergy", ""))
+	if not element_syn.is_empty():
+		desc += "\nElement Synergy: %s (x%.2f)" % [element_syn, float(equip_data.get("element_synergy_multiplier", 1.0))]
+
+	var class_syn: String = str(equip_data.get("class_synergy", ""))
+	if not class_syn.is_empty():
+		desc += "\nClass Synergy: %s (x%.2f)" % [class_syn, float(equip_data.get("class_synergy_multiplier", 1.0))]
+
+	_detail_description.text = desc
+
+	_use_button.visible = false
+	_equip_button.visible = true
+	_detail_overlay.visible = true
+
+	# Scale-in animation.
+	item_detail_popup.pivot_offset = item_detail_popup.size / 2.0
+	item_detail_popup.scale = Vector2(0.8, 0.8)
+	item_detail_popup.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_BACK)
+	tween.set_parallel(true)
+	tween.tween_property(item_detail_popup, "scale", Vector2.ONE, 0.2)
+	tween.tween_property(item_detail_popup, "modulate:a", 1.0, 0.15)
+
+
 func show_item_detail(item_id: int) -> void:
+	# Try to look up as equipment first.
+	if current_tab == "equipment":
+		var all_equip: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+		for equip in all_equip:
+			if int(equip.get("equipment_id", -1)) == item_id:
+				_show_equipment_detail(equip)
+				return
+
 	_selected_item_id = item_id
 	_detail_name.text = "Item #%d" % item_id
+	_detail_name.add_theme_color_override("font_color", Color.WHITE)
 	_detail_quantity.text = "Qty: 1"
 	_detail_description.text = "Item description will be loaded from the item registry."
 

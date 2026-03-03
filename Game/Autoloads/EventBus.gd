@@ -29,6 +29,8 @@ signal ability_learned(sprite_data: Resource, ability: Resource)
 
 # Equipment signals
 signal equipment_changed(sprite_data: Resource, slot: int, item: Resource)
+signal equipment_dropped(equipment_data: Dictionary)
+signal equipment_looted(equipment_list: Array)
 signal item_acquired(item: Resource, quantity: int)
 signal item_used(item: Resource)
 signal currency_changed(amount: int)
