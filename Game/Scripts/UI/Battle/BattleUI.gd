@@ -595,14 +595,14 @@ func _build_inspect_popup() -> void:
 	inspect_overlay.z_index = 50
 	add_child(inspect_overlay)
 
-	# Centered detail panel (700x900 with dark background and rounded corners).
+	# Centered detail panel (950x1400 with dark background and rounded corners).
 	inspect_panel = PanelContainer.new()
 	inspect_panel.name = "InspectPanel"
-	inspect_panel.custom_minimum_size = Vector2(700.0, 900.0)
-	inspect_panel.size = Vector2(700.0, 900.0)
+	inspect_panel.custom_minimum_size = Vector2(950.0, 1400.0)
+	inspect_panel.size = Vector2(950.0, 1400.0)
 	inspect_panel.position = Vector2(
-		(1080.0 - 700.0) / 2.0,
-		(1920.0 - 900.0) / 2.0
+		(1080.0 - 950.0) / 2.0,
+		(1920.0 - 1400.0) / 2.0
 	)
 	inspect_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	inspect_panel.z_index = 51
@@ -618,10 +618,10 @@ func _build_inspect_popup() -> void:
 	panel_style.border_width_top = 2
 	panel_style.border_width_bottom = 2
 	panel_style.border_color = Color(0.25, 0.25, 0.4, 1.0)
-	panel_style.content_margin_left = 24.0
-	panel_style.content_margin_right = 24.0
-	panel_style.content_margin_top = 16.0
-	panel_style.content_margin_bottom = 24.0
+	panel_style.content_margin_left = 32.0
+	panel_style.content_margin_right = 32.0
+	panel_style.content_margin_top = 24.0
+	panel_style.content_margin_bottom = 32.0
 	inspect_panel.add_theme_stylebox_override("panel", panel_style)
 	inspect_panel.visible = false
 	inspect_overlay.add_child(inspect_panel)
@@ -636,7 +636,7 @@ func _build_inspect_popup() -> void:
 	# Main VBox layout inside scroll.
 	var content := VBoxContainer.new()
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_theme_constant_override("separation", 12)
+	content.add_theme_constant_override("separation", 18)
 	scroll.add_child(content)
 
 	# -- Close button (top-right, "X") --
@@ -648,8 +648,8 @@ func _build_inspect_popup() -> void:
 	var close_btn := Button.new()
 	close_btn.name = "CloseButton"
 	close_btn.text = "X"
-	close_btn.custom_minimum_size = Vector2(48.0, 48.0)
-	close_btn.add_theme_font_size_override("font_size", 24)
+	close_btn.custom_minimum_size = Vector2(56.0, 56.0)
+	close_btn.add_theme_font_size_override("font_size", 28)
 	close_btn.focus_mode = Control.FOCUS_NONE
 	var close_style := StyleBoxFlat.new()
 	close_style.bg_color = Color(0.3, 0.15, 0.15, 0.9)
@@ -670,7 +670,7 @@ func _build_inspect_popup() -> void:
 	content.add_child(portrait_center)
 
 	var portrait_frame := PanelContainer.new()
-	portrait_frame.custom_minimum_size = Vector2(160.0, 160.0)
+	portrait_frame.custom_minimum_size = Vector2(220.0, 220.0)
 	var portrait_style := StyleBoxFlat.new()
 	portrait_style.bg_color = Color(0.1, 0.1, 0.16, 1.0)
 	portrait_style.corner_radius_top_left = 12
@@ -689,7 +689,7 @@ func _build_inspect_popup() -> void:
 	_inspect_portrait.name = "InspectPortrait"
 	_inspect_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_inspect_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_inspect_portrait.custom_minimum_size = Vector2(160.0, 160.0)
+	_inspect_portrait.custom_minimum_size = Vector2(220.0, 220.0)
 	portrait_frame.add_child(_inspect_portrait)
 
 	# -- Name label (large, colored by team) --
@@ -697,7 +697,7 @@ func _build_inspect_popup() -> void:
 	_inspect_name_label.name = "InspectNameLabel"
 	_inspect_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_inspect_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_inspect_name_label.add_theme_font_size_override("font_size", 30)
+	_inspect_name_label.add_theme_font_size_override("font_size", 36)
 	content.add_child(_inspect_name_label)
 
 	# -- Team label ("Ally" / "Enemy") --
@@ -705,7 +705,7 @@ func _build_inspect_popup() -> void:
 	_inspect_team_label.name = "InspectTeamLabel"
 	_inspect_team_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_inspect_team_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_inspect_team_label.add_theme_font_size_override("font_size", 18)
+	_inspect_team_label.add_theme_font_size_override("font_size", 22)
 	content.add_child(_inspect_team_label)
 
 	# -- Level label --
@@ -713,7 +713,7 @@ func _build_inspect_popup() -> void:
 	_inspect_level_label.name = "InspectLevelLabel"
 	_inspect_level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_inspect_level_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_inspect_level_label.add_theme_font_size_override("font_size", 22)
+	_inspect_level_label.add_theme_font_size_override("font_size", 26)
 	_inspect_level_label.add_theme_color_override("font_color", Color(0.9, 0.85, 0.5))
 	content.add_child(_inspect_level_label)
 
@@ -734,13 +734,13 @@ func _build_inspect_popup() -> void:
 
 	var hp_header := Label.new()
 	hp_header.text = "HP"
-	hp_header.add_theme_font_size_override("font_size", 18)
+	hp_header.add_theme_font_size_override("font_size", 22)
 	hp_header.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
 	hp_section.add_child(hp_header)
 
 	_inspect_hp_bar = ProgressBar.new()
 	_inspect_hp_bar.name = "InspectHPBar"
-	_inspect_hp_bar.custom_minimum_size = Vector2(0.0, 24.0)
+	_inspect_hp_bar.custom_minimum_size = Vector2(0.0, 32.0)
 	_inspect_hp_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_inspect_hp_bar.show_percentage = false
 	var hp_fill := StyleBoxFlat.new()
@@ -763,7 +763,7 @@ func _build_inspect_popup() -> void:
 	_inspect_hp_label.name = "InspectHPLabel"
 	_inspect_hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_inspect_hp_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_inspect_hp_label.add_theme_font_size_override("font_size", 16)
+	_inspect_hp_label.add_theme_font_size_override("font_size", 20)
 	_inspect_hp_label.add_theme_color_override("font_color", Color(0.7, 0.9, 0.7))
 	hp_section.add_child(_inspect_hp_label)
 
@@ -775,7 +775,7 @@ func _build_inspect_popup() -> void:
 	# -- Stats section header --
 	var stats_header := Label.new()
 	stats_header.text = "Stats"
-	stats_header.add_theme_font_size_override("font_size", 22)
+	stats_header.add_theme_font_size_override("font_size", 26)
 	stats_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
 	content.add_child(stats_header)
 
@@ -783,8 +783,8 @@ func _build_inspect_popup() -> void:
 	_inspect_stats_grid = GridContainer.new()
 	_inspect_stats_grid.name = "InspectStatsGrid"
 	_inspect_stats_grid.columns = 2
-	_inspect_stats_grid.add_theme_constant_override("h_separation", 24)
-	_inspect_stats_grid.add_theme_constant_override("v_separation", 8)
+	_inspect_stats_grid.add_theme_constant_override("h_separation", 32)
+	_inspect_stats_grid.add_theme_constant_override("v_separation", 12)
 	_inspect_stats_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_child(_inspect_stats_grid)
 
@@ -797,14 +797,14 @@ func _build_inspect_popup() -> void:
 	for key in stat_keys:
 		var stat_name_label := Label.new()
 		stat_name_label.text = stat_display.get(key, key.to_upper())
-		stat_name_label.custom_minimum_size = Vector2(100.0, 0.0)
-		stat_name_label.add_theme_font_size_override("font_size", 18)
+		stat_name_label.custom_minimum_size = Vector2(120.0, 0.0)
+		stat_name_label.add_theme_font_size_override("font_size", 22)
 		stat_name_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
 		_inspect_stats_grid.add_child(stat_name_label)
 
 		var stat_val_label := Label.new()
 		stat_val_label.text = "--"
-		stat_val_label.add_theme_font_size_override("font_size", 20)
+		stat_val_label.add_theme_font_size_override("font_size", 24)
 		stat_val_label.add_theme_color_override("font_color", Color.WHITE)
 		_inspect_stats_grid.add_child(stat_val_label)
 
@@ -818,14 +818,14 @@ func _build_inspect_popup() -> void:
 	# -- Abilities section header --
 	var abilities_header := Label.new()
 	abilities_header.text = "Abilities"
-	abilities_header.add_theme_font_size_override("font_size", 22)
+	abilities_header.add_theme_font_size_override("font_size", 26)
 	abilities_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
 	content.add_child(abilities_header)
 
 	# -- Abilities list (VBoxContainer, up to 4 abilities with element color badges) --
 	_inspect_abilities_box = VBoxContainer.new()
 	_inspect_abilities_box.name = "InspectAbilities"
-	_inspect_abilities_box.add_theme_constant_override("separation", 6)
+	_inspect_abilities_box.add_theme_constant_override("separation", 10)
 	_inspect_abilities_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_child(_inspect_abilities_box)
 
@@ -837,7 +837,7 @@ func _build_inspect_popup() -> void:
 	# -- Status effects section header --
 	var status_header := Label.new()
 	status_header.text = "Status Effects"
-	status_header.add_theme_font_size_override("font_size", 22)
+	status_header.add_theme_font_size_override("font_size", 26)
 	status_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
 	content.add_child(status_header)
 
@@ -903,7 +903,7 @@ func _show_unit_inspect(unit_id: int) -> void:
 		badge_style.content_margin_bottom = 2.0
 		badge.add_theme_stylebox_override("normal", badge_style)
 		var label_settings := LabelSettings.new()
-		label_settings.font_size = 16
+		label_settings.font_size = 20
 		label_settings.font_color = badge_color
 		badge.label_settings = label_settings
 		_inspect_element_row.add_child(badge)
@@ -946,7 +946,7 @@ func _show_unit_inspect(unit_id: int) -> void:
 	if ability_count == 0:
 		var none_label := Label.new()
 		none_label.text = "None"
-		none_label.add_theme_font_size_override("font_size", 16)
+		none_label.add_theme_font_size_override("font_size", 20)
 		none_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
 		_inspect_abilities_box.add_child(none_label)
 	else:
@@ -967,11 +967,11 @@ func _show_unit_inspect(unit_id: int) -> void:
 				ab_badge_style.corner_radius_top_right = 6
 				ab_badge_style.corner_radius_bottom_left = 6
 				ab_badge_style.corner_radius_bottom_right = 6
-				ab_badge_style.content_margin_left = 2.0
-				ab_badge_style.content_margin_right = 2.0
+				ab_badge_style.content_margin_left = 4.0
+				ab_badge_style.content_margin_right = 4.0
 				ab_badge.add_theme_stylebox_override("normal", ab_badge_style)
 				var ab_label_settings := LabelSettings.new()
-				ab_label_settings.font_size = 14
+				ab_label_settings.font_size = 18
 				ab_label_settings.font_color = ab_color
 				ab_badge.label_settings = ab_label_settings
 				ab_row.add_child(ab_badge)
@@ -979,7 +979,7 @@ func _show_unit_inspect(unit_id: int) -> void:
 			# Ability name.
 			var ab_name_label := Label.new()
 			ab_name_label.text = str(ab.get("name", ab.get("ability_name", "Ability #%d" % (i + 1))))
-			ab_name_label.add_theme_font_size_override("font_size", 18)
+			ab_name_label.add_theme_font_size_override("font_size", 22)
 			ab_name_label.add_theme_color_override("font_color", Color.WHITE)
 			ab_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			ab_row.add_child(ab_name_label)
@@ -989,7 +989,7 @@ func _show_unit_inspect(unit_id: int) -> void:
 			if ab_power > 0:
 				var power_label := Label.new()
 				power_label.text = "Pow: %d" % ab_power
-				power_label.add_theme_font_size_override("font_size", 16)
+				power_label.add_theme_font_size_override("font_size", 20)
 				power_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
 				ab_row.add_child(power_label)
 
@@ -1002,14 +1002,14 @@ func _show_unit_inspect(unit_id: int) -> void:
 	if status_effects.is_empty():
 		var no_status := Label.new()
 		no_status.text = "None"
-		no_status.add_theme_font_size_override("font_size", 16)
+		no_status.add_theme_font_size_override("font_size", 20)
 		no_status.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
 		_inspect_status_box.add_child(no_status)
 	else:
 		for effect_name in status_effects:
 			var effect_label := Label.new()
 			effect_label.text = str(effect_name)
-			effect_label.add_theme_font_size_override("font_size", 16)
+			effect_label.add_theme_font_size_override("font_size", 20)
 			effect_label.add_theme_color_override("font_color", Color(0.85, 0.7, 1.0))
 			_inspect_status_box.add_child(effect_label)
 
@@ -1017,7 +1017,7 @@ func _show_unit_inspect(unit_id: int) -> void:
 	inspect_overlay.visible = true
 	inspect_panel.visible = true
 	inspect_panel.scale = Vector2(0.8, 0.8)
-	inspect_panel.pivot_offset = Vector2(350.0, 450.0)
+	inspect_panel.pivot_offset = Vector2(475.0, 700.0)
 	inspect_panel.modulate.a = 0.0
 
 	var tween := create_tween()

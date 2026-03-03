@@ -58,8 +58,8 @@ const BUTTON_HEIGHT: float = 56.0
 const BUTTON_FONT_SIZE: int = 22
 const PANEL_FONT_SIZE: int = 18
 const TAP_TOLERANCE: float = 10.0  # Max px movement to count as tap (not drag).
-const INFO_PANEL_WIDTH: float = 600.0
-const INFO_PANEL_HEIGHT: float = 800.0
+const INFO_PANEL_WIDTH: float = 850.0
+const INFO_PANEL_HEIGHT: float = 1200.0
 
 ## -- Initialization -----------------------------------------------------------
 
@@ -714,7 +714,7 @@ func _build_info_panel() -> void:
 	panel_style.set_corner_radius_all(16)
 	panel_style.set_border_width_all(2)
 	panel_style.border_color = Color(0.3, 0.3, 0.45)
-	panel_style.set_content_margin_all(20)
+	panel_style.set_content_margin_all(28)
 	_info_panel.add_theme_stylebox_override("panel", panel_style)
 
 	# Scroll container for content (in case it overflows).
@@ -727,7 +727,7 @@ func _build_info_panel() -> void:
 	var content := VBoxContainer.new()
 	content.name = "InfoContent"
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content.add_theme_constant_override("separation", 12)
+	content.add_theme_constant_override("separation", 18)
 	scroll.add_child(content)
 
 	# -- Portrait --
@@ -736,7 +736,7 @@ func _build_info_panel() -> void:
 	content.add_child(portrait_center)
 
 	var portrait_frame := PanelContainer.new()
-	portrait_frame.custom_minimum_size = Vector2(200.0, 200.0)
+	portrait_frame.custom_minimum_size = Vector2(260.0, 260.0)
 	var portrait_style := StyleBoxFlat.new()
 	portrait_style.bg_color = Color(0.1, 0.1, 0.18, 1.0)
 	portrait_style.set_corner_radius_all(12)
@@ -749,14 +749,14 @@ func _build_info_panel() -> void:
 	portrait.name = "InfoPortrait"
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	portrait.custom_minimum_size = Vector2(200.0, 200.0)
+	portrait.custom_minimum_size = Vector2(260.0, 260.0)
 	portrait_frame.add_child(portrait)
 
 	# -- Name label --
 	var name_lbl := Label.new()
 	name_lbl.name = "InfoName"
 	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_lbl.add_theme_font_size_override("font_size", 28)
+	name_lbl.add_theme_font_size_override("font_size", 34)
 	name_lbl.add_theme_color_override("font_color", Color.WHITE)
 	content.add_child(name_lbl)
 
@@ -764,7 +764,7 @@ func _build_info_panel() -> void:
 	var level_lbl := Label.new()
 	level_lbl.name = "InfoLevel"
 	level_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	level_lbl.add_theme_font_size_override("font_size", 20)
+	level_lbl.add_theme_font_size_override("font_size", 24)
 	level_lbl.add_theme_color_override("font_color", Color(0.9, 0.85, 0.5))
 	content.add_child(level_lbl)
 
@@ -786,7 +786,7 @@ func _build_info_panel() -> void:
 	# -- Stats header --
 	var stats_header := Label.new()
 	stats_header.text = "Stats"
-	stats_header.add_theme_font_size_override("font_size", 22)
+	stats_header.add_theme_font_size_override("font_size", 26)
 	stats_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
 	content.add_child(stats_header)
 
@@ -794,8 +794,8 @@ func _build_info_panel() -> void:
 	var stats_grid := GridContainer.new()
 	stats_grid.name = "InfoStatsGrid"
 	stats_grid.columns = 2
-	stats_grid.add_theme_constant_override("h_separation", 24)
-	stats_grid.add_theme_constant_override("v_separation", 8)
+	stats_grid.add_theme_constant_override("h_separation", 32)
+	stats_grid.add_theme_constant_override("v_separation", 12)
 	content.add_child(stats_grid)
 
 	# Pre-build stat rows (will be populated in _show_sprite_info).
@@ -810,15 +810,15 @@ func _build_info_panel() -> void:
 
 		var stat_name := Label.new()
 		stat_name.text = stat_display.get(key, key.to_upper())
-		stat_name.custom_minimum_size = Vector2(80.0, 0.0)
-		stat_name.add_theme_font_size_override("font_size", 18)
+		stat_name.custom_minimum_size = Vector2(100.0, 0.0)
+		stat_name.add_theme_font_size_override("font_size", 22)
 		stat_name.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
 		row.add_child(stat_name)
 
 		var stat_val := Label.new()
 		stat_val.name = "InfoStat_%s" % key
 		stat_val.text = "--"
-		stat_val.add_theme_font_size_override("font_size", 20)
+		stat_val.add_theme_font_size_override("font_size", 24)
 		stat_val.add_theme_color_override("font_color", Color.WHITE)
 		row.add_child(stat_val)
 
@@ -832,14 +832,14 @@ func _build_info_panel() -> void:
 	# -- Abilities header --
 	var abilities_header := Label.new()
 	abilities_header.text = "Abilities"
-	abilities_header.add_theme_font_size_override("font_size", 22)
+	abilities_header.add_theme_font_size_override("font_size", 26)
 	abilities_header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
 	content.add_child(abilities_header)
 
 	# -- Abilities list --
 	var abilities_box := VBoxContainer.new()
 	abilities_box.name = "InfoAbilities"
-	abilities_box.add_theme_constant_override("separation", 6)
+	abilities_box.add_theme_constant_override("separation", 10)
 	content.add_child(abilities_box)
 
 	# -- Close button --
@@ -849,8 +849,8 @@ func _build_info_panel() -> void:
 
 	var close_btn := Button.new()
 	close_btn.text = "Close"
-	close_btn.custom_minimum_size = Vector2(200.0, 48.0)
-	close_btn.add_theme_font_size_override("font_size", 20)
+	close_btn.custom_minimum_size = Vector2(240.0, 56.0)
+	close_btn.add_theme_font_size_override("font_size", 24)
 	close_btn.focus_mode = Control.FOCUS_NONE
 
 	var close_style := StyleBoxFlat.new()
@@ -901,7 +901,7 @@ func _show_sprite_info(sprite_data: Dictionary) -> void:
 			badge.text = "  %s  " % str(element)
 			var elem_color: Color = _get_element_color(str(element))
 			var badge_settings := LabelSettings.new()
-			badge_settings.font_size = 16
+			badge_settings.font_size = 20
 			badge_settings.font_color = elem_color
 
 			var badge_style := StyleBoxFlat.new()
@@ -932,7 +932,7 @@ func _show_sprite_info(sprite_data: Dictionary) -> void:
 		if abilities.is_empty():
 			var empty_lbl := Label.new()
 			empty_lbl.text = "No abilities equipped"
-			empty_lbl.add_theme_font_size_override("font_size", 16)
+			empty_lbl.add_theme_font_size_override("font_size", 20)
 			empty_lbl.add_theme_color_override("font_color", Color(0.45, 0.45, 0.55))
 			abilities_box.add_child(empty_lbl)
 		else:
@@ -942,7 +942,7 @@ func _show_sprite_info(sprite_data: Dictionary) -> void:
 
 				var bullet := Label.new()
 				bullet.text = ">"
-				bullet.add_theme_font_size_override("font_size", 16)
+				bullet.add_theme_font_size_override("font_size", 20)
 				bullet.add_theme_color_override("font_color", Color(0.5, 0.6, 0.8))
 				ability_entry.add_child(bullet)
 
@@ -953,7 +953,7 @@ func _show_sprite_info(sprite_data: Dictionary) -> void:
 					ability_name.text = str(ability.get("name", "Unknown"))
 				else:
 					ability_name.text = str(ability)
-				ability_name.add_theme_font_size_override("font_size", 18)
+				ability_name.add_theme_font_size_override("font_size", 22)
 				ability_name.add_theme_color_override("font_color", Color.WHITE)
 				ability_name.clip_text = true
 				ability_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL

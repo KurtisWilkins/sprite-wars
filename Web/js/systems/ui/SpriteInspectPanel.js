@@ -231,17 +231,17 @@ export class SpriteInspectPanel {
         const el = document.createElement('div');
         el.className = 'sprite-inspect-panel';
         el.style.cssText = `
-            width: 280px;
+            width: 380px;
             background: rgba(0, 0, 0, 0.4);
             border-${position === 'right' ? 'left' : 'right'}: 1px solid rgba(255, 255, 255, 0.06);
             overflow-y: auto;
-            padding: 10px;
+            padding: 14px;
             display: block;
             position: ${this._options.isBattleUnit ? 'absolute' : 'relative'};
             ${this._options.isBattleUnit ? 'top: 60px;' : ''}
             ${position === 'right' ? 'right: 0;' : 'left: 0;'}
             pointer-events: auto;
-            max-height: ${this._options.isBattleUnit ? '420px' : '100%'};
+            max-height: ${this._options.isBattleUnit ? '560px' : '100%'};
             box-sizing: border-box;
             font-family: sans-serif;
             z-index: 20;
@@ -251,8 +251,8 @@ export class SpriteInspectPanel {
         const closeBtn = document.createElement('button');
         closeBtn.textContent = '\u2715';
         closeBtn.style.cssText = `
-            position: absolute; top: 4px; right: 4px;
-            padding: 2px 6px; font-size: 0.7rem;
+            position: absolute; top: 6px; right: 6px;
+            padding: 4px 8px; font-size: 0.85rem;
             border: none; background: none; color: #888;
             cursor: pointer;
         `;
@@ -265,32 +265,32 @@ export class SpriteInspectPanel {
         // ── Name ──
         const nameEl = document.createElement('div');
         nameEl.style.cssText = `
-            font-size: 0.9rem; font-weight: 700;
+            font-size: 1.1rem; font-weight: 700;
             color: ${d.isEnemy ? '#ff6655' : '#ffcc33'};
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         `;
         nameEl.textContent = d.name;
         el.appendChild(nameEl);
 
         // ── Level | Elements ──
         const subEl = document.createElement('div');
-        subEl.style.cssText = 'font-size: 0.65rem; color: #aaa; margin-bottom: 8px;';
+        subEl.style.cssText = 'font-size: 0.8rem; color: #aaa; margin-bottom: 10px;';
         subEl.textContent = `Lv${d.level} | ${d.elements.join(' / ') || '???'}`;
         el.appendChild(subEl);
 
         // ── Sprite preview row ──
         const previewRow = document.createElement('div');
-        previewRow.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 8px;';
+        previewRow.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-bottom: 12px;';
 
         // Canvas
         const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 72;
-        canvas.style.cssText = 'width: 64px; height: 72px; flex-shrink: 0; image-rendering: pixelated;';
+        canvas.width = 96;
+        canvas.height = 108;
+        canvas.style.cssText = 'width: 96px; height: 108px; flex-shrink: 0; image-rendering: pixelated;';
         const ctx = canvas.getContext('2d');
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, d.raceId, d.evolutionStage, d.facing, 0,
-            32, 60, 48,
+            48, 90, 72,
             { equipment: d.equipment || {} }
         );
         previewRow.appendChild(canvas);
@@ -301,20 +301,20 @@ export class SpriteInspectPanel {
 
         // Element • Rarity
         const elemRarity = document.createElement('div');
-        elemRarity.style.cssText = 'font-size: 0.6rem; color: #888; font-weight: 600;';
+        elemRarity.style.cssText = 'font-size: 0.75rem; color: #888; font-weight: 600;';
         const rarityLabel = d.rarity.charAt(0).toUpperCase() + d.rarity.slice(1);
         elemRarity.textContent = `${d.classType} \u2022 ${rarityLabel}`;
         infoCol.appendChild(elemRarity);
 
         // Stage
         const stageEl = document.createElement('div');
-        stageEl.style.cssText = 'font-size: 0.55rem; color: #777;';
+        stageEl.style.cssText = 'font-size: 0.7rem; color: #777;';
         stageEl.textContent = `Stage ${d.evolutionStage}/3 \u2022 ${STAGE_NAMES[d.evolutionStage] || 'Unknown'}`;
         infoCol.appendChild(stageEl);
 
         // HP inline
         const hpInline = document.createElement('div');
-        hpInline.style.cssText = 'font-size: 0.55rem; color: #33cc66; margin-top: 2px;';
+        hpInline.style.cssText = 'font-size: 0.7rem; color: #33cc66; margin-top: 3px;';
         hpInline.textContent = `HP: ${d.hp}/${d.maxHp}`;
         infoCol.appendChild(hpInline);
 
@@ -323,7 +323,7 @@ export class SpriteInspectPanel {
 
         // ── Tab Buttons ──
         const tabRow = document.createElement('div');
-        tabRow.style.cssText = 'display: flex; gap: 2px; margin-bottom: 8px; flex-wrap: wrap;';
+        tabRow.style.cssText = 'display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap;';
         this._tabRow = tabRow;
 
         const tabs = ['stats', 'abilities', 'equip', 'evo'];
@@ -351,7 +351,7 @@ export class SpriteInspectPanel {
 
         // ── Action Buttons ──
         const actionsRow = document.createElement('div');
-        actionsRow.style.cssText = 'display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap;';
+        actionsRow.style.cssText = 'display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap;';
 
         if (this._options.onRemove) {
             actionsRow.appendChild(this._makeActionBtn('Remove', '#aa4444', 'rgba(120,30,30,0.3)', '#ffaaaa', this._options.onRemove));
@@ -378,14 +378,14 @@ export class SpriteInspectPanel {
     _tabButtonStyle(isActive) {
         if (isActive) {
             return `
-                padding: 3px 8px; font-size: 0.6rem; border-radius: 4px;
+                padding: 5px 12px; font-size: 0.75rem; border-radius: 4px;
                 cursor: pointer; border: 1px solid #ffcc33;
                 background: rgba(255, 204, 51, 0.1); color: #ffcc33;
                 font-family: sans-serif;
             `;
         }
         return `
-            padding: 3px 8px; font-size: 0.6rem; border-radius: 4px;
+            padding: 5px 12px; font-size: 0.75rem; border-radius: 4px;
             cursor: pointer; border: 1px solid #444;
             background: transparent; color: #888;
             font-family: sans-serif;
@@ -436,11 +436,11 @@ export class SpriteInspectPanel {
             const barPct = Math.min(100, Math.max(0, (value / STAT_MAX_REFERENCE) * 100));
 
             const row = document.createElement('div');
-            row.style.cssText = 'margin-bottom: 4px;';
+            row.style.cssText = 'margin-bottom: 6px;';
 
             // Label + value
             const header = document.createElement('div');
-            header.style.cssText = 'display: flex; justify-content: space-between; font-size: 0.6rem; margin-bottom: 1px;';
+            header.style.cssText = 'display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 2px;';
             header.innerHTML = `
                 <span style="color: #888;">${label}</span>
                 <span style="color: ${color}; font-weight: 600;">${value}</span>
@@ -449,7 +449,7 @@ export class SpriteInspectPanel {
 
             // Bar
             const barBg = document.createElement('div');
-            barBg.style.cssText = 'width: 100%; height: 4px; background: #1a1a2e; border-radius: 2px; overflow: hidden;';
+            barBg.style.cssText = 'width: 100%; height: 6px; background: #1a1a2e; border-radius: 3px; overflow: hidden;';
             const barFill = document.createElement('div');
             barFill.style.cssText = `width: ${barPct}%; height: 100%; background: ${color};`;
             barBg.appendChild(barFill);
@@ -469,7 +469,7 @@ export class SpriteInspectPanel {
             const rangeColor = unit.isRanged ? '#88ccff' : '#ff8844';
 
             const combatInfo = document.createElement('div');
-            combatInfo.style.cssText = 'font-size: 0.55rem; color: #999;';
+            combatInfo.style.cssText = 'font-size: 0.7rem; color: #999;';
             combatInfo.innerHTML = `
                 <div style="margin-bottom: 2px;">
                     Type: <span style="color:${rangeColor};font-weight:600">${rangeType}</span>
@@ -489,7 +489,7 @@ export class SpriteInspectPanel {
 
         if (!abilityIds || abilityIds.length === 0) {
             const empty = document.createElement('div');
-            empty.style.cssText = 'font-size: 0.6rem; color: #666; text-align: center; padding: 12px 0;';
+            empty.style.cssText = 'font-size: 0.75rem; color: #666; text-align: center; padding: 14px 0;';
             empty.textContent = 'No abilities learned';
             container.appendChild(empty);
             return;
@@ -523,20 +523,20 @@ export class SpriteInspectPanel {
 
             const card = document.createElement('div');
             card.style.cssText = `
-                margin-bottom: 4px; padding: 4px 6px;
+                margin-bottom: 6px; padding: 6px 10px;
                 background: rgba(255,255,255,0.04); border-radius: 4px;
-                border-left: 2px solid ${elemColor};
+                border-left: 3px solid ${elemColor};
             `;
 
             // Name row
             const nameRow = document.createElement('div');
-            nameRow.style.cssText = 'font-size: 0.65rem; font-weight: 700; color: #ddd;';
+            nameRow.style.cssText = 'font-size: 0.8rem; font-weight: 700; color: #ddd;';
             nameRow.innerHTML = `<span style="color:${elemColor};">\u25CF</span> ${aName}`;
             card.appendChild(nameRow);
 
             // Meta row
             const metaRow = document.createElement('div');
-            metaRow.style.cssText = 'font-size: 0.5rem; color: #999; margin-top: 1px;';
+            metaRow.style.cssText = 'font-size: 0.65rem; color: #999; margin-top: 2px;';
             let metaStr = `${aElem} | ${physLabel} | ${targeting}`;
             if (power > 0) metaStr += ` | Pwr: ${power}`;
             metaStr += ` | Acc: ${Math.round(acc * 100)}%`;
@@ -547,7 +547,7 @@ export class SpriteInspectPanel {
             // Description
             if (desc) {
                 const descEl = document.createElement('div');
-                descEl.style.cssText = 'font-size: 0.5rem; color: #777; margin-top: 2px; font-style: italic;';
+                descEl.style.cssText = 'font-size: 0.65rem; color: #777; margin-top: 3px; font-style: italic;';
                 descEl.textContent = desc;
                 card.appendChild(descEl);
             }
@@ -560,7 +560,7 @@ export class SpriteInspectPanel {
                 const cdRemaining = unit.rtsCooldowns ? (unit.rtsCooldowns[abilityId] || 0) : 0;
 
                 const battleRow = document.createElement('div');
-                battleRow.style.cssText = 'font-size: 0.5rem; color: #aaa; margin-top: 2px;';
+                battleRow.style.cssText = 'font-size: 0.65rem; color: #aaa; margin-top: 3px;';
                 let battleStr = `PP: ${ppRemaining}/${ppMax}`;
                 if (cdRemaining > 0) {
                     battleStr += ` | CD: ${cdRemaining.toFixed(1)}s`;
@@ -595,15 +595,15 @@ export class SpriteInspectPanel {
 
             const row = document.createElement('div');
             row.style.cssText = `
-                display: flex; align-items: center; gap: 6px;
-                padding: 3px 4px; margin-bottom: 3px;
-                background: rgba(255,255,255,0.03); border-radius: 3px;
-                border-left: 2px solid ${rarityColor};
+                display: flex; align-items: center; gap: 8px;
+                padding: 5px 6px; margin-bottom: 5px;
+                background: rgba(255,255,255,0.03); border-radius: 4px;
+                border-left: 3px solid ${rarityColor};
             `;
 
             // Icon
             const iconEl = document.createElement('span');
-            iconEl.style.cssText = 'font-size: 0.75rem; width: 20px; text-align: center;';
+            iconEl.style.cssText = 'font-size: 0.9rem; width: 24px; text-align: center;';
             iconEl.textContent = icon;
             row.appendChild(iconEl);
 
@@ -612,12 +612,12 @@ export class SpriteInspectPanel {
             infoEl.style.cssText = 'flex: 1; min-width: 0;';
 
             const nameEl = document.createElement('div');
-            nameEl.style.cssText = `font-size: 0.6rem; font-weight: 600; color: ${rarityColor}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`;
+            nameEl.style.cssText = `font-size: 0.75rem; font-weight: 600; color: ${rarityColor}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`;
             nameEl.textContent = eqData.equipment_name || 'Unknown';
             infoEl.appendChild(nameEl);
 
             const metaEl = document.createElement('div');
-            metaEl.style.cssText = 'font-size: 0.5rem; color: #777;';
+            metaEl.style.cssText = 'font-size: 0.65rem; color: #777;';
             metaEl.textContent = `${slot.charAt(0).toUpperCase() + slot.slice(1)} \u2022 ${rarityLabel}`;
             infoEl.appendChild(metaEl);
 
@@ -633,7 +633,7 @@ export class SpriteInspectPanel {
                 }
                 if (bonusStrs.length > 0) {
                     const bonusEl = document.createElement('div');
-                    bonusEl.style.cssText = 'font-size: 0.45rem; color: #66aa66; margin-top: 1px;';
+                    bonusEl.style.cssText = 'font-size: 0.6rem; color: #66aa66; margin-top: 2px;';
                     bonusEl.textContent = bonusStrs.join(', ');
                     infoEl.appendChild(bonusEl);
                 }
@@ -645,7 +645,7 @@ export class SpriteInspectPanel {
 
         if (!hasAny) {
             const empty = document.createElement('div');
-            empty.style.cssText = 'font-size: 0.6rem; color: #666; text-align: center; padding: 12px 0;';
+            empty.style.cssText = 'font-size: 0.75rem; color: #666; text-align: center; padding: 14px 0;';
             empty.textContent = 'No equipment';
             container.appendChild(empty);
         }
@@ -662,7 +662,7 @@ export class SpriteInspectPanel {
         chainEl.style.cssText = 'margin-bottom: 8px;';
 
         const chainHeader = document.createElement('div');
-        chainHeader.style.cssText = 'font-size: 0.6rem; color: #888; font-weight: 600; margin-bottom: 4px;';
+        chainHeader.style.cssText = 'font-size: 0.75rem; color: #888; font-weight: 600; margin-bottom: 6px;';
         chainHeader.textContent = 'Evolution Chain';
         chainEl.appendChild(chainHeader);
 
@@ -687,13 +687,13 @@ export class SpriteInspectPanel {
 
             // Mini sprite preview
             const miniCanvas = document.createElement('canvas');
-            miniCanvas.width = 32;
-            miniCanvas.height = 36;
-            miniCanvas.style.cssText = 'width: 32px; height: 36px; image-rendering: pixelated;';
+            miniCanvas.width = 48;
+            miniCanvas.height = 54;
+            miniCanvas.style.cssText = 'width: 48px; height: 54px; image-rendering: pixelated;';
             const mCtx = miniCanvas.getContext('2d');
             HumanoidSpriteSystem.drawWithEquipment(
                 mCtx, d.raceId, stageNum, 0, 0,
-                16, 30, 24,
+                24, 45, 36,
                 { equipment: {} }
             );
             stageRow.appendChild(miniCanvas);
@@ -703,7 +703,7 @@ export class SpriteInspectPanel {
             stageInfo.style.cssText = 'flex: 1;';
 
             const stageLabel = document.createElement('div');
-            stageLabel.style.cssText = `font-size: 0.6rem; font-weight: 600; color: ${isCurrent ? '#ffcc33' : '#aaa'};`;
+            stageLabel.style.cssText = `font-size: 0.75rem; font-weight: 600; color: ${isCurrent ? '#ffcc33' : '#aaa'};`;
             stageLabel.textContent = `${stageName} ${'★'.repeat(stageNum)}`;
             stageInfo.appendChild(stageLabel);
 
@@ -712,7 +712,7 @@ export class SpriteInspectPanel {
                 const triggerDesc = form.evolution_trigger_description || '';
                 if (triggerDesc && stageNum > 1) {
                     const triggerEl = document.createElement('div');
-                    triggerEl.style.cssText = 'font-size: 0.5rem; color: #777;';
+                    triggerEl.style.cssText = 'font-size: 0.65rem; color: #777;';
                     triggerEl.textContent = triggerDesc;
                     stageInfo.appendChild(triggerEl);
                 }
@@ -728,7 +728,7 @@ export class SpriteInspectPanel {
                     }
                     if (multStrs.length > 0) {
                         const multEl = document.createElement('div');
-                        multEl.style.cssText = 'font-size: 0.45rem; color: #66aaff; margin-top: 1px;';
+                        multEl.style.cssText = 'font-size: 0.6rem; color: #66aaff; margin-top: 2px;';
                         multEl.textContent = multStrs.join(', ');
                         stageInfo.appendChild(multEl);
                     }
@@ -737,7 +737,7 @@ export class SpriteInspectPanel {
 
             if (isCurrent) {
                 const currentBadge = document.createElement('span');
-                currentBadge.style.cssText = 'font-size: 0.45rem; color: #ffcc33; font-weight: 700;';
+                currentBadge.style.cssText = 'font-size: 0.6rem; color: #ffcc33; font-weight: 700;';
                 currentBadge.textContent = ' (Current)';
                 stageLabel.appendChild(currentBadge);
             }
@@ -760,12 +760,12 @@ export class SpriteInspectPanel {
             loreDiv.style.cssText = 'border-top: 1px solid rgba(255,255,255,0.06); margin-top: 8px; padding-top: 6px;';
 
             const loreHeader = document.createElement('div');
-            loreHeader.style.cssText = 'font-size: 0.55rem; color: #888; font-weight: 600; margin-bottom: 2px;';
+            loreHeader.style.cssText = 'font-size: 0.7rem; color: #888; font-weight: 600; margin-bottom: 3px;';
             loreHeader.textContent = 'Lore';
             loreDiv.appendChild(loreHeader);
 
             const loreText = document.createElement('div');
-            loreText.style.cssText = 'font-size: 0.5rem; color: #777; font-style: italic; line-height: 1.4;';
+            loreText.style.cssText = 'font-size: 0.65rem; color: #777; font-style: italic; line-height: 1.5;';
             loreText.textContent = raceData.lore_description;
             loreDiv.appendChild(loreText);
 
@@ -779,7 +779,7 @@ export class SpriteInspectPanel {
         const btn = document.createElement('button');
         btn.textContent = label;
         btn.style.cssText = `
-            padding: 4px 8px; font-size: 0.6rem;
+            padding: 6px 12px; font-size: 0.75rem;
             border: 1px solid ${borderColor}; border-radius: 4px;
             background: ${bgColor}; color: ${textColor};
             cursor: pointer; font-family: sans-serif;

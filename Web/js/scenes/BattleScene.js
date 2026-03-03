@@ -1653,20 +1653,20 @@ export class BattleScene extends Scene {
         this._inspectPanelEl = document.createElement('div');
         this._inspectPanelEl.id = 'unit-inspect-panel';
         this._inspectPanelEl.style.cssText = `
-            position:absolute;bottom:0;left:0;width:100%;height:200px;
+            position:absolute;bottom:0;left:0;width:100%;height:320px;
             background:rgba(0,0,0,0.85);border-top:2px solid rgba(255,255,255,0.15);
             border-radius:12px 12px 0 0;pointer-events:auto;display:none;
             flex-direction:column;z-index:15;overflow:hidden;
-            box-sizing:border-box;padding:10px 12px 8px 12px;
+            box-sizing:border-box;padding:14px 16px 12px 16px;
         `;
 
         // Close button (X) in top-right
         const inspectCloseBtn = document.createElement('div');
         inspectCloseBtn.style.cssText = `
-            position:absolute;top:6px;right:10px;width:24px;height:24px;
+            position:absolute;top:8px;right:12px;width:32px;height:32px;
             display:flex;align-items:center;justify-content:center;
-            cursor:pointer;color:#aaa;font-size:1rem;font-weight:700;
-            border-radius:4px;background:rgba(255,255,255,0.08);
+            cursor:pointer;color:#aaa;font-size:1.2rem;font-weight:700;
+            border-radius:6px;background:rgba(255,255,255,0.08);
             z-index:2;
         `;
         inspectCloseBtn.textContent = 'X';
@@ -1678,7 +1678,7 @@ export class BattleScene extends Scene {
         inspectContent.className = 'inspect-content';
         inspectContent.style.cssText = `
             width:100%;height:100%;overflow-y:auto;overflow-x:hidden;
-            padding-top:20px;box-sizing:border-box;
+            padding-top:24px;box-sizing:border-box;
         `;
         this._inspectPanelEl.appendChild(inspectContent);
 
@@ -1719,23 +1719,23 @@ export class BattleScene extends Scene {
 
         // ── Header row: name, team badge, level ──────────────────────
         const header = document.createElement('div');
-        header.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;';
+        header.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:8px;';
 
         const nameEl = document.createElement('span');
-        nameEl.style.cssText = `font-weight:700;font-size:0.85rem;color:${nameColor};`;
+        nameEl.style.cssText = `font-weight:700;font-size:1.05rem;color:${nameColor};`;
         nameEl.textContent = unit.getDisplayName();
         header.appendChild(nameEl);
 
         const teamBadge = document.createElement('span');
         teamBadge.style.cssText = `
-            font-size:0.55rem;font-weight:700;color:#fff;background:${teamColor};
-            border-radius:3px;padding:1px 5px;
+            font-size:0.7rem;font-weight:700;color:#fff;background:${teamColor};
+            border-radius:4px;padding:2px 8px;
         `;
         teamBadge.textContent = teamLabel;
         header.appendChild(teamBadge);
 
         const levelEl = document.createElement('span');
-        levelEl.style.cssText = 'font-size:0.7rem;color:#aaa;margin-left:auto;';
+        levelEl.style.cssText = 'font-size:0.85rem;color:#aaa;margin-left:auto;';
         levelEl.textContent = `Lv. ${unit.level || '?'}`;
         header.appendChild(levelEl);
 
@@ -1744,17 +1744,17 @@ export class BattleScene extends Scene {
         // ── Element badges ───────────────────────────────────────────
         if (unit.elementTypes && unit.elementTypes.length > 0) {
             const elemRow = document.createElement('div');
-            elemRow.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;';
+            elemRow.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
             for (const elem of unit.elementTypes) {
                 const badge = document.createElement('span');
                 const elemColor = ELEMENT_COLORS[elem] || '#666';
                 badge.style.cssText = `
-                    display:flex;align-items:center;gap:3px;
-                    font-size:0.6rem;color:#ddd;
+                    display:flex;align-items:center;gap:4px;
+                    font-size:0.75rem;color:#ddd;
                 `;
                 const dot = document.createElement('span');
                 dot.style.cssText = `
-                    display:inline-block;width:8px;height:8px;border-radius:50%;
+                    display:inline-block;width:10px;height:10px;border-radius:50%;
                     background:${elemColor};
                 `;
                 badge.appendChild(dot);
@@ -1769,16 +1769,16 @@ export class BattleScene extends Scene {
         const hpColor = hpFrac > 0.5 ? COLOR_HP_GREEN : hpFrac > 0.25 ? COLOR_HP_YELLOW : COLOR_HP_RED;
 
         const hpRow = document.createElement('div');
-        hpRow.style.cssText = 'margin-bottom:6px;';
+        hpRow.style.cssText = 'margin-bottom:8px;';
 
         const hpLabel = document.createElement('div');
-        hpLabel.style.cssText = 'font-size:0.6rem;color:#aaa;margin-bottom:2px;';
+        hpLabel.style.cssText = 'font-size:0.75rem;color:#aaa;margin-bottom:3px;';
         hpLabel.textContent = `HP: ${unit.currentHp}/${unit.maxHp}`;
         hpRow.appendChild(hpLabel);
 
         const hpBarOuter = document.createElement('div');
         hpBarOuter.style.cssText = `
-            width:100%;height:6px;background:#1a1a2e;border-radius:3px;overflow:hidden;
+            width:100%;height:8px;background:#1a1a2e;border-radius:4px;overflow:hidden;
         `;
         const hpBarInner = document.createElement('div');
         hpBarInner.style.cssText = `
@@ -1793,8 +1793,8 @@ export class BattleScene extends Scene {
         // ── Stats grid (2 columns) ──────────────────────────────────
         const statsGrid = document.createElement('div');
         statsGrid.style.cssText = `
-            display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;
-            margin-bottom:6px;font-size:0.6rem;
+            display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;
+            margin-bottom:8px;font-size:0.75rem;
         `;
 
         const stats = unit.stats || {};
@@ -1825,12 +1825,12 @@ export class BattleScene extends Scene {
         const abilityDb = this._battleManager._abilityDb;
         if (unit.equippedAbilities && unit.equippedAbilities.length > 0 && abilityDb) {
             const abilitiesLabel = document.createElement('div');
-            abilitiesLabel.style.cssText = 'font-size:0.6rem;color:#888;margin-bottom:3px;font-weight:700;';
+            abilitiesLabel.style.cssText = 'font-size:0.75rem;color:#888;margin-bottom:4px;font-weight:700;';
             abilitiesLabel.textContent = 'Abilities';
             content.appendChild(abilitiesLabel);
 
             const abilitiesList = document.createElement('div');
-            abilitiesList.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;';
+            abilitiesList.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;';
 
             for (const abilityId of unit.equippedAbilities) {
                 const ability = abilityDb[abilityId];
@@ -1842,8 +1842,8 @@ export class BattleScene extends Scene {
 
                 const abEl = document.createElement('div');
                 abEl.style.cssText = `
-                    border:1px solid ${elemColor};border-radius:4px;
-                    padding:2px 6px;font-size:0.55rem;color:#ddd;
+                    border:1px solid ${elemColor};border-radius:5px;
+                    padding:4px 8px;font-size:0.7rem;color:#ddd;
                     background:rgba(0,0,0,0.4);
                 `;
 
@@ -1865,18 +1865,18 @@ export class BattleScene extends Scene {
         // ── Active status effects ────────────────────────────────────
         if (unit.activeStatusEffects && unit.activeStatusEffects.length > 0) {
             const statusLabel = document.createElement('div');
-            statusLabel.style.cssText = 'font-size:0.6rem;color:#888;margin-bottom:3px;font-weight:700;';
+            statusLabel.style.cssText = 'font-size:0.75rem;color:#888;margin-bottom:4px;font-weight:700;';
             statusLabel.textContent = 'Status Effects';
             content.appendChild(statusLabel);
 
             const statusRow = document.createElement('div');
-            statusRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;';
+            statusRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
 
             for (const effect of unit.activeStatusEffects) {
                 const tag = document.createElement('span');
                 tag.style.cssText = `
-                    font-size:0.55rem;color:#ffaa33;background:rgba(255,170,51,0.15);
-                    border:1px solid rgba(255,170,51,0.3);border-radius:3px;padding:1px 5px;
+                    font-size:0.7rem;color:#ffaa33;background:rgba(255,170,51,0.15);
+                    border:1px solid rgba(255,170,51,0.3);border-radius:4px;padding:2px 8px;
                 `;
                 tag.textContent = effect.effectName || effect.name || 'Unknown';
                 statusRow.appendChild(tag);
