@@ -1,15 +1,13 @@
 /**
  * HumanoidSpriteSystem.js — Professional pixel-art humanoid sprite renderer
- * with layered equipment overlays from weapon theme sprite sheets.
+ * with layered equipment overlays and race-specific body shapes.
  *
  * Generates animated humanoid sprites for all 72 forms by compositing:
- *   1. Base humanoid body with element-colored skin (procedural pixel art)
- *   2. Equipment overlays extracted from weapon theme sheets:
- *      - Helmet, Chest, Boots, Gloves from left column of theme sheets
- *      - Weapon (sword/axe/staff/spear/crossbow) from theme sheets
+ *   1. Race-specific humanoid body (24 unique races) with element-colored skin
+ *   2. Equipment overlays with per-item unique visuals (144 items)
  *   3. Rarity glow effects for epic/legendary gear
  *
- * Output format: 128x128 sprite sheets (4 dirs × 4 walk frames, 32×32 per frame)
+ * Output format: 256x256 sprite sheets (4 dirs × 4 walk frames, 64×64 per frame)
  * Direction indices: 0=Down, 1=Left, 2=Right, 3=Up
  *
  * Equipment changes invalidate the cache, causing re-compositing on next draw.
@@ -24,9 +22,11 @@ import {
     drawLegsArmorByConfig, drawBootsByConfig, drawGlovesByConfig,
     drawRingByConfig, drawAmuletByConfig, drawCrystalByConfig
 } from './EquipmentRenderers.js';
+import { drawRaceBody } from './RaceBodyRenderer.js';
+import { drawRaceBodyExt } from './RaceBodyRendererExt.js';
 
 // ── Frame Constants ──────────────────────────────────────────────────────────
-const FRAME_SIZE = 32;
+const FRAME_SIZE = 64;
 const SHEET_COLS = 4;  // 4 walk frames
 const SHEET_ROWS = 4;  // 4 directions (down, left, right, up)
 
@@ -36,19 +36,34 @@ const DIR_LEFT  = 1;
 const DIR_RIGHT = 2;
 const DIR_UP    = 3;
 
-// ── Pixel Body Proportions (within 32×32 frame) ────────────────────────────
-// Professional pixel-art humanoid at ~22px tall within frame
+// ── Pixel Body Proportions (within 64×64 frame) ────────────────────────────
+// Professional pixel-art humanoid at ~44px tall within frame
 const BODY = {
-    headW: 10, headH: 9,
-    torsoW: 10, torsoH: 8,
-    armW: 3,   armH: 8,
-    legW: 4,   legH: 7,
-    footW: 5,  footH: 2,
-    shoulderW: 12,
+    headW: 18, headH: 16,
+    torsoW: 18, torsoH: 14,
+    armW: 6,   armH: 14,
+    legW: 7,   legH: 12,
+    footW: 9,  footH: 4,
+    shoulderW: 22,
 };
 
+/**
+ * Dispatch race body rendering to the appropriate race-specific renderer.
+ * Races 1-12 use RaceBodyRenderer, races 13-24 use RaceBodyRendererExt.
+ * Returns anchor points for equipment positioning.
+ */
+function _drawRaceSpecificBody(ctx, raceId, cx, groundY, dir, frame, scale, colors) {
+    if (raceId >= 1 && raceId <= 12) {
+        return drawRaceBody(ctx, raceId, cx, groundY, dir, frame, scale, colors);
+    } else if (raceId >= 13 && raceId <= 24) {
+        return drawRaceBodyExt(ctx, raceId, cx, groundY, dir, frame, scale, colors);
+    }
+    // Fallback for unknown race IDs: use Human (race 12) rendering
+    return drawRaceBody(ctx, 12, cx, groundY, dir, frame, scale, colors);
+}
+
 // ── Caches ────────────────────────────────────────────────────────────────────
-const _compositeCache = new Map();  // cacheKey → HTMLCanvasElement (128×128)
+const _compositeCache = new Map();  // cacheKey → HTMLCanvasElement (256×256)
 const _themeImageCache = new Map(); // themePath → HTMLImageElement
 const _bodySheetImage = { img: null };
 
@@ -152,7 +167,7 @@ export class HumanoidSpriteSystem {
     }
 
     /**
-     * Get or generate a composite 128×128 walk cycle sprite sheet.
+     * Get or generate a composite 256×256 walk cycle sprite sheet.
      * Equipment-aware: different equipment = different cached sheet.
      */
     static getCompositeSheet(raceId, stage = 1, equipment = null) {
@@ -264,7 +279,7 @@ export class HumanoidSpriteSystem {
                 const fy = dir * FRAME_SIZE;
 
                 this._drawHumanoidFrame(ctx, fx, fy, dir, frame, stage, colors, armorTier,
-                    themeImg, raceTheme, weaponType, eqData);
+                    themeImg, raceTheme, weaponType, eqData, raceId);
             }
         }
 
@@ -272,380 +287,165 @@ export class HumanoidSpriteSystem {
     }
 
     /**
-     * Draw one complete humanoid frame with all equipment layers.
-     * Professional pixel-art quality with proper anatomy, shading, and animation.
+     * Draw one complete humanoid frame with race-specific body and equipment layers.
+     * Uses RaceBodyRenderer for unique race shapes, then overlays equipment.
      */
     static _drawHumanoidFrame(ctx, fx, fy, dir, frame, stage, colors, armorTier,
-                               themeImg, raceTheme, weaponType, eqData) {
+                               themeImg, raceTheme, weaponType, eqData, raceId) {
         // Scale factor based on evolution stage (stage 3 = slightly larger)
         const scale = 0.9 + (stage - 1) * 0.05;
 
-        // Walking animation offsets
-        const walk = [
-            { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0,  weaponAngle: 0 },
-            { armL: -2, armR: 2,  legL: 3,  legR: -2, bob: -1, weaponAngle: -5 },
-            { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0,  weaponAngle: 0 },
-            { armL: 2,  armR: -2, legL: -2, legR: 3,  bob: -1, weaponAngle: 5 },
-        ][frame];
-
         // Body reference point (center-bottom of character in frame)
         const cx = fx + FRAME_SIZE / 2;
-        const groundY = fy + FRAME_SIZE - 2;
-        const bob = walk.bob;
-
-        // ── Dimensions ─────────────────────────────────────────
-        const headW = Math.round(BODY.headW * scale);
-        const headH = Math.round(BODY.headH * scale);
-        const torsoW = Math.round(BODY.torsoW * scale);
-        const torsoH = Math.round(BODY.torsoH * scale);
-        const armW = Math.round(BODY.armW * scale);
-        const armH = Math.round(BODY.armH * scale);
-        const legW = Math.round(BODY.legW * scale);
-        const legH = Math.round(BODY.legH * scale);
-
-        // ── Anchor points ─────────────────────────────────────
-        const feetY = groundY;
-        const legsTopY = feetY - legH;
-        const torsoTopY = legsTopY - torsoH + 1;
-        const headTopY = torsoTopY - headH + 2 + bob;
-        const shoulderY = torsoTopY + 2 + bob;
-
-        // Determine drawing order based on direction
-        const isFacingDown = dir === DIR_DOWN;
-        const isFacingUp   = dir === DIR_UP;
-        const isFacingLeft = dir === DIR_LEFT;
-        const isFacingRight = dir === DIR_RIGHT;
+        const groundY = fy + FRAME_SIZE - 3;
 
         // ────────────────────────────────────────────────────────
-        // LAYER 1: Back arm (behind body when facing down/side)
+        // Draw race-specific body and get anchor points for equipment
         // ────────────────────────────────────────────────────────
-        if (isFacingDown || isFacingLeft) {
-            this._drawArm(ctx, cx + torsoW / 2, shoulderY, armW, armH,
-                walk.armR, colors, 'right', eqData.gloves);
-        }
-        if (isFacingDown || isFacingRight) {
-            this._drawArm(ctx, cx - torsoW / 2 - armW, shoulderY, armW, armH,
-                walk.armL, colors, 'left', eqData.gloves);
+        const anchors = _drawRaceSpecificBody(ctx, raceId, cx, groundY, dir, frame, scale, colors);
+
+        // Extract anchor points
+        const { headX, headY, headW, headH, torsoX, torsoY, torsoW, torsoH,
+                shoulderY, leftArmX, rightArmX, armW, armH,
+                leftLegX, rightLegX, legW, legH, legsTopY, feetY, walk } = anchors;
+
+        const headTopY = headY;
+        const torsoTopY = torsoY;
+
+        // ────────────────────────────────────────────────────────
+        // EQUIPMENT OVERLAYS (drawn on top of race body)
+        // ────────────────────────────────────────────────────────
+
+        // ── Helmet overlay ─────────────────────────────────────
+        if (eqData.helmet) {
+            const helmetId = eqData.helmet.equipment_id || 0;
+            const helmetVisual = helmetId ? getVisualConfig(helmetId) : null;
+
+            if (helmetVisual && helmetVisual.style) {
+                drawHelmetByConfig(ctx, headX - 1, headY - 3, headW + 2, headH + 2, helmetVisual, colors);
+            } else if (themeImg && themeImg.complete) {
+                this._overlayEquipmentPiece(ctx, themeImg, 'helmet', armorTier,
+                    headX - 1, headY - 3, headW + 2, headH + 2);
+            } else {
+                const fallbackHelmet = getSlotVisualDefaults('helmet');
+                drawHelmetByConfig(ctx, headX - 1, headY - 3, headW + 2, headH + 2, fallbackHelmet, colors);
+            }
         }
 
-        // Back weapon (behind body when facing down)
-        if (isFacingUp) {
-            this._drawWeaponPixel(ctx, cx, shoulderY, armH, dir, frame, weaponType,
-                colors, themeImg, raceTheme, eqData.weapon, armorTier);
+        // ── Chest armor overlay ────────────────────────────────
+        if (eqData.chest) {
+            const chestId = eqData.chest.equipment_id || 0;
+            const chestVisual = chestId ? getVisualConfig(chestId) : null;
+
+            if (chestVisual && chestVisual.style) {
+                drawChestByConfig(ctx, torsoX, torsoY, torsoW, torsoH, chestVisual, colors);
+            } else if (themeImg && themeImg.complete) {
+                this._overlayEquipmentPiece(ctx, themeImg, 'chestplate', armorTier,
+                    torsoX - 1, torsoY - 1, torsoW + 2, torsoH + 2);
+            } else {
+                const fallbackChest = getSlotVisualDefaults('chest');
+                drawChestByConfig(ctx, torsoX, torsoY, torsoW, torsoH, fallbackChest, colors);
+            }
         }
 
-        // ────────────────────────────────────────────────────────
-        // LAYER 2: Legs + boots
-        // ────────────────────────────────────────────────────────
-        this._drawLegs(ctx, cx, legsTopY, legW, legH, walk, colors, dir, eqData.boots, eqData.legs);
+        // ── Leg armor overlay ──────────────────────────────────
+        if (eqData.legs) {
+            const legsId = eqData.legs.equipment_id || 0;
+            const legsVisual = legsId ? getVisualConfig(legsId) : null;
+            const legArmorH = Math.floor(legH * 0.6);
 
-        // ────────────────────────────────────────────────────────
-        // LAYER 3: Torso + chest armor
-        // ────────────────────────────────────────────────────────
-        this._drawTorso(ctx, cx, torsoTopY + bob, torsoW, torsoH, colors, dir, armorTier,
-            themeImg, raceTheme, eqData.chest);
-
-        // ────────────────────────────────────────────────────────
-        // LAYER 4: Head + helmet
-        // ────────────────────────────────────────────────────────
-        this._drawHead(ctx, cx, headTopY, headW, headH, colors, dir,
-            themeImg, raceTheme, eqData.helmet, armorTier);
-
-        // ────────────────────────────────────────────────────────
-        // LAYER 5: Front arms + weapon
-        // ────────────────────────────────────────────────────────
-        if (isFacingDown || isFacingRight) {
-            this._drawArm(ctx, cx + torsoW / 2, shoulderY, armW, armH,
-                walk.armR, colors, 'right', eqData.gloves);
-        }
-        if (isFacingDown || isFacingLeft) {
-            this._drawArm(ctx, cx - torsoW / 2 - armW, shoulderY, armW, armH,
-                walk.armL, colors, 'left', eqData.gloves);
-        }
-        if (isFacingUp) {
-            // Arms already drawn, weapon behind body
-        } else {
-            this._drawWeaponPixel(ctx, cx, shoulderY, armH, dir, frame, weaponType,
-                colors, themeImg, raceTheme, eqData.weapon, armorTier);
+            if (legsVisual && legsVisual.style) {
+                drawLegsArmorByConfig(ctx, leftLegX, Math.floor(legsTopY + walk.legL), legW, legArmorH, legsVisual);
+                drawLegsArmorByConfig(ctx, rightLegX, Math.floor(legsTopY + walk.legR), legW, legArmorH, legsVisual);
+            } else {
+                const fallbackLegs = getSlotVisualDefaults('legs');
+                drawLegsArmorByConfig(ctx, leftLegX, Math.floor(legsTopY + walk.legL), legW, legArmorH, fallbackLegs);
+                drawLegsArmorByConfig(ctx, rightLegX, Math.floor(legsTopY + walk.legR), legW, legArmorH, fallbackLegs);
+            }
         }
 
-        // ────────────────────────────────────────────────────────
-        // LAYER 6: Accessory effects (ring, amulet, crystal)
-        // ────────────────────────────────────────────────────────
+        // ── Boot overlay ───────────────────────────────────────
+        if (eqData.boots) {
+            const bootsId = eqData.boots.equipment_id || 0;
+            const bootsVisual = bootsId ? getVisualConfig(bootsId) : null;
+            const bootH = 5;
 
-        // Ring: small glowing band on front hand
+            if (bootsVisual && bootsVisual.style) {
+                drawBootsByConfig(ctx, leftLegX - 1, Math.floor(legsTopY + walk.legL + legH - bootH), legW + 2, bootH + 2, bootsVisual);
+                drawBootsByConfig(ctx, rightLegX - 1, Math.floor(legsTopY + walk.legR + legH - bootH), legW + 2, bootH + 2, bootsVisual);
+            } else {
+                const fallbackBoots = getSlotVisualDefaults('boots');
+                drawBootsByConfig(ctx, leftLegX - 1, Math.floor(legsTopY + walk.legL + legH - bootH), legW + 2, bootH + 2, fallbackBoots);
+                drawBootsByConfig(ctx, rightLegX - 1, Math.floor(legsTopY + walk.legR + legH - bootH), legW + 2, bootH + 2, fallbackBoots);
+            }
+        }
+
+        // ── Glove overlay ──────────────────────────────────────
+        if (eqData.gloves) {
+            const glovesId = eqData.gloves.equipment_id || 0;
+            const glovesVisual = glovesId ? getVisualConfig(glovesId) : null;
+
+            if (glovesVisual && glovesVisual.style) {
+                drawGlovesByConfig(ctx, leftArmX, Math.floor(shoulderY + walk.armL), armW, armH, 'left', glovesVisual);
+                drawGlovesByConfig(ctx, rightArmX, Math.floor(shoulderY + walk.armR), armW, armH, 'right', glovesVisual);
+            } else {
+                const fallbackGloves = getSlotVisualDefaults('gloves');
+                drawGlovesByConfig(ctx, leftArmX, Math.floor(shoulderY + walk.armL), armW, armH, 'left', fallbackGloves);
+                drawGlovesByConfig(ctx, rightArmX, Math.floor(shoulderY + walk.armR), armW, armH, 'right', fallbackGloves);
+            }
+        }
+
+        // ── Weapon overlay ─────────────────────────────────────
+        this._drawWeaponPixel(ctx, cx, shoulderY, armH, dir, frame, weaponType,
+            colors, themeImg, raceTheme, eqData.weapon, armorTier);
+
+        // ── Ring overlay ───────────────────────────────────────
         if (eqData.ring) {
             const ringPos = this._drawRingEffect(ctx, cx, shoulderY, armH, torsoW, walk, dir);
             this._renderRing(ctx, ringPos, eqData.ring);
         }
 
-        // Amulet: pendant/necklace on neck/upper chest
+        // ── Amulet overlay ─────────────────────────────────────
         if (eqData.amulet) {
-            this._drawAmuletEffect(ctx, cx, torsoTopY, bob, dir, eqData.amulet);
+            this._drawAmuletEffect(ctx, cx, torsoTopY, walk.bob, dir, eqData.amulet);
         }
 
-        // Crystal: floating diamond above/behind shoulder
+        // ── Crystal overlay ────────────────────────────────────
         if (eqData.crystal) {
             this._drawCrystalEffect(ctx, cx, headTopY, torsoW, dir, frame, eqData.crystal);
         }
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // Body Part Renderers (pixel-art quality)
+    // Body Part Renderers — DEPRECATED: Body drawing now in RaceBodyRenderer.js
+    // Equipment, weapon, and accessory overlays remain here.
     // ═══════════════════════════════════════════════════════════════════════════
-
-    /**
-     * Draw the head with optional helmet overlay.
-     */
-    static _drawHead(ctx, cx, topY, w, h, colors, dir, themeImg, raceTheme, helmetData, armorTier) {
-        const x = Math.floor(cx - w / 2);
-        const y = Math.floor(topY);
-
-        // Hair (back layer, visible from behind)
-        if (dir === DIR_UP) {
-            ctx.fillStyle = colors.hair;
-            ctx.fillRect(x - 1, y, w + 2, h - 1);
-            ctx.fillStyle = colors.outline;
-            ctx.fillRect(x - 1, y - 1, w + 2, 1);
-            ctx.fillRect(x - 2, y, 1, h - 2);
-            ctx.fillRect(x + w + 1, y, 1, h - 2);
-        }
-
-        // Head shape
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(x - 1, y, w + 2, h + 1); // outline
-        ctx.fillStyle = colors.skin;
-        ctx.fillRect(x, y + 1, w, h - 1); // main face
-        // Skin highlight (left side shading for 3D effect)
-        ctx.fillStyle = colors.mid;
-        ctx.fillRect(x + Math.floor(w * 0.6), y + 1, Math.floor(w * 0.4), h - 1);
-
-        // Facial features (only when facing down or sides)
-        if (dir !== DIR_UP) {
-            // Eyes
-            const eyeY = y + Math.floor(h * 0.35);
-            if (dir === DIR_DOWN) {
-                // Two eyes
-                const eyeSpacing = Math.floor(w * 0.3);
-                ctx.fillStyle = '#fff';
-                ctx.fillRect(cx - eyeSpacing - 1, eyeY, 3, 2);
-                ctx.fillRect(cx + eyeSpacing - 1, eyeY, 3, 2);
-                ctx.fillStyle = colors.eye;
-                ctx.fillRect(cx - eyeSpacing, eyeY, 2, 2);
-                ctx.fillRect(cx + eyeSpacing, eyeY, 2, 2);
-                ctx.fillStyle = '#111';
-                ctx.fillRect(cx - eyeSpacing, eyeY + 1, 1, 1);
-                ctx.fillRect(cx + eyeSpacing, eyeY + 1, 1, 1);
-            } else {
-                // Side-facing: one eye visible
-                const eyeX = dir === DIR_RIGHT ? cx + 1 : cx - 2;
-                ctx.fillStyle = '#fff';
-                ctx.fillRect(eyeX - 1, eyeY, 3, 2);
-                ctx.fillStyle = colors.eye;
-                ctx.fillRect(eyeX, eyeY, 2, 2);
-                ctx.fillStyle = '#111';
-                ctx.fillRect(eyeX, eyeY + 1, 1, 1);
-            }
-
-            // Mouth (subtle)
-            if (dir === DIR_DOWN) {
-                ctx.fillStyle = colors.outline;
-                ctx.fillRect(cx - 1, y + h - 3, 2, 1);
-            }
-        }
-
-        // Hair (front layer)
-        if (dir !== DIR_UP) {
-            ctx.fillStyle = colors.hair;
-            // Hair on top
-            ctx.fillRect(x - 1, y - 1, w + 2, 3);
-            // Side hair wisps
-            if (dir === DIR_DOWN || dir === DIR_LEFT) {
-                ctx.fillRect(x - 1, y + 1, 2, 3);
-            }
-            if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-                ctx.fillRect(x + w - 1, y + 1, 2, 3);
-            }
-        }
-
-        // ── Helmet overlay ─────────────────────────────────────
-        if (helmetData) {
-            const helmetId = helmetData.equipment_id || 0;
-            const helmetVisual = helmetId ? getVisualConfig(helmetId) : null;
-
-            if (helmetVisual && helmetVisual.style) {
-                // Per-item unique helmet rendering
-                drawHelmetByConfig(ctx, x - 1, y - 2, w + 2, h + 1, helmetVisual, colors);
-            } else if (themeImg && themeImg.complete) {
-                this._overlayEquipmentPiece(ctx, themeImg, 'helmet', armorTier,
-                    x - 1, y - 2, w + 2, h + 1);
-            } else {
-                // Fallback
-                const fallbackHelmet = getSlotVisualDefaults('helmet');
-                drawHelmetByConfig(ctx, x - 1, y - 2, w + 2, h + 1, fallbackHelmet, colors);
-            }
-        }
-    }
-
-    /**
-     * Draw the torso with optional chest armor overlay.
-     */
-    static _drawTorso(ctx, cx, topY, w, h, colors, dir, armorTier, themeImg, raceTheme, chestData) {
-        const x = Math.floor(cx - w / 2);
-        const y = Math.floor(topY);
-
-        // Base torso
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(x - 1, y, w + 2, h + 1);
-        ctx.fillStyle = colors.skin;
-        ctx.fillRect(x, y, w, h);
-        // Shading
-        ctx.fillStyle = colors.mid;
-        ctx.fillRect(x + Math.floor(w * 0.55), y, Math.ceil(w * 0.45), h);
-
-        // ── Chest armor overlay ─────────────────────────────────
-        if (chestData) {
-            const chestId = chestData.equipment_id || 0;
-            const chestVisual = chestId ? getVisualConfig(chestId) : null;
-
-            if (chestVisual && chestVisual.style) {
-                // Per-item unique chest armor rendering
-                drawChestByConfig(ctx, x, y, w, h, chestVisual, colors);
-            } else if (themeImg && themeImg.complete) {
-                this._overlayEquipmentPiece(ctx, themeImg, 'chestplate', armorTier,
-                    x - 1, y - 1, w + 2, h + 2);
-            } else {
-                const fallbackChest = getSlotVisualDefaults('chest');
-                drawChestByConfig(ctx, x, y, w, h, fallbackChest, colors);
-            }
-        } else {
-            // Basic tunic when no armor
-            const tunicColor = this._shiftColor(colors.skin, -30);
-            ctx.fillStyle = tunicColor;
-            ctx.fillRect(x + 1, y + 1, w - 2, h - 1);
-        }
-    }
-
-    /**
-     * Draw legs with optional boots and leg armor.
-     */
-    static _drawLegs(ctx, cx, topY, legW, legH, walk, colors, dir, bootsData, legsData) {
-        const gap = 1;
-        const leftLegX = Math.floor(cx - legW - gap / 2);
-        const rightLegX = Math.floor(cx + gap / 2);
-
-        // Left leg
-        const lly = Math.floor(topY + walk.legL);
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(leftLegX - 1, lly, legW + 2, legH + 1);
-        ctx.fillStyle = colors.skin;
-        ctx.fillRect(leftLegX, lly, legW, legH);
-        ctx.fillStyle = colors.mid;
-        ctx.fillRect(leftLegX + Math.floor(legW * 0.5), lly, Math.ceil(legW * 0.5), legH);
-
-        // Right leg
-        const rly = Math.floor(topY + walk.legR);
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(rightLegX - 1, rly, legW + 2, legH + 1);
-        ctx.fillStyle = colors.skin;
-        ctx.fillRect(rightLegX, rly, legW, legH);
-        ctx.fillStyle = colors.mid;
-        ctx.fillRect(rightLegX + Math.floor(legW * 0.5), rly, Math.ceil(legW * 0.5), legH);
-
-        // ── Leg armor overlay ───────────────────────────────────
-        if (legsData) {
-            const legsId = legsData.equipment_id || 0;
-            const legsVisual = legsId ? getVisualConfig(legsId) : null;
-
-            if (legsVisual && legsVisual.style) {
-                // Per-item unique leg armor rendering
-                drawLegsArmorByConfig(ctx, leftLegX, lly, legW, Math.floor(legH * 0.6), legsVisual);
-                drawLegsArmorByConfig(ctx, rightLegX, rly, legW, Math.floor(legH * 0.6), legsVisual);
-            } else {
-                const fallbackLegs = getSlotVisualDefaults('legs');
-                drawLegsArmorByConfig(ctx, leftLegX, lly, legW, Math.floor(legH * 0.6), fallbackLegs);
-                drawLegsArmorByConfig(ctx, rightLegX, rly, legW, Math.floor(legH * 0.6), fallbackLegs);
-            }
-        }
-
-        // ── Boot overlay ────────────────────────────────────────
-        const bootH = 3;
-        if (bootsData) {
-            const bootsId = bootsData.equipment_id || 0;
-            const bootsVisual = bootsId ? getVisualConfig(bootsId) : null;
-
-            if (bootsVisual && bootsVisual.style) {
-                // Per-item unique boot rendering
-                drawBootsByConfig(ctx, leftLegX - 1, lly + legH - bootH, legW + 2, bootH + 1, bootsVisual);
-                drawBootsByConfig(ctx, rightLegX - 1, rly + legH - bootH, legW + 2, bootH + 1, bootsVisual);
-            } else {
-                const fallbackBoots = getSlotVisualDefaults('boots');
-                drawBootsByConfig(ctx, leftLegX - 1, lly + legH - bootH, legW + 2, bootH + 1, fallbackBoots);
-                drawBootsByConfig(ctx, rightLegX - 1, rly + legH - bootH, legW + 2, bootH + 1, fallbackBoots);
-            }
-        } else {
-            // Simple shoes
-            ctx.fillStyle = '#553322';
-            ctx.fillRect(leftLegX - 1, lly + legH - 2, legW + 2, 3);
-            ctx.fillRect(rightLegX - 1, rly + legH - 2, legW + 2, 3);
-        }
-    }
-
-    /**
-     * Draw an arm with optional glove overlay.
-     */
-    static _drawArm(ctx, x, topY, w, h, swing, colors, side, glovesData) {
-        const ax = Math.floor(x);
-        const ay = Math.floor(topY + swing);
-
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(ax - 1, ay, w + 2, h + 1);
-        ctx.fillStyle = colors.skin;
-        ctx.fillRect(ax, ay, w, h);
-        ctx.fillStyle = colors.mid;
-        if (side === 'right') {
-            ctx.fillRect(ax + Math.floor(w * 0.5), ay, Math.ceil(w * 0.5), h);
-        }
-
-        // Glove overlay (covers hand = bottom 3px of arm)
-        if (glovesData) {
-            const glovesId = glovesData.equipment_id || 0;
-            const glovesVisual = glovesId ? getVisualConfig(glovesId) : null;
-
-            if (glovesVisual && glovesVisual.style) {
-                drawGlovesByConfig(ctx, ax, ay, w, h, side, glovesVisual);
-            } else {
-                const fallbackGloves = getSlotVisualDefaults('gloves');
-                drawGlovesByConfig(ctx, ax, ay, w, h, side, fallbackGloves);
-            }
-        }
-    }
 
     /**
      * Draw weapon as pixel art (procedural or from theme sheet).
      */
     static _drawWeaponPixel(ctx, cx, shoulderY, armH, dir, frame, weaponType,
                              colors, themeImg, raceTheme, weaponData, armorTier) {
-        // Position weapon relative to character's hand
+        // Position weapon relative to character's hand (scaled for 64x64)
         let wx, wy;
-        const handOffset = armH - 2;
+        const handOffset = armH - 4;
 
         switch (dir) {
             case DIR_DOWN:
-                wx = cx + 5;
-                wy = shoulderY + 2;
+                wx = cx + 10;
+                wy = shoulderY + 4;
                 break;
             case DIR_LEFT:
-                wx = cx - 8;
-                wy = shoulderY + 1;
+                wx = cx - 16;
+                wy = shoulderY + 2;
                 break;
             case DIR_RIGHT:
-                wx = cx + 6;
-                wy = shoulderY + 1;
+                wx = cx + 12;
+                wy = shoulderY + 2;
                 break;
             case DIR_UP:
-                wx = cx - 6;
-                wy = shoulderY - 2;
+                wx = cx - 12;
+                wy = shoulderY - 4;
                 break;
         }
 
@@ -758,25 +558,20 @@ export class HumanoidSpriteSystem {
      * Rendered as a 2-3px band with a 1px sparkle highlight.
      */
     static _drawRingEffect(ctx, cx, shoulderY, armH, torsoW, walk, dir) {
-        // No ring data — nothing to draw (caller checks, but guard anyway)
-        // Position ring at the hand of the front arm
-        const armW = 3;
+        // Position ring at the hand of the front arm (scaled for 64x64)
+        const ringArmW = 6;
         let rx, ry;
 
         if (dir === DIR_DOWN) {
-            // Front hand is the right arm (drawn in front)
             rx = Math.floor(cx + torsoW / 2);
-            ry = Math.floor(shoulderY + walk.armR + armH - 2);
+            ry = Math.floor(shoulderY + walk.armR + armH - 4);
         } else if (dir === DIR_LEFT) {
-            // Left-facing: left arm is in front
-            rx = Math.floor(cx - torsoW / 2 - armW);
-            ry = Math.floor(shoulderY + walk.armL + armH - 2);
+            rx = Math.floor(cx - torsoW / 2 - ringArmW);
+            ry = Math.floor(shoulderY + walk.armL + armH - 4);
         } else if (dir === DIR_RIGHT) {
-            // Right-facing: right arm is in front
             rx = Math.floor(cx + torsoW / 2);
-            ry = Math.floor(shoulderY + walk.armR + armH - 2);
+            ry = Math.floor(shoulderY + walk.armR + armH - 4);
         } else {
-            // Facing up: ring not visible (hands face away)
             return;
         }
 
@@ -829,20 +624,20 @@ export class HumanoidSpriteSystem {
      * Uses per-item visual config for unique shape, color, and animation per crystal.
      */
     static _drawCrystalEffect(ctx, cx, headTopY, torsoW, dir, frame, crystalData) {
-        // Position: floating above/behind the shoulder
+        // Position: floating above/behind the shoulder (scaled for 64x64)
         let crx, cry;
         if (dir === DIR_DOWN) {
-            crx = Math.floor(cx - torsoW / 2 - 3);
-            cry = Math.floor(headTopY - 1);
+            crx = Math.floor(cx - torsoW / 2 - 6);
+            cry = Math.floor(headTopY - 2);
         } else if (dir === DIR_UP) {
-            crx = Math.floor(cx + torsoW / 2 + 1);
-            cry = Math.floor(headTopY - 1);
+            crx = Math.floor(cx + torsoW / 2 + 2);
+            cry = Math.floor(headTopY - 2);
         } else if (dir === DIR_LEFT) {
-            crx = Math.floor(cx + 2);
-            cry = Math.floor(headTopY - 2);
+            crx = Math.floor(cx + 4);
+            cry = Math.floor(headTopY - 4);
         } else {
-            crx = Math.floor(cx - 4);
-            cry = Math.floor(headTopY - 2);
+            crx = Math.floor(cx - 8);
+            cry = Math.floor(headTopY - 4);
         }
 
         const crystalId = crystalData.equipment_id || 0;

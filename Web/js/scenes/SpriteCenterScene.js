@@ -42,7 +42,7 @@ const MAX_EQUIPPED_ABILITIES = 2; // RTS auto-battle: 1 basic + 1 advanced/passi
 const STORAGE_BOX_SIZE = 30; // sprites per box
 const STORAGE_BOX_COLS = 6;
 const REGISTRY_COLS = 8;
-const SPRITE_PREVIEW_SIZE = 64;
+const SPRITE_PREVIEW_SIZE = 128;
 
 // ── Equipment Slot Config ─────────────────────────────────────────────────
 const EQUIP_SLOT_ICONS = {
@@ -1634,10 +1634,10 @@ export class SpriteCenterScene extends Scene {
         const dollWrapper = document.createElement('div');
         dollWrapper.style.cssText = 'display:flex;flex-direction:column;gap:3px;align-items:center;';
 
-        // Create the animated preview canvas (128x128)
+        // Create the animated preview canvas (256x256)
         const previewCanvas = document.createElement('canvas');
-        previewCanvas.width = 128;
-        previewCanvas.height = 128;
+        previewCanvas.width = 256;
+        previewCanvas.height = 256;
         previewCanvas.style.cssText = `
             width:128px;height:128px;image-rendering:pixelated;
             border:1px solid rgba(255,255,255,0.12);border-radius:8px;
@@ -1658,7 +1658,7 @@ export class SpriteCenterScene extends Scene {
         const stage = inst.evolutionStage || inst.evolution_stage || 1;
         HumanoidSpriteSystem.drawWithEquipment(
             pCtx, raceId, stage, 0, 0,
-            64, 100, 80,
+            128, 200, 160,
             { equipment }
         );
 

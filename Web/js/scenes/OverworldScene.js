@@ -173,7 +173,7 @@ export class OverworldScene extends Scene {
     // ── Lifecycle ──────────────────────────────────────────────────────────
 
     async init() {
-        // Load player sprite (128x128, 4 cols x 4 rows, 32x32 per frame)
+        // Load player sprite (256x256, 4 cols x 4 rows, 64x64 per frame)
         try {
             this._player.spriteImg = await this.engine.assets.loadImage(
                 'Sprites/Characters/Farmer1.png'
@@ -448,12 +448,12 @@ export class OverworldScene extends Scene {
             type: npcDef.type || 'talk', // talk, shop, quest, heal
         }));
 
-        // Load individual NPC sprites (128x128, 4 cols x 4 rows, 32x32 per frame)
+        // Load individual NPC sprites (256x256, 4 cols x 4 rows, 64x64 per frame)
         let generatedSheetIdx = 0;
         for (const npc of this._npcs) {
             npc.spriteSheet = null;
-            npc.spriteFrameW = 32;
-            npc.spriteFrameH = 32;
+            npc.spriteFrameW = 64;
+            npc.spriteFrameH = 64;
             npc.spriteCols = 4;
             npc.spriteRows = 4;
             if (npc.spritePath) {
@@ -2236,14 +2236,14 @@ export class OverworldScene extends Scene {
         const halfSize = PLAYER_SIZE / 2;
 
         if (this._player.spriteImg && this._player.spriteImg.complete) {
-            // Character sprite sheet: 128x128, 4 columns x 4 rows, 32x32 per frame
+            // Character sprite sheet: 256x256, 4 columns x 4 rows, 64x64 per frame
             // Row 0: down, Row 1: left, Row 2: right, Row 3: up
             // Use frame 0 for idle, animate through 4 frames for walking
             const dirRow = { down: 0, left: 1, right: 2, up: 3 };
             const row = dirRow[this._player.facing] || 0;
             const col = this._player.moving ? (this._player.animFrame % 4) : 0;
-            const sw = this._player.spriteImg.width / 4;   // 32
-            const sh = this._player.spriteImg.height / 4;  // 32
+            const sw = this._player.spriteImg.width / 4;   // 64
+            const sh = this._player.spriteImg.height / 4;  // 64
             renderer.drawSprite(
                 this._player.spriteImg,
                 col * sw, row * sh, sw, sh,
@@ -2264,7 +2264,7 @@ export class OverworldScene extends Scene {
 
     _renderNpc(renderer, npc) {
         if (npc.spriteSheet && npc.spriteSheet.complete) {
-            // Individual character sprite sheet: 128x128, 4 cols x 4 rows, 32x32 per frame
+            // Individual character sprite sheet: 256x256, 4 cols x 4 rows, 64x64 per frame
             // Row 0: down, Row 1: left, Row 2: right, Row 3: up
             const dirRow = { down: 0, left: 1, right: 2, up: 3 };
             const row = dirRow[npc.facing] || 0;

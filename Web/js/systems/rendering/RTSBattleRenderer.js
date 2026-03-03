@@ -40,12 +40,12 @@ const ELEMENT_COLORS = {
 };
 
 // ── Unit Draw Constants ─────────────────────────────────────────────────────
-const UNIT_DRAW_SIZE = 32;        // Pixel size per unit sprite
-const HP_BAR_WIDTH = 28;
-const HP_BAR_HEIGHT = 3;
-const HP_BAR_OFFSET_Y = 4;       // Above unit top
-const LEVEL_BADGE_SIZE = 10;
-const STATUS_ICON_SIZE = 8;
+const UNIT_DRAW_SIZE = 48;        // Pixel size per unit sprite (uses 64x64 source, drawn at 48px)
+const HP_BAR_WIDTH = 40;
+const HP_BAR_HEIGHT = 4;
+const HP_BAR_OFFSET_Y = 6;       // Above unit top
+const LEVEL_BADGE_SIZE = 12;
+const STATUS_ICON_SIZE = 10;
 
 // ── Floating Text ───────────────────────────────────────────────────────────
 const FLOAT_SPEED = 30;          // Pixels per second upward

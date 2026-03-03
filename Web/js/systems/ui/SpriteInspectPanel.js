@@ -285,13 +285,13 @@ export class SpriteInspectPanel {
 
         // Canvas
         const canvas = document.createElement('canvas');
-        canvas.width = 96;
-        canvas.height = 108;
+        canvas.width = 160;
+        canvas.height = 180;
         canvas.style.cssText = 'width: 96px; height: 108px; flex-shrink: 0; image-rendering: pixelated;';
         const ctx = canvas.getContext('2d');
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, d.raceId, d.evolutionStage, d.facing, 0,
-            48, 90, 72,
+            80, 150, 120,
             { equipment: d.equipment || {} }
         );
         previewRow.appendChild(canvas);

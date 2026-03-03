@@ -2,7 +2,7 @@
  * SpriteSheetGenerator - Generates 4-direction walk cycle sprite sheets
  * from base body sprites (e.g. the Units body type sheet).
  *
- * Output: 128x128 canvas (4 cols x 4 rows, 32x32 per frame)
+ * Output: 256x256 canvas (4 cols x 4 rows, 64x64 per frame)
  *   Row 0: facing down  (frames 0-3)
  *   Row 1: facing left  (frames 0-3)
  *   Row 2: facing right (frames 0-3)
@@ -22,11 +22,11 @@ export class SpriteSheetGenerator {
      * @param {number} opts.sy - Source Y offset in bodyImg (default: 0)
      * @param {string} opts.skinColor - Skin/limb color (default: '#c8a882')
      * @param {string} opts.outlineColor - Limb outline color (default: '#6b5a4e')
-     * @returns {HTMLCanvasElement} 128x128 sprite sheet canvas
+     * @returns {HTMLCanvasElement} 256x256 sprite sheet canvas
      */
     static generate(bodyImg, opts = {}) {
-        const FRAME_SIZE = 32;
-        const SHEET_SIZE = 128; // 4 frames x 32px
+        const FRAME_SIZE = 64;
+        const SHEET_SIZE = 256; // 4 frames x 64px
 
         const sx = opts.sx || 0;
         const sy = opts.sy || 0;
@@ -42,26 +42,26 @@ export class SpriteSheetGenerator {
         const ctx = sheet.getContext('2d');
         ctx.imageSmoothingEnabled = false;
 
-        // Body is drawn centered in a 32x32 frame, scaled to ~18x20 pixels
-        // leaving room for limbs (arms: 3px each side, legs: 6px below)
-        const scaledBodyW = Math.min(18, bodyW);
-        const scaledBodyH = Math.min(18, bodyH);
+        // Body is drawn centered in a 64x64 frame, scaled to ~36x40 pixels
+        // leaving room for limbs (arms: 6px each side, legs: 12px below)
+        const scaledBodyW = Math.min(36, bodyW);
+        const scaledBodyH = Math.min(36, bodyH);
         const bodyOffsetX = Math.floor((FRAME_SIZE - scaledBodyW) / 2);
-        const bodyTopY = 4; // Leave room at top for head bob
+        const bodyTopY = 8; // Leave room at top for head bob
 
         // Limb dimensions
-        const armW = 3;
-        const armH = 8;
-        const legW = 3;
-        const legH = 7;
+        const armW = 6;
+        const armH = 14;
+        const legW = 6;
+        const legH = 12;
 
         // Animation offsets per frame [idle, step1, idle2, step2]
         // Each direction has 4 frames of walk animation
         const walkCycle = [
             { armL: 0, armR: 0, legL: 0, legR: 0, bob: 0 },   // idle
-            { armL: -2, armR: 2, legL: 3, legR: -1, bob: -1 }, // step left leg forward
+            { armL: -3, armR: 3, legL: 5, legR: -2, bob: -2 }, // step left leg forward
             { armL: 0, armR: 0, legL: 0, legR: 0, bob: 0 },   // idle (passing)
-            { armL: 2, armR: -2, legL: -1, legR: 3, bob: -1 }, // step right leg forward
+            { armL: 3, armR: -3, legL: -2, legR: 5, bob: -2 }, // step right leg forward
         ];
 
         // Direction rows: down=0, left=1, right=2, up=3
@@ -135,7 +135,7 @@ export class SpriteSheetGenerator {
      * @param {number} opts.frameH - Height per body in source (default: 26)
      * @param {number} opts.cols - Number of columns (default: auto from sheet width)
      * @param {number} opts.rows - Number of rows (default: 3)
-     * @returns {HTMLCanvasElement[]} Array of 128x128 sprite sheet canvases
+     * @returns {HTMLCanvasElement[]} Array of 256x256 sprite sheet canvases
      */
     static generateFromSheet(unitsSheet, opts = {}) {
         const frameW = opts.frameW || 22;
@@ -203,15 +203,15 @@ export class SpriteSheetGenerator {
     static _drawLimb(ctx, x, y, w, h, fillColor, outlineColor, direction, limbType) {
         // Outline
         ctx.fillStyle = outlineColor;
-        ctx.fillRect(Math.floor(x) - 1, Math.floor(y), w + 2, h + 1);
+        ctx.fillRect(Math.floor(x) - 1, Math.floor(y), w + 2, h + 2);
 
         // Fill
         ctx.fillStyle = fillColor;
         ctx.fillRect(Math.floor(x), Math.floor(y), w, h);
 
-        // Small highlight for depth
+        // Highlight for depth
         ctx.fillStyle = 'rgba(255,255,255,0.15)';
-        ctx.fillRect(Math.floor(x), Math.floor(y), 1, h - 1);
+        ctx.fillRect(Math.floor(x), Math.floor(y), 2, h - 2);
     }
 
     /**
