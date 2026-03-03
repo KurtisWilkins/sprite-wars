@@ -2,13 +2,16 @@
  * UnitRenderer — Shared composite sprite renderer for all scenes.
  *
  * Draws a fully composited unit on a Canvas context:
- *   1. Base race sprite (monster or character sheet frame)
+ *   1. Base sprite via HumanoidSpriteSystem (with equipment layers)
  *   2. Weapon overlay from the equipped weapon's theme sheet
  *   3. Armor tint / rarity glow border
  *   4. Element aura particles
  *   5. Status effect icons
  *   6. HP bar
  *   7. Level badge
+ *
+ * All sprite rendering uses HumanoidSpriteSystem — no legacy sprite
+ * image files are loaded or displayed.
  *
  * Used by SpriteCenterScene, DeploymentScene, and BattleScene.
  */
@@ -36,14 +39,6 @@ const RARITY_COLORS = {
 };
 
 // ── Weapon theme sheet layout ───────────────────────────────────────────────
-// Weapon theme sheets are 1691 x 1039 grids.  We'll extract a single weapon
-// icon from the top-left region (~64x64 area). The sheets contain multiple
-// weapon sprites arranged in a grid.
-const WEAPON_SHEET_W = 1691;
-const WEAPON_SHEET_H = 1039;
-// Approximate cell size for individual weapon icons in the theme sheets
-const WEAPON_CELL_W = 48;
-const WEAPON_CELL_H = 48;
 // Rows/cols of the "best" weapon icon to extract per weapon type mapping
 const WEAPON_TYPE_CELLS = {
     sword:  { col: 0, row: 0 },
@@ -56,9 +51,7 @@ const WEAPON_TYPE_CELLS = {
     default:{ col: 0, row: 0 },
 };
 
-// ── Character sheet layout (4 columns of 32x32 frames) ─────────────────────
-const CHAR_FRAME_SIZE = 32;
-const CHAR_COLS = 4;
+// (Old character sheet constants removed — HumanoidSpriteSystem handles all rendering)
 
 // ── Animation timing ────────────────────────────────────────────────────────
 const IDLE_ANIM_SPEED = 2.5;     // frames per second for idle bob
@@ -120,12 +113,7 @@ export class UnitRenderer {
         const formId = spriteInstance.formId || spriteInstance.form_id || 1;
         const raceId = spriteInstance.raceId || spriteInstance.race_id || Math.ceil(formId / 3);
 
-        // 1. Race sprite
-        const spritePath = spriteInstance.spriteAsset
-            || assetRegistry.getCharacterSprite(formId);
-        await _loadImage(engine, spritePath);
-
-        // 2. Weapon theme sheet (if weapon equipped)
+        // 1. Weapon theme sheet (if weapon equipped)
         const equipment = spriteInstance.equipment || {};
         if (equipment.weapon) {
             const weaponData = UnitRenderer._getEquipmentData(equipment.weapon);
@@ -133,7 +121,7 @@ export class UnitRenderer {
             await _loadImage(engine, weaponPath);
         }
 
-        // 3. Element icons
+        // 2. Element icons
         const race = SPRITE_RACES.find(r => r.race_id === raceId);
         const elements = spriteInstance.elementTypes || spriteInstance.element_types
             || (race ? race.element_types : ['Fire']);
@@ -142,7 +130,7 @@ export class UnitRenderer {
             await _loadImage(engine, iconPath);
         }
 
-        // 4. Status effect VFX
+        // 3. Status effect VFX
         const statuses = spriteInstance.activeStatusEffects || [];
         for (const s of statuses) {
             const effectId = s.effectId || s.effect_id || (s.effectData && s.effectData.effect_id);
@@ -294,7 +282,9 @@ export class UnitRenderer {
     // ═══════════════════════════════════════════════════════════════════
 
     /**
-     * Draw the base race sprite.
+     * Draw the base race sprite using HumanoidSpriteSystem.
+     * Always uses the procedural renderer — equipment layers are composited
+     * automatically when present, bare humanoid rendered when empty.
      */
     static _drawBaseSprite(ctx, inst, cx, cy, size, formId, direction, time, team, elemColor, level) {
         const halfSize = size / 2;
@@ -303,68 +293,15 @@ export class UnitRenderer {
         const equipment = inst.equipment || {};
         const animFrame = Math.floor(time * 3) % 4;
 
-        // Check if the sprite has any equipment equipped
-        const hasEquipment = Object.values(equipment).some(v => !!v);
-
-        if (hasEquipment) {
-            // Equipment exists — always use HumanoidSpriteSystem which properly
-            // composites all 9 equipment slots (helmet, chest, boots, gloves,
-            // ring, amulet, crystal, weapon, legs) as visual layers.
-            HumanoidSpriteSystem.drawWithEquipment(
-                ctx, raceId, stage, direction, animFrame,
-                cx, cy + halfSize, size,
-                { equipment }
-            );
-        } else {
-            // No equipment — try to use the loaded sprite image
-            const spritePath = inst.spriteAsset || assetRegistry.getCharacterSprite(formId);
-            const img = _getCachedImage(spritePath);
-
-            if (img) {
-                const imgW = img.naturalWidth || img.width;
-                const imgH = img.naturalHeight || img.height;
-
-                if (imgW >= 128 && imgH >= 28 && imgH <= 48) {
-                    // Horizontal strip: 4 frames of 32x32 (e.g., 128x32 Walk_Down.png)
-                    const frameW = Math.floor(imgW / 4);
-                    const frameH = imgH;
-                    ctx.imageSmoothingEnabled = false;
-                    ctx.drawImage(img, animFrame * frameW, 0, frameW, frameH,
-                        cx - halfSize, cy - halfSize, size, size);
-                    ctx.imageSmoothingEnabled = true;
-                } else if (imgW >= 128 && imgH >= 128) {
-                    // Character sheet (128x128, 4x4 = 32x32 frames)
-                    const row = direction % 4;
-                    const sx = animFrame * CHAR_FRAME_SIZE;
-                    const sy = row * CHAR_FRAME_SIZE;
-                    ctx.imageSmoothingEnabled = false;
-                    ctx.drawImage(img, sx, sy, CHAR_FRAME_SIZE, CHAR_FRAME_SIZE,
-                        cx - halfSize, cy - halfSize, size, size);
-                    ctx.imageSmoothingEnabled = true;
-                } else if (imgW > 64 && imgH > 64) {
-                    // Larger sprite sheet — extract a suitable frame
-                    const frameW = Math.min(64, imgW / 4);
-                    const frameH = Math.min(64, imgH / 4);
-                    ctx.imageSmoothingEnabled = false;
-                    ctx.drawImage(img, animFrame * frameW, 0, frameW, frameH,
-                        cx - halfSize, cy - halfSize, size, size);
-                    ctx.imageSmoothingEnabled = true;
-                } else {
-                    // Small standalone sprite (e.g., 30x34 monster sprites)
-                    ctx.imageSmoothingEnabled = false;
-                    ctx.drawImage(img, cx - halfSize, cy - halfSize, size, size);
-                    ctx.imageSmoothingEnabled = true;
-                }
-            } else {
-                // No image and no equipment — fall back to HumanoidSpriteSystem
-                // with empty equipment for a bare humanoid rendering
-                HumanoidSpriteSystem.drawWithEquipment(
-                    ctx, raceId, stage, direction, animFrame,
-                    cx, cy + halfSize, size,
-                    { equipment }
-                );
-            }
-        }
+        // Always use HumanoidSpriteSystem which composites all 9 equipment
+        // slots (helmet, chest, boots, gloves, ring, amulet, crystal, weapon,
+        // legs) as visual layers. When no equipment is present, renders a
+        // bare humanoid with element-colored skin.
+        HumanoidSpriteSystem.drawWithEquipment(
+            ctx, raceId, stage, direction, animFrame,
+            cx, cy + halfSize, size,
+            { equipment }
+        );
     }
 
     /**

@@ -123,13 +123,6 @@ export class DeploymentScene extends Scene {
         // Reset animation time
         this._time = 0;
 
-        // Preload fallback character sprite sheets (128x128, 4x4, 32x32 frames)
-        this._charSheets = {};
-        this.engine.assets.loadImage('Sprites/Characters/NoviceWizard1.png')
-            .then(img => { this._charSheets.player = img; }).catch(() => {});
-        this.engine.assets.loadImage('Sprites/Characters/Skeleton1.png')
-            .then(img => { this._charSheets.enemy = img; }).catch(() => {});
-
         // Preload unit assets via UnitRenderer for rich composite rendering
         UnitRenderer.preloadTeam(this.engine, this._availableSprites).catch(() => {});
         UnitRenderer.preloadTeam(this.engine, this._enemyTeamData).catch(() => {});
