@@ -21,6 +21,7 @@ import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
 import { ABILITIES } from '../data/AbilityData.js';
 import { EQUIPMENT } from '../data/EquipmentData.js';
+import { SpriteInspectPanel } from '../systems/ui/SpriteInspectPanel.js';
 
 // ── UI Constants ────────────────────────────────────────────────────────────
 const INTRO_DURATION = 2.0;
@@ -111,7 +112,7 @@ export class RTSBattleScene extends Scene {
 
         // ── Unit Selection ────────────────────────────────────
         this._selectedUnit = null;
-        this._unitInfoPanelEl = null;
+        this._inspectPanel = new SpriteInspectPanel();
 
         // ── DOM ────────────────────────────────────────────────
         this._domContainer = null;
@@ -191,6 +192,8 @@ export class RTSBattleScene extends Scene {
         }
         this._unsubs = [];
 
+        this._inspectPanel.hide();
+
         if (this._domContainer && this._domContainer.parentNode) {
             this._domContainer.parentNode.removeChild(this._domContainer);
         }
@@ -199,8 +202,8 @@ export class RTSBattleScene extends Scene {
         this._pauseBtnEl = null;
         this._logPanelEl = null;
         this._endScreenEl = null;
-        this._unitInfoPanelEl = null;
         this._selectedUnit = null;
+        this._renderer.selectedUnit = null;
         this._renderer.clear();
         HumanoidSpriteSystem.clearCache();
     }
@@ -360,235 +363,17 @@ export class RTSBattleScene extends Scene {
      * @param {import('../systems/battle/RTSUnit.js').RTSUnit} unit
      */
     _showUnitInfoPanel(unit) {
-        this._hideUnitInfoPanel();
         if (!this._domContainer) return;
-
-        const panel = document.createElement('div');
-        panel.id = 'unit-info-panel';
-        panel.style.cssText = `
-            position: absolute; top: 60px; left: 8px; width: 200px;
-            background: rgba(0,0,0,0.88); color: #ddd;
-            border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
-            padding: 10px; font: 11px monospace; pointer-events: auto;
-            max-height: 380px; overflow-y: auto;
-        `;
-
-        // ── Close button ──
-        const closeBtn = document.createElement('div');
-        closeBtn.textContent = '\u2715';
-        closeBtn.style.cssText = `
-            position:absolute;top:4px;right:8px;cursor:pointer;
-            color:#888;font-size:14px;
-        `;
-        closeBtn.addEventListener('click', () => this._deselectUnit());
-        panel.appendChild(closeBtn);
-
-        // ── Sprite Preview (with equipment) ──
-        const sprPreviewCanvas = document.createElement('canvas');
-        sprPreviewCanvas.width = 64;
-        sprPreviewCanvas.height = 64;
-        sprPreviewCanvas.style.cssText = 'display:block;margin:0 auto 6px auto;image-rendering:pixelated;';
-        const spCtx = sprPreviewCanvas.getContext('2d');
-        HumanoidSpriteSystem.drawWithEquipment(
-            spCtx, unit.raceId, unit.evolutionStage, unit.facing, 0,
-            32, 58, 52, { equipment: unit.equipment || {} }
-        );
-        panel.appendChild(sprPreviewCanvas);
-
-        // ── Name + Team ──
-        const teamLabel = unit.team === 0 ? 'ALLY' : 'ENEMY';
-        const teamColor = unit.team === 0 ? '#4488ff' : '#ff4444';
-        const name = unit.getDisplayName();
-
-        const nameEl = document.createElement('div');
-        nameEl.style.cssText = `font-weight:bold;font-size:13px;color:#ffcc33;margin-bottom:2px;text-align:center;`;
-        nameEl.textContent = name;
-        panel.appendChild(nameEl);
-
-        const teamEl = document.createElement('div');
-        teamEl.style.cssText = `font-size:9px;color:${teamColor};margin-bottom:6px;`;
-        teamEl.textContent = `${teamLabel}  Lv.${unit.getLevel()}  ${unit.classType}`;
-        panel.appendChild(teamEl);
-
-        // ── Element Types ──
-        if (unit.elementTypes.length > 0) {
-            const elemEl = document.createElement('div');
-            elemEl.style.cssText = 'margin-bottom:6px;';
-            for (const elem of unit.elementTypes) {
-                const badge = document.createElement('span');
-                const ec = ELEMENT_COLORS_PANEL[elem] || '#888';
-                badge.style.cssText = `
-                    display:inline-block;padding:1px 5px;margin-right:3px;
-                    border-radius:3px;font-size:9px;font-weight:bold;
-                    background:${ec};color:#fff;
-                `;
-                badge.textContent = elem;
-                elemEl.appendChild(badge);
-            }
-            panel.appendChild(elemEl);
-        }
-
-        // ── Evolution Stage ──
-        const evoEl = document.createElement('div');
-        evoEl.style.cssText = 'font-size:10px;color:#aaa;margin-bottom:6px;';
-        const stageNames = { 1: 'Base', 2: 'Evolved', 3: 'Final' };
-        const stageName = stageNames[unit.evolutionStage] || `Stage ${unit.evolutionStage}`;
-        const stageStars = '\u2605'.repeat(unit.evolutionStage);
-        evoEl.innerHTML = `Evolution: <span style="color:#ffcc44">${stageName} ${stageStars}</span>`;
-        panel.appendChild(evoEl);
-
-        // ── HP Bar ──
-        const hpFrac = unit.getHpFraction();
-        const hpColor = hpFrac > 0.5 ? '#33cc66' : hpFrac > 0.25 ? '#cccc33' : '#cc3333';
-        const hpBarContainer = document.createElement('div');
-        hpBarContainer.style.cssText = 'margin-bottom:8px;';
-        hpBarContainer.innerHTML = `
-            <div style="font-size:9px;color:#888;margin-bottom:2px;">
-                HP: ${unit.currentHp}/${unit.maxHp}
-            </div>
-            <div style="width:100%;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">
-                <div style="width:${hpFrac * 100}%;height:100%;background:${hpColor};border-radius:3px;"></div>
-            </div>
-        `;
-        panel.appendChild(hpBarContainer);
-
-        // ── Stats ──
-        const statsHeader = document.createElement('div');
-        statsHeader.style.cssText = 'font-size:10px;font-weight:bold;color:#aaa;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:2px;';
-        statsHeader.textContent = 'STATS';
-        panel.appendChild(statsHeader);
-
-        const statsGrid = document.createElement('div');
-        statsGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;margin-bottom:8px;';
-        const es = unit.effectiveStats;
-        const statEntries = [
-            { key: 'atk', label: 'ATK', color: '#ff7744' },
-            { key: 'def', label: 'DEF', color: '#4488ff' },
-            { key: 'sp_atk', label: 'SP.ATK', color: '#cc44ff' },
-            { key: 'sp_def', label: 'SP.DEF', color: '#44ccaa' },
-            { key: 'spd', label: 'SPD', color: '#ffcc33' },
-        ];
-        for (const s of statEntries) {
-            const row = document.createElement('div');
-            row.style.cssText = 'display:flex;justify-content:space-between;font-size:9px;';
-            row.innerHTML = `<span style="color:#888">${s.label}</span><span style="color:${s.color};font-weight:bold">${Math.floor(es[s.key] || 0)}</span>`;
-            statsGrid.appendChild(row);
-        }
-        // Move speed + attack range
-        const moveRow = document.createElement('div');
-        moveRow.style.cssText = 'display:flex;justify-content:space-between;font-size:9px;';
-        moveRow.innerHTML = `<span style="color:#888">MOVE</span><span style="color:#88cc88;font-weight:bold">${Math.floor(unit.moveSpeed)}</span>`;
-        statsGrid.appendChild(moveRow);
-        panel.appendChild(statsGrid);
-
-        // ── Targeting Style ──
-        const targetHeader = document.createElement('div');
-        targetHeader.style.cssText = 'font-size:10px;font-weight:bold;color:#aaa;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:2px;';
-        targetHeader.textContent = 'TARGETING';
-        panel.appendChild(targetHeader);
-
-        const targetEl = document.createElement('div');
-        targetEl.style.cssText = 'font-size:9px;margin-bottom:8px;';
-        const rangeType = unit.isRanged ? 'Ranged' : 'Melee';
-        const rangeColor = unit.isRanged ? '#88ccff' : '#ff8844';
-        targetEl.innerHTML = `
-            <div style="margin-bottom:2px;">
-                Type: <span style="color:${rangeColor};font-weight:bold">${rangeType}</span>
-                (${unit.attackRange}px range)
-            </div>
-            <div style="color:#999;">
-                Cooldown: ${unit.attackRate.toFixed(1)}s
-            </div>
-        `;
-        panel.appendChild(targetEl);
-
-        // ── Equipment ──
-        const equipData = unit.equipment || {};
-        const equipSlots = Object.keys(equipData).filter(k => !!equipData[k]);
-        if (equipSlots.length > 0) {
-            const eqHeader = document.createElement('div');
-            eqHeader.style.cssText = 'font-size:10px;font-weight:bold;color:#aaa;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:2px;';
-            eqHeader.textContent = 'EQUIPMENT';
-            panel.appendChild(eqHeader);
-
-            // Sprite preview with equipment
-            const eqPreviewCanvas = document.createElement('canvas');
-            eqPreviewCanvas.width = 48;
-            eqPreviewCanvas.height = 48;
-            eqPreviewCanvas.style.cssText = 'display:block;margin:0 auto 6px auto;image-rendering:pixelated;';
-            const epCtx = eqPreviewCanvas.getContext('2d');
-            HumanoidSpriteSystem.drawWithEquipment(
-                epCtx, unit.raceId, unit.evolutionStage, unit.facing, 0,
-                24, 44, 40, { equipment: equipData }
-            );
-            panel.appendChild(eqPreviewCanvas);
-
-            // Equipment slot list
-            const RARITY_COLORS_PANEL = {
-                common: '#888888', uncommon: '#33cc66', rare: '#3399ff', epic: '#aa44ff', legendary: '#ffaa00',
-            };
-            const SLOT_ICONS = {
-                helmet: '\u26D1', weapon: '\u2694', chest: '\u{1F6E1}', gloves: '\u{1F9E4}',
-                legs: '\u{1F456}', boots: '\u{1F462}', ring: '\u{1F48D}', amulet: '\u{1F4FF}', crystal: '\u{1F48E}',
-            };
-            for (const slot of equipSlots) {
-                const eqId = equipData[slot];
-                const eqInfo = EQUIPMENT.find(e => e.equipment_id === eqId);
-                if (!eqInfo) continue;
-                const rc = RARITY_COLORS_PANEL[eqInfo.rarity] || '#888';
-                const eqEl = document.createElement('div');
-                eqEl.style.cssText = 'font-size:9px;margin-bottom:2px;display:flex;align-items:center;gap:3px;';
-                eqEl.innerHTML = `<span>${SLOT_ICONS[slot] || ''}</span><span style="color:${rc};font-weight:bold">${eqInfo.equipment_name}</span>`;
-                panel.appendChild(eqEl);
-            }
-
-            const eqSpacer = document.createElement('div');
-            eqSpacer.style.cssText = 'margin-bottom:6px;';
-            panel.appendChild(eqSpacer);
-        }
-
-        // ── Abilities ──
-        if (unit.equippedAbilities.length > 0) {
-            const abHeader = document.createElement('div');
-            abHeader.style.cssText = 'font-size:10px;font-weight:bold;color:#aaa;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:2px;';
-            abHeader.textContent = 'ABILITIES';
-            panel.appendChild(abHeader);
-
-            for (const abilityId of unit.equippedAbilities) {
-                const ability = ABILITIES[abilityId];
-                if (!ability) continue;
-
-                const abEl = document.createElement('div');
-                abEl.style.cssText = 'margin-bottom:4px;padding:3px 4px;background:rgba(255,255,255,0.04);border-radius:3px;';
-
-                const elemColor = ELEMENT_COLORS_PANEL[ability.element_type] || '#888';
-                const targetType = ability.targeting_type || 'single';
-                const isPhys = ability.is_physical ? 'Physical' : 'Special';
-
-                abEl.innerHTML = `
-                    <div style="font-size:10px;font-weight:bold;color:#ddd;">
-                        <span style="color:${elemColor};">\u25CF</span> ${ability.ability_name}
-                    </div>
-                    <div style="font-size:8px;color:#999;margin-top:1px;">
-                        ${ability.element_type} | ${isPhys} | ${targetType}
-                        ${ability.base_power ? ` | Pwr: ${ability.base_power}` : ''}
-                        ${ability.accuracy ? ` | Acc: ${Math.round(ability.accuracy * 100)}%` : ''}
-                    </div>
-                `;
-                panel.appendChild(abEl);
-            }
-        }
-
-        this._unitInfoPanelEl = panel;
-        this._domContainer.appendChild(panel);
+        this._inspectPanel.show(this._domContainer, unit, {
+            isBattleUnit: true,
+            position: 'left',
+            onClose: () => this._deselectUnit(),
+        });
     }
 
     /** Remove the unit info panel from the DOM. */
     _hideUnitInfoPanel() {
-        if (this._unitInfoPanelEl && this._unitInfoPanelEl.parentNode) {
-            this._unitInfoPanelEl.parentNode.removeChild(this._unitInfoPanelEl);
-        }
-        this._unitInfoPanelEl = null;
+        this._inspectPanel.hide();
     }
 
     // ═══════════════════════════════════════════════════════════════

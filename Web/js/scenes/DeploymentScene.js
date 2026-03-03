@@ -16,6 +16,7 @@ import { BattleGrid } from '../systems/battle/BattleGrid.js';
 import { SPRITE_RACES } from '../data/SpriteData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
 import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { SpriteInspectPanel } from '../systems/ui/SpriteInspectPanel.js';
 
 function _getSpriteName(inst) {
     if (!inst) return '???';
@@ -79,6 +80,7 @@ export class DeploymentScene extends Scene {
 
         // ── Detail panel data ─────────────────────────────────────────
         this._detailSprite = null;
+        this._inspectPanel = new SpriteInspectPanel();
 
         // ── DOM references ────────────────────────────────────────────
         this._domContainer = null;
@@ -148,6 +150,8 @@ export class DeploymentScene extends Scene {
             if (typeof unsub === 'function') unsub();
         }
         this._unsubs = [];
+
+        this._inspectPanel.hide();
 
         if (this._domContainer && this._domContainer.parentNode) {
             this._domContainer.parentNode.removeChild(this._domContainer);
@@ -764,10 +768,9 @@ export class DeploymentScene extends Scene {
         this._detailPanelEl.id = 'deployment-detail';
         this._detailPanelEl.style.cssText = `
             position:absolute;bottom:52px;right:4px;
-            width:${ROSTER_PANEL_WIDTH}px;height:${DETAIL_PANEL_HEIGHT}px;
-            background:rgba(0,0,0,0.7);border-radius:8px;
-            border:1px solid rgba(255,255,255,0.1);
-            pointer-events:auto;overflow-y:auto;padding:8px;
+            width:280px;
+            max-height:${this.engine.designHeight - 120}px;
+            pointer-events:auto;overflow-y:auto;
         `;
         this._domContainer.appendChild(this._detailPanelEl);
 
@@ -842,132 +845,32 @@ export class DeploymentScene extends Scene {
 
     _refreshDetailPanel() {
         if (!this._detailPanelEl) return;
-        this._detailPanelEl.innerHTML = '';
 
         const sprite = this._detailSprite;
         if (!sprite) {
-            const placeholder = document.createElement('div');
-            placeholder.style.cssText = 'color:#666;font-size:0.7rem;text-align:center;padding-top:40px;';
-            placeholder.textContent = 'Tap a sprite to view details';
-            this._detailPanelEl.appendChild(placeholder);
+            this._inspectPanel.hide();
             return;
         }
 
-        const inst = sprite.instance || sprite;
-        const raceData = sprite.raceData;
-        const stageData = sprite.stageData;
-        const abilities = sprite.abilities || [];
-
-        // Determine if this sprite is an enemy
         const isEnemy = this._enemyTeamData.includes(sprite);
-
-        // ── Sprite preview canvas (humanoid sprite with equipment) ──
-        const detailCanvas = document.createElement('canvas');
-        detailCanvas.width = 64;
-        detailCanvas.height = 72;
-        detailCanvas.style.cssText = 'width:64px;height:72px;display:block;margin:0 auto 4px;image-rendering:pixelated;';
-        const dCtx = detailCanvas.getContext('2d');
-        const previewRaceId = inst.raceId || inst.race_id || 1;
-        const previewStage = inst.evolutionStage || inst.evolution_stage || 1;
-        const previewEquip = inst.equipment || {};
-        HumanoidSpriteSystem.drawWithEquipment(
-            dCtx, previewRaceId, previewStage, 0, 0,
-            32, 60, 48,
-            { equipment: previewEquip }
-        );
-        this._detailPanelEl.appendChild(detailCanvas);
-
-        // ── Equipment display (paper-doll layout) ────────────────────
-        const equipment = inst.equipment || (sprite.equipment) || {};
-        if (Object.keys(equipment).length > 0) {
-            const eqDisplay = UnitRenderer.createEquipmentDisplay(equipment, 80);
-            eqDisplay.style.margin = '4px auto';
-            this._detailPanelEl.appendChild(eqDisplay);
-        }
-
-        // Enemy label
-        if (isEnemy) {
-            const enemyLabel = document.createElement('div');
-            enemyLabel.style.cssText = 'font-size:0.6rem;font-weight:700;color:#ff4444;text-transform:uppercase;margin-bottom:2px;';
-            enemyLabel.textContent = 'Enemy';
-            this._detailPanelEl.appendChild(enemyLabel);
-        }
-
-        // Name (red-tinted for enemies, gold for player sprites)
-        const name = document.createElement('div');
-        name.style.cssText = `font-size:0.85rem;font-weight:700;color:${isEnemy ? '#ff6655' : '#ffcc33'};margin-bottom:4px;`;
-        name.textContent = _getSpriteName(inst);
-        this._detailPanelEl.appendChild(name);
-
-        // Level + Elements
-        const elemTypes = raceData ? (raceData.element_types || raceData.elementTypes || []) : [];
-        const infoLine = document.createElement('div');
-        infoLine.style.cssText = 'font-size:0.65rem;color:#aaa;margin-bottom:6px;';
-        infoLine.textContent = `Lv${inst ? inst.level || 1 : '?'} | ${elemTypes.join(' / ') || '???'}`;
-        this._detailPanelEl.appendChild(infoLine);
-
-        // Stats (if calculable)
-        if (inst && raceData && stageData && inst.calculateAllEffectiveStats) {
-            const stats = inst.calculateAllEffectiveStats(raceData, stageData);
-            const statsDiv = document.createElement('div');
-            statsDiv.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:0.6rem;margin-bottom:6px;';
-            const statKeys = [
-                { key: 'hp', label: 'HP' }, { key: 'atk', label: 'ATK' },
-                { key: 'def', label: 'DEF' }, { key: 'spd', label: 'SPD' },
-                { key: 'sp_atk', label: 'SP.ATK' }, { key: 'sp_def', label: 'SP.DEF' },
-            ];
-            for (const s of statKeys) {
-                const statRow = document.createElement('div');
-                statRow.style.cssText = 'display:flex;justify-content:space-between;';
-                const label = document.createElement('span');
-                label.style.color = '#888';
-                label.textContent = s.label;
-                const value = document.createElement('span');
-                value.style.cssText = 'color:#ccddee;font-weight:600;';
-                value.textContent = `${Math.floor(stats[s.key] || 0)}`;
-                statRow.appendChild(label);
-                statRow.appendChild(value);
-                statsDiv.appendChild(statRow);
-            }
-            this._detailPanelEl.appendChild(statsDiv);
-        }
-
-        // Abilities list
-        if (abilities.length > 0) {
-            const abHeader = document.createElement('div');
-            abHeader.style.cssText = 'font-size:0.6rem;font-weight:700;color:#aaa;margin-bottom:3px;';
-            abHeader.textContent = 'Abilities';
-            this._detailPanelEl.appendChild(abHeader);
-
-            for (const ability of abilities) {
-                if (!ability) continue;
-                const elemColor = ELEMENT_COLORS[ability.elementType] || '#666';
-                const abRow = document.createElement('div');
-                abRow.style.cssText = `font-size:0.6rem;color:#ccccdd;padding:1px 0;border-left:2px solid ${elemColor};padding-left:4px;margin-bottom:1px;`;
-                const abilityName = ability.abilityName || `Ability #${ability.abilityId}`;
-                const power = ability.basePower ? ` Pwr:${ability.basePower}` : '';
-                abRow.textContent = `${abilityName}${power}`;
-                this._detailPanelEl.appendChild(abRow);
-            }
-        }
-
-        // Remove from deployment button (if deployed, player units only)
         const isDeployed = !isEnemy && this._deployedUnits.some(d => d.spriteData === sprite);
-        if (isDeployed) {
-            const removeBtn = document.createElement('button');
-            removeBtn.style.cssText = `
-                margin-top:6px;padding:4px 10px;font-size:0.6rem;
-                border:1px solid #aa4444;border-radius:4px;
-                background:rgba(120,30,30,0.5);color:#ffaaaa;
-                cursor:pointer;width:100%;
-            `;
-            removeBtn.textContent = 'Remove from Formation';
-            removeBtn.addEventListener('click', () => {
+
+        this._inspectPanel.show(this._detailPanelEl, sprite, {
+            position: 'right',
+            isEnemy,
+            isDeployed,
+            onClose: () => {
+                this._detailSprite = null;
+                this._selectedDeployedIndex = -1;
+                this._selectedRosterIndex = -1;
+                this._refreshRosterPanel();
+            },
+            onRemove: isDeployed ? () => {
                 const idx = this._deployedUnits.findIndex(d => d.spriteData === sprite);
                 if (idx >= 0) this._removeDeployedUnit(idx);
-            });
-            this._detailPanelEl.appendChild(removeBtn);
-        }
+            } : null,
+            onDeposit: null,
+        });
     }
 
     _refreshStartButton() {
