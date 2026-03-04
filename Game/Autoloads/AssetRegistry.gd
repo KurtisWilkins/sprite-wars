@@ -10,16 +10,16 @@ extends Node
 const ELEMENT_ICONS: Dictionary = {
 	"Fire": "res://Sprites/ElementIcons/FireElement.png",
 	"Water": "res://Sprites/ElementIcons/WaterElement.png",
-	"Nature": "res://Sprites/ElementIcons/GrassElement.png",
+	"Plant": "res://Sprites/ElementIcons/GrassElement.png",
 	"Ice": "res://Sprites/ElementIcons/IceElement.png",
-	"Air": "res://Sprites/ElementIcons/WindElement.png",
+	"Wind": "res://Sprites/ElementIcons/WindElement.png",
 	"Earth": "res://Sprites/ElementIcons/RockElement.png",
 	"Electric": "res://Sprites/ElementIcons/LightingElement.png",
 	"Dark": "res://Sprites/ElementIcons/DarkElement.png",
 	"Light": "res://Sprites/ElementIcons/LightElement.png",
-	"Psychic": "res://Sprites/ElementIcons/FairyElement.png",
-	"Spirit": "res://Sprites/ElementIcons/LunarElement.png",
-	"Chaos": "res://Sprites/ElementIcons/SolarElement.png",
+	"Fairy": "res://Sprites/ElementIcons/FairyElement.png",
+	"Solar": "res://Sprites/ElementIcons/LunarElement.png",
+	"Lunar": "res://Sprites/ElementIcons/SolarElement.png",
 	"Metal": "res://Sprites/ElementIcons/RockElement.png",
 	"Poison": "res://Sprites/ElementIcons/GrassElement.png",
 }
@@ -31,99 +31,99 @@ const ELEMENT_ICONS: Dictionary = {
 # 24 races x 3 evolution stages = 72 forms
 # ---------------------------------------------------------------------------
 const CHARACTER_SPRITES: Dictionary = {
-	# Race 1 — Emberpaw (Fire / Berserker)
+	# Race 1 — Bug Man (Fire / Barbarian)
 	1: "res://Sprites/Monsters/Slime.png",
 	2: "res://Sprites/Monsters/Slime.png",
 	3: "res://Sprites/Monsters/Slime.png",
-	# Race 2 — Tidalfin (Water / Guardian)
+	# Race 2 — Bear Man (Water / Paladin)
 	4: "res://Sprites/Monsters/Snake.png",
 	5: "res://Sprites/Monsters/Snake.png",
 	6: "res://Sprites/Monsters/Snake.png",
-	# Race 3 — Thornvine (Nature / Ranger)
+	# Race 3 — Bird Man (Plant / Javelin)
 	7: "res://Sprites/Monsters/Bug.png",
 	8: "res://Sprites/Monsters/Bug.png",
 	9: "res://Sprites/Monsters/Bug.png",
-	# Race 4 — Frostfang (Ice / Assassin)
+	# Race 4 — Demon (Ice / Assassin)
 	10: "res://Sprites/Monsters/Bat.png",
 	11: "res://Sprites/Monsters/Bat.png",
 	12: "res://Sprites/Monsters/Bat.png",
-	# Race 5 — Galecrest (Air / Archer)
+	# Race 5 — Devil (Wind / Archer)
 	13: "res://Sprites/Monsters/Crow.png",
 	14: "res://Sprites/Monsters/Crow.png",
 	15: "res://Sprites/Monsters/Crow.png",
-	# Race 6 — Terraclaw (Earth / Knight)
+	# Race 6 — Cat Man (Earth / Fighter)
 	16: "res://Sprites/Monsters/Gourmet.png",
 	17: "res://Sprites/Monsters/Gourmet.png",
 	18: "res://Sprites/Monsters/Gourmet.png",
-	# Race 7 — Voltail (Electric / Wizard)
+	# Race 7 — Elf (Electric / Wizard)
 	19: "res://Sprites/Monsters/Bee.png",
 	20: "res://Sprites/Monsters/Bee.png",
 	21: "res://Sprites/Monsters/Bee.png",
-	# Race 8 — Gloomshade (Dark / Assassin)
+	# Race 8 — Ent (Dark / Assassin)
 	22: "res://Sprites/Monsters/Bat.png",
 	23: "res://Sprites/Monsters/Bat.png",
 	24: "res://Sprites/Monsters/Bat.png",
-	# Race 9 — Luminos (Light / Cleric)
+	# Race 9 — Fish Man (Light / Cleric)
 	25: "res://Sprites/Monsters/Bee.png",
 	26: "res://Sprites/Monsters/Bee.png",
 	27: "res://Sprites/Monsters/Bee.png",
-	# Race 10 — Glimmerwing (Psychic / Summoner)
+	# Race 10 — Ghost (Fairy / Alchemist)
 	28: "res://Sprites/Monsters/Bee.png",
 	29: "res://Sprites/Monsters/Bee.png",
 	30: "res://Sprites/Monsters/Bee.png",
-	# Race 11 — Spectrail (Spirit / Wizard)
+	# Race 11 — Golem (Solar / Wizard)
 	31: "res://Sprites/Monsters/Snake.png",
 	32: "res://Sprites/Monsters/Snake.png",
 	33: "res://Sprites/Monsters/Snake.png",
-	# Race 12 — Ignisurge (Chaos / Berserker)
+	# Race 12 — Human (Lunar / Barbarian)
 	34: "res://Sprites/Monsters/Slime.png",
 	35: "res://Sprites/Monsters/Slime.png",
 	36: "res://Sprites/Monsters/Slime.png",
-	# Race 13 — Ironhusk (Metal / Knight)
+	# Race 13 — Lizard Man (Metal / Fighter)
 	37: "res://Sprites/Monsters/Bug.png",
 	38: "res://Sprites/Monsters/Bug.png",
 	39: "res://Sprites/Monsters/Bug.png",
-	# Race 14 — Venomire (Poison / Ranger)
+	# Race 14 — Minotaur (Poison / Javelin)
 	40: "res://Sprites/Monsters/Snake.png",
 	41: "res://Sprites/Monsters/Snake.png",
 	42: "res://Sprites/Monsters/Snake.png",
-	# Race 15 — Blazeguard (Fire / Guardian)
+	# Race 15 — Monkey Man (Fire / Paladin)
 	43: "res://Sprites/Monsters/Gourmet.png",
 	44: "res://Sprites/Monsters/Gourmet.png",
 	45: "res://Sprites/Monsters/Gourmet.png",
-	# Race 16 — Aquashot (Water / Archer)
+	# Race 16 — Mummy (Water / Archer)
 	46: "res://Sprites/Monsters/Crow.png",
 	47: "res://Sprites/Monsters/Crow.png",
 	48: "res://Sprites/Monsters/Crow.png",
-	# Race 17 — Pyrovolt (Fire+Electric / Wizard)
+	# Race 17 — Ork (Fire+Electric / Wizard)
 	49: "res://Sprites/Monsters/Slime.png",
 	50: "res://Sprites/Monsters/Slime.png",
 	51: "res://Sprites/Monsters/Slime.png",
-	# Race 18 — Venomthorn (Poison+Nature / Spearman)
+	# Race 18 — Rat Man (Poison+Plant / Spearman)
 	52: "res://Sprites/Monsters/Bug.png",
 	53: "res://Sprites/Monsters/Bug.png",
 	54: "res://Sprites/Monsters/Bug.png",
-	# Race 19 — Shadowflare (Dark+Fire / Spearman)
+	# Race 19 — Robot (Dark+Fire / Spearman)
 	55: "res://Sprites/Monsters/Bat.png",
 	56: "res://Sprites/Monsters/Bat.png",
 	57: "res://Sprites/Monsters/Bat.png",
-	# Race 20 — Crystalmist (Ice+Psychic / Cleric)
+	# Race 20 — Shark Man (Ice+Fairy / Cleric)
 	58: "res://Sprites/Monsters/Crow.png",
 	59: "res://Sprites/Monsters/Crow.png",
 	60: "res://Sprites/Monsters/Crow.png",
-	# Race 21 — Ironstorm (Metal+Air / Berserker)
+	# Race 21 — Skeleton (Metal+Wind / Barbarian)
 	61: "res://Sprites/Monsters/Crow.png",
 	62: "res://Sprites/Monsters/Crow.png",
 	63: "res://Sprites/Monsters/Crow.png",
-	# Race 22 — Spiritbloom (Spirit+Nature / Summoner)
+	# Race 22 — Turtle Man (Solar+Plant / Alchemist)
 	64: "res://Sprites/Monsters/Bug.png",
 	65: "res://Sprites/Monsters/Bug.png",
 	66: "res://Sprites/Monsters/Bug.png",
-	# Race 23 — Solarius (Light+Chaos / Guardian) — legendary phoenix
+	# Race 23 — Wolf Man (Light+Lunar / Paladin) — legendary phoenix
 	67: "res://Sprites/Characters/Character 1.png",
 	68: "res://Sprites/Characters/Character 1.png",
 	69: "res://Sprites/Characters/Character 1.png",
-	# Race 24 — Eclipsar (Dark+Spirit / Summoner) — legendary dragon
+	# Race 24 — Zombie (Dark+Solar / Alchemist) — legendary dragon
 	70: "res://Sprites/Characters/Character 2.png",
 	71: "res://Sprites/Characters/Character 2.png",
 	72: "res://Sprites/Characters/Character 2.png",
@@ -158,7 +158,7 @@ const ABILITY_ICONS: Dictionary = {
 	20: "res://Sprites/AbilityIcons/icons 1/sk1_chain_A.png",
 	21: "res://Sprites/AbilityIcons/icons 1/sk1_empower_A.png",
 	22: "res://Sprites/AbilityIcons/icons 1/sk1_dash_A.png",
-	# --- Nature / Plant abilities (IDs 23-33) -> Druid ---
+	# --- Plant abilities (IDs 23-33) -> Druid ---
 	23: "res://Sprites/AbilityIcons/Druid/PNG/Icon1.png",
 	24: "res://Sprites/AbilityIcons/Druid/PNG/Icon2.png",
 	25: "res://Sprites/AbilityIcons/Druid/PNG/Icon3.png",
@@ -182,7 +182,7 @@ const ABILITY_ICONS: Dictionary = {
 	42: "res://Sprites/AbilityIcons/Cryomancer/PNG/Icon9.png",
 	43: "res://Sprites/AbilityIcons/Cryomancer/PNG/Icon10.png",
 	44: "res://Sprites/AbilityIcons/Cryomancer/PNG/Icon11.png",
-	# --- Air / Wind abilities (IDs 45-55) -> Aeromancer ---
+	# --- Wind abilities (IDs 45-55) -> Aeromancer ---
 	45: "res://Sprites/AbilityIcons/Aeromancer/PNG/Icon1Aeromancer.png",
 	46: "res://Sprites/AbilityIcons/Aeromancer/PNG/Icon10Aeromancer.png",
 	47: "res://Sprites/AbilityIcons/Aeromancer/PNG/Icon11Aeromancer.png",
@@ -242,7 +242,7 @@ const ABILITY_ICONS: Dictionary = {
 	97: "res://Sprites/AbilityIcons/Paladin/PNG/Icon9.png",
 	98: "res://Sprites/AbilityIcons/Paladin/PNG/Icon10.png",
 	99: "res://Sprites/AbilityIcons/Paladin/PNG/Icon11.png",
-	# --- Psychic / Fairy abilities (IDs 100-110) -> Fairy skills ---
+	# --- Fairy abilities (IDs 100-110) -> Fairy skills ---
 	100: "res://Sprites/AbilityIcons/Fairy skills/PNG/Icon1.png",
 	101: "res://Sprites/AbilityIcons/Fairy skills/PNG/Icon2.png",
 	102: "res://Sprites/AbilityIcons/Fairy skills/PNG/Icon3.png",
@@ -254,7 +254,7 @@ const ABILITY_ICONS: Dictionary = {
 	108: "res://Sprites/AbilityIcons/Fairy skills/PNG/Icon9.png",
 	109: "res://Sprites/AbilityIcons/Fairy skills/PNG/Icon10.png",
 	110: "res://Sprites/AbilityIcons/Fairy skills/PNG/Icon11.png",
-	# --- Spirit / Lunar abilities (IDs 111-121) -> Curse ---
+	# --- Solar abilities (IDs 111-121) -> Curse ---
 	111: "res://Sprites/AbilityIcons/Curse/PNG/Icon1.png",
 	112: "res://Sprites/AbilityIcons/Curse/PNG/Icon2.png",
 	113: "res://Sprites/AbilityIcons/Curse/PNG/Icon3.png",
@@ -266,7 +266,7 @@ const ABILITY_ICONS: Dictionary = {
 	119: "res://Sprites/AbilityIcons/Curse/PNG/Icon9.png",
 	120: "res://Sprites/AbilityIcons/Curse/PNG/Icon10.png",
 	121: "res://Sprites/AbilityIcons/Curse/PNG/Icon11.png",
-	# --- Chaos / Solar abilities (IDs 122-132) -> Demon_skills ---
+	# --- Lunar abilities (IDs 122-132) -> Demon_skills ---
 	122: "res://Sprites/AbilityIcons/Demon_skills/PNG/Icon1.png",
 	123: "res://Sprites/AbilityIcons/Demon_skills/PNG/Icon2.png",
 	124: "res://Sprites/AbilityIcons/Demon_skills/PNG/Icon3.png",
@@ -321,21 +321,21 @@ const ABILITY_VFX: Dictionary = {
 	"Fire_alt": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 17",
 	"Water": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 18",
 	"Water_alt": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 19",
-	"Nature": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 20",
-	"Nature_alt": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 21",
+	"Plant": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 20",
+	"Plant_alt": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 21",
 	"Ice": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 22",
 	"Ice_alt": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 23",
-	"Air": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 24",
-	"Air_alt": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 25",
+	"Wind": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 24",
+	"Wind_alt": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 25",
 	"Earth": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 26",
 	"Earth_alt": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 27",
 	"Electric": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 28",
 	"Electric_alt": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 29",
 	"Dark": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 30",
 	"Light": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 31",
-	"Psychic": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 32",
-	"Spirit": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 33",
-	"Chaos": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 34",
+	"Fairy": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 32",
+	"Solar": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 33",
+	"Lunar": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 34",
 	"Metal": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 35",
 	"Poison": "res://Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 36",
 }
@@ -364,16 +364,16 @@ const EQUIPMENT_SLOT_ICONS: Dictionary = {
 	# Weapon icons by element theme
 	"weapon_fire": "res://Sprites/Weapons/Fire Theme.png",
 	"weapon_water": "res://Sprites/Weapons/Water Theme.png",
-	"weapon_nature": "res://Sprites/Weapons/Forest Theme.png",
+	"weapon_plant": "res://Sprites/Weapons/Forest Theme.png",
 	"weapon_ice": "res://Sprites/Weapons/Water Theme.png",
-	"weapon_air": "res://Sprites/Weapons/Fairy Theme.png",
+	"weapon_wind": "res://Sprites/Weapons/Fairy Theme.png",
 	"weapon_earth": "res://Sprites/Weapons/Rock Theme.png",
 	"weapon_electric": "res://Sprites/Weapons/Electric Theme.png",
 	"weapon_dark": "res://Sprites/Weapons/Demon Theme.png",
 	"weapon_light": "res://Sprites/Weapons/Golden Angel Theme.png",
-	"weapon_psychic": "res://Sprites/Weapons/Fairy Theme.png",
-	"weapon_spirit": "res://Sprites/Weapons/Lunar Theme.png",
-	"weapon_chaos": "res://Sprites/Weapons/Demon Theme.png",
+	"weapon_fairy": "res://Sprites/Weapons/Fairy Theme.png",
+	"weapon_solar": "res://Sprites/Weapons/Lunar Theme.png",
+	"weapon_lunar": "res://Sprites/Weapons/Demon Theme.png",
 	"weapon_metal": "res://Sprites/Weapons/English Knight Theme.png",
 	"weapon_poison": "res://Sprites/Weapons/Bug Theme.png",
 	"weapon_default": "res://Sprites/Weapons/Peasant 1 Theme.png",
@@ -631,30 +631,30 @@ const FALLBACK_VFX: String = "res://Sprites/Effects/attack.png"
 # Maps race_id -> { name, base_sprite, element(s) }
 # ---------------------------------------------------------------------------
 const RACE_META: Dictionary = {
-	1: { "name": "Emberpaw", "elements": ["Fire"], "class": "Berserker" },
-	2: { "name": "Tidalfin", "elements": ["Water"], "class": "Guardian" },
-	3: { "name": "Thornvine", "elements": ["Nature"], "class": "Ranger" },
-	4: { "name": "Frostfang", "elements": ["Ice"], "class": "Assassin" },
-	5: { "name": "Galecrest", "elements": ["Air"], "class": "Archer" },
-	6: { "name": "Terraclaw", "elements": ["Earth"], "class": "Knight" },
-	7: { "name": "Voltail", "elements": ["Electric"], "class": "Wizard" },
-	8: { "name": "Gloomshade", "elements": ["Dark"], "class": "Assassin" },
-	9: { "name": "Luminos", "elements": ["Light"], "class": "Cleric" },
-	10: { "name": "Glimmerwing", "elements": ["Psychic"], "class": "Summoner" },
-	11: { "name": "Spectrail", "elements": ["Spirit"], "class": "Wizard" },
-	12: { "name": "Ignisurge", "elements": ["Chaos"], "class": "Berserker" },
-	13: { "name": "Ironhusk", "elements": ["Metal"], "class": "Knight" },
-	14: { "name": "Venomire", "elements": ["Poison"], "class": "Ranger" },
-	15: { "name": "Blazeguard", "elements": ["Fire"], "class": "Guardian" },
-	16: { "name": "Aquashot", "elements": ["Water"], "class": "Archer" },
-	17: { "name": "Pyrovolt", "elements": ["Fire", "Electric"], "class": "Wizard" },
-	18: { "name": "Venomthorn", "elements": ["Poison", "Nature"], "class": "Spearman" },
-	19: { "name": "Shadowflare", "elements": ["Dark", "Fire"], "class": "Spearman" },
-	20: { "name": "Crystalmist", "elements": ["Ice", "Psychic"], "class": "Cleric" },
-	21: { "name": "Ironstorm", "elements": ["Metal", "Air"], "class": "Berserker" },
-	22: { "name": "Spiritbloom", "elements": ["Spirit", "Nature"], "class": "Summoner" },
-	23: { "name": "Solarius", "elements": ["Light", "Chaos"], "class": "Guardian" },
-	24: { "name": "Eclipsar", "elements": ["Dark", "Spirit"], "class": "Summoner" },
+	1: { "name": "Bug Man", "elements": ["Fire"], "class": "Barbarian" },
+	2: { "name": "Bear Man", "elements": ["Water"], "class": "Paladin" },
+	3: { "name": "Bird Man", "elements": ["Plant"], "class": "Javelin" },
+	4: { "name": "Demon", "elements": ["Ice"], "class": "Assassin" },
+	5: { "name": "Devil", "elements": ["Wind"], "class": "Archer" },
+	6: { "name": "Cat Man", "elements": ["Earth"], "class": "Fighter" },
+	7: { "name": "Elf", "elements": ["Electric"], "class": "Wizard" },
+	8: { "name": "Ent", "elements": ["Dark"], "class": "Assassin" },
+	9: { "name": "Fish Man", "elements": ["Light"], "class": "Cleric" },
+	10: { "name": "Ghost", "elements": ["Fairy"], "class": "Alchemist" },
+	11: { "name": "Golem", "elements": ["Solar"], "class": "Wizard" },
+	12: { "name": "Human", "elements": ["Lunar"], "class": "Barbarian" },
+	13: { "name": "Lizard Man", "elements": ["Metal"], "class": "Fighter" },
+	14: { "name": "Minotaur", "elements": ["Poison"], "class": "Javelin" },
+	15: { "name": "Monkey Man", "elements": ["Fire"], "class": "Paladin" },
+	16: { "name": "Mummy", "elements": ["Water"], "class": "Archer" },
+	17: { "name": "Ork", "elements": ["Fire", "Electric"], "class": "Wizard" },
+	18: { "name": "Rat Man", "elements": ["Poison", "Plant"], "class": "Spearman" },
+	19: { "name": "Robot", "elements": ["Dark", "Fire"], "class": "Spearman" },
+	20: { "name": "Shark Man", "elements": ["Ice", "Fairy"], "class": "Cleric" },
+	21: { "name": "Skeleton", "elements": ["Metal", "Wind"], "class": "Barbarian" },
+	22: { "name": "Turtle Man", "elements": ["Solar", "Plant"], "class": "Alchemist" },
+	23: { "name": "Wolf Man", "elements": ["Light", "Lunar"], "class": "Paladin" },
+	24: { "name": "Zombie", "elements": ["Dark", "Solar"], "class": "Alchemist" },
 }
 
 

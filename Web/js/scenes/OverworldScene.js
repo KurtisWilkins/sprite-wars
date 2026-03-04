@@ -1024,7 +1024,7 @@ export class OverworldScene extends Scene {
             collisionMap: collision,
             defaultSpawn: { x: 16, y: 1 },
             npcs: [
-                { id:'trainer_kai', name:'Ranger Kai', gridX:14, gridY:6, type:'trainer', facing:'right', spritePath:'Sprites/Characters/Viking2.png', dialogue:['Hold it right there, rookie!','The wilds ahead are dangerous. Let me test if you are ready!'], visionRange:5, visionDirection:{x:-1,y:0} },
+                { id:'trainer_kai', name:'Javelin Kai', gridX:14, gridY:6, type:'trainer', facing:'right', spritePath:'Sprites/Characters/Viking2.png', dialogue:['Hold it right there, rookie!','The wilds ahead are dangerous. Let me test if you are ready!'], visionRange:5, visionDirection:{x:-1,y:0} },
                 { id:'trainer_tim', name:'Bug Catcher Tim', gridX:6, gridY:5, type:'trainer', facing:'down', spritePath:'Sprites/Characters/Farmer3.png', dialogue:['Hey! You look like a new trainer!','Let me show you what my Bug-type Sprites can do!'], visionRange:4, visionDirection:{x:0,y:1} },
             ],
             transitions: [

@@ -43,7 +43,7 @@ export const TEMPLES = [
 		temple_type: "elemental",
 		dominant_element: "Fire",
 		dominant_class: "",
-		secondary_elements: ["Earth", "Chaos"],
+		secondary_elements: ["Earth", "Lunar"],
 		difficulty_tier: 2,
 		region_areas: [
 			{ area_name: "Molten Corridor", area_type: "corridor", encounter_table_id: 101, tileset_ref: "Sprites/Tiles/RogueAdventure/Cavern/RA_Cavern.png", ambient_audio_ref: "res://Audio/Sounds/lava_ambient.ogg", npc_data: [] },
@@ -67,7 +67,7 @@ export const TEMPLES = [
 		temple_type: "elemental",
 		dominant_element: "Water",
 		dominant_class: "",
-		secondary_elements: ["Ice", "Nature"],
+		secondary_elements: ["Ice", "Plant"],
 		difficulty_tier: 2,
 		region_areas: [
 			{ area_name: "Tidal Passage", area_type: "corridor", encounter_table_id: 201, tileset_ref: "Sprites/Tiles/RogueAdventure/Atlantis/RA_Atlantis.png", ambient_audio_ref: "res://Audio/Sounds/water_drip.ogg", npc_data: [] },
@@ -84,12 +84,12 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 3. Nature Temple ─────────────────────────────────────────────
+	// ── 3. Plant Temple ─────────────────────────────────────────────
 	{
 		temple_id: 3,
 		temple_name: "Verdant Sanctum",
 		temple_type: "elemental",
-		dominant_element: "Nature",
+		dominant_element: "Plant",
 		dominant_class: "",
 		secondary_elements: ["Water", "Earth"],
 		difficulty_tier: 3,
@@ -115,7 +115,7 @@ export const TEMPLES = [
 		temple_type: "elemental",
 		dominant_element: "Ice",
 		dominant_class: "",
-		secondary_elements: ["Water", "Air"],
+		secondary_elements: ["Water", "Wind"],
 		difficulty_tier: 4,
 		region_areas: [
 			{ area_name: "Frozen Corridor", area_type: "corridor", encounter_table_id: 401, tileset_ref: "Sprites/Tiles/RogueAdventure/Wasteland/RA_Wasteland.png", ambient_audio_ref: "res://Audio/Sounds/blizzard.ogg", npc_data: [] },
@@ -132,12 +132,12 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 5. Air Temple ────────────────────────────────────────────────
+	// ── 5. Wind Temple ────────────────────────────────────────────────
 	{
 		temple_id: 5,
 		temple_name: "Skyreach Spire",
 		temple_type: "elemental",
-		dominant_element: "Air",
+		dominant_element: "Wind",
 		dominant_class: "",
 		secondary_elements: ["Electric", "Ice"],
 		difficulty_tier: 3,
@@ -162,7 +162,7 @@ export const TEMPLES = [
 		temple_type: "elemental",
 		dominant_element: "Earth",
 		dominant_class: "",
-		secondary_elements: ["Metal", "Nature"],
+		secondary_elements: ["Metal", "Plant"],
 		difficulty_tier: 4,
 		region_areas: [
 			{ area_name: "Quarry Tunnel", area_type: "corridor", encounter_table_id: 601, tileset_ref: "Sprites/Tiles/RogueAdventure/Ruins/RA_Ruins.png", ambient_audio_ref: "res://Audio/Sounds/cave_drip.ogg", npc_data: [] },
@@ -186,7 +186,7 @@ export const TEMPLES = [
 		temple_type: "elemental",
 		dominant_element: "Electric",
 		dominant_class: "",
-		secondary_elements: ["Metal", "Air"],
+		secondary_elements: ["Metal", "Wind"],
 		difficulty_tier: 5,
 		region_areas: [
 			{ area_name: "Charged Hallway", area_type: "corridor", encounter_table_id: 701, tileset_ref: "Sprites/Tiles/RogueAdventure/Temple/RA_Temple.png", ambient_audio_ref: "res://Audio/Sounds/electric_hum.ogg", npc_data: [] },
@@ -210,7 +210,7 @@ export const TEMPLES = [
 		temple_type: "elemental",
 		dominant_element: "Dark",
 		dominant_class: "",
-		secondary_elements: ["Poison", "Spirit"],
+		secondary_elements: ["Poison", "Solar"],
 		difficulty_tier: 6,
 		region_areas: [
 			{ area_name: "Shadow Corridor", area_type: "corridor", encounter_table_id: 801, tileset_ref: "Sprites/Tiles/RogueAdventure/Crypt/RA_Crypt.png", ambient_audio_ref: "res://Audio/Sounds/dark_whisper.ogg", npc_data: [] },
@@ -234,7 +234,7 @@ export const TEMPLES = [
 		temple_type: "elemental",
 		dominant_element: "Light",
 		dominant_class: "",
-		secondary_elements: ["Psychic", "Spirit"],
+		secondary_elements: ["Fairy", "Solar"],
 		difficulty_tier: 5,
 		region_areas: [
 			{ area_name: "Luminous Hall", area_type: "corridor", encounter_table_id: 901, tileset_ref: "Sprites/Tiles/RogueAdventure/Sanctuary/RA_Sanctuary.png", ambient_audio_ref: "res://Audio/Sounds/choir_soft.ogg", npc_data: [] },
@@ -251,14 +251,14 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 10. Psychic Temple ───────────────────────────────────────────
+	// ── 10. Fairy Temple ───────────────────────────────────────────
 	{
 		temple_id: 10,
 		temple_name: "Mindrift Sanctum",
 		temple_type: "elemental",
-		dominant_element: "Psychic",
+		dominant_element: "Fairy",
 		dominant_class: "",
-		secondary_elements: ["Light", "Spirit"],
+		secondary_elements: ["Light", "Solar"],
 		difficulty_tier: 6,
 		region_areas: [
 			{ area_name: "Thought Corridor", area_type: "corridor", encounter_table_id: 1001, tileset_ref: "Sprites/Tiles/RogueAdventure/Pyramid/RA_Pyramid.png", ambient_audio_ref: "res://Audio/Sounds/psychic_drone.ogg", npc_data: [] },
@@ -275,14 +275,14 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 11. Spirit Temple ────────────────────────────────────────────
+	// ── 11. Solar Temple ────────────────────────────────────────────
 	{
 		temple_id: 11,
 		temple_name: "Ethereal Reliquary",
 		temple_type: "elemental",
-		dominant_element: "Spirit",
+		dominant_element: "Solar",
 		dominant_class: "",
-		secondary_elements: ["Dark", "Psychic"],
+		secondary_elements: ["Dark", "Fairy"],
 		difficulty_tier: 7,
 		region_areas: [
 			{ area_name: "Spectral Hall", area_type: "corridor", encounter_table_id: 1101, tileset_ref: "Sprites/Tiles/RogueAdventure/Graveyard/RA_Graveyard.png", ambient_audio_ref: "res://Audio/Sounds/ghost_wind.ogg", npc_data: [] },
@@ -299,12 +299,12 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 12. Chaos Temple ─────────────────────────────────────────────
+	// ── 12. Lunar Temple ─────────────────────────────────────────────
 	{
 		temple_id: 12,
 		temple_name: "Maelstrom Pinnacle",
 		temple_type: "elemental",
-		dominant_element: "Chaos",
+		dominant_element: "Lunar",
 		dominant_class: "",
 		secondary_elements: ["Fire", "Dark"],
 		difficulty_tier: 8,
@@ -354,7 +354,7 @@ export const TEMPLES = [
 		temple_type: "elemental",
 		dominant_element: "Poison",
 		dominant_class: "",
-		secondary_elements: ["Nature", "Dark"],
+		secondary_elements: ["Plant", "Dark"],
 		difficulty_tier: 5,
 		region_areas: [
 			{ area_name: "Miasma Tunnel", area_type: "corridor", encounter_table_id: 1401, tileset_ref: "Sprites/Tiles/RogueAdventure/BeastLair/RA_Beast.png", ambient_audio_ref: "res://Audio/Sounds/bubbling.ogg", npc_data: [] },
@@ -429,7 +429,7 @@ export const TEMPLES = [
 		temple_type: "class_based",
 		dominant_element: "",
 		dominant_class: "Archer",
-		secondary_elements: ["Air", "Water"],
+		secondary_elements: ["Wind", "Water"],
 		difficulty_tier: 3,
 		region_areas: [
 			{ area_name: "Target Corridor", area_type: "corridor", encounter_table_id: 1701, tileset_ref: "Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png", ambient_audio_ref: "res://Audio/Sounds/arrow_whistle.ogg", npc_data: [] },
@@ -452,7 +452,7 @@ export const TEMPLES = [
 		temple_type: "class_based",
 		dominant_element: "",
 		dominant_class: "Archer",
-		secondary_elements: ["Air", "Electric"],
+		secondary_elements: ["Wind", "Electric"],
 		difficulty_tier: 7,
 		region_areas: [
 			{ area_name: "Cliffside Path", area_type: "corridor", encounter_table_id: 1801, tileset_ref: "Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png", ambient_audio_ref: "res://Audio/Sounds/mountain_wind.ogg", npc_data: [] },
@@ -476,7 +476,7 @@ export const TEMPLES = [
 		temple_type: "class_based",
 		dominant_element: "",
 		dominant_class: "Wizard",
-		secondary_elements: ["Electric", "Psychic"],
+		secondary_elements: ["Electric", "Fairy"],
 		difficulty_tier: 4,
 		region_areas: [
 			{ area_name: "Library Wing", area_type: "corridor", encounter_table_id: 1901, tileset_ref: "Sprites/Tiles/RogueAdventure/Temple/RA_Temple.png", ambient_audio_ref: "res://Audio/Sounds/page_turn.ogg", npc_data: [] },
@@ -493,20 +493,20 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 20. Wizard Temple II: Sorcerer's Sanctum ─────────────────────
+	// ── 20. Wizard Temple II: Wizard's Sanctum ───────────────────────
 	{
 		temple_id: 20,
-		temple_name: "Sorcerer's Sanctum",
+		temple_name: "Wizard's Sanctum",
 		temple_type: "class_based",
 		dominant_element: "",
 		dominant_class: "Wizard",
-		secondary_elements: ["Spirit", "Chaos"],
+		secondary_elements: ["Solar", "Lunar"],
 		difficulty_tier: 8,
 		region_areas: [
 			{ area_name: "Enchanted Hallway", area_type: "corridor", encounter_table_id: 2001, tileset_ref: "Sprites/Tiles/RogueAdventure/Temple/RA_Temple.png", ambient_audio_ref: "res://Audio/Sounds/deep_magic.ogg", npc_data: [] },
 			{ area_name: "Summoning Circle", area_type: "chamber", encounter_table_id: 2002, tileset_ref: "Sprites/Tiles/RogueAdventure/Temple/RA_Temple.png", ambient_audio_ref: "res://Audio/Sounds/chanting.ogg", npc_data: [] },
 			{ area_name: "Mage's Rest", area_type: "rest", encounter_table_id: 0, tileset_ref: "Sprites/Tiles/RogueAdventure/Temple/RA_Temple.png", ambient_audio_ref: "res://Audio/Sounds/peaceful.ogg", npc_data: [] },
-			{ area_name: "Grand Sorcerer's Sanctum", area_type: "boss_arena", encounter_table_id: 2003, tileset_ref: "Sprites/Tiles/RogueAdventure/Temple/RA_Temple.png", ambient_audio_ref: "res://Audio/Sounds/boss_ambient.ogg", npc_data: [] },
+			{ area_name: "Grand Wizard's Sanctum", area_type: "boss_arena", encounter_table_id: 2003, tileset_ref: "Sprites/Tiles/RogueAdventure/Temple/RA_Temple.png", ambient_audio_ref: "res://Audio/Sounds/boss_ambient.ogg", npc_data: [] },
 		],
 		boss_data: { sprite_race_id: 11, level_offset: 7, ability_ids: [11, 23, 36, 55], ai_profile: "tactical" },
 		unlock_prerequisites: { quest_ids: [], temple_ids: [19], min_level: 35 },
@@ -517,13 +517,13 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 21. Knight Temple I: Shield Wall Keep ────────────────────────
+	// ── 21. Spearman Temple III: Shield Wall Keep ────────────────────
 	{
 		temple_id: 21,
 		temple_name: "Shield Wall Keep",
 		temple_type: "class_based",
 		dominant_element: "",
-		dominant_class: "Knight",
+		dominant_class: "Spearman",
 		secondary_elements: ["Earth", "Metal"],
 		difficulty_tier: 4,
 		region_areas: [
@@ -540,13 +540,13 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 22. Knight Temple II: Paladin's Fortress ─────────────────────
+	// ── 22. Spearman Temple IV: Paladin's Fortress ─────────────────────
 	{
 		temple_id: 22,
 		temple_name: "Paladin's Fortress",
 		temple_type: "class_based",
 		dominant_element: "",
-		dominant_class: "Knight",
+		dominant_class: "Spearman",
 		secondary_elements: ["Light", "Metal"],
 		difficulty_tier: 8,
 		region_areas: [
@@ -571,7 +571,7 @@ export const TEMPLES = [
 		temple_type: "class_based",
 		dominant_element: "",
 		dominant_class: "Cleric",
-		secondary_elements: ["Light", "Nature"],
+		secondary_elements: ["Light", "Plant"],
 		difficulty_tier: 4,
 		region_areas: [
 			{ area_name: "Healing Ward", area_type: "corridor", encounter_table_id: 2301, tileset_ref: "Sprites/Tiles/RogueAdventure/Sanctuary/RA_Sanctuary.png", ambient_audio_ref: "res://Audio/Sounds/gentle_bells.ogg", npc_data: [] },
@@ -594,7 +594,7 @@ export const TEMPLES = [
 		temple_type: "class_based",
 		dominant_element: "",
 		dominant_class: "Cleric",
-		secondary_elements: ["Ice", "Psychic"],
+		secondary_elements: ["Ice", "Fairy"],
 		difficulty_tier: 7,
 		region_areas: [
 			{ area_name: "Recovery Wing", area_type: "corridor", encounter_table_id: 2401, tileset_ref: "Sprites/Tiles/RogueAdventure/Sanctuary/RA_Sanctuary.png", ambient_audio_ref: "res://Audio/Sounds/crystal_chime.ogg", npc_data: [] },
@@ -658,14 +658,14 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 27. Berserker Temple I: Rage Pit ─────────────────────────────
+	// ── 27. Barbarian Temple I: Rage Pit ─────────────────────────────
 	{
 		temple_id: 27,
 		temple_name: "Rage Pit",
 		temple_type: "class_based",
 		dominant_element: "",
-		dominant_class: "Berserker",
-		secondary_elements: ["Fire", "Chaos"],
+		dominant_class: "Barbarian",
+		secondary_elements: ["Fire", "Lunar"],
 		difficulty_tier: 5,
 		region_areas: [
 			{ area_name: "Bloodstone Corridor", area_type: "corridor", encounter_table_id: 2701, tileset_ref: "Sprites/Tiles/RogueAdventure/Hellfire/RA_Hell.png", ambient_audio_ref: "res://Audio/Sounds/war_cries.ogg", npc_data: [] },
@@ -681,14 +681,14 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 28. Berserker Temple II: Warlord's Domain ────────────────────
+	// ── 28. Barbarian Temple II: Warlord's Domain ────────────────────
 	{
 		temple_id: 28,
 		temple_name: "Warlord's Domain",
 		temple_type: "class_based",
 		dominant_element: "",
-		dominant_class: "Berserker",
-		secondary_elements: ["Chaos", "Metal"],
+		dominant_class: "Barbarian",
+		secondary_elements: ["Lunar", "Metal"],
 		difficulty_tier: 9,
 		region_areas: [
 			{ area_name: "Destruction Path", area_type: "corridor", encounter_table_id: 2801, tileset_ref: "Sprites/Tiles/RogueAdventure/Hellfire/RA_Hell.png", ambient_audio_ref: "res://Audio/Sounds/destruction.ogg", npc_data: [] },
@@ -705,20 +705,20 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 29. Summoner Temple I: Spirit Grove ──────────────────────────
+	// ── 29. Alchemist Temple I: Spirit Grove ──────────────────────────
 	{
 		temple_id: 29,
 		temple_name: "Spirit Grove",
 		temple_type: "class_based",
 		dominant_element: "",
-		dominant_class: "Summoner",
-		secondary_elements: ["Spirit", "Nature"],
+		dominant_class: "Alchemist",
+		secondary_elements: ["Solar", "Plant"],
 		difficulty_tier: 5,
 		region_areas: [
 			{ area_name: "Whispering Path", area_type: "corridor", encounter_table_id: 2901, tileset_ref: "Sprites/Tiles/RogueAdventure/AncientRuins/RA_Ancient.png", ambient_audio_ref: "res://Audio/Sounds/spirit_whisper.ogg", npc_data: [] },
 			{ area_name: "Conjuring Circle", area_type: "chamber", encounter_table_id: 2902, tileset_ref: "Sprites/Tiles/RogueAdventure/AncientRuins/RA_Ancient.png", ambient_audio_ref: "res://Audio/Sounds/conjure.ogg", npc_data: [] },
 			{ area_name: "Binding Puzzle", area_type: "puzzle", encounter_table_id: 2903, tileset_ref: "Sprites/Tiles/RogueAdventure/AncientRuins/RA_Ancient.png", ambient_audio_ref: "res://Audio/Sounds/arcane_hum.ogg", npc_data: [] },
-			{ area_name: "Grand Summoner's Circle", area_type: "boss_arena", encounter_table_id: 2904, tileset_ref: "Sprites/Tiles/RogueAdventure/AncientRuins/RA_Ancient.png", ambient_audio_ref: "res://Audio/Sounds/boss_ambient.ogg", npc_data: [] },
+			{ area_name: "Grand Alchemist's Circle", area_type: "boss_arena", encounter_table_id: 2904, tileset_ref: "Sprites/Tiles/RogueAdventure/AncientRuins/RA_Ancient.png", ambient_audio_ref: "res://Audio/Sounds/boss_ambient.ogg", npc_data: [] },
 		],
 		boss_data: { sprite_race_id: 10, level_offset: 5, ability_ids: [10, 21, 34, 52], ai_profile: "tactical" },
 		unlock_prerequisites: { quest_ids: [], temple_ids: [], min_level: 15 },
@@ -729,14 +729,14 @@ export const TEMPLES = [
 		},
 	},
 
-	// ── 30. Summoner Temple II: Eclipsar's Throne ────────────────────
+	// ── 30. Alchemist Temple II: Eclipsar's Throne ────────────────────
 	{
 		temple_id: 30,
 		temple_name: "Eclipsar's Throne",
 		temple_type: "class_based",
 		dominant_element: "",
-		dominant_class: "Summoner",
-		secondary_elements: ["Dark", "Spirit"],
+		dominant_class: "Alchemist",
+		secondary_elements: ["Dark", "Solar"],
 		difficulty_tier: 10,
 		region_areas: [
 			{ area_name: "Twilight Approach", area_type: "corridor", encounter_table_id: 3001, tileset_ref: "Sprites/Tiles/RogueAdventure/AncientRuins/RA_Ancient.png", ambient_audio_ref: "res://Audio/Sounds/void_echo.ogg", npc_data: [] },

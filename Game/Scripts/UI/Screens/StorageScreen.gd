@@ -100,7 +100,7 @@ func _build_ui() -> void:
 	all_btn.pressed.connect(func() -> void: _apply_filter({}))
 	filter_buttons.add_child(all_btn)
 
-	for element in ["Fire", "Water", "Earth", "Air", "Nature", "Electric"]:
+	for element in ["Fire", "Water", "Earth", "Wind", "Plant", "Electric"]:
 		var chip := _create_filter_chip(element)
 		var elem := element
 		chip.pressed.connect(func() -> void: _apply_filter({"element": elem}))

@@ -23,9 +23,9 @@ import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 
 // ── Element colors ──────────────────────────────────────────────────────────
 export const ELEMENT_COLORS = {
-    Fire: '#ff5533', Water: '#3399ff', Nature: '#33aa33', Ice: '#99ddff',
-    Air: '#88ccaa', Earth: '#996633', Electric: '#ffcc00', Dark: '#8844aa',
-    Light: '#ffee99', Psychic: '#ff66aa', Spirit: '#9988dd', Chaos: '#ff8833',
+    Fire: '#ff5533', Water: '#3399ff', Plant: '#33aa33', Ice: '#99ddff',
+    Wind: '#88ccaa', Earth: '#996633', Electric: '#ffcc00', Dark: '#8844aa',
+    Light: '#ffee99', Fairy: '#ff66aa', Solar: '#9988dd', Lunar: '#ff8833',
     Metal: '#aaaacc', Poison: '#aa33aa',
 };
 

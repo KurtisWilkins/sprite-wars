@@ -36,8 +36,8 @@ export const TRAINERS = {
 		name: "Bug Catcher Tim",
 		title: "Bug Catcher",
 		team: [
-			{ raceId: 3, level: 3, stage: 0 },  // Thornvine (Nature)
-			{ raceId: 14, level: 4, stage: 0 },  // Venomire (Poison)
+			{ raceId: 3, level: 3, stage: 0 },  // Bird Man (Plant)
+			{ raceId: 14, level: 4, stage: 0 },  // Minotaur (Poison)
 		],
 		preDialogue: [
 			"Hey! You look like a new trainer!",
@@ -51,15 +51,15 @@ export const TRAINERS = {
 		xpBonus: 25,
 	},
 
-	// Ranger Kai — patrols the Verdant Route, tougher than Tim
+	// Javelin Kai — patrols the Verdant Route, tougher than Tim
 	trainer_kai: {
 		id: "trainer_kai",
-		name: "Ranger Kai",
-		title: "Ranger",
+		name: "Javelin Kai",
+		title: "Javelin",
 		team: [
-			{ raceId: 5, level: 5, stage: 0 },  // Galecrest (Air)
-			{ raceId: 3, level: 5, stage: 0 },  // Thornvine (Nature)
-			{ raceId: 6, level: 6, stage: 0 },  // Terraclaw (Earth)
+			{ raceId: 5, level: 5, stage: 0 },  // Devil (Wind)
+			{ raceId: 3, level: 5, stage: 0 },  // Bird Man (Plant)
+			{ raceId: 6, level: 6, stage: 0 },  // Cat Man (Earth)
 		],
 		preDialogue: [
 			"Hold it right there, rookie!",
@@ -83,14 +83,14 @@ export const TRAINERS = {
 		name: "Youngster Pip",
 		title: "Youngster",
 		team: [
-			{ raceId: 1, level: 4, stage: 0 },  // Emberpaw (Fire)
+			{ raceId: 1, level: 4, stage: 0 },  // Bug Man (Fire)
 		],
 		preDialogue: [
 			"I just got my first Sprite yesterday!",
 			"Wanna see how strong it is? Battle me!",
 		],
 		postDialogue: [
-			"Aww, I lost... but my Emberpaw tried its hardest!",
+			"Aww, I lost... but my Bug Man tried its hardest!",
 			"I will train harder and challenge you again someday!",
 		],
 		goldReward: 80,
@@ -103,8 +103,8 @@ export const TRAINERS = {
 		name: "Lass Fern",
 		title: "Lass",
 		team: [
-			{ raceId: 2, level: 4, stage: 0 },  // Tidalfin (Water)
-			{ raceId: 3, level: 3, stage: 0 },  // Thornvine (Nature)
+			{ raceId: 2, level: 4, stage: 0 },  // Bear Man (Water)
+			{ raceId: 3, level: 3, stage: 0 },  // Bird Man (Plant)
 		],
 		preDialogue: [
 			"The Sprites near this pond are so graceful...",
@@ -128,9 +128,9 @@ export const TRAINERS = {
 		name: "Hiker Gord",
 		title: "Hiker",
 		team: [
-			{ raceId: 6, level: 7, stage: 0 },   // Terraclaw (Earth)
-			{ raceId: 13, level: 7, stage: 0 },   // Ironhusk (Metal)
-			{ raceId: 6, level: 8, stage: 0 },    // Terraclaw (Earth)
+			{ raceId: 6, level: 7, stage: 0 },   // Cat Man (Earth)
+			{ raceId: 13, level: 7, stage: 0 },   // Lizard Man (Metal)
+			{ raceId: 6, level: 8, stage: 0 },    // Cat Man (Earth)
 		],
 		preDialogue: [
 			"You want to pass through here?",
@@ -151,9 +151,9 @@ export const TRAINERS = {
 		name: "Mystic Lira",
 		title: "Mystic",
 		team: [
-			{ raceId: 10, level: 8, stage: 0 },  // Glimmerwing (Psychic)
-			{ raceId: 9, level: 8, stage: 0 },   // Luminos (Light)
-			{ raceId: 7, level: 9, stage: 0 },   // Voltail (Electric)
+			{ raceId: 10, level: 8, stage: 0 },  // Ghost (Fairy)
+			{ raceId: 9, level: 8, stage: 0 },   // Fish Man (Light)
+			{ raceId: 7, level: 9, stage: 0 },   // Elf (Electric)
 		],
 		preDialogue: [
 			"I sensed your approach long before you arrived...",

@@ -143,7 +143,7 @@ var _battle_conditions: Dictionary = {
 	},
 	"snow": {
 		"element_boost": "Ice",
-		"element_nerf": "Nature",
+		"element_nerf": "Plant",
 		"speed_modifier": 0.9,
 	},
 	"sandstorm": {
@@ -158,7 +158,7 @@ var _battle_conditions: Dictionary = {
 	"leaves": {},
 	"volcanic_ash": {
 		"element_boost": "Fire",
-		"element_nerf": "Nature",
+		"element_nerf": "Plant",
 		"accuracy_modifier": 0.90,
 	},
 	"fairy_sparkle": {

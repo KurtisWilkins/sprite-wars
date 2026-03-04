@@ -206,7 +206,7 @@ static func get_all_consumables() -> Array[Dictionary]:
 			"name": "Nature Gem",
 			"category": "battle_item",
 			"effect_type": "element_boost",
-			"effect_value": {"element": "Nature", "multiplier": 1.5, "duration": "battle"},
+			"effect_value": {"element": "Plant", "multiplier": 1.5, "duration": "battle"},
 			"description": "Boosts Nature-type damage by 50% for one battle.",
 			"buy_price": 800,
 		},

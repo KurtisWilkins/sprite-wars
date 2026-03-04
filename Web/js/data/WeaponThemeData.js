@@ -50,43 +50,43 @@ export const ANIM_REGION = {
 // ── Race-to-theme mapping ───────────────────────────────────────────────────
 // Maps each race_id to a weapon theme and default weapon type
 export const RACE_THEME_MAP = {
-    1:  { theme: 'Fire Theme',           weapon: 'sword',  armor: 'heavy' },   // Emberpaw (Fire/Berserker)
-    2:  { theme: 'Water Theme',          weapon: 'shield', armor: 'heavy' },   // Tidalfin (Water/Guardian)
-    3:  { theme: 'Forest Theme',         weapon: 'crossbow', armor: 'medium' }, // Thornvine (Nature/Ranger)
-    4:  { theme: 'Water Theme',          weapon: 'sword',  armor: 'light' },   // Frostfang (Ice/Assassin)
-    5:  { theme: 'Fairy Theme',          weapon: 'crossbow', armor: 'light' }, // Galecrest (Air/Archer)
-    6:  { theme: 'Rock Theme',           weapon: 'axe',    armor: 'heavy' },   // Terraclaw (Earth/Knight)
-    7:  { theme: 'Electric Theme',       weapon: 'staff',  armor: 'medium' },  // Voltail (Electric/Wizard)
-    8:  { theme: 'Demon Theme',          weapon: 'sword',  armor: 'light' },   // Gloomshade (Dark/Assassin)
-    9:  { theme: 'Golden Angel Theme',   weapon: 'staff',  armor: 'medium' },  // Luminos (Light/Cleric)
-    10: { theme: 'Fairy Theme',          weapon: 'staff',  armor: 'medium' },  // Glimmerwing (Psychic/Summoner)
-    11: { theme: 'Lunar Theme',          weapon: 'staff',  armor: 'medium' },  // Spectrail (Spirit/Wizard)
-    12: { theme: 'Demon Theme',          weapon: 'axe',    armor: 'heavy' },   // Ignisurge (Chaos/Berserker)
-    13: { theme: 'English Knight Theme', weapon: 'sword',  armor: 'heavy' },   // Ironhusk (Metal/Knight)
-    14: { theme: 'Bug Theme',            weapon: 'crossbow', armor: 'medium' }, // Venomire (Poison/Ranger)
-    15: { theme: 'Fire Theme',           weapon: 'shield', armor: 'heavy' },   // Blazeguard (Fire/Guardian)
-    16: { theme: 'Water Theme',          weapon: 'crossbow', armor: 'medium' }, // Aquashot (Water/Archer)
-    17: { theme: 'Electric Theme',       weapon: 'staff',  armor: 'medium' },  // Pyrovolt (Fire+Electric/Wizard)
-    18: { theme: 'Bug Theme',            weapon: 'spear',  armor: 'medium' },  // Venomthorn (Poison+Nature/Spearman)
-    19: { theme: 'Demon Theme',          weapon: 'spear',  armor: 'medium' },  // Shadowflare (Dark+Fire/Spearman)
-    20: { theme: 'Fairy Theme',          weapon: 'staff',  armor: 'medium' },  // Crystalmist (Ice+Psychic/Cleric)
-    21: { theme: 'TeutonicTheme',        weapon: 'axe',    armor: 'heavy' },   // Ironstorm (Metal+Air/Berserker)
-    22: { theme: 'Forest Theme',         weapon: 'staff',  armor: 'medium' },  // Spiritbloom (Spirit+Nature/Summoner)
-    23: { theme: 'Golden Angel Theme',   weapon: 'shield', armor: 'heavy' },   // Solarius (Light+Chaos/Guardian)
-    24: { theme: 'Lunar Theme',          weapon: 'staff',  armor: 'medium' },  // Eclipsar (Dark+Spirit/Summoner)
+    1:  { theme: 'Fire Theme',           weapon: 'sword',  armor: 'heavy' },   // Bug Man (Fire/Barbarian)
+    2:  { theme: 'Water Theme',          weapon: 'shield', armor: 'heavy' },   // Bear Man (Water/Paladin)
+    3:  { theme: 'Forest Theme',         weapon: 'crossbow', armor: 'medium' }, // Bird Man (Plant/Javelin)
+    4:  { theme: 'Water Theme',          weapon: 'sword',  armor: 'light' },   // Demon (Ice/Assassin)
+    5:  { theme: 'Fairy Theme',          weapon: 'crossbow', armor: 'light' }, // Devil (Wind/Archer)
+    6:  { theme: 'Rock Theme',           weapon: 'axe',    armor: 'heavy' },   // Cat Man (Earth/Fighter)
+    7:  { theme: 'Electric Theme',       weapon: 'staff',  armor: 'medium' },  // Elf (Electric/Wizard)
+    8:  { theme: 'Demon Theme',          weapon: 'sword',  armor: 'light' },   // Ent (Dark/Assassin)
+    9:  { theme: 'Golden Angel Theme',   weapon: 'staff',  armor: 'medium' },  // Fish Man (Light/Cleric)
+    10: { theme: 'Fairy Theme',          weapon: 'staff',  armor: 'medium' },  // Ghost (Fairy/Alchemist)
+    11: { theme: 'Lunar Theme',          weapon: 'staff',  armor: 'medium' },  // Golem (Solar/Wizard)
+    12: { theme: 'Demon Theme',          weapon: 'axe',    armor: 'heavy' },   // Human (Lunar/Barbarian)
+    13: { theme: 'English Knight Theme', weapon: 'sword',  armor: 'heavy' },   // Lizard Man (Metal/Fighter)
+    14: { theme: 'Bug Theme',            weapon: 'crossbow', armor: 'medium' }, // Minotaur (Poison/Javelin)
+    15: { theme: 'Fire Theme',           weapon: 'shield', armor: 'heavy' },   // Monkey Man (Fire/Paladin)
+    16: { theme: 'Water Theme',          weapon: 'crossbow', armor: 'medium' }, // Mummy (Water/Archer)
+    17: { theme: 'Electric Theme',       weapon: 'staff',  armor: 'medium' },  // Ork (Fire+Electric/Wizard)
+    18: { theme: 'Bug Theme',            weapon: 'spear',  armor: 'medium' },  // Rat Man (Poison+Plant/Spearman)
+    19: { theme: 'Demon Theme',          weapon: 'spear',  armor: 'medium' },  // Robot (Dark+Fire/Spearman)
+    20: { theme: 'Fairy Theme',          weapon: 'staff',  armor: 'medium' },  // Shark Man (Ice+Fairy/Cleric)
+    21: { theme: 'TeutonicTheme',        weapon: 'axe',    armor: 'heavy' },   // Skeleton (Metal+Wind/Barbarian)
+    22: { theme: 'Forest Theme',         weapon: 'staff',  armor: 'medium' },  // Turtle Man (Solar+Plant/Alchemist)
+    23: { theme: 'Golden Angel Theme',   weapon: 'shield', armor: 'heavy' },   // Wolf Man (Light+Lunar/Paladin)
+    24: { theme: 'Lunar Theme',          weapon: 'staff',  armor: 'medium' },  // Zombie (Dark+Solar/Alchemist)
 };
 
 // ── Class-to-weapon defaults ────────────────────────────────────────────────
 export const CLASS_WEAPON_MAP = {
-    Berserker: 'axe',
-    Guardian:  'shield',
-    Ranger:    'crossbow',
+    Barbarian: 'axe',
+    Paladin:   'shield',
+    Javelin:   'crossbow',
     Assassin:  'sword',
     Archer:    'crossbow',
-    Knight:    'sword',
+    Fighter:   'sword',
     Wizard:    'staff',
     Cleric:    'staff',
-    Summoner:  'staff',
+    Alchemist: 'staff',
     Spearman:  'spear',
 };
 

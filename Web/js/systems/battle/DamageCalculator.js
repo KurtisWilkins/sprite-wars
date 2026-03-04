@@ -270,9 +270,9 @@ export class DamageCalculator {
         // Raw format: { atkElemId: { defElemId: multiplier } }
         // Need a name→id mapping. Build one from common element names.
         const NAME_TO_ID = {
-            Fire: 1, Water: 2, Earth: 3, Air: 4, Light: 5, Dark: 6,
-            Nature: 7, Electric: 8, Ice: 9, Metal: 10, Poison: 11,
-            Psychic: 12, Spirit: 13, Chaos: 14,
+            Fire: 1, Water: 2, Wind: 3, Earth: 4, Plant: 5, Metal: 6,
+            Electric: 7, Dark: 8, Light: 9, Solar: 10, Lunar: 11,
+            Fairy: 12, Poison: 13, Ice: 14,
         };
 
         atkElementId = NAME_TO_ID[ability.elementType];

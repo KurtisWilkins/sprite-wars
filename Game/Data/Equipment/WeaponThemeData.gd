@@ -81,15 +81,15 @@ static func get_race_theme_map() -> Dictionary:
 
 static func get_class_weapon_map() -> Dictionary:
 	return {
-		"Berserker": "axe",
-		"Guardian":  "shield",
-		"Ranger":    "crossbow",
+		"Barbarian": "axe",
+		"Paladin":  "shield",
+		"Javelin":    "crossbow",
 		"Assassin":  "sword",
 		"Archer":    "crossbow",
-		"Knight":    "sword",
+		"Fighter":    "sword",
 		"Wizard":    "staff",
 		"Cleric":    "staff",
-		"Summoner":  "staff",
+		"Alchemist":  "staff",
 		"Spearman":  "spear",
 	}
 

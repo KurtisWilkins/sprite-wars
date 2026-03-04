@@ -19,8 +19,9 @@ extends Resource
 @export var class_type: String = ""
 
 const VALID_CLASSES: PackedStringArray = PackedStringArray([
-	"Spearman", "Archer", "Wizard", "Knight", "Assassin",
-	"Cleric", "Berserker", "Summoner", "Guardian", "Ranger",
+	"Barbarian", "Fighter", "Archer", "Spearman", "Heavy", "Wizard",
+	"Javelin", "Alchemist", "Cleric", "Ambrosian", "Assassin", "Monk",
+	"Crossbow", "Handgunner", "Siegebreaker", "Paladin",
 ])
 
 ## ── Stats ─────────────────────────────────────────────────────────────────────

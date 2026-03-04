@@ -1,30 +1,30 @@
-## GlossaryScreen — Reference glossary with Races, Classes, and Equipment tabs.
-## Provides a read-only encyclopedia of all game data: Sprite races and their
-## stats, ability classes with full ability listings, and the equipment catalog.
+## GlossaryScreen — Reference glossary with Races, Elements, Classes, and Equipment tabs.
+## Provides a read-only encyclopedia of all game data: Sprite races with element
+## variants, the 14-element effectiveness chart, class definitions, and equipment.
 class_name GlossaryScreen
 extends Control
 
 ## ── Constants ────────────────────────────────────────────────────────────────
 
 const TAB_NAMES: PackedStringArray = PackedStringArray([
-	"Races", "Classes", "Equipment",
+	"Races", "Elements", "Classes", "Equipment",
 ])
 
 const ELEMENT_COLORS: Dictionary = {
 	"Fire": Color("ff6633"),
 	"Water": Color("4d99ff"),
 	"Earth": Color("997740"),
-	"Air": Color("b3e6ff"),
+	"Wind": Color("b3e6ff"),
 	"Light": Color("ffff99"),
 	"Dark": Color("804dbb"),
-	"Nature": Color("4dcc4d"),
+	"Plant": Color("4dcc4d"),
 	"Electric": Color("ffe633"),
 	"Ice": Color("99e6ff"),
 	"Metal": Color("b3b3bf"),
 	"Poison": Color("b34dcc"),
-	"Psychic": Color("ff80cc"),
-	"Spirit": Color("99cce6"),
-	"Chaos": Color("e63366"),
+	"Fairy": Color("ff80cc"),
+	"Solar": Color("ffcc33"),
+	"Lunar": Color("9966cc"),
 }
 
 const RARITY_COLORS: Dictionary = {
@@ -40,10 +40,18 @@ const STAT_DISPLAY_NAMES: Dictionary = {
 	"spd": "SPD", "sp_atk": "SP.ATK", "sp_def": "SP.DEF",
 }
 
+const ROLE_COLORS: Dictionary = {
+	"melee": Color(0.85, 0.45, 0.3),
+	"ranged": Color(0.3, 0.7, 0.85),
+	"support": Color(0.4, 0.85, 0.5),
+	"hybrid": Color(0.85, 0.75, 0.35),
+}
+
 ## ── State ────────────────────────────────────────────────────────────────────
 
 var _current_tab: int = 0
 var _equipment_filter: String = "All"
+var _expanded_races: Dictionary = {}  # race_id -> bool
 
 ## ── Nodes ────────────────────────────────────────────────────────────────────
 
@@ -126,7 +134,7 @@ func _build_ui() -> void:
 func _create_tab_button(text: String, index: int) -> Button:
 	var btn := Button.new()
 	btn.text = text
-	btn.custom_minimum_size = Vector2(140.0, 44.0)
+	btn.custom_minimum_size = Vector2(120.0, 44.0)
 	btn.add_theme_font_size_override("font_size", 22)
 
 	var idx := index
@@ -208,8 +216,10 @@ func _populate_tab(tab_index: int) -> void:
 		0:
 			_populate_races_tab()
 		1:
-			_populate_classes_tab()
+			_populate_elements_tab()
 		2:
+			_populate_classes_tab()
+		3:
 			_populate_equipment_tab()
 
 	# Reset scroll position.
@@ -219,23 +229,22 @@ func _populate_tab(tab_index: int) -> void:
 ## ── RACES TAB ────────────────────────────────────────────────────────────────
 
 func _populate_races_tab() -> void:
-	var all_races: Dictionary = SpriteRaces.get_all_races()
-
-	if all_races.is_empty():
+	# Use SpriteGlossary for race names, descriptions, and element variants.
+	if SpriteGlossary.RACE_NAMES.is_empty():
 		_add_empty_label("No races found.")
 		return
 
-	# Sort by race_id.
-	var race_keys: Array = all_races.keys()
-	race_keys.sort()
+	var race_ids: Array = SpriteGlossary.RACE_NAMES.keys()
+	race_ids.sort()
 
-	for race_id in race_keys:
-		var race: Dictionary = all_races[race_id]
-		var card := _create_race_card(race)
+	for race_id in race_ids:
+		var race_name: String = SpriteGlossary.RACE_NAMES[race_id]
+		var race_description: String = SpriteGlossary.RACE_DESCRIPTIONS.get(race_id, "")
+		var card := _create_race_card(race_id, race_name, race_description)
 		_content_container.add_child(card)
 
 
-func _create_race_card(race: Dictionary) -> PanelContainer:
+func _create_race_card(race_id: int, race_name: String, race_description: String) -> PanelContainer:
 	var panel := PanelContainer.new()
 
 	var style := StyleBoxFlat.new()
@@ -253,70 +262,153 @@ func _create_race_card(race: Dictionary) -> PanelContainer:
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 8)
 
-	# Race name.
-	var race_name: String = str(race.get("race_name", "Unknown"))
+	# Header row: race name + expand/collapse toggle.
+	var header_row := HBoxContainer.new()
+	header_row.add_theme_constant_override("separation", 8)
+
 	var name_label := Label.new()
 	name_label.text = race_name
 	name_label.add_theme_font_size_override("font_size", 22)
 	name_label.add_theme_color_override("font_color", Color.WHITE)
-	vbox.add_child(name_label)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_row.add_child(name_label)
 
-	# Element badges row.
-	var element_types: Array = race.get("element_types", [])
-	if element_types.size() > 0:
-		var element_row := HBoxContainer.new()
-		element_row.add_theme_constant_override("separation", 6)
-		for element_name in element_types:
-			var badge := _create_element_badge(str(element_name))
-			element_row.add_child(badge)
-		vbox.add_child(element_row)
+	var toggle_btn := Button.new()
+	var is_expanded: bool = _expanded_races.get(race_id, false)
+	toggle_btn.text = "Collapse" if is_expanded else "Expand"
+	toggle_btn.custom_minimum_size = Vector2(100.0, 32.0)
+	toggle_btn.add_theme_font_size_override("font_size", 16)
+	var toggle_style := StyleBoxFlat.new()
+	toggle_style.bg_color = Color(0.18, 0.18, 0.25, 1.0)
+	toggle_style.corner_radius_top_left = 8
+	toggle_style.corner_radius_top_right = 8
+	toggle_style.corner_radius_bottom_left = 8
+	toggle_style.corner_radius_bottom_right = 8
+	toggle_btn.add_theme_stylebox_override("normal", toggle_style)
+	header_row.add_child(toggle_btn)
 
-	# Class type.
-	var class_type: String = str(race.get("class_type", ""))
-	if not class_type.is_empty():
-		var class_label := Label.new()
-		class_label.text = "Class: %s" % class_type
-		class_label.add_theme_font_size_override("font_size", 18)
-		class_label.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
-		vbox.add_child(class_label)
-
-	# Base stats row.
-	var base_stats: Dictionary = race.get("base_stats", {})
-	if not base_stats.is_empty():
-		var stats_text := ""
-		for stat_key in ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]:
-			var val: int = int(base_stats.get(stat_key, 0))
-			var display_name: String = STAT_DISPLAY_NAMES.get(stat_key, stat_key.to_upper())
-			if not stats_text.is_empty():
-				stats_text += "  "
-			stats_text += "%s: %d" % [display_name, val]
-
-		var stats_label := Label.new()
-		stats_label.text = stats_text
-		stats_label.add_theme_font_size_override("font_size", 18)
-		stats_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
-		stats_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		vbox.add_child(stats_label)
-
-	# Rarity indicator.
-	var rarity: String = str(race.get("rarity", "common"))
-	if not rarity.is_empty():
-		var rarity_color: Color = RARITY_COLORS.get(rarity, RARITY_COLORS.get("common", Color(0.55, 0.55, 0.55)))
-		var rarity_label := Label.new()
-		rarity_label.text = rarity.capitalize()
-		rarity_label.add_theme_font_size_override("font_size", 16)
-		rarity_label.add_theme_color_override("font_color", rarity_color)
-		vbox.add_child(rarity_label)
+	vbox.add_child(header_row)
 
 	# Lore description.
-	var lore: String = str(race.get("lore_description", ""))
-	if not lore.is_empty():
+	if not race_description.is_empty():
 		var lore_label := Label.new()
-		lore_label.text = lore
+		lore_label.text = race_description
 		lore_label.add_theme_font_size_override("font_size", 16)
 		lore_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
 		lore_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vbox.add_child(lore_label)
+
+	# Element variants section (collapsible content).
+	var variants_container := VBoxContainer.new()
+	variants_container.add_theme_constant_override("separation", 6)
+	variants_container.visible = is_expanded
+
+	# Element badges grid showing all 14 element variants.
+	var element_grid_label := Label.new()
+	element_grid_label.text = "Element Variants:"
+	element_grid_label.add_theme_font_size_override("font_size", 18)
+	element_grid_label.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
+	variants_container.add_child(element_grid_label)
+
+	# Use a flow container to wrap badges nicely.
+	var badge_flow := HFlowContainer.new()
+	badge_flow.add_theme_constant_override("h_separation", 6)
+	badge_flow.add_theme_constant_override("v_separation", 6)
+
+	for element_name in SpriteGlossary.ELEMENT_NAMES:
+		var variant_name: String = "%s %s" % [element_name, race_name]
+		var badge := _create_element_variant_badge(str(element_name), variant_name)
+		badge_flow.add_child(badge)
+
+	variants_container.add_child(badge_flow)
+
+	# Show individual variant details when expanded.
+	var entries: Array[Dictionary] = SpriteGlossary.get_entries_by_race(race_id)
+	for entry in entries:
+		var variant_panel := _create_variant_detail(entry)
+		variants_container.add_child(variant_panel)
+
+	vbox.add_child(variants_container)
+
+	# Wire up toggle button.
+	var rid := race_id
+	var vc := variants_container
+	var tb := toggle_btn
+	toggle_btn.pressed.connect(func() -> void:
+		_expanded_races[rid] = not _expanded_races.get(rid, false)
+		vc.visible = _expanded_races[rid]
+		tb.text = "Collapse" if _expanded_races[rid] else "Expand"
+	)
+
+	panel.add_child(vbox)
+	return panel
+
+
+func _create_element_variant_badge(element_name: String, variant_name: String) -> PanelContainer:
+	var badge_panel := PanelContainer.new()
+	badge_panel.tooltip_text = variant_name
+
+	var element_color: Color = ELEMENT_COLORS.get(element_name, Color(0.5, 0.5, 0.5))
+
+	var badge_style := StyleBoxFlat.new()
+	badge_style.bg_color = Color(element_color.r, element_color.g, element_color.b, 0.25)
+	badge_style.corner_radius_top_left = 8
+	badge_style.corner_radius_top_right = 8
+	badge_style.corner_radius_bottom_left = 8
+	badge_style.corner_radius_bottom_right = 8
+	badge_style.content_margin_left = 8.0
+	badge_style.content_margin_right = 8.0
+	badge_style.content_margin_top = 2.0
+	badge_style.content_margin_bottom = 2.0
+	badge_panel.add_theme_stylebox_override("panel", badge_style)
+
+	var badge_label := Label.new()
+	badge_label.text = element_name
+	badge_label.add_theme_font_size_override("font_size", 16)
+	badge_label.add_theme_color_override("font_color", element_color)
+	badge_panel.add_child(badge_label)
+
+	return badge_panel
+
+
+func _create_variant_detail(entry: Dictionary) -> PanelContainer:
+	var panel := PanelContainer.new()
+
+	var element_name: String = str(entry.get("element", ""))
+	var element_color: Color = ELEMENT_COLORS.get(element_name, Color(0.5, 0.5, 0.5))
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(element_color.r, element_color.g, element_color.b, 0.08)
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_left = 8
+	style.corner_radius_bottom_right = 8
+	style.content_margin_left = 12.0
+	style.content_margin_right = 12.0
+	style.content_margin_top = 8.0
+	style.content_margin_bottom = 8.0
+	panel.add_theme_stylebox_override("panel", style)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+
+	# Variant name.
+	var variant_name: String = str(entry.get("sprite_variant_name", "Unknown"))
+	var name_label := Label.new()
+	name_label.text = variant_name
+	name_label.add_theme_font_size_override("font_size", 18)
+	name_label.add_theme_color_override("font_color", element_color)
+	vbox.add_child(name_label)
+
+	# Variant description.
+	var description: String = str(entry.get("description", ""))
+	if not description.is_empty():
+		var desc_label := Label.new()
+		desc_label.text = description
+		desc_label.add_theme_font_size_override("font_size", 15)
+		desc_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		vbox.add_child(desc_label)
 
 	panel.add_child(vbox)
 	return panel
@@ -348,49 +440,157 @@ func _create_element_badge(element_name: String) -> PanelContainer:
 	return badge_panel
 
 
+## ── ELEMENTS TAB ─────────────────────────────────────────────────────────────
+
+func _populate_elements_tab() -> void:
+	var element_ids: Array = ElementChart.ELEMENT_NAMES.keys()
+	element_ids.sort()
+
+	if element_ids.is_empty():
+		_add_empty_label("No element data found.")
+		return
+
+	for element_id in element_ids:
+		var element_name: String = ElementChart.ELEMENT_NAMES[element_id]
+		var card := _create_element_card(element_name)
+		_content_container.add_child(card)
+
+
+func _create_element_card(element_name: String) -> PanelContainer:
+	var panel := PanelContainer.new()
+
+	var element_color: Color = ELEMENT_COLORS.get(element_name, Color(0.5, 0.5, 0.5))
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.09, 0.09, 0.14, 1.0)
+	style.border_width_left = 4
+	style.border_color = element_color
+	style.corner_radius_top_left = 12
+	style.corner_radius_top_right = 12
+	style.corner_radius_bottom_left = 12
+	style.corner_radius_bottom_right = 12
+	style.content_margin_left = 16.0
+	style.content_margin_right = 16.0
+	style.content_margin_top = 14.0
+	style.content_margin_bottom = 14.0
+	panel.add_theme_stylebox_override("panel", style)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+
+	# Element name header with badge.
+	var header_row := HBoxContainer.new()
+	header_row.add_theme_constant_override("separation", 10)
+
+	var name_label := Label.new()
+	name_label.text = element_name
+	name_label.add_theme_font_size_override("font_size", 24)
+	name_label.add_theme_color_override("font_color", element_color)
+	header_row.add_child(name_label)
+
+	vbox.add_child(header_row)
+
+	# Strong against (super effective).
+	var strengths: Array[String] = ElementChart.get_strengths(element_name)
+	if strengths.size() > 0:
+		var strong_label := Label.new()
+		strong_label.text = "Strong against:"
+		strong_label.add_theme_font_size_override("font_size", 17)
+		strong_label.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
+		vbox.add_child(strong_label)
+
+		var strong_flow := HFlowContainer.new()
+		strong_flow.add_theme_constant_override("h_separation", 6)
+		strong_flow.add_theme_constant_override("v_separation", 4)
+		for s_element in strengths:
+			var badge := _create_element_badge(s_element)
+			strong_flow.add_child(badge)
+		vbox.add_child(strong_flow)
+
+	# Weak against (not very effective).
+	var weaknesses: Array[String] = ElementChart.get_weaknesses(element_name)
+	if weaknesses.size() > 0:
+		var weak_label := Label.new()
+		weak_label.text = "Weak against:"
+		weak_label.add_theme_font_size_override("font_size", 17)
+		weak_label.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
+		vbox.add_child(weak_label)
+
+		var weak_flow := HFlowContainer.new()
+		weak_flow.add_theme_constant_override("h_separation", 6)
+		weak_flow.add_theme_constant_override("v_separation", 4)
+		for w_element in weaknesses:
+			var badge := _create_element_badge(w_element)
+			weak_flow.add_child(badge)
+		vbox.add_child(weak_flow)
+
+	# Immunities.
+	var immunities: Array[String] = ElementChart.get_immunities(element_name)
+	if immunities.size() > 0:
+		var immune_label := Label.new()
+		immune_label.text = "Immune to:"
+		immune_label.add_theme_font_size_override("font_size", 17)
+		immune_label.add_theme_color_override("font_color", Color(0.4, 0.85, 0.5))
+		vbox.add_child(immune_label)
+
+		var immune_flow := HFlowContainer.new()
+		immune_flow.add_theme_constant_override("h_separation", 6)
+		immune_flow.add_theme_constant_override("v_separation", 4)
+		for i_element in immunities:
+			var badge := _create_element_badge(i_element)
+			immune_flow.add_child(badge)
+		vbox.add_child(immune_flow)
+
+	panel.add_child(vbox)
+	return panel
+
+
 ## ── CLASSES TAB ──────────────────────────────────────────────────────────────
 
 func _populate_classes_tab() -> void:
-	var all_abilities: Array[Dictionary] = AbilityDatabase.get_all_abilities()
+	var all_classes: Dictionary = ClassDatabase.get_all_classes()
 
-	if all_abilities.is_empty():
-		_add_empty_label("No abilities found.")
+	if all_classes.is_empty():
+		_add_empty_label("No classes found.")
 		return
 
-	# Extract unique class_affinity values and sort alphabetically.
-	var class_names: Array[String] = []
-	for ability in all_abilities:
-		var class_affinity: String = str(ability.get("class_affinity", ""))
-		if not class_affinity.is_empty() and not class_names.has(class_affinity):
-			class_names.append(class_affinity)
-	class_names.sort()
+	# Group by role_type for organized display.
+	var role_order: Array[String] = ["melee", "ranged", "support", "hybrid"]
 
-	for class_name_str in class_names:
-		# Section header.
+	for role in role_order:
+		var class_ids: Array[int] = ClassDatabase.get_classes_by_role(role)
+		if class_ids.is_empty():
+			continue
+
+		class_ids.sort()
+
+		# Role section header.
+		var role_color: Color = ROLE_COLORS.get(role, Color(0.7, 0.7, 0.75))
 		var header := Label.new()
-		header.text = class_name_str
+		header.text = role.to_upper()
 		header.add_theme_font_size_override("font_size", 26)
-		header.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
+		header.add_theme_color_override("font_color", role_color)
 		_content_container.add_child(header)
 
 		var sep := HSeparator.new()
 		_content_container.add_child(sep)
 
-		# Get abilities for this class.
-		var class_abilities: Array[Dictionary] = AbilityDatabase.get_abilities_by_class(class_name_str)
-
-		for ability in class_abilities:
-			var card := _create_ability_card(ability)
+		for class_id in class_ids:
+			var cls: Dictionary = all_classes[class_id]
+			var card := _create_class_card(cls)
 			_content_container.add_child(card)
 
-		# Spacer after each class group.
+		# Spacer after each role group.
 		var spacer := Control.new()
 		spacer.custom_minimum_size = Vector2(0.0, 8.0)
 		_content_container.add_child(spacer)
 
 
-func _create_ability_card(ability: Dictionary) -> PanelContainer:
+func _create_class_card(cls: Dictionary) -> PanelContainer:
 	var panel := PanelContainer.new()
+
+	var role_type: String = str(cls.get("role_type", ""))
+	var role_color: Color = ROLE_COLORS.get(role_type, Color(0.7, 0.7, 0.75))
 
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.09, 0.09, 0.14, 1.0)
@@ -407,71 +607,43 @@ func _create_ability_card(ability: Dictionary) -> PanelContainer:
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 6)
 
-	# Top row: ability name + element badge.
+	# Top row: class name + role badge.
 	var top_row := HBoxContainer.new()
 	top_row.add_theme_constant_override("separation", 10)
 
-	var ability_name: String = str(ability.get("ability_name", "Unknown"))
+	var class_name_str: String = str(cls.get("class_name", "Unknown"))
 	var name_label := Label.new()
-	name_label.text = ability_name
+	name_label.text = class_name_str
 	name_label.add_theme_font_size_override("font_size", 20)
 	name_label.add_theme_color_override("font_color", Color.WHITE)
 	top_row.add_child(name_label)
 
-	var element_type: String = str(ability.get("element_type", ""))
-	if not element_type.is_empty():
-		var badge := _create_element_badge(element_type)
-		top_row.add_child(badge)
+	# Role type badge.
+	if not role_type.is_empty():
+		var role_badge := PanelContainer.new()
+		var badge_style := StyleBoxFlat.new()
+		badge_style.bg_color = Color(role_color.r, role_color.g, role_color.b, 0.25)
+		badge_style.corner_radius_top_left = 8
+		badge_style.corner_radius_top_right = 8
+		badge_style.corner_radius_bottom_left = 8
+		badge_style.corner_radius_bottom_right = 8
+		badge_style.content_margin_left = 8.0
+		badge_style.content_margin_right = 8.0
+		badge_style.content_margin_top = 2.0
+		badge_style.content_margin_bottom = 2.0
+		role_badge.add_theme_stylebox_override("panel", badge_style)
+
+		var role_label := Label.new()
+		role_label.text = role_type.capitalize()
+		role_label.add_theme_font_size_override("font_size", 16)
+		role_label.add_theme_color_override("font_color", role_color)
+		role_badge.add_child(role_label)
+		top_row.add_child(role_badge)
 
 	vbox.add_child(top_row)
 
-	# Stats row: targeting, power, accuracy, physical/special.
-	var stats_row := HBoxContainer.new()
-	stats_row.add_theme_constant_override("separation", 16)
-
-	var targeting_type: String = str(ability.get("targeting_type", ""))
-	if not targeting_type.is_empty():
-		var targeting_label := Label.new()
-		targeting_label.text = _format_targeting_type(targeting_type)
-		targeting_label.add_theme_font_size_override("font_size", 16)
-		targeting_label.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
-		stats_row.add_child(targeting_label)
-
-	var base_power: int = int(ability.get("base_power", 0))
-	if base_power > 0:
-		var power_label := Label.new()
-		power_label.text = "PWR: %d" % base_power
-		power_label.add_theme_font_size_override("font_size", 16)
-		power_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
-		stats_row.add_child(power_label)
-
-	var accuracy: float = float(ability.get("accuracy", 0.0))
-	if accuracy > 0.0:
-		var acc_label := Label.new()
-		acc_label.text = "ACC: %d%%" % int(accuracy * 100.0)
-		acc_label.add_theme_font_size_override("font_size", 16)
-		acc_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
-		stats_row.add_child(acc_label)
-
-	var pp_max: int = int(ability.get("pp_max", 0))
-	if pp_max > 0:
-		var pp_label := Label.new()
-		pp_label.text = "PP: %d" % pp_max
-		pp_label.add_theme_font_size_override("font_size", 16)
-		pp_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
-		stats_row.add_child(pp_label)
-
-	var is_physical: bool = bool(ability.get("is_physical", true))
-	var type_label := Label.new()
-	type_label.text = "Physical" if is_physical else "Special"
-	type_label.add_theme_font_size_override("font_size", 16)
-	type_label.add_theme_color_override("font_color", Color(0.85, 0.65, 0.4) if is_physical else Color(0.6, 0.5, 0.85))
-	stats_row.add_child(type_label)
-
-	vbox.add_child(stats_row)
-
 	# Description.
-	var description: String = str(ability.get("description", ""))
+	var description: String = str(cls.get("description", ""))
 	if not description.is_empty():
 		var desc_label := Label.new()
 		desc_label.text = description
@@ -480,13 +652,59 @@ func _create_ability_card(ability: Dictionary) -> PanelContainer:
 		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vbox.add_child(desc_label)
 
+	# Stat weights row.
+	var stat_weights: Dictionary = cls.get("stat_weights", {})
+	if not stat_weights.is_empty():
+		var weights_label := Label.new()
+		weights_label.text = "Stat Weights:"
+		weights_label.add_theme_font_size_override("font_size", 17)
+		weights_label.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
+		vbox.add_child(weights_label)
+
+		var stats_text := ""
+		for stat_key in ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]:
+			var val: int = int(stat_weights.get(stat_key, 0))
+			var display_name: String = STAT_DISPLAY_NAMES.get(stat_key, stat_key.to_upper())
+			if not stats_text.is_empty():
+				stats_text += "  "
+			stats_text += "%s: %s" % [display_name, _stat_weight_to_bar(val)]
+
+		var stats_label := Label.new()
+		stats_label.text = stats_text
+		stats_label.add_theme_font_size_override("font_size", 16)
+		stats_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.75))
+		stats_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		vbox.add_child(stats_label)
+
+	# Available weapon types.
+	var weapon_types: Array = cls.get("available_weapon_types", [])
+	if weapon_types.size() > 0:
+		var weapons_text := "Weapons: "
+		var weapon_names: PackedStringArray = PackedStringArray()
+		for wt in weapon_types:
+			weapon_names.append(str(wt).replace("_", " ").capitalize())
+		weapons_text += ", ".join(weapon_names)
+
+		var weapons_label := Label.new()
+		weapons_label.text = weapons_text
+		weapons_label.add_theme_font_size_override("font_size", 16)
+		weapons_label.add_theme_color_override("font_color", Color(0.55, 0.55, 0.6))
+		weapons_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		vbox.add_child(weapons_label)
+
 	panel.add_child(vbox)
 	return panel
 
 
-func _format_targeting_type(targeting: String) -> String:
-	# Convert snake_case targeting types to readable labels.
-	return targeting.replace("_", " ").capitalize()
+func _stat_weight_to_bar(weight: int) -> String:
+	# Convert a 1-5 stat weight into a visual bar representation.
+	var filled: String = ""
+	for i in range(weight):
+		filled += "|"
+	var empty: String = ""
+	for i in range(5 - weight):
+		empty += "."
+	return filled + empty
 
 
 ## ── EQUIPMENT TAB ────────────────────────────────────────────────────────────
@@ -757,6 +975,7 @@ func _on_tab_pressed(index: int) -> void:
 		return
 	_current_tab = index
 	_equipment_filter = "All"
+	_equipment_filter_chips.clear()
 	_update_tab_styles()
 	_populate_tab(_current_tab)
 

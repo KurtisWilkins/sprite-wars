@@ -32,10 +32,10 @@ const COLOR_SHADOW = 'rgba(0, 0, 0, 0.3)';
 
 // ── Element Colors ──────────────────────────────────────────────────────────
 const ELEMENT_COLORS = {
-    Fire: '#ff6633', Water: '#3399ff', Nature: '#33cc66',
-    Ice: '#88ccff', Air: '#aaddcc', Earth: '#cc9944',
+    Fire: '#ff6633', Water: '#3399ff', Plant: '#33cc66',
+    Ice: '#88ccff', Wind: '#aaddcc', Earth: '#cc9944',
     Electric: '#ffcc33', Dark: '#8855cc', Light: '#ffee88',
-    Psychic: '#dd66cc', Spirit: '#99bbdd', Chaos: '#dd3344',
+    Fairy: '#dd66cc', Solar: '#99bbdd', Lunar: '#dd3344',
     Metal: '#aaaacc', Poison: '#aa66cc',
 };
 

@@ -122,7 +122,7 @@ func _build_ui() -> void:
 	var seen_filter := _create_filter_chip("Seen", {"status": "seen"})
 	filter_bar.add_child(seen_filter)
 
-	for element in ["Fire", "Water", "Earth", "Nature"]:
+	for element in ["Fire", "Water", "Earth", "Plant"]:
 		var chip := _create_filter_chip(element, {"element": element})
 		filter_bar.add_child(chip)
 

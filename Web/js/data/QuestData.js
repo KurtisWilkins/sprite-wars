@@ -250,9 +250,9 @@ export const QUESTS = [
 			},
 			{
 				type: "complete_temple",
-				target: "3",  // Nature Temple
+				target: "3",  // Plant Temple
 				count: 1,
-				description: "Clear the Nature Temple.",
+				description: "Clear the Plant Temple.",
 			},
 		],
 		prerequisite_quest_ids: [7],
@@ -266,7 +266,7 @@ export const QUESTS = [
 			unlocks: [
 				"route_5",
 				"bonus_2",   // Water element composition bonus
-				"bonus_3",   // Nature element composition bonus
+				"bonus_3",   // Plant element composition bonus
 			],
 		},
 	},
@@ -329,9 +329,9 @@ export const QUESTS = [
 			},
 			{
 				type: "defeat_enemies",
-				target: "8",  // Gloomshade (Dark element, race_id 8)
+				target: "8",  // Ent (Dark element, race_id 8)
 				count: 3,
-				description: "Defeat 3 corrupted Gloomshades near the entrance.",
+				description: "Defeat 3 corrupted Ents near the entrance.",
 			},
 		],
 		prerequisite_quest_ids: [9],

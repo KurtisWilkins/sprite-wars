@@ -33,10 +33,10 @@ const COLORS = {
 
 const ELEMENT_COLORS = {
     Fire:     '#ff6633', Water:    '#4d99ff', Earth:    '#997740',
-    Air:      '#b3e6ff', Light:    '#ffff99', Dark:     '#804dbb',
-    Nature:   '#4dcc4d', Electric: '#ffe633', Ice:      '#99e6ff',
-    Metal:    '#b3b3bf', Poison:   '#b34dcc', Psychic:  '#ff80cc',
-    Spirit:   '#99cce6', Chaos:    '#e63366',
+    Wind:     '#b3e6ff', Light:    '#ffff99', Dark:     '#804dbb',
+    Plant:    '#4dcc4d', Electric: '#ffe633', Ice:      '#99e6ff',
+    Metal:    '#b3b3bf', Poison:   '#b34dcc', Fairy:    '#ff80cc',
+    Solar:    '#99cce6', Lunar:    '#e63366',
 };
 
 const RARITY_COLORS = {

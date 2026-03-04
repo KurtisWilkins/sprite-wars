@@ -2,8 +2,8 @@
  * AbilityData.js - All 160 abilities for the Sprite Wars battle system.
  * Ported from AbilityDatabase.gd.
  *
- * Element types: Fire, Water, Nature, Ice, Air, Earth, Electric,
- *   Dark, Light, Psychic, Spirit, Chaos, Metal, Poison, None
+ * Element types: Fire, Water, Plant, Ice, Wind, Earth, Electric,
+ *   Dark, Light, Fairy, Solar, Lunar, Metal, Poison, None
  *
  * @typedef {Object} Ability
  * @property {number} ability_id
@@ -408,7 +408,7 @@ export const ABILITIES = {
 	23: {
 		ability_id: 23,
 		ability_name: "Vine Whip",
-		element_type: "Nature",
+		element_type: "Plant",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 40,
@@ -425,7 +425,7 @@ export const ABILITIES = {
 	24: {
 		ability_id: 24,
 		ability_name: "Thorn Barrage",
-		element_type: "Nature",
+		element_type: "Plant",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 70,
@@ -442,7 +442,7 @@ export const ABILITIES = {
 	25: {
 		ability_id: 25,
 		ability_name: "Ancient Oak Slam",
-		element_type: "Nature",
+		element_type: "Plant",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 100,
@@ -459,7 +459,7 @@ export const ABILITIES = {
 	26: {
 		ability_id: 26,
 		ability_name: "Razor Leaf Storm",
-		element_type: "Nature",
+		element_type: "Plant",
 		class_affinity: "Any",
 		targeting_type: "row",
 		base_power: 50,
@@ -476,7 +476,7 @@ export const ABILITIES = {
 	27: {
 		ability_id: 27,
 		ability_name: "Overgrowth",
-		element_type: "Nature",
+		element_type: "Plant",
 		class_affinity: "Any",
 		targeting_type: "aoe_circle",
 		base_power: 80,
@@ -493,7 +493,7 @@ export const ABILITIES = {
 	28: {
 		ability_id: 28,
 		ability_name: "Poison Spore",
-		element_type: "Nature",
+		element_type: "Plant",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 30,
@@ -510,7 +510,7 @@ export const ABILITIES = {
 	29: {
 		ability_id: 29,
 		ability_name: "Tangling Roots",
-		element_type: "Nature",
+		element_type: "Plant",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 0,
@@ -527,7 +527,7 @@ export const ABILITIES = {
 	30: {
 		ability_id: 30,
 		ability_name: "Bark Armor",
-		element_type: "Nature",
+		element_type: "Plant",
 		class_affinity: "Any",
 		targeting_type: "self",
 		base_power: 0,
@@ -544,7 +544,7 @@ export const ABILITIES = {
 	31: {
 		ability_id: 31,
 		ability_name: "Photosynthesis",
-		element_type: "Nature",
+		element_type: "Plant",
 		class_affinity: "Any",
 		targeting_type: "single_ally",
 		base_power: 60,
@@ -561,7 +561,7 @@ export const ABILITIES = {
 	32: {
 		ability_id: 32,
 		ability_name: "World Tree Wrath",
-		element_type: "Nature",
+		element_type: "Plant",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 120,
@@ -578,7 +578,7 @@ export const ABILITIES = {
 	33: {
 		ability_id: 33,
 		ability_name: "Briar Snap",
-		element_type: "Nature",
+		element_type: "Plant",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 40,
@@ -786,7 +786,7 @@ export const ABILITIES = {
 	45: {
 		ability_id: 45,
 		ability_name: "Gust Slash",
-		element_type: "Air",
+		element_type: "Wind",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 40,
@@ -803,7 +803,7 @@ export const ABILITIES = {
 	46: {
 		ability_id: 46,
 		ability_name: "Cyclone Cutter",
-		element_type: "Air",
+		element_type: "Wind",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 70,
@@ -820,7 +820,7 @@ export const ABILITIES = {
 	47: {
 		ability_id: 47,
 		ability_name: "Tempest Fury",
-		element_type: "Air",
+		element_type: "Wind",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 100,
@@ -837,7 +837,7 @@ export const ABILITIES = {
 	48: {
 		ability_id: 48,
 		ability_name: "Gale Sweep",
-		element_type: "Air",
+		element_type: "Wind",
 		class_affinity: "Any",
 		targeting_type: "row",
 		base_power: 50,
@@ -854,7 +854,7 @@ export const ABILITIES = {
 	49: {
 		ability_id: 49,
 		ability_name: "Hurricane",
-		element_type: "Air",
+		element_type: "Wind",
 		class_affinity: "Any",
 		targeting_type: "aoe_circle",
 		base_power: 80,
@@ -871,7 +871,7 @@ export const ABILITIES = {
 	50: {
 		ability_id: 50,
 		ability_name: "Suffocate",
-		element_type: "Air",
+		element_type: "Wind",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 30,
@@ -888,7 +888,7 @@ export const ABILITIES = {
 	51: {
 		ability_id: 51,
 		ability_name: "Tailwind Drain",
-		element_type: "Air",
+		element_type: "Wind",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 0,
@@ -905,7 +905,7 @@ export const ABILITIES = {
 	52: {
 		ability_id: 52,
 		ability_name: "Zephyr Cloak",
-		element_type: "Air",
+		element_type: "Wind",
 		class_affinity: "Any",
 		targeting_type: "self",
 		base_power: 0,
@@ -922,7 +922,7 @@ export const ABILITIES = {
 	53: {
 		ability_id: 53,
 		ability_name: "Second Wind",
-		element_type: "Air",
+		element_type: "Wind",
 		class_affinity: "Any",
 		targeting_type: "single_ally",
 		base_power: 60,
@@ -939,7 +939,7 @@ export const ABILITIES = {
 	54: {
 		ability_id: 54,
 		ability_name: "Sky Rend",
-		element_type: "Air",
+		element_type: "Wind",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 120,
@@ -956,7 +956,7 @@ export const ABILITIES = {
 	55: {
 		ability_id: 55,
 		ability_name: "Slipstream",
-		element_type: "Air",
+		element_type: "Wind",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 40,
@@ -1731,7 +1731,7 @@ export const ABILITIES = {
 	100: {
 		ability_id: 100,
 		ability_name: "Pixie Dust",
-		element_type: "Psychic",
+		element_type: "Fairy",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 45,
@@ -1748,7 +1748,7 @@ export const ABILITIES = {
 	101: {
 		ability_id: 101,
 		ability_name: "Moonbeam",
-		element_type: "Psychic",
+		element_type: "Fairy",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 65,
@@ -1765,7 +1765,7 @@ export const ABILITIES = {
 	102: {
 		ability_id: 102,
 		ability_name: "Charm",
-		element_type: "Psychic",
+		element_type: "Fairy",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 0,
@@ -1782,7 +1782,7 @@ export const ABILITIES = {
 	103: {
 		ability_id: 103,
 		ability_name: "Fae Wind",
-		element_type: "Psychic",
+		element_type: "Fairy",
 		class_affinity: "Any",
 		targeting_type: "column",
 		base_power: 55,
@@ -1799,7 +1799,7 @@ export const ABILITIES = {
 	104: {
 		ability_id: 104,
 		ability_name: "Nature's Gift",
-		element_type: "Psychic",
+		element_type: "Fairy",
 		class_affinity: "Any",
 		targeting_type: "single_ally",
 		base_power: 0,
@@ -1816,7 +1816,7 @@ export const ABILITIES = {
 	105: {
 		ability_id: 105,
 		ability_name: "Enchant",
-		element_type: "Psychic",
+		element_type: "Fairy",
 		class_affinity: "Any",
 		targeting_type: "single_ally",
 		base_power: 0,
@@ -1833,7 +1833,7 @@ export const ABILITIES = {
 	106: {
 		ability_id: 106,
 		ability_name: "Sylph Rush",
-		element_type: "Psychic",
+		element_type: "Fairy",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 70,
@@ -1850,7 +1850,7 @@ export const ABILITIES = {
 	107: {
 		ability_id: 107,
 		ability_name: "Fairy Ring",
-		element_type: "Psychic",
+		element_type: "Fairy",
 		class_affinity: "Any",
 		targeting_type: "adjacent_allies",
 		base_power: 0,
@@ -1867,7 +1867,7 @@ export const ABILITIES = {
 	108: {
 		ability_id: 108,
 		ability_name: "Dazzle",
-		element_type: "Psychic",
+		element_type: "Fairy",
 		class_affinity: "Any",
 		targeting_type: "row",
 		base_power: 50,
@@ -1884,7 +1884,7 @@ export const ABILITIES = {
 	109: {
 		ability_id: 109,
 		ability_name: "Fae Barrage",
-		element_type: "Psychic",
+		element_type: "Fairy",
 		class_affinity: "Any",
 		targeting_type: "random",
 		base_power: 25,
@@ -1901,7 +1901,7 @@ export const ABILITIES = {
 	110: {
 		ability_id: 110,
 		ability_name: "Dreamweave",
-		element_type: "Psychic",
+		element_type: "Fairy",
 		class_affinity: "Any",
 		targeting_type: "aoe_circle",
 		base_power: 95,
@@ -1920,7 +1920,7 @@ export const ABILITIES = {
 	111: {
 		ability_id: 111,
 		ability_name: "Crescent Slash",
-		element_type: "Spirit",
+		element_type: "Solar",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 55,
@@ -1937,7 +1937,7 @@ export const ABILITIES = {
 	112: {
 		ability_id: 112,
 		ability_name: "Lunar Tide",
-		element_type: "Spirit",
+		element_type: "Solar",
 		class_affinity: "Any",
 		targeting_type: "row",
 		base_power: 60,
@@ -1954,7 +1954,7 @@ export const ABILITIES = {
 	113: {
 		ability_id: 113,
 		ability_name: "Moonrise",
-		element_type: "Spirit",
+		element_type: "Solar",
 		class_affinity: "Any",
 		targeting_type: "all_allies",
 		base_power: 0,
@@ -1971,7 +1971,7 @@ export const ABILITIES = {
 	114: {
 		ability_id: 114,
 		ability_name: "Eclipse Ray",
-		element_type: "Spirit",
+		element_type: "Solar",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 80,
@@ -1988,7 +1988,7 @@ export const ABILITIES = {
 	115: {
 		ability_id: 115,
 		ability_name: "Waning Light",
-		element_type: "Spirit",
+		element_type: "Solar",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 45,
@@ -2005,7 +2005,7 @@ export const ABILITIES = {
 	116: {
 		ability_id: 116,
 		ability_name: "Moonfall",
-		element_type: "Spirit",
+		element_type: "Solar",
 		class_affinity: "Any",
 		targeting_type: "diamond",
 		base_power: 85,
@@ -2022,7 +2022,7 @@ export const ABILITIES = {
 	117: {
 		ability_id: 117,
 		ability_name: "Silver Fang",
-		element_type: "Spirit",
+		element_type: "Solar",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 70,
@@ -2039,7 +2039,7 @@ export const ABILITIES = {
 	118: {
 		ability_id: 118,
 		ability_name: "Night Shroud",
-		element_type: "Spirit",
+		element_type: "Solar",
 		class_affinity: "Any",
 		targeting_type: "self",
 		base_power: 0,
@@ -2056,7 +2056,7 @@ export const ABILITIES = {
 	119: {
 		ability_id: 119,
 		ability_name: "Tidal Pull",
-		element_type: "Spirit",
+		element_type: "Solar",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 50,
@@ -2073,7 +2073,7 @@ export const ABILITIES = {
 	120: {
 		ability_id: 120,
 		ability_name: "Penumbra",
-		element_type: "Spirit",
+		element_type: "Solar",
 		class_affinity: "Any",
 		targeting_type: "all_enemies",
 		base_power: 70,
@@ -2090,7 +2090,7 @@ export const ABILITIES = {
 	121: {
 		ability_id: 121,
 		ability_name: "Lunar Blessing",
-		element_type: "Spirit",
+		element_type: "Solar",
 		class_affinity: "Any",
 		targeting_type: "single_ally",
 		base_power: 0,
@@ -2109,7 +2109,7 @@ export const ABILITIES = {
 	122: {
 		ability_id: 122,
 		ability_name: "Solar Flare",
-		element_type: "Chaos",
+		element_type: "Lunar",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 60,
@@ -2126,7 +2126,7 @@ export const ABILITIES = {
 	123: {
 		ability_id: 123,
 		ability_name: "Sunbeam",
-		element_type: "Chaos",
+		element_type: "Lunar",
 		class_affinity: "Any",
 		targeting_type: "line",
 		base_power: 75,
@@ -2143,7 +2143,7 @@ export const ABILITIES = {
 	124: {
 		ability_id: 124,
 		ability_name: "Daybreak",
-		element_type: "Chaos",
+		element_type: "Lunar",
 		class_affinity: "Any",
 		targeting_type: "all_allies",
 		base_power: 0,
@@ -2160,7 +2160,7 @@ export const ABILITIES = {
 	125: {
 		ability_id: 125,
 		ability_name: "Corona Blast",
-		element_type: "Chaos",
+		element_type: "Lunar",
 		class_affinity: "Any",
 		targeting_type: "aoe_circle",
 		base_power: 90,
@@ -2177,7 +2177,7 @@ export const ABILITIES = {
 	126: {
 		ability_id: 126,
 		ability_name: "Photon Strike",
-		element_type: "Chaos",
+		element_type: "Lunar",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 75,
@@ -2194,7 +2194,7 @@ export const ABILITIES = {
 	127: {
 		ability_id: 127,
 		ability_name: "Solar Charge",
-		element_type: "Chaos",
+		element_type: "Lunar",
 		class_affinity: "Any",
 		targeting_type: "self",
 		base_power: 0,
@@ -2211,7 +2211,7 @@ export const ABILITIES = {
 	128: {
 		ability_id: 128,
 		ability_name: "Heat Haze",
-		element_type: "Chaos",
+		element_type: "Lunar",
 		class_affinity: "Any",
 		targeting_type: "row",
 		base_power: 50,
@@ -2228,7 +2228,7 @@ export const ABILITIES = {
 	129: {
 		ability_id: 129,
 		ability_name: "Prominence",
-		element_type: "Chaos",
+		element_type: "Lunar",
 		class_affinity: "Any",
 		targeting_type: "column",
 		base_power: 70,
@@ -2245,7 +2245,7 @@ export const ABILITIES = {
 	130: {
 		ability_id: 130,
 		ability_name: "Sunrise Heal",
-		element_type: "Chaos",
+		element_type: "Lunar",
 		class_affinity: "Any",
 		targeting_type: "single_ally",
 		base_power: 60,
@@ -2262,7 +2262,7 @@ export const ABILITIES = {
 	131: {
 		ability_id: 131,
 		ability_name: "Supernova",
-		element_type: "Chaos",
+		element_type: "Lunar",
 		class_affinity: "Any",
 		targeting_type: "all_enemies",
 		base_power: 110,
@@ -2279,7 +2279,7 @@ export const ABILITIES = {
 	132: {
 		ability_id: 132,
 		ability_name: "Light Spear",
-		element_type: "Chaos",
+		element_type: "Lunar",
 		class_affinity: "Any",
 		targeting_type: "single_enemy",
 		base_power: 65,
@@ -2694,7 +2694,7 @@ export const ABILITIES = {
 		ability_id: 156,
 		ability_name: "Guard",
 		element_type: "",
-		class_affinity: "Guardian",
+		class_affinity: "Paladin",
 		targeting_type: "self",
 		base_power: 0,
 		accuracy: 1.0,
@@ -2703,7 +2703,7 @@ export const ABILITIES = {
 		priority_modifier: 2,
 		status_effect_ids: [22],
 		status_apply_chance: 1.0,
-		description: "Takes a defensive stance, granting a Shield. Guardian only. High priority.",
+		description: "Takes a defensive stance, granting a Shield. Paladin only. High priority.",
 		is_physical: false,
 		crit_rate_bonus: 0,
 	},
@@ -2711,7 +2711,7 @@ export const ABILITIES = {
 		ability_id: 157,
 		ability_name: "Quick Strike",
 		element_type: "",
-		class_affinity: "Striker",
+		class_affinity: "Fighter",
 		targeting_type: "single_enemy",
 		base_power: 40,
 		accuracy: 1.0,
@@ -2720,7 +2720,7 @@ export const ABILITIES = {
 		priority_modifier: 1,
 		status_effect_ids: [],
 		status_apply_chance: 0,
-		description: "A swift physical strike. Striker only. Priority.",
+		description: "A swift physical strike. Fighter only. Priority.",
 		is_physical: true,
 		crit_rate_bonus: 0,
 	},
@@ -2762,7 +2762,7 @@ export const ABILITIES = {
 		ability_id: 160,
 		ability_name: "Rage",
 		element_type: "",
-		class_affinity: "Berserker",
+		class_affinity: "Barbarian",
 		targeting_type: "self",
 		base_power: 0,
 		accuracy: 1.0,
@@ -2771,7 +2771,7 @@ export const ABILITIES = {
 		priority_modifier: 0,
 		status_effect_ids: [21],
 		status_apply_chance: 1.0,
-		description: "Enters a berserker rage, granting Regen. Berserker only.",
+		description: "Enters a berserker rage, granting Regen. Barbarian only.",
 		is_physical: false,
 		crit_rate_bonus: 0,
 	},
@@ -2799,7 +2799,7 @@ export function getAbilitiesByElement(element) {
 
 /**
  * Returns an array of all abilities matching the given class affinity.
- * @param {string} className - e.g. "Guardian", "Striker", "Berserker", "Any"
+ * @param {string} className - e.g. "Paladin", "Fighter", "Barbarian", "Any"
  * @returns {Ability[]}
  */
 export function getAbilitiesByClass(className) {

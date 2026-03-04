@@ -48,13 +48,13 @@ Equipment is a core progression layer in Sprite Wars. Players collect, equip, an
 | 1001 | Iron Sword | Common | 1 | 5 | 0 | 0 | 0 | None | None |
 | 1002 | Steel Blade | Common | 10 | 10 | 2 | 0 | 0 | None | None |
 | 1003 | Flame Sword | Uncommon | 15 | 14 | 0 | 2 | 5 | Fire | Berserker |
-| 1004 | Tempest Blade | Rare | 25 | 20 | 0 | 8 | 8 | Air | Assassin |
+| 1004 | Tempest Blade | Rare | 25 | 20 | 0 | 8 | 8 | Wind | Assassin |
 | 1005 | Shadow Edge | Epic | 35 | 30 | 0 | 10 | 15 | Dark | Assassin |
 | 1006 | Excalibur | Legendary | 45 | 50 | 10 | 10 | 20 | Light | Guardian |
 | 1101 | Bone Dagger | Common | 1 | 4 | 0 | 3 | 0 | Poison | Assassin |
-| 1102 | Crystal Wand | Uncommon | 10 | 3 | 0 | 0 | 12 | Psychic | Wizard |
+| 1102 | Crystal Wand | Uncommon | 10 | 3 | 0 | 0 | 12 | Fairy | Wizard |
 | 1103 | Thunder Hammer | Rare | 20 | 18 | 5 | -3 | 0 | Electric | Knight |
-| 1104 | Nature's Bow | Rare | 20 | 15 | 0 | 5 | 8 | Nature | Archer |
+| 1104 | Nature's Bow | Rare | 20 | 15 | 0 | 5 | 8 | Plant | Archer |
 | 1105 | Void Scythe | Epic | 30 | 28 | 0 | 5 | 18 | Dark | Berserker |
 | 1106 | Celestial Blade | Legendary | 40 | 45 | 8 | 12 | 22 | Light | Guardian |
 
@@ -102,7 +102,7 @@ Full item data is defined in `Web/js/data/EquipmentData.js`.
 ### Element Synergy
 Each equipment item may have an `element_synergy` that provides bonus effectiveness when equipped to a sprite of the matching element type.
 
-**14 Element Types**: Fire, Water, Nature, Ice, Air, Earth, Electric, Dark, Light, Psychic, Spirit, Chaos, Metal, Poison
+**14 Element Types**: Fire, Water, Plant, Ice, Wind, Earth, Electric, Dark, Light, Fairy, Solar, Lunar, Metal, Poison
 
 **Synergy Multipliers by Rarity**:
 | Rarity | Multiplier |
@@ -124,9 +124,9 @@ Each equipment item may have a `class_synergy` for bonus effectiveness with matc
 
 ### Dual-Element Races
 6 races have dual element types. Synergy matches against either element:
-- Pyrovolt (Fire + Electric), Venomthorn (Poison + Nature), Shadowflare (Dark + Fire)
-- Crystalmist (Ice + Psychic), Ironstorm (Metal + Air), Spiritbloom (Spirit + Nature)
-- Solarius (Light + Chaos), Eclipsar (Dark + Spirit)
+- Ork (Fire + Electric), Rat Man (Poison + Plant), Robot (Dark + Fire)
+- Shark Man (Ice + Fairy), Skeleton (Metal + Wind), Turtle Man (Solar + Plant)
+- Wolf Man (Light + Lunar), Zombie (Dark + Solar)
 
 ### Synergy Display in UI
 - Element synergy shown as colored badge: "FIRE SYNERGY ×1.2"
@@ -324,7 +324,7 @@ When enemies lack equipment, `RTSBattleScene._generateEquipmentForLevel()` auto-
 
 ### Cross-Screen Consistency
 - [ ] Equipment visuals match between Sprite Center, Deployment, and Battle
-- [ ] Element colors are consistent (Air not Wind, Chaos included)
+- [ ] Element colors are consistent (Wind, Lunar included)
 - [ ] Equipment stat bonuses reflected in battle unit stats
 
 ### Synergy System

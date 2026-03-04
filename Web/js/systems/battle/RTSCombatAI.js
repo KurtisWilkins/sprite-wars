@@ -9,9 +9,9 @@
  *   5. Apply separation from nearby allies (flocking)
  *
  * Supports different behaviors based on class type:
- *   - Melee (Berserker, Knight, Assassin, Spearman): Rush to nearest enemy
- *   - Ranged (Archer, Ranger): Keep distance, shoot from range
- *   - Support (Cleric, Summoner): Stay behind front line, heal allies
+ *   - Melee (Barbarian, Fighter, Assassin, Spearman, Heavy, Monk, Siegebreaker, Paladin): Rush to nearest enemy
+ *   - Ranged (Archer, Javelin, Crossbow, Handgunner): Keep distance, shoot from range
+ *   - Support (Cleric, Alchemist, Ambrosian): Stay behind front line, heal allies
  *   - Caster (Wizard): Position at mid-range, use abilities
  */
 
@@ -24,16 +24,22 @@ const BEHAVIOR_SUPPORT = 'support';
 const BEHAVIOR_CASTER = 'caster';
 
 const CLASS_BEHAVIOR = {
-    Berserker: BEHAVIOR_MELEE,
-    Knight:    BEHAVIOR_MELEE,
-    Guardian:  BEHAVIOR_MELEE,
-    Assassin:  BEHAVIOR_MELEE,
-    Spearman:  BEHAVIOR_MELEE,
-    Archer:    BEHAVIOR_RANGED,
-    Ranger:    BEHAVIOR_RANGED,
-    Cleric:    BEHAVIOR_SUPPORT,
-    Summoner:  BEHAVIOR_SUPPORT,
-    Wizard:    BEHAVIOR_CASTER,
+    Barbarian:    BEHAVIOR_MELEE,
+    Fighter:      BEHAVIOR_MELEE,
+    Spearman:     BEHAVIOR_MELEE,
+    Heavy:        BEHAVIOR_MELEE,
+    Assassin:     BEHAVIOR_MELEE,
+    Monk:         BEHAVIOR_MELEE,
+    Siegebreaker: BEHAVIOR_MELEE,
+    Paladin:      BEHAVIOR_MELEE,
+    Archer:       BEHAVIOR_RANGED,
+    Javelin:      BEHAVIOR_RANGED,
+    Crossbow:     BEHAVIOR_RANGED,
+    Handgunner:   BEHAVIOR_RANGED,
+    Cleric:       BEHAVIOR_SUPPORT,
+    Alchemist:    BEHAVIOR_SUPPORT,
+    Ambrosian:    BEHAVIOR_SUPPORT,
+    Wizard:       BEHAVIOR_CASTER,
 };
 
 // ── Constants ───────────────────────────────────────────────────────────────

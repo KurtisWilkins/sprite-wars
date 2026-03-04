@@ -1,42 +1,43 @@
 ## SpriteLearnsets — [P1-008] Maps each of the 24 Sprite races to their learnable abilities.
 ## Each entry: {ability_id, learn_level, is_starting} — ordered by learn_level.
 ## Races learn 8-12 abilities total, including element-matched and class-matched moves.
+## All races can be any element and any class.
 class_name SpriteLearnsets
 extends RefCounted
 
 static func get_all_learnsets() -> Dictionary:
 	return {
-		1: _emberpaw(),    # Fire / Berserker
-		2: _tidalfin(),    # Water / Guardian
-		3: _thornvine(),   # Plant / Ranger
-		4: _frostfang(),   # Ice / Assassin
-		5: _galecrest(),   # Wind / Striker
-		6: _bouldrim(),    # Earth / Guardian
-		7: _voltspark(),   # Electric / Striker
-		8: _shadowmaw(),   # Dark / Assassin
-		9: _luminara(),    # Light / Cleric
-		10: _faewisp(),    # Fairy / Trickster
-		11: _lunacrest(),  # Lunar / Sorcerer
-		12: _solforge(),   # Solar / Berserker
-		13: _ironhide(),   # Metal / Guardian
-		14: _venomthorn(), # Poison / Ranger
-		15: _embertide(),  # Fire+Water / Sorcerer
-		16: _frostleaf(),  # Ice+Plant / Ranger
-		17: _stormstone(),  # Electric+Earth / Berserker
-		18: _shadowfae(),  # Dark+Fairy / Trickster
-		19: _dawnmetal(),  # Light+Metal / Guardian
-		20: _moonvenom(),  # Lunar+Poison / Assassin
-		21: _solarwind(),  # Solar+Wind / Striker
-		22: _celestara(),  # Light+Fairy / Cleric (Legendary)
-		23: _voidrend(),   # Dark+Lunar / Sorcerer (Legendary)
-		24: _prismadon(),  # All elements / Any (Legendary)
+		1: _bug_man(),       # Bug Man
+		2: _bear_man(),      # Bear Man
+		3: _bird_man(),      # Bird Man
+		4: _demon(),         # Demon
+		5: _devil(),         # Devil
+		6: _cat_man(),       # Cat Man
+		7: _elf(),           # Elf
+		8: _ent(),           # Ent
+		9: _fish_man(),      # Fish Man
+		10: _ghost(),        # Ghost
+		11: _golem(),        # Golem
+		12: _human(),        # Human
+		13: _lizard_man(),   # Lizard Man
+		14: _minotaur(),     # Minotaur
+		15: _monkey_man(),   # Monkey Man
+		16: _mummy(),        # Mummy
+		17: _ork(),          # Ork
+		18: _rat_man(),      # Rat Man
+		19: _robot(),        # Robot
+		20: _shark_man(),    # Shark Man
+		21: _skeleton(),     # Skeleton
+		22: _turtle_man(),   # Turtle Man
+		23: _wolf_man(),     # Wolf Man
+		24: _zombie(),       # Zombie
 	}
 
 static func get_learnset(race_id: int) -> Array:
 	return get_all_learnsets().get(race_id, [])
 
-# 1: Emberpaw — Fire / Berserker
-static func _emberpaw() -> Array:
+# 1: Bug Man
+static func _bug_man() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 1, learn_level = 1, is_starting = true},     # Ember
@@ -51,8 +52,8 @@ static func _emberpaw() -> Array:
 		{ability_id = 11, learn_level = 38, is_starting = false},  # Flame Vortex
 	]
 
-# 2: Tidalfin — Water / Guardian
-static func _tidalfin() -> Array:
+# 2: Bear Man
+static func _bear_man() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 12, learn_level = 1, is_starting = true},    # Water Gun
@@ -66,8 +67,8 @@ static func _tidalfin() -> Array:
 		{ability_id = 22, learn_level = 34, is_starting = false},  # Abyssal Deluge
 	]
 
-# 3: Thornvine — Plant / Ranger
-static func _thornvine() -> Array:
+# 3: Bird Man
+static func _bird_man() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 23, learn_level = 1, is_starting = true},    # Vine Whip
@@ -81,8 +82,8 @@ static func _thornvine() -> Array:
 		{ability_id = 33, learn_level = 36, is_starting = false},  # Forest Storm
 	]
 
-# 4: Frostfang — Ice / Assassin
-static func _frostfang() -> Array:
+# 4: Demon
+static func _demon() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 34, learn_level = 1, is_starting = true},    # Ice Shard
@@ -96,8 +97,8 @@ static func _frostfang() -> Array:
 		{ability_id = 44, learn_level = 36, is_starting = false},  # Absolute Zero
 	]
 
-# 5: Galecrest — Wind / Striker
-static func _galecrest() -> Array:
+# 5: Devil
+static func _devil() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 45, learn_level = 1, is_starting = true},    # Gust
@@ -111,8 +112,8 @@ static func _galecrest() -> Array:
 		{ability_id = 55, learn_level = 36, is_starting = false},  # Hurricane
 	]
 
-# 6: Bouldrim — Earth / Guardian
-static func _bouldrim() -> Array:
+# 6: Cat Man
+static func _cat_man() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 56, learn_level = 1, is_starting = true},    # Rock Throw
@@ -126,8 +127,8 @@ static func _bouldrim() -> Array:
 		{ability_id = 66, learn_level = 36, is_starting = false},  # Tectonic Shift
 	]
 
-# 7: Voltspark — Electric / Striker
-static func _voltspark() -> Array:
+# 7: Elf
+static func _elf() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 67, learn_level = 1, is_starting = true},    # Spark
@@ -141,8 +142,8 @@ static func _voltspark() -> Array:
 		{ability_id = 77, learn_level = 34, is_starting = false},  # Volt Tackle
 	]
 
-# 8: Shadowmaw — Dark / Assassin
-static func _shadowmaw() -> Array:
+# 8: Ent
+static func _ent() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 78, learn_level = 1, is_starting = true},    # Shadow Strike
@@ -156,8 +157,8 @@ static func _shadowmaw() -> Array:
 		{ability_id = 87, learn_level = 36, is_starting = false},  # Umbral Storm
 	]
 
-# 9: Luminara — Light / Cleric
-static func _luminara() -> Array:
+# 9: Fish Man
+static func _fish_man() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 89, learn_level = 1, is_starting = true},    # Holy Beam
@@ -171,8 +172,8 @@ static func _luminara() -> Array:
 		{ability_id = 98, learn_level = 36, is_starting = false},  # Sanctuary
 	]
 
-# 10: Faewisp — Fairy / Trickster
-static func _faewisp() -> Array:
+# 10: Ghost
+static func _ghost() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 100, learn_level = 1, is_starting = true},   # Pixie Dust
@@ -186,8 +187,8 @@ static func _faewisp() -> Array:
 		{ability_id = 110, learn_level = 36, is_starting = false}, # Dreamweave
 	]
 
-# 11: Lunacrest — Lunar / Sorcerer
-static func _lunacrest() -> Array:
+# 11: Golem
+static func _golem() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 111, learn_level = 1, is_starting = true},   # Crescent Slash
@@ -202,8 +203,8 @@ static func _lunacrest() -> Array:
 		{ability_id = 121, learn_level = 38, is_starting = false}, # Lunar Blessing
 	]
 
-# 12: Solforge — Solar / Berserker
-static func _solforge() -> Array:
+# 12: Human
+static func _human() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 122, learn_level = 1, is_starting = true},   # Solar Flare
@@ -217,8 +218,8 @@ static func _solforge() -> Array:
 		{ability_id = 131, learn_level = 36, is_starting = false}, # Supernova
 	]
 
-# 13: Ironhide — Metal / Guardian
-static func _ironhide() -> Array:
+# 13: Lizard Man
+static func _lizard_man() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 133, learn_level = 1, is_starting = true},   # Iron Slam
@@ -232,8 +233,8 @@ static func _ironhide() -> Array:
 		{ability_id = 142, learn_level = 36, is_starting = false}, # Meltdown
 	]
 
-# 14: Venomthorn — Poison / Ranger
-static func _venomthorn() -> Array:
+# 14: Minotaur
+static func _minotaur() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 144, learn_level = 1, is_starting = true},   # Toxic Spit
@@ -247,8 +248,8 @@ static func _venomthorn() -> Array:
 		{ability_id = 154, learn_level = 35, is_starting = false}, # Noxious Bite
 	]
 
-# 15: Embertide — Fire+Water / Sorcerer (Dual-element)
-static func _embertide() -> Array:
+# 15: Monkey Man
+static func _monkey_man() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 1, learn_level = 1, is_starting = true},     # Ember
@@ -263,8 +264,8 @@ static func _embertide() -> Array:
 		{ability_id = 11, learn_level = 38, is_starting = false},  # Flame Vortex
 	]
 
-# 16: Frostleaf — Ice+Plant / Ranger (Dual-element)
-static func _frostleaf() -> Array:
+# 16: Mummy
+static func _mummy() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 34, learn_level = 1, is_starting = true},    # Ice Shard
@@ -278,8 +279,8 @@ static func _frostleaf() -> Array:
 		{ability_id = 33, learn_level = 34, is_starting = false},  # Forest Storm
 	]
 
-# 17: Stormstone — Electric+Earth / Berserker (Dual-element)
-static func _stormstone() -> Array:
+# 17: Ork
+static func _ork() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 67, learn_level = 1, is_starting = true},    # Spark
@@ -293,8 +294,8 @@ static func _stormstone() -> Array:
 		{ability_id = 66, learn_level = 36, is_starting = false},  # Tectonic Shift
 	]
 
-# 18: Shadowfae — Dark+Fairy / Trickster (Dual-element)
-static func _shadowfae() -> Array:
+# 18: Rat Man
+static func _rat_man() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 78, learn_level = 1, is_starting = true},    # Shadow Strike
@@ -308,8 +309,8 @@ static func _shadowfae() -> Array:
 		{ability_id = 110, learn_level = 34, is_starting = false}, # Dreamweave
 	]
 
-# 19: Dawnmetal — Light+Metal / Guardian (Dual-element)
-static func _dawnmetal() -> Array:
+# 19: Robot
+static func _robot() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 89, learn_level = 1, is_starting = true},    # Holy Beam
@@ -324,8 +325,8 @@ static func _dawnmetal() -> Array:
 		{ability_id = 143, learn_level = 38, is_starting = false}, # Titanium Fist
 	]
 
-# 20: Moonvenom — Lunar+Poison / Assassin (Dual-element)
-static func _moonvenom() -> Array:
+# 20: Shark Man
+static func _shark_man() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 111, learn_level = 1, is_starting = true},   # Crescent Slash
@@ -339,8 +340,8 @@ static func _moonvenom() -> Array:
 		{ability_id = 154, learn_level = 34, is_starting = false}, # Noxious Bite
 	]
 
-# 21: Solarwind — Solar+Wind / Striker (Dual-element)
-static func _solarwind() -> Array:
+# 21: Skeleton
+static func _skeleton() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 122, learn_level = 1, is_starting = true},   # Solar Flare
@@ -355,8 +356,8 @@ static func _solarwind() -> Array:
 		{ability_id = 131, learn_level = 40, is_starting = false}, # Supernova
 	]
 
-# 22: Celestara — Light+Fairy / Cleric (Legendary)
-static func _celestara() -> Array:
+# 22: Turtle Man
+static func _turtle_man() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 89, learn_level = 1, is_starting = true},    # Holy Beam
@@ -372,8 +373,8 @@ static func _celestara() -> Array:
 		{ability_id = 110, learn_level = 42, is_starting = false}, # Dreamweave
 	]
 
-# 23: Voidrend — Dark+Lunar / Sorcerer (Legendary)
-static func _voidrend() -> Array:
+# 23: Wolf Man
+static func _wolf_man() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 78, learn_level = 1, is_starting = true},    # Shadow Strike
@@ -389,8 +390,8 @@ static func _voidrend() -> Array:
 		{ability_id = 87, learn_level = 42, is_starting = false},  # Umbral Storm
 	]
 
-# 24: Prismadon — All elements / Any (Legendary)
-static func _prismadon() -> Array:
+# 24: Zombie
+static func _zombie() -> Array:
 	return [
 		{ability_id = 155, learn_level = 1, is_starting = true},   # Tackle
 		{ability_id = 158, learn_level = 1, is_starting = true},   # Focus Energy

@@ -343,30 +343,30 @@ Sprites appear in UI contexts (team roster, collection, shop) as portrait thumbn
 
 | Component | Format | Example |
 |-----------|--------|---------|
-| RaceName | PascalCase, no spaces | `Emberpaw`, `Tidalfin`, `Thornsprout` |
+| RaceName | PascalCase, underscores for multi-word | `BugMan`, `BearMan`, `BirdMan` |
 | Stage | `S1`, `S2`, `S3` | `S1` |
 | Asset | Descriptive tag | `Idle`, `Portrait`, `Silhouette` |
 
 ### Examples
 ```
-Emberpaw_S1_Idle.png
-Emberpaw_S1_Portrait.png
-Emberpaw_S2_Idle.png
-Blazefang_S2_Portrait.png
-Infernowolf_S3_Idle.png
+BugMan_S1_Idle.png
+BugMan_S1_Portrait.png
+BugMan_S2_Idle.png
+BugMan_S2_Portrait.png
+BugMan_S3_Idle.png
 ```
 
 ### Directory Structure
 ```
 res://Sprites/Characters/
-├── Emberpaw/
-│   ├── Emberpaw_S1_Idle.png
-│   ├── Emberpaw_S1_Walk.png
-│   ├── Emberpaw_S1_Attack.png
-│   ├── Emberpaw_S1_Portrait.png
-│   ├── Emberpaw_S2_Idle.png
+├── BugMan/
+│   ├── BugMan_S1_Idle.png
+│   ├── BugMan_S1_Walk.png
+│   ├── BugMan_S1_Attack.png
+│   ├── BugMan_S1_Portrait.png
+│   ├── BugMan_S2_Idle.png
 │   └── ...
-├── Tidalfin/
+├── BearMan/
 │   └── ...
 └── ...
 ```

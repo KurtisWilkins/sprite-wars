@@ -147,9 +147,9 @@ function _createNatureStarter() {
         xp: 0,
         currentHp: 52,
         maxHp: 52,
-        elementTypes: ['Nature'],
+        elementTypes: ['Plant'],
         abilities: [
-            { abilityId: 23, name: 'Vine Whip', element: 'Nature', power: 40, targetingType: 'single' },
+            { abilityId: 23, name: 'Vine Whip', element: 'Plant', power: 40, targetingType: 'single' },
             { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
         ],
         stats: {
@@ -199,7 +199,7 @@ function _createAirStarter() {
         xp: 0,
         currentHp: 45,
         maxHp: 45,
-        elementTypes: ['Air'],
+        elementTypes: ['Wind'],
         abilities: [
             { abilityId: 45, name: 'Gust Slash', element: 'Wind', power: 40, targetingType: 'single' },
             { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
@@ -427,16 +427,16 @@ export class GameManager {
         this.playerData = createDefaultPlayerData();
         this.playerData.playerName = 'Trainer';
         this.playerData.team = [
-            createStarterSprite(),      // 1. Emberpaw (Fire)
-            _createWaterStarter(),      // 2. Tidalfin (Water)
-            _createNatureStarter(),     // 3. Thornvine (Nature)
-            _createIceStarter(),        // 4. Frostfang (Ice)
-            _createAirStarter(),        // 5. Galecrest (Air)
-            _createEarthStarter(),      // 6. Terraclaw (Earth)
-            _createElectricStarter(),   // 7. Voltail (Electric)
-            _createDarkStarter(),       // 8. Gloomshade (Dark)
-            _createLightStarter(),      // 9. Luminos (Light)
-            _createPoisonStarter(),     // 10. Venomire (Poison)
+            createStarterSprite(),      // 1. Bug Man (Fire)
+            _createWaterStarter(),      // 2. Bear Man (Water)
+            _createNatureStarter(),     // 3. Bird Man (Plant)
+            _createIceStarter(),        // 4. Demon (Ice)
+            _createAirStarter(),        // 5. Devil (Wind)
+            _createEarthStarter(),      // 6. Cat Man (Earth)
+            _createElectricStarter(),   // 7. Elf (Electric)
+            _createDarkStarter(),       // 8. Ent (Dark)
+            _createLightStarter(),      // 9. Fish Man (Light)
+            _createPoisonStarter(),     // 10. Minotaur (Poison)
         ];
         this.currentAreaId = 'starter_town';
         this.gameTimeSeconds = 0;

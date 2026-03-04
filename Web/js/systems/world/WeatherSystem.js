@@ -155,14 +155,14 @@ export class WeatherSystem {
             },
             snow: {
                 elementBoost: 'Ice',
-                elementNerf: 'Nature',
+                elementNerf: 'Plant',
                 speedModifier: 0.9,
             },
             sandstorm: {
                 elementBoost: 'Earth',
                 accuracyModifier: 0.85,
                 dotDamagePerTurn: 5,
-                dotImmuneElements: ['Earth', 'Steel', 'Rock'],
+                dotImmuneElements: ['Earth', 'Metal'],
             },
             fog: {
                 accuracyModifier: 0.80,
@@ -170,7 +170,7 @@ export class WeatherSystem {
             leaves: {},
             volcanic_ash: {
                 elementBoost: 'Fire',
-                elementNerf: 'Nature',
+                elementNerf: 'Plant',
                 accuracyModifier: 0.90,
             },
             fairy_sparkle: {

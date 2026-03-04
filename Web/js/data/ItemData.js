@@ -203,11 +203,11 @@ export const CONSUMABLES = [
 	},
 	{
 		item_id: 153,
-		name: "Nature Gem",
+		name: "Plant Gem",
 		category: "battle_item",
 		effect_type: "element_boost",
-		effect_value: { element: "Nature", multiplier: 1.5, duration: "battle" },
-		description: "Boosts Nature-type damage by 50% for one battle.",
+		effect_value: { element: "Plant", multiplier: 1.5, duration: "battle" },
+		description: "Boosts Plant-type damage by 50% for one battle.",
 		buy_price: 800,
 	},
 	{

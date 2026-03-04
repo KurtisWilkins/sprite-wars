@@ -31,7 +31,7 @@ const SEPARATION_RADIUS = 18;        // Min distance between allied units
 const AGGRO_RANGE = 1000;             // Max distance to acquire targets (must exceed spawn distance ~700px)
 
 // Class types that use ranged attacks
-const RANGED_CLASSES = new Set(['Archer', 'Wizard', 'Cleric', 'Summoner', 'Ranger']);
+const RANGED_CLASSES = new Set(['Archer', 'Wizard', 'Cleric', 'Alchemist', 'Javelin', 'Crossbow', 'Handgunner', 'Ambrosian']);
 
 export class RTSUnit extends BattleUnit {
 

@@ -33,7 +33,7 @@ export const AREA_IDS = [
 /** @type {EncounterTableMap} */
 export const ENCOUNTER_TABLES = {
 	// ── STARTER ROUTE — First area, levels 2-5 ──
-	// Races: Emberpaw (Fire), Tidalfin (Water), Thornvine (Nature), Frostfang (Ice)
+	// Races: Bug Man (Fire), Bear Man (Water), Bird Man (Plant), Demon (Ice)
 	starter_route: [
 		{ race_id: 1, min_level: 2, max_level: 5, weight: 40, rarity: "common" },
 		{ race_id: 2, min_level: 2, max_level: 5, weight: 30, rarity: "common" },
@@ -42,7 +42,7 @@ export const ENCOUNTER_TABLES = {
 	],
 
 	// ── FOREST PATH — Early area, levels 5-8 ──
-	// Races: Thornvine (Nature), Galecrest (Air), Terraclaw (Earth), Voltail (Electric)
+	// Races: Bird Man (Plant), Devil (Wind), Cat Man (Earth), Elf (Electric)
 	forest_path: [
 		{ race_id: 3, min_level: 5, max_level: 8, weight: 35, rarity: "common" },
 		{ race_id: 5, min_level: 5, max_level: 8, weight: 30, rarity: "common" },
@@ -51,7 +51,7 @@ export const ENCOUNTER_TABLES = {
 	],
 
 	// ── COASTAL TRAIL — Mid-early area, levels 8-12 ──
-	// Races: Tidalfin (Water), Gloomshade (Dark), Luminos (Light), Glimmerwing (Psychic)
+	// Races: Bear Man (Water), Ent (Dark), Fish Man (Light), Ghost (Fairy)
 	coastal_trail: [
 		{ race_id: 2, min_level: 8, max_level: 12, weight: 35, rarity: "common" },
 		{ race_id: 8, min_level: 8, max_level: 12, weight: 25, rarity: "uncommon" },
@@ -60,7 +60,7 @@ export const ENCOUNTER_TABLES = {
 	],
 
 	// ── MOUNTAIN PASS — Mid area, levels 12-16 ──
-	// Races: Frostfang (Ice), Spectrail (Spirit), Ignisurge (Chaos), Ironhusk (Metal)
+	// Races: Demon (Ice), Golem (Solar), Human (Lunar), Lizard Man (Metal)
 	mountain_pass: [
 		{ race_id: 4, min_level: 12, max_level: 16, weight: 30, rarity: "common" },
 		{ race_id: 11, min_level: 12, max_level: 16, weight: 25, rarity: "uncommon" },
@@ -69,7 +69,7 @@ export const ENCOUNTER_TABLES = {
 	],
 
 	// ── VOLCANIC CAVE — Mid-late area, levels 16-20 ──
-	// Races: Emberpaw (Fire), Venomire (Poison), Blazeguard (Fire/Guardian)
+	// Races: Bug Man (Fire), Minotaur (Poison), Monkey Man (Fire/Paladin)
 	volcanic_cave: [
 		{ race_id: 1, min_level: 16, max_level: 20, weight: 35, rarity: "common" },
 		{ race_id: 14, min_level: 16, max_level: 20, weight: 35, rarity: "common" },
@@ -77,7 +77,7 @@ export const ENCOUNTER_TABLES = {
 	],
 
 	// ── FROZEN PEAKS — Late area, levels 20-25 ──
-	// Races: Terraclaw (Earth), Aquashot (Water/Archer), Pyrovolt (Fire+Electric)
+	// Races: Cat Man (Earth), Mummy (Water/Archer), Ork (Fire+Electric)
 	frozen_peaks: [
 		{ race_id: 6, min_level: 20, max_level: 25, weight: 35, rarity: "common" },
 		{ race_id: 16, min_level: 20, max_level: 25, weight: 35, rarity: "common" },
@@ -85,7 +85,7 @@ export const ENCOUNTER_TABLES = {
 	],
 
 	// ── THUNDER PLAINS — Late area, levels 25-30 ──
-	// Races: Voltail (Electric), Venomthorn (Poison+Nature), Shadowflare (Dark+Fire)
+	// Races: Elf (Electric), Rat Man (Poison+Plant), Robot (Dark+Fire)
 	thunder_plains: [
 		{ race_id: 7, min_level: 25, max_level: 30, weight: 35, rarity: "common" },
 		{ race_id: 18, min_level: 25, max_level: 30, weight: 35, rarity: "uncommon" },
@@ -93,7 +93,7 @@ export const ENCOUNTER_TABLES = {
 	],
 
 	// ── DARK FOREST — Endgame area, levels 30-35 ──
-	// Races: Gloomshade (Dark), Crystalmist (Ice+Psychic), Ironstorm (Metal+Air)
+	// Races: Ent (Dark), Shark Man (Ice+Fairy), Skeleton (Metal+Wind)
 	dark_forest: [
 		{ race_id: 8, min_level: 30, max_level: 35, weight: 35, rarity: "common" },
 		{ race_id: 20, min_level: 30, max_level: 35, weight: 35, rarity: "rare" },
@@ -101,7 +101,7 @@ export const ENCOUNTER_TABLES = {
 	],
 
 	// ── CRYSTAL CAVERN — Endgame area, levels 35-40 ──
-	// Races: Luminos (Light), Glimmerwing (Psychic), Spiritbloom (Spirit+Nature)
+	// Races: Fish Man (Light), Ghost (Fairy), Turtle Man (Solar+Plant)
 	crystal_cavern: [
 		{ race_id: 9, min_level: 35, max_level: 40, weight: 35, rarity: "uncommon" },
 		{ race_id: 10, min_level: 35, max_level: 40, weight: 35, rarity: "uncommon" },
@@ -109,7 +109,7 @@ export const ENCOUNTER_TABLES = {
 	],
 
 	// ── ANCIENT RUINS — Final area, levels 40-50, legendary encounters ──
-	// Races: Solarius (Light+Chaos), Eclipsar (Dark+Spirit)
+	// Races: Wolf Man (Light+Lunar), Zombie (Dark+Solar)
 	ancient_ruins: [
 		{ race_id: 23, min_level: 40, max_level: 50, weight: 50, rarity: "legendary" },
 		{ race_id: 24, min_level: 40, max_level: 50, weight: 50, rarity: "legendary" },

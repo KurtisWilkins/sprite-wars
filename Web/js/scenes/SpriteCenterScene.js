@@ -72,10 +72,10 @@ const STAT_COLORS = {
 const STAT_WEIGHTS = { hp: 0.5, atk: 1.2, def: 1.0, spd: 1.1, sp_atk: 1.2, sp_def: 1.0 };
 
 const ELEMENT_COLORS = {
-    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Air: '#88ccaa',
-    Electric: '#ffcc00', Ice: '#99ddff', Nature: '#33aa33', Poison: '#aa33aa',
-    Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Psychic: '#ff66aa',
-    Chaos: '#ff8833', Spirit: '#ccccff',
+    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
+    Electric: '#ffcc00', Ice: '#99ddff', Plant: '#33aa33', Poison: '#aa33aa',
+    Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Fairy: '#ff66aa',
+    Lunar: '#ff8833', Solar: '#ccccff',
 };
 
 // ── Targeting Type Icons & Descriptions ──────────────────────────────────────

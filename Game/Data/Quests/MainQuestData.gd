@@ -231,7 +231,7 @@ static func get_all_quests() -> Array[Dictionary]:
 					"type": "complete_temple",
 					"target": "3",  # Nature Temple
 					"count": 1,
-					"description": "Clear the Nature Temple.",
+					"description": "Clear the Plant Temple.",
 				},
 			],
 			"prerequisite_quest_ids": [7],
@@ -308,9 +308,9 @@ static func get_all_quests() -> Array[Dictionary]:
 				},
 				{
 					"type": "defeat_enemies",
-					"target": "8",  # Gloomshade (Dark element, race_id 8)
+					"target": "8",  # Ent (Dark element, race_id 8)
 					"count": 3,
-					"description": "Defeat 3 corrupted Gloomshades near the entrance.",
+					"description": "Defeat 3 corrupted Ents near the entrance.",
 				},
 			],
 			"prerequisite_quest_ids": [9],

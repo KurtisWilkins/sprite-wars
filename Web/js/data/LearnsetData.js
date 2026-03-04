@@ -15,7 +15,7 @@
 
 /** @type {LearnsetMap} */
 export const LEARNSETS = {
-	// 1: Emberpaw — Fire / Berserker
+	// 1: Bug Man — Fire / Barbarian
 	1: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 1, learn_level: 1, is_starting: true },     // Ember
@@ -30,7 +30,7 @@ export const LEARNSETS = {
 		{ ability_id: 11, learn_level: 38, is_starting: false },  // Flame Vortex
 	],
 
-	// 2: Tidalfin — Water / Guardian
+	// 2: Bear Man — Water / Paladin
 	2: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 12, learn_level: 1, is_starting: true },    // Water Gun
@@ -44,7 +44,7 @@ export const LEARNSETS = {
 		{ ability_id: 22, learn_level: 34, is_starting: false },  // Abyssal Deluge
 	],
 
-	// 3: Thornvine — Plant / Ranger
+	// 3: Bird Man — Plant / Javelin
 	3: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 23, learn_level: 1, is_starting: true },    // Vine Whip
@@ -58,7 +58,7 @@ export const LEARNSETS = {
 		{ ability_id: 33, learn_level: 36, is_starting: false },  // Forest Storm
 	],
 
-	// 4: Frostfang — Ice / Assassin
+	// 4: Demon — Ice / Assassin
 	4: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 34, learn_level: 1, is_starting: true },    // Ice Shard
@@ -72,7 +72,7 @@ export const LEARNSETS = {
 		{ ability_id: 44, learn_level: 36, is_starting: false },  // Absolute Zero
 	],
 
-	// 5: Galecrest — Wind / Striker
+	// 5: Devil — Wind / Archer
 	5: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 45, learn_level: 1, is_starting: true },    // Gust
@@ -86,7 +86,7 @@ export const LEARNSETS = {
 		{ ability_id: 55, learn_level: 36, is_starting: false },  // Hurricane
 	],
 
-	// 6: Bouldrim — Earth / Guardian
+	// 6: Cat Man — Earth / Paladin
 	6: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 56, learn_level: 1, is_starting: true },    // Rock Throw
@@ -100,7 +100,7 @@ export const LEARNSETS = {
 		{ ability_id: 66, learn_level: 36, is_starting: false },  // Tectonic Shift
 	],
 
-	// 7: Voltspark — Electric / Striker
+	// 7: Elf — Electric / Wizard
 	7: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 67, learn_level: 1, is_starting: true },    // Spark
@@ -114,7 +114,7 @@ export const LEARNSETS = {
 		{ ability_id: 77, learn_level: 34, is_starting: false },  // Volt Tackle
 	],
 
-	// 8: Shadowmaw — Dark / Assassin
+	// 8: Ent — Dark / Assassin
 	8: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 78, learn_level: 1, is_starting: true },    // Shadow Strike
@@ -128,7 +128,7 @@ export const LEARNSETS = {
 		{ ability_id: 87, learn_level: 36, is_starting: false },  // Umbral Storm
 	],
 
-	// 9: Luminara — Light / Cleric
+	// 9: Fish Man — Light / Cleric
 	9: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 89, learn_level: 1, is_starting: true },    // Holy Beam
@@ -142,7 +142,7 @@ export const LEARNSETS = {
 		{ ability_id: 98, learn_level: 36, is_starting: false },  // Sanctuary
 	],
 
-	// 10: Faewisp — Fairy / Trickster
+	// 10: Ghost — Fairy / Alchemist
 	10: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 100, learn_level: 1, is_starting: true },   // Pixie Dust
@@ -156,7 +156,7 @@ export const LEARNSETS = {
 		{ ability_id: 110, learn_level: 36, is_starting: false }, // Dreamweave
 	],
 
-	// 11: Lunacrest — Lunar / Sorcerer
+	// 11: Golem — Solar / Wizard
 	11: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 111, learn_level: 1, is_starting: true },   // Crescent Slash
@@ -171,7 +171,7 @@ export const LEARNSETS = {
 		{ ability_id: 121, learn_level: 38, is_starting: false }, // Lunar Blessing
 	],
 
-	// 12: Solforge — Solar / Berserker
+	// 12: Human — Solar / Barbarian
 	12: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 122, learn_level: 1, is_starting: true },   // Solar Flare
@@ -185,7 +185,7 @@ export const LEARNSETS = {
 		{ ability_id: 131, learn_level: 36, is_starting: false }, // Supernova
 	],
 
-	// 13: Ironhide — Metal / Guardian
+	// 13: Lizard Man — Metal / Paladin
 	13: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 133, learn_level: 1, is_starting: true },   // Iron Slam
@@ -199,7 +199,7 @@ export const LEARNSETS = {
 		{ ability_id: 142, learn_level: 36, is_starting: false }, // Meltdown
 	],
 
-	// 14: Venomthorn — Poison / Ranger
+	// 14: Minotaur — Poison / Javelin
 	14: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 144, learn_level: 1, is_starting: true },   // Toxic Spit
@@ -213,7 +213,7 @@ export const LEARNSETS = {
 		{ ability_id: 154, learn_level: 35, is_starting: false }, // Noxious Bite
 	],
 
-	// 15: Embertide — Fire+Water / Sorcerer (Dual-element)
+	// 15: Monkey Man — Fire / Paladin
 	15: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 1, learn_level: 1, is_starting: true },     // Ember
@@ -228,7 +228,7 @@ export const LEARNSETS = {
 		{ ability_id: 11, learn_level: 38, is_starting: false },  // Flame Vortex
 	],
 
-	// 16: Frostleaf — Ice+Plant / Ranger (Dual-element)
+	// 16: Mummy — Ice+Plant / Javelin (Dual-element)
 	16: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 34, learn_level: 1, is_starting: true },    // Ice Shard
@@ -242,7 +242,7 @@ export const LEARNSETS = {
 		{ ability_id: 33, learn_level: 34, is_starting: false },  // Forest Storm
 	],
 
-	// 17: Stormstone — Electric+Earth / Berserker (Dual-element)
+	// 17: Ork — Electric+Earth / Barbarian (Dual-element)
 	17: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 67, learn_level: 1, is_starting: true },    // Spark
@@ -256,7 +256,7 @@ export const LEARNSETS = {
 		{ ability_id: 66, learn_level: 36, is_starting: false },  // Tectonic Shift
 	],
 
-	// 18: Shadowfae — Dark+Fairy / Trickster (Dual-element)
+	// 18: Rat Man — Poison+Plant / Spearman (Dual-element)
 	18: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 78, learn_level: 1, is_starting: true },    // Shadow Strike
@@ -270,7 +270,7 @@ export const LEARNSETS = {
 		{ ability_id: 110, learn_level: 34, is_starting: false }, // Dreamweave
 	],
 
-	// 19: Dawnmetal — Light+Metal / Guardian (Dual-element)
+	// 19: Robot — Light+Metal / Paladin (Dual-element)
 	19: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 89, learn_level: 1, is_starting: true },    // Holy Beam
@@ -285,7 +285,7 @@ export const LEARNSETS = {
 		{ ability_id: 143, learn_level: 38, is_starting: false }, // Titanium Fist
 	],
 
-	// 20: Moonvenom — Lunar+Poison / Assassin (Dual-element)
+	// 20: Shark Man — Lunar+Poison / Assassin (Dual-element)
 	20: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 111, learn_level: 1, is_starting: true },   // Crescent Slash
@@ -299,7 +299,7 @@ export const LEARNSETS = {
 		{ ability_id: 154, learn_level: 34, is_starting: false }, // Noxious Bite
 	],
 
-	// 21: Solarwind — Solar+Wind / Striker (Dual-element)
+	// 21: Skeleton — Metal+Wind / Barbarian (Dual-element)
 	21: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 122, learn_level: 1, is_starting: true },   // Solar Flare
@@ -314,7 +314,7 @@ export const LEARNSETS = {
 		{ ability_id: 131, learn_level: 40, is_starting: false }, // Supernova
 	],
 
-	// 22: Celestara — Light+Fairy / Cleric (Legendary)
+	// 22: Turtle Man — Light+Fairy / Cleric (Legendary)
 	22: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 89, learn_level: 1, is_starting: true },    // Holy Beam
@@ -330,7 +330,7 @@ export const LEARNSETS = {
 		{ ability_id: 110, learn_level: 42, is_starting: false }, // Dreamweave
 	],
 
-	// 23: Voidrend — Dark+Lunar / Sorcerer (Legendary)
+	// 23: Wolf Man — Light+Lunar / Paladin (Legendary)
 	23: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 78, learn_level: 1, is_starting: true },    // Shadow Strike
@@ -346,7 +346,7 @@ export const LEARNSETS = {
 		{ ability_id: 87, learn_level: 42, is_starting: false },  // Umbral Storm
 	],
 
-	// 24: Prismadon — All elements / Any (Legendary)
+	// 24: Zombie — All elements / Any (Legendary)
 	24: [
 		{ ability_id: 155, learn_level: 1, is_starting: true },   // Tackle
 		{ ability_id: 158, learn_level: 1, is_starting: true },   // Focus Energy
