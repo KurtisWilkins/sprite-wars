@@ -1224,7 +1224,7 @@ export class SpriteCenterScene extends Scene {
         infoBlock.appendChild(raceLine);
 
         // Class
-        const classType = inst.classType || inst.class_type || raceData.classType || raceData.class_type || 'Unknown';
+        const classType = inst.classType || inst.class_type || raceData.classType || raceData.class_type || (raceData.available_classes && raceData.available_classes[0]) || 'Fighter';
         const classLine = document.createElement('div');
         classLine.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:4px;';
         const classLabel = document.createElement('span');

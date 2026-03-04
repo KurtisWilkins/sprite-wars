@@ -751,11 +751,13 @@ export class RTSBattleScene extends Scene {
 
             // Build instance object with calculateAllEffectiveStats method
             // (mirrors BattleScene._enrichTeamData pattern)
+            const sourceInst = raw.instance || raw;
             const instance = {
-                ...(raw.instance || raw),
+                ...sourceInst,
                 raceId,
                 formId,
                 level,
+                nickname: sourceInst.nickname || '',
                 calculateAllEffectiveStats(rd, sd) {
                     let result;
                     // Player sprites have pre-computed stats — use them

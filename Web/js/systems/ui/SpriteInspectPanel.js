@@ -149,7 +149,7 @@ export class SpriteInspectPanel {
                 evolutionStage: unit.evolutionStage || 1,
                 elements: elemTypes,
                 rarity: raceData.rarity || 'common',
-                classType: unit.classType || raceData.class_type || '???',
+                classType: unit.classType || raceData.class_type || (raceData.available_classes && raceData.available_classes[0]) || 'Fighter',
                 hp: unit.currentHp,
                 maxHp: unit.maxHp,
                 stats: { hp: unit.maxHp, ...(unit.effectiveStats || {}) },
@@ -165,7 +165,7 @@ export class SpriteInspectPanel {
         const inst = raw.instance || raw;
         const raceId = inst.raceId || inst.race_id || 1;
         const raceData = raw.raceData || SPRITE_RACES.find(r => r.race_id === raceId) || {};
-        const elemTypes = inst.elementTypes || inst.element_types || raceData.elementTypes || [];
+        const elemTypes = inst.elementTypes || inst.element_types || raceData.element_types || [];
         const level = inst.level || 1;
         const stage = inst.evolutionStage || inst.evolution_stage
             || (raw.stageData && raw.stageData.stage_number) || 1;
