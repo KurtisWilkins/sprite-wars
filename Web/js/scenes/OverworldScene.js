@@ -11,6 +11,7 @@ import { eventBus, GameEvents } from '../core/EventBus.js';
 import { SpriteSheetGenerator } from '../core/SpriteSheetGenerator.js';
 import { getTrainer } from '../data/TrainerData.js';
 import { ENCOUNTER_TABLES } from '../data/EncounterData.js';
+import { GlossaryScreen } from '../systems/ui/GlossaryScreen.js';
 
 // ── Admin Log ─────────────────────────────────────────────────────────────
 class AdminLog {
@@ -1948,6 +1949,7 @@ export class OverworldScene extends Scene {
 
         const menuItems = [
             { label: 'Sprite Center', action: () => { panel.classList.add('hidden'); this._openSpriteCenter(); } },
+            { label: 'Glossary', action: () => { panel.classList.add('hidden'); this._openGlossary(); } },
             { label: 'Save Game', action: () => { this._quickSave(); panel.classList.add('hidden'); } },
             { label: 'Settings', action: () => { panel.classList.add('hidden'); this._openSettings(); } },
             { label: 'Return to Title', action: () => { panel.classList.add('hidden'); this._returnToTitle(); } },
@@ -2013,6 +2015,24 @@ export class OverworldScene extends Scene {
         content.className = 'panel-content';
         content.innerHTML = '<p style="color:var(--text-dim);">Settings panel</p>';
         panel.appendChild(content);
+    }
+
+    _openGlossary() {
+        const panel = document.getElementById('screen-panel');
+        if (!panel) return;
+
+        panel.classList.remove('hidden');
+        panel.innerHTML = '';
+
+        const glossary = new GlossaryScreen({
+            engine: this.engine,
+            onBack: () => {
+                panel.classList.add('hidden');
+                panel.innerHTML = '';
+            },
+        });
+        const el = glossary.build();
+        panel.appendChild(el);
     }
 
     _returnToTitle() {
