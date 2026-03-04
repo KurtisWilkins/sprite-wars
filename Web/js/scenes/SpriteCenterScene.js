@@ -213,6 +213,17 @@ export class SpriteCenterScene extends Scene {
                     0% { background-position: -200% 0; }
                     100% { background-position: 200% 0; }
                 }
+                @media (orientation: portrait) and (max-width: 600px) {
+                    .sprite-center-detail-panel {
+                        width: 100% !important;
+                        max-width: 100vw !important;
+                        position: absolute !important;
+                        top: 0 !important; left: 0 !important;
+                        right: 0 !important; bottom: 0 !important;
+                        z-index: 20;
+                        border-left: none !important;
+                    }
+                }
             `;
             document.head.appendChild(style);
         }
@@ -247,6 +258,11 @@ export class SpriteCenterScene extends Scene {
         // Build DOM
         this._createDOM();
         this._setActiveTab(this._activeTab);
+
+        // Auto-select the first sprite in the party by default
+        if (this._activeTab === 'team' && this._party.length > 0) {
+            this._showSpriteDetail(this._party[0]);
+        }
 
         // Music
         this.engine.audio.playMusic(
@@ -456,8 +472,9 @@ export class SpriteCenterScene extends Scene {
         mainArea.appendChild(this._contentEl);
 
         this._detailPanelEl = document.createElement('div');
+        this._detailPanelEl.className = 'sprite-center-detail-panel';
         this._detailPanelEl.style.cssText = `
-            width:280px;background:rgba(0,0,0,0.4);
+            width:50%;max-width:50vw;background:rgba(0,0,0,0.4);
             border-left:1px solid rgba(255,255,255,0.06);
             overflow-y:auto;padding:10px;display:none;
         `;

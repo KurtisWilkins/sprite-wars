@@ -47,11 +47,28 @@ const ROLE_COLORS: Dictionary = {
 	"hybrid": Color(0.85, 0.75, 0.35),
 }
 
+## ── Class Icons (emoji-based for UI display) ────────────────────────────────
+
+const CLASS_ICONS: Dictionary = {
+	"Barbarian": "⚔", "Fighter": "🗡", "Archer": "🏹", "Spearman": "🔱",
+	"Heavy": "🛡", "Wizard": "🪄", "Javelin": "💨", "Alchemist": "🧪",
+	"Cleric": "✚", "Ambrosian": "✨", "Assassin": "🗡", "Monk": "🤜",
+	"Crossbow": "🎯", "Handgunner": "🔫", "Siegebreaker": "🔨", "Paladin": "🛡",
+}
+
+## ── Slot Type Icons ─────────────────────────────────────────────────────────
+
+const SLOT_ICONS: Dictionary = {
+	"weapon": "⚔", "helmet": "⛑", "chest": "🛡", "legs": "👖",
+	"boots": "👢", "gloves": "🧤", "ring": "💍", "amulet": "📿", "crystal": "💎",
+}
+
 ## ── State ────────────────────────────────────────────────────────────────────
 
 var _current_tab: int = 0
 var _equipment_filter: String = "All"
 var _expanded_races: Dictionary = {}  # race_id -> bool
+var _race_selected_element: Dictionary = {}  # race_id -> element name
 
 ## ── Nodes ────────────────────────────────────────────────────────────────────
 
@@ -262,17 +279,55 @@ func _create_race_card(race_id: int, race_name: String, race_description: String
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 8)
 
-	# Header row: race name + expand/collapse toggle.
-	var header_row := HBoxContainer.new()
-	header_row.add_theme_constant_override("separation", 8)
+	# Top row: sprite preview + race info
+	var top_row := HBoxContainer.new()
+	top_row.add_theme_constant_override("separation", 14)
+
+	# Sprite preview placeholder (colored rect with race initial)
+	var selected_element: String = _race_selected_element.get(race_id, "Fire")
+	if not _race_selected_element.has(race_id):
+		_race_selected_element[race_id] = "Fire"
+
+	var sprite_preview := ColorRect.new()
+	sprite_preview.custom_minimum_size = Vector2(80.0, 80.0)
+	var preview_color: Color = ELEMENT_COLORS.get(selected_element, Color(0.5, 0.5, 0.5))
+	sprite_preview.color = Color(preview_color.r, preview_color.g, preview_color.b, 0.3)
+	# Add race initial letter on top
+	var initial_label := Label.new()
+	initial_label.text = race_name[0] if race_name.length() > 0 else "?"
+	initial_label.add_theme_font_size_override("font_size", 36)
+	initial_label.add_theme_color_override("font_color", Color.WHITE)
+	initial_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	initial_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	initial_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	sprite_preview.add_child(initial_label)
+
+	top_row.add_child(sprite_preview)
+
+	# Info column next to sprite preview
+	var info_col := VBoxContainer.new()
+	info_col.add_theme_constant_override("separation", 4)
+	info_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	var name_label := Label.new()
 	name_label.text = race_name
 	name_label.add_theme_font_size_override("font_size", 22)
 	name_label.add_theme_color_override("font_color", Color.WHITE)
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header_row.add_child(name_label)
+	info_col.add_child(name_label)
 
+	# Get rarity from SpriteRaces
+	var race_data: Dictionary = SpriteRaces.get_race(race_id)
+	var rarity_str: String = str(race_data.get("rarity", "common"))
+	var rarity_color: Color = RARITY_COLORS.get(rarity_str, Color(0.55, 0.55, 0.55))
+	var rarity_label := Label.new()
+	rarity_label.text = rarity_str.capitalize()
+	rarity_label.add_theme_font_size_override("font_size", 16)
+	rarity_label.add_theme_color_override("font_color", rarity_color)
+	info_col.add_child(rarity_label)
+
+	top_row.add_child(info_col)
+
+	# Expand/collapse toggle
 	var toggle_btn := Button.new()
 	var is_expanded: bool = _expanded_races.get(race_id, false)
 	toggle_btn.text = "Collapse" if is_expanded else "Expand"
@@ -285,9 +340,56 @@ func _create_race_card(race_id: int, race_name: String, race_description: String
 	toggle_style.corner_radius_bottom_left = 8
 	toggle_style.corner_radius_bottom_right = 8
 	toggle_btn.add_theme_stylebox_override("normal", toggle_style)
-	header_row.add_child(toggle_btn)
+	top_row.add_child(toggle_btn)
 
-	vbox.add_child(header_row)
+	vbox.add_child(top_row)
+
+	# Element selector row
+	var elem_label := Label.new()
+	elem_label.text = "Element:"
+	elem_label.add_theme_font_size_override("font_size", 15)
+	elem_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+	vbox.add_child(elem_label)
+
+	var elem_selector := HFlowContainer.new()
+	elem_selector.add_theme_constant_override("h_separation", 4)
+	elem_selector.add_theme_constant_override("v_separation", 4)
+
+	for element_name in SpriteGlossary.ELEMENT_NAMES:
+		var elem_btn := Button.new()
+		elem_btn.text = str(element_name)
+		elem_btn.custom_minimum_size = Vector2(0.0, 28.0)
+		elem_btn.add_theme_font_size_override("font_size", 13)
+
+		var elem_color: Color = ELEMENT_COLORS.get(str(element_name), Color(0.5, 0.5, 0.5))
+		var elem_style := StyleBoxFlat.new()
+		var is_selected: bool = (str(element_name) == selected_element)
+		if is_selected:
+			elem_style.bg_color = Color(elem_color.r, elem_color.g, elem_color.b, 0.4)
+			elem_style.border_width_bottom = 2
+			elem_style.border_color = elem_color
+		else:
+			elem_style.bg_color = Color(elem_color.r, elem_color.g, elem_color.b, 0.15)
+		elem_style.corner_radius_top_left = 6
+		elem_style.corner_radius_top_right = 6
+		elem_style.corner_radius_bottom_left = 6
+		elem_style.corner_radius_bottom_right = 6
+		elem_style.content_margin_left = 6.0
+		elem_style.content_margin_right = 6.0
+		elem_btn.add_theme_stylebox_override("normal", elem_style)
+		elem_btn.add_theme_color_override("font_color", elem_color)
+
+		var rid := race_id
+		var ename := str(element_name)
+		var sp := sprite_preview
+		elem_btn.pressed.connect(func() -> void:
+			_race_selected_element[rid] = ename
+			_populate_tab(0)
+		)
+
+		elem_selector.add_child(elem_btn)
+
+	vbox.add_child(elem_selector)
 
 	# Lore description.
 	if not race_description.is_empty():
@@ -607,11 +709,37 @@ func _create_class_card(cls: Dictionary) -> PanelContainer:
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 6)
 
-	# Top row: class name + role badge.
+	# Top row: class icon + class name + role badge.
 	var top_row := HBoxContainer.new()
 	top_row.add_theme_constant_override("separation", 10)
 
 	var class_name_str: String = str(cls.get("class_name", "Unknown"))
+
+	# Class icon
+	var class_icon: String = CLASS_ICONS.get(class_name_str, "")
+	if not class_icon.is_empty():
+		var icon_bg := PanelContainer.new()
+		var icon_style := StyleBoxFlat.new()
+		icon_style.bg_color = Color(1.0, 1.0, 1.0, 0.05)
+		icon_style.corner_radius_top_left = 8
+		icon_style.corner_radius_top_right = 8
+		icon_style.corner_radius_bottom_left = 8
+		icon_style.corner_radius_bottom_right = 8
+		icon_style.content_margin_left = 6.0
+		icon_style.content_margin_right = 6.0
+		icon_style.content_margin_top = 2.0
+		icon_style.content_margin_bottom = 2.0
+		icon_bg.add_theme_stylebox_override("panel", icon_style)
+		icon_bg.custom_minimum_size = Vector2(36.0, 36.0)
+
+		var icon_label := Label.new()
+		icon_label.text = class_icon
+		icon_label.add_theme_font_size_override("font_size", 24)
+		icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		icon_bg.add_child(icon_label)
+		top_row.add_child(icon_bg)
+
 	var name_label := Label.new()
 	name_label.text = class_name_str
 	name_label.add_theme_font_size_override("font_size", 20)
@@ -698,11 +826,12 @@ func _create_class_card(cls: Dictionary) -> PanelContainer:
 
 func _stat_weight_to_bar(weight: int) -> String:
 	# Convert a 1-5 stat weight into a visual bar representation.
+	var clamped: int = clampi(weight, 0, 5)
 	var filled: String = ""
-	for i in range(weight):
+	for i in range(clamped):
 		filled += "|"
 	var empty: String = ""
-	for i in range(5 - weight):
+	for i in range(5 - clamped):
 		empty += "."
 	return filled + empty
 
@@ -849,22 +978,55 @@ func _create_equipment_card(equip: Dictionary) -> PanelContainer:
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 6)
 
-	# Equipment name colored by rarity.
+	# Top row with slot icon + equipment info
+	var top_equip_row := HBoxContainer.new()
+	top_equip_row.add_theme_constant_override("separation", 12)
+
+	# Slot type icon
+	var slot_type: String = str(equip.get("slot_type", ""))
 	var rarity: String = str(equip.get("rarity", "common"))
 	var rarity_color: Color = RARITY_COLORS.get(rarity, RARITY_COLORS.get("common", Color(0.55, 0.55, 0.55)))
+	var slot_icon_text: String = SLOT_ICONS.get(slot_type, "?")
+
+	var icon_container := PanelContainer.new()
+	icon_container.custom_minimum_size = Vector2(44.0, 44.0)
+	var icon_bg_style := StyleBoxFlat.new()
+	icon_bg_style.bg_color = Color(rarity_color.r, rarity_color.g, rarity_color.b, 0.15)
+	icon_bg_style.border_width_left = 1
+	icon_bg_style.border_width_right = 1
+	icon_bg_style.border_width_top = 1
+	icon_bg_style.border_width_bottom = 1
+	icon_bg_style.border_color = Color(rarity_color.r, rarity_color.g, rarity_color.b, 0.4)
+	icon_bg_style.corner_radius_top_left = 8
+	icon_bg_style.corner_radius_top_right = 8
+	icon_bg_style.corner_radius_bottom_left = 8
+	icon_bg_style.corner_radius_bottom_right = 8
+	icon_container.add_theme_stylebox_override("panel", icon_bg_style)
+
+	var slot_icon_label := Label.new()
+	slot_icon_label.text = slot_icon_text
+	slot_icon_label.add_theme_font_size_override("font_size", 22)
+	slot_icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	slot_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	icon_container.add_child(slot_icon_label)
+	top_equip_row.add_child(icon_container)
+
+	# Equipment name and info column
+	var equip_info_col := VBoxContainer.new()
+	equip_info_col.add_theme_constant_override("separation", 2)
+	equip_info_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	var equip_name: String = str(equip.get("equipment_name", "Unknown"))
 	var name_label := Label.new()
 	name_label.text = equip_name
 	name_label.add_theme_font_size_override("font_size", 20)
 	name_label.add_theme_color_override("font_color", rarity_color)
-	vbox.add_child(name_label)
+	equip_info_col.add_child(name_label)
 
 	# Slot type and rarity row.
 	var info_row := HBoxContainer.new()
 	info_row.add_theme_constant_override("separation", 12)
 
-	var slot_type: String = str(equip.get("slot_type", ""))
 	if not slot_type.is_empty():
 		var slot_label := Label.new()
 		slot_label.text = slot_type.capitalize()
@@ -880,7 +1042,9 @@ func _create_equipment_card(equip: Dictionary) -> PanelContainer:
 	stars_label.add_theme_color_override("font_color", rarity_color)
 	info_row.add_child(stars_label)
 
-	vbox.add_child(info_row)
+	equip_info_col.add_child(info_row)
+	top_equip_row.add_child(equip_info_col)
+	vbox.add_child(top_equip_row)
 
 	# Stat bonuses (only non-zero).
 	var stat_bonuses: Dictionary = equip.get("stat_bonuses", {})

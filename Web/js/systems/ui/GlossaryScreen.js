@@ -5,13 +5,14 @@
  * Data sources:
  *   - SPRITE_RACES from SpriteData.js (24 races)
  *   - ABILITIES from AbilityData.js (160 abilities, keyed by ability_id)
- *   - EQUIPMENT, SLOT_TYPES, RARITY_TIERS from EquipmentData.js (144 items)
+ *   - EQUIPMENT, SLOT_TYPES from EquipmentData.js (144 items)
  *
  * Follows the same DOM-building patterns as MenuScreens.js.
  */
 import { SPRITE_RACES } from '../../data/SpriteData.js';
 import { ABILITIES } from '../../data/AbilityData.js';
 import { EQUIPMENT, SLOT_TYPES } from '../../data/EquipmentData.js';
+import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 
 // -- Shared Style Constants ------------------------------------------------------
 
@@ -36,6 +37,8 @@ const ELEMENT_COLORS = {
     Solar:    '#99cce6', Lunar:    '#e63366',
 };
 
+const ALL_ELEMENTS = ["Fire", "Water", "Wind", "Earth", "Plant", "Metal", "Electric", "Dark", "Light", "Solar", "Lunar", "Fairy", "Poison", "Ice"];
+
 const RARITY_COLORS = {
     common:    '#888888',
     uncommon:  '#33cc66',
@@ -58,6 +61,48 @@ const RARITY_STARS = {
     common: 1, uncommon: 2, rare: 3, epic: 4, legendary: 5,
 };
 
+// -- Class Data (16 classes) ---------------------------------------------------
+
+const CLASS_DATA = {
+    Barbarian:    { role: 'melee',   icon: '\u{1FA78}', stat_weights: { hp: 4, atk: 5, def: 2, spd: 3, sp_atk: 1, sp_def: 1 }, weapons: ['axe', 'mace', 'greatsword'], desc: 'Aggressive melee fighter focused on raw damage output and berserker-style abilities.' },
+    Fighter:      { role: 'melee',   icon: '\u2694',     stat_weights: { hp: 3, atk: 4, def: 4, spd: 3, sp_atk: 2, sp_def: 2 }, weapons: ['sword', 'shield', 'axe'], desc: 'Balanced melee combatant with solid offense, defense, and tactical versatility.' },
+    Archer:       { role: 'ranged',  icon: '\u{1F3F9}', stat_weights: { hp: 2, atk: 4, def: 2, spd: 5, sp_atk: 2, sp_def: 2 }, weapons: ['bow', 'shortbow', 'longbow'], desc: 'Ranged attacker using bow-based projectiles with precision and area control.' },
+    Spearman:     { role: 'melee',   icon: '\u{1F531}', stat_weights: { hp: 3, atk: 4, def: 4, spd: 3, sp_atk: 1, sp_def: 2 }, weapons: ['spear', 'halberd', 'lance'], desc: 'Melee fighter with extended reach and formation-based combat bonuses.' },
+    Heavy:        { role: 'melee',   icon: '\u{1F6E1}', stat_weights: { hp: 5, atk: 2, def: 5, spd: 1, sp_atk: 1, sp_def: 3 }, weapons: ['tower_shield', 'warhammer', 'flail'], desc: 'High-mass tank designed to absorb damage, block movement, and control space.' },
+    Wizard:       { role: 'ranged',  icon: '\u{1FA84}', stat_weights: { hp: 2, atk: 1, def: 2, spd: 3, sp_atk: 5, sp_def: 5 }, weapons: ['staff', 'wand', 'orb'], desc: 'Ranged magical attacker with powerful elemental abilities and utility spells.' },
+    Javelin:      { role: 'hybrid',  icon: '\u{1F4A8}', stat_weights: { hp: 3, atk: 4, def: 3, spd: 4, sp_atk: 1, sp_def: 2 }, weapons: ['javelin', 'throwing_spear', 'pilum'], desc: 'Ranged/melee hybrid using thrown weapons; versatile at any distance.' },
+    Alchemist:    { role: 'support', icon: '\u{1F9EA}', stat_weights: { hp: 3, atk: 1, def: 2, spd: 3, sp_atk: 4, sp_def: 4 }, weapons: ['flask', 'mortar', 'tome'], desc: 'Support class focused on buffs, debuffs, healing over time, and status effects.' },
+    Cleric:       { role: 'support', icon: '\u271A',     stat_weights: { hp: 4, atk: 1, def: 3, spd: 2, sp_atk: 4, sp_def: 4 }, weapons: ['mace', 'holy_symbol', 'staff'], desc: 'Primary healer and support class with purification and resurrection abilities.' },
+    Ambrosian:    { role: 'support', icon: '\u2728',     stat_weights: { hp: 4, atk: 1, def: 3, spd: 2, sp_atk: 3, sp_def: 5 }, weapons: ['relic', 'chalice', 'scepter'], desc: 'Specialized support class with unique soul-linking, shielding, and revival mechanics.' },
+    Assassin:     { role: 'melee',   icon: '\u{1F5E1}', stat_weights: { hp: 2, atk: 5, def: 1, spd: 5, sp_atk: 1, sp_def: 1 }, weapons: ['dagger', 'shortsword', 'poison_blade'], desc: 'High-damage stealth-based melee class focused on critical strikes and target elimination.' },
+    Monk:         { role: 'melee',   icon: '\u{1F91C}', stat_weights: { hp: 3, atk: 4, def: 2, spd: 5, sp_atk: 1, sp_def: 2 }, weapons: ['fist', 'bo_staff', 'nunchaku'], desc: 'Agile melee fighter focused on speed, evasion, and rapid multi-hit attacks.' },
+    Crossbow:     { role: 'ranged',  icon: '\u{1F3AF}', stat_weights: { hp: 2, atk: 5, def: 2, spd: 3, sp_atk: 1, sp_def: 2 }, weapons: ['crossbow', 'heavy_crossbow', 'repeater'], desc: 'Ranged attacker with high single-target damage and armor-piercing bolts.' },
+    Handgunner:   { role: 'ranged',  icon: '\u{1F52B}', stat_weights: { hp: 2, atk: 5, def: 2, spd: 3, sp_atk: 2, sp_def: 2 }, weapons: ['pistol', 'musket', 'blunderbuss'], desc: 'Ranged attacker using early firearms with burst damage and crowd control.' },
+    Siegebreaker: { role: 'melee',   icon: '\u{1F528}', stat_weights: { hp: 5, atk: 5, def: 3, spd: 1, sp_atk: 1, sp_def: 2 }, weapons: ['battering_ram', 'maul', 'siege_hammer'], desc: 'Heavy melee class designed to break through defensive lines with massive knockback.' },
+    Paladin:      { role: 'melee',   icon: '\u{1F6E1}', stat_weights: { hp: 4, atk: 3, def: 5, spd: 2, sp_atk: 2, sp_def: 4 }, weapons: ['longsword', 'shield', 'holy_mace'], desc: 'Tanky melee fighter with defensive support abilities, auras, and holy damage.' },
+};
+
+const ROLE_COLORS = {
+    melee:   '#d97350',
+    ranged:  '#50b3d9',
+    support: '#66d980',
+    hybrid:  '#d9c050',
+};
+
+// -- Slot type icons for equipment -----------------------------------------------
+
+const SLOT_ICONS = {
+    weapon:  '\u2694',
+    helmet:  '\u26D1',
+    chest:   '\u{1F6E1}',
+    legs:    '\u{1F456}',
+    boots:   '\u{1F462}',
+    gloves:  '\u{1F9E4}',
+    ring:    '\u{1F48D}',
+    amulet:  '\u{1F4FF}',
+    crystal: '\u{1F48E}',
+};
+
 // -- Helper: Create styled button -----------------------------------------------
 
 function createButton(text, bgColor, opts = {}) {
@@ -73,6 +118,7 @@ function createButton(text, bgColor, opts = {}) {
         fontWeight: 'bold',
         cursor: 'pointer',
         minWidth: opts.minWidth || '0',
+        minHeight: opts.minHeight || '0',
         textAlign: 'center',
         transition: 'background 0.15s, transform 0.1s',
         userSelect: 'none',
@@ -140,19 +186,22 @@ function capitalizeWords(str) {
 
 // -- Helper: Create element badge -----------------------------------------------
 
-function createElementBadge(elementName) {
+function createElementBadge(elementName, opts = {}) {
     const badge = document.createElement('span');
     badge.textContent = elementName;
     const color = ELEMENT_COLORS[elementName] || '#aaa';
     Object.assign(badge.style, {
         display: 'inline-block',
-        padding: '2px 8px',
+        padding: opts.padding || '2px 8px',
         borderRadius: '10px',
         background: hexToRgba(color, 0.2),
         color: color,
-        fontSize: '12px',
+        fontSize: opts.fontSize || '12px',
         fontWeight: 'bold',
         lineHeight: '1.4',
+        cursor: opts.clickable ? 'pointer' : 'default',
+        border: opts.selected ? `2px solid ${color}` : '2px solid transparent',
+        transition: 'border 0.15s, background 0.15s',
     });
     return badge;
 }
@@ -164,6 +213,68 @@ function hexToRgba(hex, alpha) {
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// -- Helper: Draw sprite preview on canvas -------------------------------------
+
+function drawSpritePreview(canvas, raceId, elementName) {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const size = canvas.width;
+
+    // Use HumanoidSpriteSystem to render if available
+    try {
+        // Create a mock sprite instance with the selected element
+        const mockInst = {
+            raceId: raceId,
+            race_id: raceId,
+            evolutionStage: 1,
+            evolution_stage: 1,
+            element_types: [elementName],
+            elementTypes: [elementName],
+            level: 1,
+            equipment: {},
+        };
+
+        // Draw the frame using HumanoidSpriteSystem
+        const spriteSize = size * 0.8;
+        HumanoidSpriteSystem.drawFrame(ctx, raceId, 1, 0, 0, (size - spriteSize) / 2, (size - spriteSize) / 2, spriteSize);
+    } catch (e) {
+        // Fallback: draw a colored circle with race initial
+        const race = SPRITE_RACES.find(r => r.race_id === raceId);
+        const elemColor = ELEMENT_COLORS[elementName] || '#888';
+
+        // Background glow
+        const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+        gradient.addColorStop(0, hexToRgba(elemColor, 0.4));
+        gradient.addColorStop(1, 'transparent');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, size, size);
+
+        // Circle
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size * 0.35, 0, Math.PI * 2);
+        ctx.fillStyle = hexToRgba(elemColor, 0.3);
+        ctx.fill();
+        ctx.strokeStyle = elemColor;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Race initial
+        ctx.fillStyle = COLORS.textPrimary;
+        ctx.font = `bold ${Math.floor(size * 0.35)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(race ? race.race_name.charAt(0) : '?', size / 2, size / 2);
+    }
+
+    // Draw element indicator dot at bottom
+    const elemColor = ELEMENT_COLORS[elementName] || '#888';
+    ctx.beginPath();
+    ctx.arc(size / 2, size - 6, 4, 0, Math.PI * 2);
+    ctx.fillStyle = elemColor;
+    ctx.fill();
 }
 
 // ================================================================================
@@ -193,6 +304,8 @@ export class GlossaryScreen {
         this._equipFilterButtons = {};
         /** @private */
         this._equipListContainer = null;
+        /** @private — tracks selected element per race for sprite display */
+        this._raceSelectedElement = {};
     }
 
     /**
@@ -334,7 +447,7 @@ export class GlossaryScreen {
     }
 
     // ============================================================================
-    // RACES TAB
+    // RACES TAB — with sprite preview and element selection
     // ============================================================================
 
     /** @private */
@@ -342,6 +455,13 @@ export class GlossaryScreen {
         const races = [...SPRITE_RACES].sort((a, b) => a.race_id - b.race_id);
 
         for (const race of races) {
+            // Initialize selected element for this race if not set
+            if (!this._raceSelectedElement[race.race_id]) {
+                this._raceSelectedElement[race.race_id] = (race.element_types && race.element_types.length > 0)
+                    ? race.element_types[0]
+                    : 'Fire';
+            }
+
             const card = document.createElement('div');
             Object.assign(card.style, {
                 background: COLORS.bgCard,
@@ -350,15 +470,33 @@ export class GlossaryScreen {
                 marginBottom: '10px',
             });
 
-            // Header row: race name + element badges
-            const header = document.createElement('div');
-            Object.assign(header.style, {
+            // Top section: sprite preview + info
+            const topRow = document.createElement('div');
+            Object.assign(topRow.style, {
                 display: 'flex',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '8px',
-                marginBottom: '8px',
+                gap: '14px',
+                marginBottom: '10px',
+                alignItems: 'flex-start',
             });
+
+            // Sprite preview canvas
+            const previewCanvas = document.createElement('canvas');
+            previewCanvas.width = 80;
+            previewCanvas.height = 80;
+            Object.assign(previewCanvas.style, {
+                width: '80px',
+                height: '80px',
+                flexShrink: '0',
+                borderRadius: '10px',
+                background: 'rgba(0,0,0,0.3)',
+                imageRendering: 'pixelated',
+            });
+            drawSpritePreview(previewCanvas, race.race_id, this._raceSelectedElement[race.race_id]);
+            topRow.appendChild(previewCanvas);
+
+            // Info column
+            const infoCol = document.createElement('div');
+            infoCol.style.flex = '1';
 
             const nameEl = document.createElement('div');
             nameEl.textContent = race.race_name;
@@ -366,24 +504,85 @@ export class GlossaryScreen {
                 fontSize: '18px',
                 fontWeight: 'bold',
                 color: COLORS.textPrimary,
+                marginBottom: '4px',
             });
-            header.appendChild(nameEl);
+            infoCol.appendChild(nameEl);
 
-            for (const elem of race.element_types) {
-                header.appendChild(createElementBadge(elem));
-            }
-
-            card.appendChild(header);
-
-            // Class type
+            // Available classes
             const classEl = document.createElement('div');
-            classEl.textContent = `Class: ${race.class_type}`;
+            classEl.textContent = `Classes: ${race.available_classes ? race.available_classes.length : 0} available`;
             Object.assign(classEl.style, {
-                fontSize: '14px',
+                fontSize: '13px',
                 color: COLORS.textSecondary,
+                marginBottom: '4px',
+            });
+            infoCol.appendChild(classEl);
+
+            // Rarity badge
+            const rarityEl = document.createElement('div');
+            rarityEl.textContent = race.rarity.charAt(0).toUpperCase() + race.rarity.slice(1);
+            Object.assign(rarityEl.style, {
+                fontSize: '13px',
+                fontWeight: 'bold',
+                color: RARITY_COLORS[race.rarity] || COLORS.textDim,
+            });
+            infoCol.appendChild(rarityEl);
+
+            topRow.appendChild(infoCol);
+            card.appendChild(topRow);
+
+            // Element selector row — scrollable horizontal list
+            const elemSelectorLabel = document.createElement('div');
+            elemSelectorLabel.textContent = 'Element:';
+            Object.assign(elemSelectorLabel.style, {
+                fontSize: '12px',
+                color: COLORS.textDim,
+                marginBottom: '6px',
+                fontWeight: 'bold',
+            });
+            card.appendChild(elemSelectorLabel);
+
+            const elemSelector = document.createElement('div');
+            Object.assign(elemSelector.style, {
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '4px',
                 marginBottom: '10px',
             });
-            card.appendChild(classEl);
+
+            const selectedElem = this._raceSelectedElement[race.race_id];
+            for (const elem of ALL_ELEMENTS) {
+                const isSelected = elem === selectedElem;
+                const badge = createElementBadge(elem, {
+                    clickable: true,
+                    selected: isSelected,
+                    fontSize: '11px',
+                    padding: '3px 7px',
+                });
+
+                badge.addEventListener('click', () => {
+                    this._raceSelectedElement[race.race_id] = elem;
+                    // Re-draw the canvas
+                    drawSpritePreview(previewCanvas, race.race_id, elem);
+                    // Update badge selection styles
+                    const badges = elemSelector.querySelectorAll('span');
+                    for (const b of badges) {
+                        const bElem = b.textContent;
+                        const bColor = ELEMENT_COLORS[bElem] || '#aaa';
+                        if (bElem === elem) {
+                            b.style.border = `2px solid ${bColor}`;
+                            b.style.background = hexToRgba(bColor, 0.35);
+                        } else {
+                            b.style.border = '2px solid transparent';
+                            b.style.background = hexToRgba(ELEMENT_COLORS[bElem] || '#aaa', 0.2);
+                        }
+                    }
+                });
+
+                elemSelector.appendChild(badge);
+            }
+
+            card.appendChild(elemSelector);
 
             // Stats row
             const statsRow = document.createElement('div');
@@ -429,17 +628,6 @@ export class GlossaryScreen {
 
             card.appendChild(statsRow);
 
-            // Rarity badge
-            const rarityEl = document.createElement('div');
-            rarityEl.textContent = race.rarity.charAt(0).toUpperCase() + race.rarity.slice(1);
-            Object.assign(rarityEl.style, {
-                fontSize: '13px',
-                fontWeight: 'bold',
-                color: RARITY_COLORS[race.rarity] || COLORS.textDim,
-                marginBottom: '8px',
-            });
-            card.appendChild(rarityEl);
-
             // Lore text
             const loreEl = document.createElement('div');
             loreEl.textContent = race.lore_description;
@@ -456,7 +644,7 @@ export class GlossaryScreen {
     }
 
     // ============================================================================
-    // CLASSES TAB
+    // CLASSES TAB — with class icons, stat weights, and abilities
     // ============================================================================
 
     /** @private */
@@ -478,20 +666,171 @@ export class GlossaryScreen {
 
         for (const className of classNames) {
             const abilities = classBuckets[className].sort((a, b) => a.ability_id - b.ability_id);
+            const classInfo = CLASS_DATA[className];
 
-            // Section header
+            // Section header with class icon
             const sectionHeader = document.createElement('div');
-            sectionHeader.textContent = className;
             Object.assign(sectionHeader.style, {
-                fontSize: '20px',
-                fontWeight: 'bold',
-                color: COLORS.textPrimary,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
                 marginTop: '20px',
-                marginBottom: '10px',
+                marginBottom: '6px',
                 paddingBottom: '6px',
                 borderBottom: `1px solid ${COLORS.border}`,
             });
+
+            // Class icon
+            if (classInfo) {
+                const iconEl = document.createElement('span');
+                iconEl.textContent = classInfo.icon;
+                Object.assign(iconEl.style, {
+                    fontSize: '28px',
+                    width: '36px',
+                    height: '36px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '8px',
+                    flexShrink: '0',
+                });
+                sectionHeader.appendChild(iconEl);
+            }
+
+            const headerTextCol = document.createElement('div');
+            headerTextCol.style.flex = '1';
+
+            const nameEl = document.createElement('div');
+            nameEl.textContent = className;
+            Object.assign(nameEl.style, {
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: COLORS.textPrimary,
+            });
+            headerTextCol.appendChild(nameEl);
+
+            // Role badge
+            if (classInfo) {
+                const roleBadge = document.createElement('span');
+                roleBadge.textContent = capitalizeWords(classInfo.role);
+                const roleColor = ROLE_COLORS[classInfo.role] || COLORS.textSecondary;
+                Object.assign(roleBadge.style, {
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    color: roleColor,
+                    padding: '1px 8px',
+                    borderRadius: '8px',
+                    background: hexToRgba(roleColor, 0.15),
+                });
+                headerTextCol.appendChild(roleBadge);
+            }
+
+            sectionHeader.appendChild(headerTextCol);
             this._contentArea.appendChild(sectionHeader);
+
+            // Class info card (description, stat weights, weapons)
+            if (classInfo) {
+                const infoCard = document.createElement('div');
+                Object.assign(infoCard.style, {
+                    background: 'rgba(30,30,50,0.5)',
+                    borderRadius: '10px',
+                    padding: '10px 12px',
+                    marginBottom: '8px',
+                });
+
+                // Description
+                const descEl = document.createElement('div');
+                descEl.textContent = classInfo.desc;
+                Object.assign(descEl.style, {
+                    fontSize: '13px',
+                    color: COLORS.textSecondary,
+                    lineHeight: '1.4',
+                    marginBottom: '8px',
+                });
+                infoCard.appendChild(descEl);
+
+                // Stat weights as bars
+                const statWeightsRow = document.createElement('div');
+                Object.assign(statWeightsRow.style, {
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '6px',
+                    marginBottom: '8px',
+                });
+
+                for (const [statKey, weight] of Object.entries(classInfo.stat_weights)) {
+                    const statEl = document.createElement('div');
+                    Object.assign(statEl.style, {
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '11px',
+                    });
+
+                    const labelEl = document.createElement('span');
+                    labelEl.textContent = STAT_LABELS[statKey] || statKey;
+                    labelEl.style.color = STAT_COLORS[statKey] || COLORS.textDim;
+                    labelEl.style.fontWeight = 'bold';
+                    labelEl.style.width = '42px';
+                    statEl.appendChild(labelEl);
+
+                    // Visual bar (5 pips)
+                    const barEl = document.createElement('div');
+                    Object.assign(barEl.style, {
+                        display: 'flex',
+                        gap: '2px',
+                    });
+                    for (let i = 0; i < 5; i++) {
+                        const pip = document.createElement('div');
+                        const statColor = STAT_COLORS[statKey] || '#888';
+                        Object.assign(pip.style, {
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '2px',
+                            background: i < weight ? statColor : 'rgba(40,40,60,0.6)',
+                        });
+                        barEl.appendChild(pip);
+                    }
+                    statEl.appendChild(barEl);
+
+                    statWeightsRow.appendChild(statEl);
+                }
+
+                infoCard.appendChild(statWeightsRow);
+
+                // Available weapons
+                const weaponRow = document.createElement('div');
+                Object.assign(weaponRow.style, {
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '4px',
+                    fontSize: '11px',
+                    alignItems: 'center',
+                });
+
+                const weaponLabel = document.createElement('span');
+                weaponLabel.textContent = 'Weapons:';
+                weaponLabel.style.color = COLORS.textDim;
+                weaponLabel.style.fontWeight = 'bold';
+                weaponRow.appendChild(weaponLabel);
+
+                for (const wep of classInfo.weapons) {
+                    const wepBadge = document.createElement('span');
+                    wepBadge.textContent = capitalizeWords(wep);
+                    Object.assign(wepBadge.style, {
+                        padding: '2px 6px',
+                        borderRadius: '6px',
+                        background: 'rgba(50,50,75,0.4)',
+                        color: COLORS.textSecondary,
+                        fontSize: '11px',
+                    });
+                    weaponRow.appendChild(wepBadge);
+                }
+
+                infoCard.appendChild(weaponRow);
+                this._contentArea.appendChild(infoCard);
+            }
 
             // Ability cards
             for (const ability of abilities) {
@@ -513,14 +852,14 @@ export class GlossaryScreen {
                     marginBottom: '8px',
                 });
 
-                const nameEl = document.createElement('span');
-                nameEl.textContent = ability.ability_name;
-                Object.assign(nameEl.style, {
+                const abilNameEl = document.createElement('span');
+                abilNameEl.textContent = ability.ability_name;
+                Object.assign(abilNameEl.style, {
                     fontSize: '16px',
                     fontWeight: 'bold',
                     color: COLORS.textPrimary,
                 });
-                headerRow.appendChild(nameEl);
+                headerRow.appendChild(abilNameEl);
 
                 // Element badge
                 if (ability.element_type && ability.element_type !== 'None') {
@@ -580,15 +919,15 @@ export class GlossaryScreen {
                 card.appendChild(statsRow);
 
                 // Description
-                const descEl = document.createElement('div');
-                descEl.textContent = ability.description;
-                Object.assign(descEl.style, {
+                const abilDescEl = document.createElement('div');
+                abilDescEl.textContent = ability.description;
+                Object.assign(abilDescEl.style, {
                     fontSize: '14px',
                     color: COLORS.textDim,
                     lineHeight: '1.4',
                     wordWrap: 'break-word',
                 });
-                card.appendChild(descEl);
+                card.appendChild(abilDescEl);
 
                 this._contentArea.appendChild(card);
             }
@@ -596,7 +935,7 @@ export class GlossaryScreen {
     }
 
     // ============================================================================
-    // EQUIPMENT TAB
+    // EQUIPMENT TAB — with slot type icons and weapon/armor visuals
     // ============================================================================
 
     /** @private */
@@ -615,7 +954,8 @@ export class GlossaryScreen {
 
         for (const filterName of allFilterNames) {
             const btn = document.createElement('button');
-            btn.textContent = filterName === 'all' ? 'All' : capitalizeWords(filterName);
+            const icon = SLOT_ICONS[filterName] || '';
+            btn.textContent = filterName === 'all' ? 'All' : `${icon} ${capitalizeWords(filterName)}`;
             Object.assign(btn.style, {
                 padding: '8px 14px',
                 border: 'none',
@@ -694,7 +1034,34 @@ export class GlossaryScreen {
                 borderRadius: '10px',
                 padding: '12px',
                 marginBottom: '8px',
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'flex-start',
             });
+
+            // Slot icon
+            const iconContainer = document.createElement('div');
+            const slotIcon = SLOT_ICONS[equip.slot_type] || '\u2753';
+            const rarityColor = RARITY_COLORS[equip.rarity] || '#888';
+            Object.assign(iconContainer.style, {
+                width: '40px',
+                height: '40px',
+                borderRadius: '8px',
+                background: hexToRgba(rarityColor, 0.15),
+                border: `1px solid ${hexToRgba(rarityColor, 0.4)}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '20px',
+                flexShrink: '0',
+            });
+            iconContainer.textContent = slotIcon;
+            card.appendChild(iconContainer);
+
+            // Info column
+            const infoCol = document.createElement('div');
+            infoCol.style.flex = '1';
+            infoCol.style.minWidth = '0';
 
             // Name (colored by rarity)
             const nameEl = document.createElement('div');
@@ -705,7 +1072,7 @@ export class GlossaryScreen {
                 color: RARITY_COLORS[equip.rarity] || COLORS.textPrimary,
                 marginBottom: '4px',
             });
-            card.appendChild(nameEl);
+            infoCol.appendChild(nameEl);
 
             // Slot type + Rarity stars
             const metaRow = document.createElement('div');
@@ -713,7 +1080,7 @@ export class GlossaryScreen {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                marginBottom: '8px',
+                marginBottom: '6px',
                 fontSize: '13px',
             });
 
@@ -729,7 +1096,7 @@ export class GlossaryScreen {
             starsEl.style.letterSpacing = '2px';
             metaRow.appendChild(starsEl);
 
-            card.appendChild(metaRow);
+            infoCol.appendChild(metaRow);
 
             // Stat bonuses (only non-zero)
             const bonuses = equip.stat_bonuses || {};
@@ -741,7 +1108,7 @@ export class GlossaryScreen {
                     display: 'flex',
                     flexWrap: 'wrap',
                     gap: '10px',
-                    marginBottom: '8px',
+                    marginBottom: '6px',
                     fontSize: '13px',
                 });
 
@@ -762,7 +1129,7 @@ export class GlossaryScreen {
                     bonusRow.appendChild(statEl);
                 }
 
-                card.appendChild(bonusRow);
+                infoCol.appendChild(bonusRow);
             }
 
             // Synergies (element + class)
@@ -780,7 +1147,7 @@ export class GlossaryScreen {
                     display: 'flex',
                     flexWrap: 'wrap',
                     gap: '10px',
-                    marginBottom: '8px',
+                    marginBottom: '6px',
                     fontSize: '13px',
                 });
 
@@ -801,7 +1168,7 @@ export class GlossaryScreen {
                     synergyRow.appendChild(synEl);
                 }
 
-                card.appendChild(synergyRow);
+                infoCol.appendChild(synergyRow);
             }
 
             // Level req + Source
@@ -810,7 +1177,7 @@ export class GlossaryScreen {
                 display: 'flex',
                 flexWrap: 'wrap',
                 gap: '16px',
-                marginBottom: '8px',
+                marginBottom: '6px',
                 fontSize: '13px',
             });
 
@@ -839,7 +1206,7 @@ export class GlossaryScreen {
                 reqRow.appendChild(sourceEl);
             }
 
-            card.appendChild(reqRow);
+            infoCol.appendChild(reqRow);
 
             // Description
             const descEl = document.createElement('div');
@@ -850,8 +1217,9 @@ export class GlossaryScreen {
                 lineHeight: '1.4',
                 wordWrap: 'break-word',
             });
-            card.appendChild(descEl);
+            infoCol.appendChild(descEl);
 
+            card.appendChild(infoCol);
             this._equipListContainer.appendChild(card);
         }
 
