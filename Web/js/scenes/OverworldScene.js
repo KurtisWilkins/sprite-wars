@@ -449,7 +449,9 @@ export class OverworldScene extends Scene {
             type: npcDef.type || 'talk', // talk, shop, quest, heal
         }));
 
-        // Load individual NPC sprites (256x256, 4 cols x 4 rows, 64x64 per frame)
+        // Load individual NPC sprites and auto-detect frame dimensions.
+        // Sprite sheets use 4 rows (down/left/right/up) with square frames.
+        // Supports various sheet sizes: 128x128 (32x32), 256x256 (64x64), 512x256 (64x64), etc.
         let generatedSheetIdx = 0;
         for (const npc of this._npcs) {
             npc.spriteSheet = null;
@@ -460,6 +462,13 @@ export class OverworldScene extends Scene {
             if (npc.spritePath) {
                 try {
                     npc.spriteSheet = await this.engine.assets.loadImage(npc.spritePath);
+                    if (npc.spriteSheet) {
+                        // Auto-detect frame size: 4 rows, square frames
+                        npc.spriteFrameH = npc.spriteSheet.height / 4;
+                        npc.spriteFrameW = npc.spriteFrameH;
+                        npc.spriteCols = Math.floor(npc.spriteSheet.width / npc.spriteFrameW);
+                        npc.spriteRows = 4;
+                    }
                 } catch (_) {
                     npc.spriteSheet = null;
                 }
@@ -469,6 +478,12 @@ export class OverworldScene extends Scene {
                 const sheetCanvas = this._generatedSpriteSheets[generatedSheetIdx % this._generatedSpriteSheets.length];
                 try {
                     npc.spriteSheet = await SpriteSheetGenerator.toImage(sheetCanvas);
+                    if (npc.spriteSheet) {
+                        npc.spriteFrameH = npc.spriteSheet.height / 4;
+                        npc.spriteFrameW = npc.spriteFrameH;
+                        npc.spriteCols = Math.floor(npc.spriteSheet.width / npc.spriteFrameW);
+                        npc.spriteRows = 4;
+                    }
                 } catch (_) { /* ignore */ }
                 generatedSheetIdx++;
             }
@@ -2284,13 +2299,14 @@ export class OverworldScene extends Scene {
 
     _renderNpc(renderer, npc) {
         if (npc.spriteSheet && npc.spriteSheet.complete) {
-            // Individual character sprite sheet: 256x256, 4 cols x 4 rows, 64x64 per frame
-            // Row 0: down, Row 1: left, Row 2: right, Row 3: up
+            // Character sprite sheets: 4 rows (down, left, right, up), square frames.
+            // Auto-detect frame size from actual image dimensions to support
+            // 128x128 (32x32 frames), 256x256 (64x64 frames), 512x256 (64x64 frames), etc.
             const dirRow = { down: 0, left: 1, right: 2, up: 3 };
             const row = dirRow[npc.facing] || 0;
             const col = 0; // idle frame
-            const fw = npc.spriteFrameW;
-            const fh = npc.spriteFrameH;
+            const fh = npc.spriteSheet.height / 4;
+            const fw = fh; // square frames
             renderer.drawSprite(
                 npc.spriteSheet,
                 col * fw, row * fh, fw, fh,
