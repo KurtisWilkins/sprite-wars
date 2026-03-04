@@ -19,6 +19,7 @@ import { DamageCalculator } from './DamageCalculator.js';
 import { AbilityExecutor } from './AbilityExecutor.js';
 import { StatusEffectSystem } from './StatusEffectSystem.js';
 import { BattleAI } from './BattleAI.js';
+import { EQUIPMENT } from '../../data/EquipmentData.js';
 
 // -- Event Log Constants (matching BattleEventLog from GDScript) ----------------
 const EVENT_BATTLE_START = 'battle_start';
@@ -696,17 +697,43 @@ export class BattleManager {
             return null;
         }
 
-        // Calculate full stats.
-        const stats = instance.calculateAllEffectiveStats(raceData, stageData);
+        // Gather element types and class for synergy calculations.
         const elemTypes = [];
         const raceElems = raceData.elementTypes || raceData.element_types || [];
         for (const e of raceElems) {
             elemTypes.push(e);
         }
+        const spriteClass = instance.classType || instance.class_type || '';
+
+        // Resolve equipped equipment data for stat bonuses.
+        const equipmentList = this._resolveEquipmentList(instance);
+
+        // Calculate full stats including equipment bonuses and synergies.
+        const stats = instance.calculateAllEffectiveStats(
+            raceData, stageData, equipmentList, elemTypes, spriteClass
+        );
 
         const unit = new BattleUnit();
         unit.initialize(instance, stats, teamId, abilities, elemTypes);
         return unit;
+    }
+
+    /**
+     * Resolve a SpriteInstance's equipment IDs into an array of equipment data objects.
+     * @param {object} instance
+     * @returns {object[]}
+     */
+    _resolveEquipmentList(instance) {
+        const equipment = instance.equipment || {};
+        const result = [];
+        for (const slot of ['weapon', 'helmet', 'chest', 'legs', 'boots', 'gloves', 'ring', 'amulet', 'crystal']) {
+            const eqId = equipment[slot];
+            if (eqId && eqId !== -1) {
+                const eqData = EQUIPMENT.find(e => e.equipment_id === eqId);
+                if (eqData) result.push(eqData);
+            }
+        }
+        return result;
     }
 
     // -- Private: Ability Registration --------------------------------------------

@@ -8,6 +8,9 @@
 ##   BattleManager.toggle_auto_battle()
 extends Node
 
+## Preload the EquipmentDatabase so we can resolve equipment IDs to data.
+const _EquipmentDatabase = preload("res://Game/Data/Equipment/EquipmentDatabase.gd")
+
 ## -- Subsystem Instances ------------------------------------------------------
 
 var grid: BattleGrid = null
@@ -562,11 +565,19 @@ func _create_battle_unit(data: Dictionary, team_id: int) -> BattleUnit:
 		push_warning("BattleManager: Incomplete unit data, skipping.")
 		return null
 
-	# Calculate full stats.
-	var stats: Dictionary = instance.calculate_all_effective_stats(race_data, stage_data)
+	# Resolve equipped EquipmentData resources from the instance's equipment IDs.
+	var equipment_list: Array = _resolve_equipment_list(instance)
+
+	# Gather element types and class for synergy calculations.
 	var elem_types: Array[String] = []
 	for e in race_data.element_types:
 		elem_types.append(e)
+	var sprite_class: String = instance.class_type if instance.class_type else ""
+
+	# Calculate full stats including equipment bonuses and synergies.
+	var stats: Dictionary = instance.calculate_all_effective_stats(
+		race_data, stage_data, equipment_list, elem_types, sprite_class
+	)
 
 	var unit := BattleUnit.new()
 	unit.initialize(instance, stats, team_id, abilities, elem_types)
@@ -610,6 +621,30 @@ func _generate_default_positions(team: int, count: int) -> Array[Vector2i]:
 		current_row += row_dir
 
 	return positions
+
+
+## Resolve a SpriteInstance's equipment IDs into an Array of EquipmentData resources.
+## Uses the EquipmentDatabase to look up each equipped item by ID.
+func _resolve_equipment_list(instance: SpriteInstance) -> Array:
+	var result: Array = []
+	var all_equipment: Array = _EquipmentDatabase.get_all_equipment()
+	var equipped_ids: Array[int] = instance.get_equipped_item_ids()
+	for eid in equipped_ids:
+		for eq_entry in all_equipment:
+			if int(eq_entry.get("equipment_id", -1)) == eid:
+				var equip_data := EquipmentData.new()
+				equip_data.equipment_id = eid
+				equip_data.equipment_name = eq_entry.get("equipment_name", "")
+				equip_data.slot_type = eq_entry.get("slot_type", "")
+				equip_data.rarity = eq_entry.get("rarity", "common")
+				equip_data.stat_bonuses = eq_entry.get("stat_bonuses", {})
+				equip_data.element_synergy = eq_entry.get("element_synergy", "")
+				equip_data.element_synergy_multiplier = float(eq_entry.get("element_synergy_multiplier", 1.0))
+				equip_data.class_synergy = eq_entry.get("class_synergy", "")
+				equip_data.class_synergy_multiplier = float(eq_entry.get("class_synergy_multiplier", 1.0))
+				result.append(equip_data)
+				break
+	return result
 
 
 ## Get the highest level among player team units for loot filtering.

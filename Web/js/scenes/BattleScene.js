@@ -807,15 +807,21 @@ export class BattleScene extends Scene {
 
             // Build instance object with calculateAllEffectiveStats
             const level = raw.level || 1;
+            // Deep copy equipment so each unit has its own equipment dict
+            // (prevents shared-reference bug where all sprites show same armor)
+            const rawEquipment = raw.equipment || {};
+            const instanceEquipment = { ...rawEquipment };
             const instance = {
                 ...raw,
                 raceId,
                 formId,
                 level,
-                calculateAllEffectiveStats(rd, sd) {
-                    // Player sprites have pre-computed stats — use them
+                equipment: instanceEquipment,
+                calculateAllEffectiveStats(rd, sd, equipmentList, elemTypes, spriteClass) {
+                    // Player sprites have pre-computed stats — use them as base
+                    let baseStats;
                     if (this.stats && this.maxHp) {
-                        return {
+                        baseStats = {
                             hp: this.maxHp,
                             atk: this.stats.attack || this.stats.atk || 1,
                             def: this.stats.defense || this.stats.def || 1,
@@ -823,17 +829,36 @@ export class BattleScene extends Scene {
                             sp_atk: this.stats.specialAttack || this.stats.sp_atk || 1,
                             sp_def: this.stats.specialDefense || this.stats.sp_def || 1,
                         };
+                    } else {
+                        // Enemy sprites: compute from base_stats, growth, level, stage mult
+                        baseStats = {};
+                        const keys = ['hp', 'atk', 'def', 'spd', 'sp_atk', 'sp_def'];
+                        for (const key of keys) {
+                            const base = rd.base_stats[key] || 10;
+                            const growth = rd.growth_rates[key] || 1;
+                            const mult = sd.stat_multipliers[key] || 1;
+                            baseStats[key] = Math.max(1, Math.floor((base + growth * this.level) * mult));
+                        }
                     }
-                    // Enemy sprites: compute from base_stats, growth, level, stage mult
-                    const result = {};
-                    const keys = ['hp', 'atk', 'def', 'spd', 'sp_atk', 'sp_def'];
-                    for (const key of keys) {
-                        const base = rd.base_stats[key] || 10;
-                        const growth = rd.growth_rates[key] || 1;
-                        const mult = sd.stat_multipliers[key] || 1;
-                        result[key] = Math.max(1, Math.floor((base + growth * this.level) * mult));
+                    // Apply equipment stat bonuses with synergy multipliers
+                    if (equipmentList && equipmentList.length > 0) {
+                        for (const equip of equipmentList) {
+                            const bonuses = equip.stat_bonuses || {};
+                            for (const key of Object.keys(bonuses)) {
+                                if (key in baseStats) {
+                                    let bonus = bonuses[key] || 0;
+                                    if (elemTypes && equip.element_synergy && elemTypes.includes(equip.element_synergy)) {
+                                        bonus = Math.floor(bonus * (equip.element_synergy_multiplier || 1));
+                                    }
+                                    if (spriteClass && equip.class_synergy && spriteClass === equip.class_synergy) {
+                                        bonus = Math.floor(bonus * (equip.class_synergy_multiplier || 1));
+                                    }
+                                    baseStats[key] = Math.max(1, baseStats[key] + bonus);
+                                }
+                            }
+                        }
                     }
-                    return result;
+                    return baseStats;
                 },
             };
 
