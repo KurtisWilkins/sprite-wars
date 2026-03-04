@@ -180,7 +180,7 @@ export class BattleAnimationController {
 
         if (isCrit) {
             // Squash-stretch
-            anims.push(
+            state.anims.push(
                 { prop: 'scaleX', from: 1, to: 1.2, start: 0, dur: duration * 0.3, ease: easeOutExpo },
                 { prop: 'scaleY', from: 1, to: 0.85, start: 0, dur: duration * 0.3, ease: easeOutExpo },
                 { prop: 'scaleX', from: 1.2, to: 1, start: duration * 0.3, dur: duration * 0.7, ease: easeOutElastic },
@@ -385,8 +385,11 @@ export class BattleAnimationController {
                 state.rotation = 0;
                 state.flashColor = null;
                 state.flashAlpha = 0;
+                // Reset opacity for non-faint animations (faint ends at opacity 0)
+                if (state.opacity > 0) {
+                    state.opacity = 1;
+                }
                 state.anims = [];
-                // Don't reset opacity for faint animations
             }
         }
 

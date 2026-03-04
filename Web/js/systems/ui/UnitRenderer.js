@@ -244,9 +244,9 @@ export class UnitRenderer {
         UnitRenderer._drawBaseSprite(ctx, spriteInstance, x, y + bobOffset, size, formId, direction, time, team, elemColor, level);
 
         // ── Weapon overlay ──────────────────────────────────────────
-        if (showWeapon && equipment.weapon) {
-            UnitRenderer._drawWeaponOverlay(ctx, equipment.weapon, raceId, x, y + bobOffset, size, direction);
-        }
+        // Weapon is already rendered as part of the composite sprite sheet
+        // by HumanoidSpriteSystem (drawn in _drawBaseSprite above).
+        // No separate overlay needed.
 
         // ── HP Bar ──────────────────────────────────────────────────
         if (showHpBar) {

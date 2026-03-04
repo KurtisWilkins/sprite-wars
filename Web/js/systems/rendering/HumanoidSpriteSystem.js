@@ -449,7 +449,17 @@ export class HumanoidSpriteSystem {
                 break;
         }
 
-        // Try extracting weapon from theme sheet
+        // Priority 1: Per-item visual config (procedural pixel-art weapon)
+        // Matches the rendering priority used by helmet and chest overlays
+        const eqId = weaponData ? (weaponData.equipment_id || 0) : 0;
+        const visualConfig = eqId ? getVisualConfig(eqId) : null;
+
+        if (visualConfig && visualConfig.shape) {
+            drawWeaponByConfig(ctx, wx, wy, dir, visualConfig, colors);
+            return;
+        }
+
+        // Priority 2: Extract weapon from theme sprite sheet
         if (themeImg && themeImg.complete && themeImg.width > 0) {
             const equipRow = EQUIPMENT_ROWS[weaponType];
             if (equipRow) {
@@ -482,26 +492,15 @@ export class HumanoidSpriteSystem {
             }
         }
 
-        // Procedural weapon fallback (detailed pixel art)
+        // Priority 3: Fallback with default visual config
         this._drawProceduralWeapon(ctx, wx, wy, dir, weaponType, weaponData, colors);
     }
 
     /**
-     * Draw a procedural pixel-art weapon using per-item visual config.
-     * Each of the 144 weapons renders with its own unique shape, colors, and effects.
+     * Draw a procedural pixel-art weapon using default visual config.
+     * Called as a last resort when no per-item config or theme sheet is available.
      */
     static _drawProceduralWeapon(ctx, wx, wy, dir, weaponType, weaponData, colors) {
-        // Look up unique visual config for this specific weapon
-        const eqId = weaponData ? (weaponData.equipment_id || 0) : 0;
-        const visualConfig = eqId ? getVisualConfig(eqId) : null;
-
-        if (visualConfig && visualConfig.shape) {
-            // Use the per-item unique renderer
-            drawWeaponByConfig(ctx, wx, wy, dir, visualConfig, colors);
-            return;
-        }
-
-        // Fallback: generic rarity-based rendering for unknown weapons
         const rarity = weaponData ? (weaponData.rarity || 'common') : 'common';
         const fallbackConfig = getSlotVisualDefaults('weapon');
         fallbackConfig.bladeColor = this._getWeaponColor(rarity);
