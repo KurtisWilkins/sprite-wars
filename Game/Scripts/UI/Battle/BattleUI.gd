@@ -8,6 +8,7 @@ extends CanvasLayer
 ## -- Sub-Component References -------------------------------------------------
 
 var grid_display: Node2D = null          # GridDisplay.gd
+var visual_orchestrator: Node = null     # BattleVisualOrchestrator.gd
 var health_bar_display: Control = null   # HealthBarDisplay.gd
 var status_icon_display: Control = null  # StatusIconDisplay.gd
 var ability_bar: HBoxContainer = null    # AbilityBar.gd
@@ -65,6 +66,8 @@ const EVENT_FEED_SCRIPT := "res://Scripts/UI/Battle/BattleEventFeed.gd"
 const RESULTS_SCREEN_SCRIPT := "res://Scripts/UI/Battle/BattleResultsScreen.gd"
 const DEPLOYMENT_SCREEN_SCRIPT := "res://Scripts/UI/Battle/DeploymentScreen.gd"
 const CRYSTAL_THROW_SCRIPT := "res://Scripts/UI/Battle/CrystalThrowUI.gd"
+const VISUAL_ORCHESTRATOR_SCRIPT := "res://Scripts/Battle/BattleVisualOrchestrator.gd"
+const BATTLE_VFX_SCRIPT := "res://Scripts/Battle/BattleVFXSystem.gd"
 
 ## -- Initialization -----------------------------------------------------------
 
@@ -135,6 +138,16 @@ func _instantiate_components() -> void:
 	deployment_screen = CanvasLayer.new()
 	deployment_screen.set_script(load(DEPLOYMENT_SCREEN_SCRIPT))
 	add_child(deployment_screen)
+
+	# Visual Orchestrator -- bridges battle logic to visual animations.
+	var vfx_node := Node2D.new()
+	vfx_node.set_script(load(BATTLE_VFX_SCRIPT))
+
+	visual_orchestrator = Node.new()
+	visual_orchestrator.set_script(load(VISUAL_ORCHESTRATOR_SCRIPT))
+	add_child(vfx_node)
+	add_child(visual_orchestrator)
+	visual_orchestrator.setup(grid_display, vfx_node, floating_damage)
 
 
 ## Position and configure sub-component layout for 1080x1920 portrait.
@@ -245,6 +258,11 @@ func register_unit(unit_id: int, grid_pos: Vector2i, texture: Texture2D, team: i
 	# Place visual on grid.
 	grid_display.place_sprite_visual(unit_id, grid_pos, texture)
 
+	# Register with visual orchestrator for animation lookups.
+	var sprite_instance: Resource = extra_data.get("sprite_instance")
+	if sprite_instance != null and visual_orchestrator != null:
+		visual_orchestrator.register_unit_visual(sprite_instance, unit_id)
+
 	# Add health bar.
 	var screen_pos: Vector2 = grid_display.grid_to_screen(grid_pos)
 	health_bar_display.add_bar(unit_id, max_hp, current_hp, screen_pos, team)
@@ -252,6 +270,15 @@ func register_unit(unit_id: int, grid_pos: Vector2i, texture: Texture2D, team: i
 
 ## Unregister a unit from all visual systems.
 func unregister_unit(unit_id: int) -> void:
+	# Unregister from visual orchestrator.
+	var unit_data: Dictionary = _tracked_units.get(unit_id, {})
+	if visual_orchestrator != null:
+		# Find and unregister sprite_instance if available.
+		for si in visual_orchestrator._sprite_to_unit_id:
+			if visual_orchestrator._sprite_to_unit_id[si] == unit_id:
+				visual_orchestrator.unregister_unit_visual(si)
+				break
+
 	grid_display.remove_sprite_visual(unit_id)
 	health_bar_display.remove_bar(unit_id)
 	status_icon_display.clear_unit(unit_id)

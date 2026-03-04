@@ -508,6 +508,7 @@ func _execute_ability_and_process(
 	for fainted in fainted_units:
 		var defeat_result: Dictionary = defeat_system.process_defeat(fainted, grid, turn_order)
 		event_log.log_faint(defeat_result.get("display_name", "???"))
+		EventBus.faint_animation_requested.emit(fainted.sprite_instance)
 		EventBus.unit_fainted.emit(fainted.sprite_instance)
 
 	# -- Check win/loss conditions --------------------------------------------
@@ -544,6 +545,7 @@ func _check_battle_conditions() -> void:
 func _handle_status_faint(unit: BattleUnit) -> void:
 	var defeat_result: Dictionary = defeat_system.process_defeat(unit, grid, turn_order)
 	event_log.log_faint(defeat_result.get("display_name", "???"))
+	EventBus.faint_animation_requested.emit(unit.sprite_instance)
 	EventBus.unit_fainted.emit(unit.sprite_instance)
 	_check_battle_conditions()
 

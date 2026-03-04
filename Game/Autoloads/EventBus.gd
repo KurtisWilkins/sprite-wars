@@ -14,6 +14,14 @@ signal status_applied(unit: Resource, effect: Resource)
 signal status_expired(unit: Resource, effect: Resource)
 signal knockback_occurred(unit: Resource, from_pos: Vector2i, to_pos: Vector2i)
 
+# Animation & VFX signals
+signal attack_animation_requested(attacker: Resource, target: Resource, weapon_type: String, element: String)
+signal hit_impact_requested(target: Resource, damage: int, element: String, attack_style: int)
+signal special_animation_requested(caster: Resource, target: Resource, class_name_str: String)
+signal teleport_executed(unit: Resource, from_pos: Vector2i, to_pos: Vector2i)
+signal knockback_visual_requested(unit: Resource, from_pos: Vector2i, to_pos: Vector2i, hit_wall: bool)
+signal faint_animation_requested(unit: Resource)
+
 # Catching signals
 signal catch_attempted(crystal: Resource, target: Resource)
 signal catch_succeeded(sprite_data: Resource)

@@ -384,8 +384,72 @@ Before submitting animation assets for integration:
 
 ---
 
-## 14. Revision History
+## 14. Weapon Attack Animation System (Procedural)
+
+In addition to sprite-sheet-based character animations, the battle system includes a **procedural weapon animation system** that drives unit movement, weapon swing arcs, and visual timing during attacks. This system uses Godot Tweens to generate motion without requiring additional sprite sheet frames.
+
+### System Components
+
+| File | Role |
+|------|------|
+| `WeaponAnimationData.gd` | Maps 40+ weapon types to animation profiles (timing, motion, arc) |
+| `BattleAnimationController.gd` | Executes procedural Tween animations on Sprite2D nodes |
+| `BattleVFXSystem.gd` | Spawns hit impacts, comic text, particles, smoke, trails |
+| `ClassSpecialAnimations.gd` | Defines 16 class-specific special ability animations |
+| `AssassinTeleportSystem.gd` | Grid teleport + backstab mechanic for Assassin class |
+| `BattleVisualOrchestrator.gd` | Bridges EventBus signals to visual systems |
+
+### Weapon Attack Styles
+
+| Style | Weapons | Motion |
+|-------|---------|--------|
+| **SLASH** | Swords, axes, greatswords | Lunge forward + rotation arc sweep |
+| **THRUST** | Spears, daggers, lances | Pull back then rapid forward stab |
+| **SMASH** | Hammers, maces, mauls, rams | Rise up, slam down with squash-stretch |
+| **DRAW_RELEASE** | Bows, crossbows | Lean back (draw) then snap (release) |
+| **THROW** | Javelins, flasks, mortars | Wind-up arm, step forward, follow-through |
+| **CAST** | Staves, wands, orbs, tomes | Float up, element glow pulse, release |
+| **PUNCH** | Fists, nunchaku, bo staff | Minimal wind-up, rapid snap forward |
+| **BLOCK_BASH** | Shields | Brace (widen stance), then shove forward |
+| **HOLY_STRIKE** | Holy mace, holy symbol | Rise with golden glow, divine slam |
+| **GUNFIRE** | Pistols, muskets, blunderbuss | Aim, muzzle flash, recoil back |
+
+### Class Special Animations
+
+Each of the 16 classes has a unique special move animation:
+
+| Class | Special | Multi-hit | Teleport |
+|-------|---------|-----------|----------|
+| Barbarian | Berserker Rush | 3 strikes | No |
+| Fighter | Shield Wall | 1 counter | No |
+| Archer | Arrow Rain | 5 arrows | No |
+| Spearman | Spear Charge | 1 thrust | No |
+| Heavy | Fortress Slam | 1 ground pound | No |
+| Wizard | Arcane Burst | 1 burst | No |
+| Javelin | Javelin Volley | 3 throws | No |
+| Alchemist | Potion Loom | 1 flask | No |
+| Cleric | Divine Light | 1 circle | No |
+| Ambrosian | Soul Link | 1 tether | No |
+| **Assassin** | **Shadow Step** | **1 backstab** | **Yes** |
+| Monk | Flurry | 5 punches | No |
+| Crossbow | Bolt Barrage | 4 bolts | No |
+| Handgunner | Cannon Blast | 1 shot | No |
+| Siegebreaker | Wall Break | 1 charge | No |
+| Paladin | Holy Judgement | 1 beam | No |
+
+### Comic-Book Impact Effects
+
+On significant hits (30+ damage), the VFX system displays comic-book style impact words: "BAM!", "POW!", "WHAM!", "CRACK!", "SMASH!". These are:
+- Randomly rotated for visual variety
+- Scaled based on damage amount
+- Pop-in animated, then fade out upward
+- Kept subtle (brief display, moderate size) to avoid overstimulation
+
+---
+
+## 15. Revision History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-02-16 | 2D Animator / Art Lead | Initial specification |
+| 1.1 | 2026-03-04 | Gameplay Programmer (Battle) | Added weapon animation system, class specials, VFX, teleport, knockback visuals |

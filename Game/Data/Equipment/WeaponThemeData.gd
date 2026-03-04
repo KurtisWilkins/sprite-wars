@@ -81,16 +81,22 @@ static func get_race_theme_map() -> Dictionary:
 
 static func get_class_weapon_map() -> Dictionary:
 	return {
-		"Barbarian": "axe",
-		"Paladin":  "shield",
-		"Javelin":    "crossbow",
-		"Assassin":  "sword",
-		"Archer":    "crossbow",
-		"Fighter":    "sword",
-		"Wizard":    "staff",
-		"Cleric":    "staff",
-		"Alchemist":  "staff",
-		"Spearman":  "spear",
+		"Barbarian":    "axe",
+		"Fighter":      "sword",
+		"Archer":       "crossbow",
+		"Spearman":     "spear",
+		"Heavy":        "tower_shield",
+		"Wizard":       "staff",
+		"Javelin":      "javelin",
+		"Alchemist":    "flask",
+		"Cleric":       "staff",
+		"Ambrosian":    "scepter",
+		"Assassin":     "dagger",
+		"Monk":         "fist",
+		"Crossbow":     "crossbow",
+		"Handgunner":   "pistol",
+		"Siegebreaker": "battering_ram",
+		"Paladin":      "longsword",
 	}
 
 
