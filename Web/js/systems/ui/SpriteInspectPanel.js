@@ -285,13 +285,13 @@ export class SpriteInspectPanel {
 
         // Canvas
         const canvas = document.createElement('canvas');
-        canvas.width = 160;
-        canvas.height = 180;
-        canvas.style.cssText = 'width: 96px; height: 108px; flex-shrink: 0; image-rendering: pixelated;';
+        canvas.width = 256;
+        canvas.height = 288;
+        canvas.style.cssText = 'width: 160px; height: 180px; flex-shrink: 0; image-rendering: pixelated;';
         const ctx = canvas.getContext('2d');
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, d.raceId, d.evolutionStage, d.facing, 0,
-            80, 150, 120,
+            128, 240, 192,
             { equipment: d.equipment || {} }
         );
         previewRow.appendChild(canvas);
@@ -428,6 +428,66 @@ export class SpriteInspectPanel {
     // ── Stats Tab ───────────────────────────────────────────────────────────
 
     _renderStatsTab(container, d) {
+        // ── Element / Race / Class info block ──
+        const infoBlock = document.createElement('div');
+        infoBlock.style.cssText = 'margin-bottom: 10px; padding: 6px 8px; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);';
+
+        // Race
+        const raceEntry = SPRITE_RACES.find(r => r.race_id === d.raceId);
+        const raceName = raceEntry ? raceEntry.race_name : (d.raceData && d.raceData.race_name ? d.raceData.race_name : 'Unknown');
+        const raceLine = document.createElement('div');
+        raceLine.style.cssText = 'display: flex; align-items: center; gap: 6px; margin-bottom: 4px;';
+        const raceTagLabel = document.createElement('span');
+        raceTagLabel.style.cssText = 'font-size:0.65rem;color:#666;width:48px;';
+        raceTagLabel.textContent = 'RACE';
+        raceLine.appendChild(raceTagLabel);
+        const raceTagValue = document.createElement('span');
+        raceTagValue.style.cssText = 'font-size:0.75rem;color:#ddddee;font-weight:600;';
+        raceTagValue.textContent = raceName;
+        raceLine.appendChild(raceTagValue);
+        infoBlock.appendChild(raceLine);
+
+        // Class
+        const classLine = document.createElement('div');
+        classLine.style.cssText = 'display: flex; align-items: center; gap: 6px; margin-bottom: 4px;';
+        const classTagLabel = document.createElement('span');
+        classTagLabel.style.cssText = 'font-size:0.65rem;color:#666;width:48px;';
+        classTagLabel.textContent = 'CLASS';
+        classLine.appendChild(classTagLabel);
+        const classTagValue = document.createElement('span');
+        classTagValue.style.cssText = 'font-size:0.75rem;color:#ccbbff;font-weight:600;';
+        classTagValue.textContent = d.classType || 'Unknown';
+        classLine.appendChild(classTagValue);
+        infoBlock.appendChild(classLine);
+
+        // Element
+        const elemLine = document.createElement('div');
+        elemLine.style.cssText = 'display: flex; align-items: center; gap: 6px;';
+        const elemLabelSpan = document.createElement('span');
+        elemLabelSpan.style.cssText = 'font-size:0.65rem;color:#666;width:48px;';
+        elemLabelSpan.textContent = 'ELEM';
+        elemLine.appendChild(elemLabelSpan);
+        const elemTagsDiv = document.createElement('div');
+        elemTagsDiv.style.cssText = 'display: flex; gap: 3px; flex-wrap: wrap;';
+        if (d.elements && d.elements.length > 0) {
+            for (const elem of d.elements) {
+                const tag = document.createElement('span');
+                const color = ELEMENT_COLORS[elem] || '#888';
+                tag.style.cssText = `padding:1px 6px;border-radius:8px;font-size:0.65rem;background:${color}33;color:${color};border:1px solid ${color}55;font-weight:600;`;
+                tag.textContent = elem;
+                elemTagsDiv.appendChild(tag);
+            }
+        } else {
+            const unknownTag = document.createElement('span');
+            unknownTag.style.cssText = 'font-size:0.7rem;color:#666;';
+            unknownTag.textContent = '???';
+            elemTagsDiv.appendChild(unknownTag);
+        }
+        elemLine.appendChild(elemTagsDiv);
+        infoBlock.appendChild(elemLine);
+
+        container.appendChild(infoBlock);
+
         const statKeys = ['hp', 'atk', 'def', 'sp_atk', 'sp_def', 'spd'];
 
         for (const key of statKeys) {

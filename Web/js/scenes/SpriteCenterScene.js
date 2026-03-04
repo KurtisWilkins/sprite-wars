@@ -343,7 +343,7 @@ export class SpriteCenterScene extends Scene {
                 HumanoidSpriteSystem.drawWithEquipment(
                     ctx, raceId, stage,
                     this._equipPreviewDir, this._equipPreviewFrame,
-                    64, 100, 80,
+                    128, 200, 160,
                     { equipment }
                 );
             }
@@ -1080,11 +1080,11 @@ export class SpriteCenterScene extends Scene {
         previewRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
 
         const detailCanvas = document.createElement('canvas');
-        detailCanvas.width = 64;
-        detailCanvas.height = 72;
-        detailCanvas.style.cssText = 'width:64px;height:72px;flex-shrink:0;image-rendering:pixelated;';
+        detailCanvas.width = 128;
+        detailCanvas.height = 144;
+        detailCanvas.style.cssText = 'width:128px;height:144px;flex-shrink:0;image-rendering:pixelated;';
         const dCtx = detailCanvas.getContext('2d');
-        UnitRenderer.draw(dCtx, inst, 32, 32, 56, {
+        UnitRenderer.draw(dCtx, inst, 64, 64, 112, {
             time: this._time,
             showHpBar: true,
             hpFraction: (inst.currentHp || inst.maxHp || 100) / (inst.maxHp || 100),
@@ -1099,7 +1099,7 @@ export class SpriteCenterScene extends Scene {
         this._previewCanvases.push({
             canvas: detailCanvas,
             inst,
-            opts: { cx: 32, cy: 32, size: 56, showHpBar: true, hpFraction: (inst.currentHp || inst.maxHp || 100) / (inst.maxHp || 100), showLevel: true, showAura: true, showWeapon: true, showArmorGlow: true, showElementBadge: true, showStatusIcons: false },
+            opts: { cx: 64, cy: 64, size: 112, showHpBar: true, hpFraction: (inst.currentHp || inst.maxHp || 100) / (inst.maxHp || 100), showLevel: true, showAura: true, showWeapon: true, showArmorGlow: true, showElementBadge: true, showStatusIcons: false },
         });
 
         // Class & race summary next to preview
@@ -1202,6 +1202,72 @@ export class SpriteCenterScene extends Scene {
     }
 
     _renderStatsMode(container, inst, raceData, stageData) {
+        // ── Element / Race / Class info block ──
+        const infoBlock = document.createElement('div');
+        infoBlock.style.cssText = 'margin-bottom:10px;padding:6px 8px;background:rgba(255,255,255,0.03);border-radius:6px;border:1px solid rgba(255,255,255,0.06);';
+
+        // Race
+        const raceId = inst.raceId || inst.race_id || 0;
+        const raceEntry = SPRITE_RACES.find(r => r.race_id === raceId);
+        const raceName = raceEntry ? raceEntry.race_name : (raceData.raceName || raceData.race_name || 'Unknown');
+        const raceLine = document.createElement('div');
+        raceLine.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:4px;';
+        const raceLabel = document.createElement('span');
+        raceLabel.style.cssText = 'font-size:0.55rem;color:#666;width:48px;';
+        raceLabel.textContent = 'RACE';
+        raceLine.appendChild(raceLabel);
+        const raceValue = document.createElement('span');
+        raceValue.style.cssText = 'font-size:0.65rem;color:#ddddee;font-weight:600;';
+        raceValue.textContent = raceName;
+        raceLine.appendChild(raceValue);
+        infoBlock.appendChild(raceLine);
+
+        // Class
+        const classType = inst.classType || inst.class_type || raceData.classType || raceData.class_type || 'Unknown';
+        const classLine = document.createElement('div');
+        classLine.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:4px;';
+        const classLabel = document.createElement('span');
+        classLabel.style.cssText = 'font-size:0.55rem;color:#666;width:48px;';
+        classLabel.textContent = 'CLASS';
+        classLine.appendChild(classLabel);
+        const classValue = document.createElement('span');
+        classValue.style.cssText = 'font-size:0.65rem;color:#ccbbff;font-weight:600;';
+        classValue.textContent = classType;
+        classLine.appendChild(classValue);
+        infoBlock.appendChild(classLine);
+
+        // Element
+        const elemTypes = inst.elementTypes || inst.element_types || raceData.elementTypes || raceData.element_types || [];
+        const elemLine = document.createElement('div');
+        elemLine.style.cssText = 'display:flex;align-items:center;gap:6px;';
+        const elemLabel = document.createElement('span');
+        elemLabel.style.cssText = 'font-size:0.55rem;color:#666;width:48px;';
+        elemLabel.textContent = 'ELEM';
+        elemLine.appendChild(elemLabel);
+        const elemTags = document.createElement('div');
+        elemTags.style.cssText = 'display:flex;gap:3px;flex-wrap:wrap;';
+        if (elemTypes.length > 0) {
+            for (const elem of elemTypes) {
+                const tag = document.createElement('span');
+                const color = ELEMENT_COLORS[elem] || '#888';
+                tag.style.cssText = `
+                    padding:1px 6px;border-radius:8px;font-size:0.55rem;
+                    background:${color}33;color:${color};border:1px solid ${color}55;font-weight:600;
+                `;
+                tag.textContent = elem;
+                elemTags.appendChild(tag);
+            }
+        } else {
+            const unknownTag = document.createElement('span');
+            unknownTag.style.cssText = 'font-size:0.6rem;color:#666;';
+            unknownTag.textContent = '???';
+            elemTags.appendChild(unknownTag);
+        }
+        elemLine.appendChild(elemTags);
+        infoBlock.appendChild(elemLine);
+
+        container.appendChild(infoBlock);
+
         // Calculate stats if method exists
         let stats = null;
         if (inst.calculateAllEffectiveStats && raceData && stageData) {
@@ -1656,7 +1722,7 @@ export class SpriteCenterScene extends Scene {
         previewCanvas.width = 256;
         previewCanvas.height = 256;
         previewCanvas.style.cssText = `
-            width:128px;height:128px;image-rendering:pixelated;
+            width:192px;height:192px;image-rendering:pixelated;
             border:1px solid rgba(255,255,255,0.12);border-radius:8px;
             background:rgba(0,0,0,0.4);
         `;
@@ -1709,7 +1775,7 @@ export class SpriteCenterScene extends Scene {
                 row.appendChild(leftSlot);
                 // Spacer matching preview width
                 const spacer = document.createElement('div');
-                spacer.style.cssText = 'width:128px;flex-shrink:0;';
+                spacer.style.cssText = 'width:192px;flex-shrink:0;';
                 row.appendChild(spacer);
                 const rightSlot = this._createEquipSlotCell(inst, equipSlots.find(s => s.key === rowDef.slots[2]), equipment, RARITY_COLORS);
                 row.appendChild(rightSlot);
@@ -1738,7 +1804,7 @@ export class SpriteCenterScene extends Scene {
         const paperGrid = document.createElement('div');
         paperGrid.style.cssText = `
             display:grid;
-            grid-template-columns:56px 128px 56px;
+            grid-template-columns:56px 192px 56px;
             grid-template-rows:auto auto auto auto auto;
             gap:3px;
             justify-items:center;
