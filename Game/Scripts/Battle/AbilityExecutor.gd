@@ -81,12 +81,24 @@ func execute_ability(
 	# -- Emit attack animation signal -----------------------------------------
 	var weapon_type: String = _get_caster_weapon_type(caster)
 	if not targets.is_empty() and targets[0] != null:
-		EventBus.attack_animation_requested.emit(
-			caster.sprite_instance,
-			targets[0].sprite_instance if targets[0].sprite_instance else null,
-			weapon_type,
-			ability.element_type
-		)
+		# Check for class special animation (for ability uses, not auto-attacks).
+		var caster_class: String = ""
+		if caster.sprite_instance != null:
+			caster_class = caster.sprite_instance.class_type
+		var class_special: Dictionary = ClassSpecialAnimations.get_special(caster_class)
+		if not class_special.is_empty():
+			EventBus.special_animation_requested.emit(
+				caster.sprite_instance,
+				targets[0].sprite_instance if targets[0].sprite_instance else null,
+				caster_class
+			)
+		else:
+			EventBus.attack_animation_requested.emit(
+				caster.sprite_instance,
+				targets[0].sprite_instance if targets[0].sprite_instance else null,
+				weapon_type,
+				ability.element_type
+			)
 
 	# -- Process each target --------------------------------------------------
 	var target_count: int = targets.size()
@@ -148,7 +160,7 @@ func execute_ability(
 			result["effectiveness_label"] = dmg_result.get("effectiveness_label", "neutral")
 			result["is_fainted"] = take_result["is_fainted"]
 
-		elif ability.base_power <= 0 and _is_healing_ability(ability):
+		elif not ability.is_damaging() and _is_healing_ability(ability):
 			# Healing ability: heal the target.
 			var heal_amount: int = damage_calc.calculate_heal(caster, ability)
 			var actual_healed: int = target.heal(heal_amount)

@@ -23,6 +23,10 @@ import { ABILITIES } from '../data/AbilityData.js';
 import { EQUIPMENT } from '../data/EquipmentData.js';
 import { rollBattleLoot, formatLootForDisplay } from '../systems/battle/BattleLootSystem.js';
 import { SpriteInspectPanel } from '../systems/ui/SpriteInspectPanel.js';
+import { getWeaponProfile } from '../data/WeaponAnimationData.js';
+import { getClassSpecial } from '../data/ClassSpecialAnimations.js';
+import { CLASS_WEAPON_MAP } from '../data/WeaponThemeData.js';
+import { canTeleport, executeTeleport, getTeleportDescription } from '../systems/battle/AssassinTeleportSystem.js';
 
 // ── UI Constants ────────────────────────────────────────────────────────────
 const INTRO_DURATION = 2.0;
@@ -676,6 +680,83 @@ export class RTSBattleScene extends Scene {
         }));
         this._unsubs.push(eventBus.on(GameEvents.UNIT_DEFEATED, () => {
             this._updateBattleLog();
+        }));
+
+        // ── Animation & VFX Events ──────────────────────────────────
+        // Attack animation: play weapon-specific animation via controller
+        this._unsubs.push(eventBus.on(GameEvents.ATTACK_ANIMATION_REQUESTED, (attackerInst, targetInst, weaponType, element) => {
+            const field = this._battleManager.field;
+            const units = field.units;
+            let attacker = null, target = null;
+            for (const u of units) {
+                if (u.spriteInstance === attackerInst) attacker = u;
+                if (u.spriteInstance === targetInst) target = u;
+            }
+            if (attacker) {
+                this._renderer.animController.playAttackAnimation(
+                    attacker, target, weaponType, element,
+                    this._renderer.vfxSystem, field
+                );
+            }
+        }));
+
+        // Hit impact VFX
+        this._unsubs.push(eventBus.on(GameEvents.HIT_IMPACT_REQUESTED, (targetInst, damage, element, attackStyle) => {
+            const field = this._battleManager.field;
+            for (const u of field.units) {
+                if (u.spriteInstance === targetInst) {
+                    const scr = field.worldToScreen(u.worldPos.x, u.worldPos.y);
+                    this._renderer.vfxSystem.spawnHitImpact(scr.x, scr.y - 24, element, attackStyle);
+                    this._renderer.vfxSystem.spawnComicImpact(scr.x, scr.y - 30, damage);
+                    break;
+                }
+            }
+        }));
+
+        // Class special animation
+        this._unsubs.push(eventBus.on(GameEvents.SPECIAL_ANIMATION_REQUESTED, (casterInst, targetInst, className) => {
+            const field = this._battleManager.field;
+            const units = field.units;
+            let caster = null, target = null;
+            for (const u of units) {
+                if (u.spriteInstance === casterInst) caster = u;
+                if (u.spriteInstance === targetInst) target = u;
+            }
+            const specialData = getClassSpecial(className);
+            if (caster && specialData) {
+                this._renderer.animController.playClassSpecial(
+                    caster, target, specialData,
+                    this._renderer.vfxSystem, field
+                );
+            }
+        }));
+
+        // Teleport visual
+        this._unsubs.push(eventBus.on(GameEvents.TELEPORT_EXECUTED, (unitInst, fromX, fromY, toX, toY) => {
+            const field = this._battleManager.field;
+            const fromScr = field.worldToScreen(fromX, fromY);
+            const toScr = field.worldToScreen(toX, toY);
+            this._renderer.vfxSystem.spawnTeleportSmoke(fromScr.x, fromScr.y - 24);
+            this._renderer.vfxSystem.spawnTeleportSmoke(toScr.x, toScr.y - 24);
+        }));
+
+        // Faint animation
+        this._unsubs.push(eventBus.on(GameEvents.FAINT_ANIMATION_REQUESTED, (unitInst) => {
+            const field = this._battleManager.field;
+            for (const u of field.units) {
+                if (u.spriteInstance === unitInst) {
+                    this._renderer.animController.playFaintAnimation(u);
+                    break;
+                }
+            }
+        }));
+
+        // Knockback visual
+        this._unsubs.push(eventBus.on(GameEvents.KNOCKBACK_VISUAL_REQUESTED, (unitInst, fromX, fromY, toX, toY) => {
+            const field = this._battleManager.field;
+            const fromScr = field.worldToScreen(fromX, fromY);
+            const toScr = field.worldToScreen(toX, toY);
+            this._renderer.vfxSystem.spawnKnockbackTrail(fromScr.x, fromScr.y, toScr.x, toScr.y);
         }));
 
         // Unit defeated → floating text

@@ -183,7 +183,7 @@ func connect_to_battle_manager() -> void:
 	EventBus.status_expired.connect(_on_status_expired)
 
 	# Knockback.
-	EventBus.knockback_occurred.connect(_on_knockback_occurred)
+	EventBus.knockback_visual_requested.connect(_on_knockback_occurred)
 
 	# Catching.
 	EventBus.catch_attempted.connect(_on_catch_attempted)
@@ -470,7 +470,7 @@ func _on_status_expired(unit_resource: Resource, effect: Resource) -> void:
 	event_feed.add_message(msg, Color(0.6, 0.65, 0.75))
 
 
-func _on_knockback_occurred(unit_resource: Resource, from_pos: Vector2i, to_pos: Vector2i) -> void:
+func _on_knockback_occurred(unit_resource: Resource, from_pos: Vector2i, to_pos: Vector2i, _hit_wall: bool = false) -> void:
 	if unit_resource == null:
 		return
 

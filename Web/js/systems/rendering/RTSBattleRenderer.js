@@ -14,6 +14,8 @@
 
 import { HumanoidSpriteSystem } from './HumanoidSpriteSystem.js';
 import { UnitState } from '../battle/RTSUnit.js';
+import { BattleAnimationController } from '../battle/BattleAnimationController.js';
+import { BattleVFXSystem } from '../battle/BattleVFXSystem.js';
 
 // ── Colors ──────────────────────────────────────────────────────────────────
 const COLOR_BG = '#1a1a2e';
@@ -72,11 +74,19 @@ export class RTSBattleRenderer {
     /** Currently selected unit (for highlight ring). @type {import('../battle/RTSUnit.js').RTSUnit|null} */
     selectedUnit = null;
 
+    /** Animation controller for weapon-specific attack animations. */
+    animController = new BattleAnimationController();
+
+    /** VFX system for hit impacts, comic text, teleport smoke. */
+    vfxSystem = new BattleVFXSystem();
+
     constructor() {
         this._floatingTexts = [];
         this._effects = [];
         this._elapsedTime = 0;
         this.selectedUnit = null;
+        this.animController = new BattleAnimationController();
+        this.vfxSystem = new BattleVFXSystem();
     }
 
     /**
@@ -107,6 +117,18 @@ export class RTSBattleRenderer {
         this._field = field;
         this._elapsedTime += dt;
 
+        // Update animation systems
+        this.animController.update(dt);
+        this.vfxSystem.update(dt);
+
+        // Apply screen shake offset
+        const shake = this.animController.getShakeOffset();
+
+        ctx.save();
+        if (shake.x !== 0 || shake.y !== 0) {
+            ctx.translate(shake.x, shake.y);
+        }
+
         // 1. Background
         this._drawBackground(ctx, field);
 
@@ -127,6 +149,11 @@ export class RTSBattleRenderer {
 
         // 7. Visual effects (attack rings, projectile trails)
         this._updateAndDrawEffects(ctx, dt);
+
+        // 8. VFX system (weapon impacts, comic text, smoke)
+        this.vfxSystem.render(ctx);
+
+        ctx.restore();
     }
 
     // ── Background ──────────────────────────────────────────────────────────
@@ -223,25 +250,34 @@ export class RTSBattleRenderer {
                 continue;
             }
 
-            // Hit flash
-            if (unit.hitFlashTimer > 0) {
+            // Get animation controller visuals for this unit
+            const animVis = this.animController.getUnitVisuals(unit);
+
+            // Hit flash (from animation controller or basic timer)
+            if (animVis.flashAlpha > 0 && animVis.flashColor) {
+                ctx.globalAlpha = 1;
+            } else if (unit.hitFlashTimer > 0) {
                 ctx.globalAlpha = 0.6 + Math.sin(unit.hitFlashTimer * 30) * 0.4;
             } else {
-                ctx.globalAlpha = 1;
+                ctx.globalAlpha = animVis.opacity != null ? animVis.opacity : 1;
             }
 
-            // Attack animation: slight lunge toward target
-            let drawX = screen.x;
-            let drawY = screen.y;
-            if (unit.state === UnitState.ATTACKING && unit.target) {
-                const targetScreen = field.worldToScreen(unit.target.worldPos.x, unit.target.worldPos.y);
-                const lungeProgress = unit.animTimer > 0 ? (0.3 - unit.animTimer) / 0.3 : 0;
-                const lungeDist = 6 * Math.sin(lungeProgress * Math.PI);
-                const dx = targetScreen.x - screen.x;
-                const dy = targetScreen.y - screen.y;
-                const len = Math.sqrt(dx * dx + dy * dy) || 1;
-                drawX += (dx / len) * lungeDist;
-                drawY += (dy / len) * lungeDist;
+            // Apply animation offsets (weapon-specific lunge/recoil)
+            let drawX = screen.x + (animVis.offsetX || 0);
+            let drawY = screen.y + (animVis.offsetY || 0);
+
+            // Fallback: basic lunge if no animation controller animation is active
+            if (!animVis.offsetX && !animVis.offsetY) {
+                if (unit.state === UnitState.ATTACKING && unit.target) {
+                    const targetScreen = field.worldToScreen(unit.target.worldPos.x, unit.target.worldPos.y);
+                    const lungeProgress = unit.animTimer > 0 ? (0.3 - unit.animTimer) / 0.3 : 0;
+                    const lungeDist = 6 * Math.sin(lungeProgress * Math.PI);
+                    const dx = targetScreen.x - screen.x;
+                    const dy = targetScreen.y - screen.y;
+                    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+                    drawX += (dx / len) * lungeDist;
+                    drawY += (dy / len) * lungeDist;
+                }
             }
 
             // Cast animation: glow
@@ -254,7 +290,7 @@ export class RTSBattleRenderer {
                 ctx.beginPath();
                 ctx.arc(drawX, drawY - UNIT_DRAW_SIZE / 2, glowRadius, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.globalAlpha = 1;
+                ctx.globalAlpha = animVis.opacity != null ? animVis.opacity : 1;
             }
 
             // Idle animation: gentle bob and slow frame cycling for non-moving units
@@ -266,8 +302,29 @@ export class RTSBattleRenderer {
                 drawY += Math.sin(this._elapsedTime * 2.5 + unit.worldPos.x * 0.1) * 1.5;
             }
 
+            // Apply animation scale and rotation
+            const hasTransform = (animVis.scaleX !== 1 || animVis.scaleY !== 1 || animVis.rotation);
+            if (hasTransform) {
+                ctx.save();
+                ctx.translate(drawX, drawY - UNIT_DRAW_SIZE / 2);
+                if (animVis.rotation) ctx.rotate(animVis.rotation);
+                ctx.scale(animVis.scaleX || 1, animVis.scaleY || 1);
+                ctx.translate(-drawX, -(drawY - UNIT_DRAW_SIZE / 2));
+            }
+
             // Draw the unit sprite
             this._drawUnitSprite(ctx, unit, drawX, drawY, spriteFrame);
+
+            // Draw flash overlay if active
+            if (animVis.flashAlpha > 0 && animVis.flashColor) {
+                ctx.globalAlpha = animVis.flashAlpha;
+                ctx.fillStyle = animVis.flashColor;
+                ctx.fillRect(drawX - UNIT_DRAW_SIZE / 2, drawY - UNIT_DRAW_SIZE, UNIT_DRAW_SIZE, UNIT_DRAW_SIZE);
+            }
+
+            if (hasTransform) {
+                ctx.restore();
+            }
 
             // Team indicator ring
             ctx.strokeStyle = unit.team === 0 ? COLOR_PLAYER_BORDER : COLOR_ENEMY_BORDER;

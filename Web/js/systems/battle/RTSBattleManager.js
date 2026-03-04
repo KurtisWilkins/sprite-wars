@@ -17,6 +17,10 @@ import { RTSUnit, UnitState } from './RTSUnit.js';
 import { RTSCombatAI } from './RTSCombatAI.js';
 import { DamageCalculator } from './DamageCalculator.js';
 import { StatusEffectSystem } from './StatusEffectSystem.js';
+import { CLASS_WEAPON_MAP } from '../../data/WeaponThemeData.js';
+import { canTeleport, executeTeleport } from './AssassinTeleportSystem.js';
+import { getClassSpecial } from '../../data/ClassSpecialAnimations.js';
+import { getWeaponProfile } from '../../data/WeaponAnimationData.js';
 
 // ── Constants ───────────────────────────────────────────────────────────────
 const STATUS_TICK_INTERVAL = 3.0;   // Seconds per "turn" for status effects
@@ -279,14 +283,58 @@ export class RTSBattleManager {
             return;
         }
 
+        // Determine weapon type for animation
+        const weaponType = CLASS_WEAPON_MAP[attacker.classType] || 'sword';
+        const element = attackAbility.elementType || attacker.elementTypes[0] || 'Fire';
+
+        // Assassin teleport check
+        let teleportResult = null;
+        if (canTeleport(attacker)) {
+            teleportResult = executeTeleport(attacker, target);
+            if (teleportResult.success) {
+                eventBus.emit(GameEvents.TELEPORT_EXECUTED,
+                    attacker.spriteInstance,
+                    teleportResult.fromX, teleportResult.fromY,
+                    teleportResult.toX, teleportResult.toY
+                );
+            }
+        }
+
+        // Emit attack animation event
+        eventBus.emit(GameEvents.ATTACK_ANIMATION_REQUESTED,
+            attacker.spriteInstance,
+            target.spriteInstance,
+            weaponType,
+            element
+        );
+
         // Calculate damage
-        const result = this.damageCalc.calculateDamage(
+        let result = this.damageCalc.calculateDamage(
             attacker, target, attackAbility, this._elementChart
         );
+
+        // Apply teleport backstab bonus
+        if (teleportResult && teleportResult.success) {
+            result.finalDamage = Math.round(result.finalDamage * teleportResult.damageMult);
+            // Teleport crit bonus
+            if (!result.isCritical && Math.random() < teleportResult.critBonus) {
+                result.finalDamage = Math.round(result.finalDamage * 1.5);
+                result.isCritical = true;
+            }
+        }
 
         // Apply damage
         const damageResult = target.takeDamage(result.finalDamage);
         target.onHit();
+
+        // Emit hit impact VFX
+        const wpProfile = getWeaponProfile(weaponType);
+        eventBus.emit(GameEvents.HIT_IMPACT_REQUESTED,
+            target.spriteInstance,
+            result.finalDamage,
+            element,
+            wpProfile.style
+        );
 
         // Track stats
         const teamKey = attacker.team === 0 ? 'player' : 'enemy';
@@ -336,6 +384,26 @@ export class RTSBattleManager {
             caster.spriteInstance, ability,
             target.spriteInstance ? [target.spriteInstance] : []
         );
+
+        // Emit class special animation if this class has one
+        const classSpecial = getClassSpecial(caster.classType);
+        if (classSpecial) {
+            eventBus.emit(GameEvents.SPECIAL_ANIMATION_REQUESTED,
+                caster.spriteInstance,
+                target.spriteInstance,
+                caster.classType
+            );
+        } else {
+            // Emit generic attack animation for non-special abilities
+            const abilityWeapon = CLASS_WEAPON_MAP[caster.classType] || 'staff';
+            const abilityElement = ability.elementType || caster.elementTypes[0] || 'Fire';
+            eventBus.emit(GameEvents.ATTACK_ANIMATION_REQUESTED,
+                caster.spriteInstance,
+                target.spriteInstance,
+                abilityWeapon,
+                abilityElement
+            );
+        }
 
         // Check targeting type to determine behavior
         const targetingType = ability.targetingType || '';
@@ -548,6 +616,7 @@ export class RTSBattleManager {
         });
 
         eventBus.emit(GameEvents.UNIT_DEFEATED, unit.spriteInstance);
+        eventBus.emit(GameEvents.FAINT_ANIMATION_REQUESTED, unit.spriteInstance);
 
         // Schedule removal
         this._pendingRemovals.push({ unit, timer: FAINT_REMOVE_DELAY });

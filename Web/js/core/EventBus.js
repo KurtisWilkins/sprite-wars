@@ -104,6 +104,14 @@ export const GameEvents = {
     EQUIPMENT_LOOTED: 'equipment_looted',
     BATTLE_LOOT_ROLLED: 'battle_loot_rolled',
 
+    // Animation & VFX events
+    ATTACK_ANIMATION_REQUESTED: 'attack_animation_requested',
+    HIT_IMPACT_REQUESTED: 'hit_impact_requested',
+    SPECIAL_ANIMATION_REQUESTED: 'special_animation_requested',
+    TELEPORT_EXECUTED: 'teleport_executed',
+    KNOCKBACK_VISUAL_REQUESTED: 'knockback_visual_requested',
+    FAINT_ANIMATION_REQUESTED: 'faint_animation_requested',
+
     // System events
     GAME_SAVED: 'game_saved',
     GAME_LOADED: 'game_loaded',

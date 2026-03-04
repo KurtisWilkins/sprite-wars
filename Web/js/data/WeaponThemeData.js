@@ -78,16 +78,22 @@ export const RACE_THEME_MAP = {
 
 // ── Class-to-weapon defaults ────────────────────────────────────────────────
 export const CLASS_WEAPON_MAP = {
-    Barbarian: 'axe',
-    Paladin:   'shield',
-    Javelin:   'crossbow',
-    Assassin:  'sword',
-    Archer:    'crossbow',
-    Fighter:   'sword',
-    Wizard:    'staff',
-    Cleric:    'staff',
-    Alchemist: 'staff',
-    Spearman:  'spear',
+    Barbarian:    'axe',
+    Paladin:      'shield',
+    Javelin:      'crossbow',
+    Assassin:     'sword',
+    Archer:       'crossbow',
+    Fighter:      'sword',
+    Wizard:       'staff',
+    Cleric:       'staff',
+    Alchemist:    'staff',
+    Spearman:     'spear',
+    Heavy:        'axe',
+    Ambrosian:    'staff',
+    Monk:         'fist',
+    Crossbow:     'crossbow',
+    Handgunner:   'pistol',
+    Siegebreaker: 'siege_hammer',
 };
 
 // ── Armor tier by evolution stage ───────────────────────────────────────────
