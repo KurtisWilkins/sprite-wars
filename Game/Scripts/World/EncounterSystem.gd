@@ -113,12 +113,14 @@ func check_encounter(area_id: String) -> Dictionary:
 
 	steps_since_encounter = 0
 
+	var random_class: String = SpriteRaceData.VALID_CLASSES[randi() % SpriteRaceData.VALID_CLASSES.size()]
 	var encounter_data: Dictionary = {
 		"type": "wild",
 		"area_id": area_id,
 		"race_id": species_entry.get("race_id", 0),
 		"level": level,
 		"rarity": species_entry.get("rarity", "common"),
+		"class_type": random_class,
 	}
 
 	return encounter_data

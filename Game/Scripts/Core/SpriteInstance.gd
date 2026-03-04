@@ -20,6 +20,9 @@ extends Resource
 ## Player-given nickname. Empty string means use the race name.
 @export var nickname: String = ""
 
+## Combat class archetype. Must be one of SpriteRaceData.VALID_CLASSES.
+@export var class_type: String = ""
+
 ## ── Progression ───────────────────────────────────────────────────────────────
 
 @export_range(1, 100) var level: int = 1

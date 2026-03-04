@@ -397,7 +397,7 @@ func _create_team_entry(sprite_data: Dictionary) -> PanelContainer:
 	portrait_frame.custom_minimum_size = Vector2(56, 56)
 	var portrait_style := StyleBoxFlat.new()
 	portrait_style.bg_color = Color(0.08, 0.08, 0.15, 1.0)
-	portrait_style.set_corner_radius_all(4)
+	portrait_style.set_corner_radius_all(12)
 	portrait_style.set_border_width_all(2)
 	portrait_style.border_color = Color(0.4, 0.4, 0.55)
 	portrait_style.set_content_margin_all(2)

@@ -82,6 +82,13 @@ func process_catch(wild_sprite_data: Dictionary, player_data: Resource) -> Dicti
 	sprite.current_xp = 0
 	sprite.nickname = str(wild_sprite_data.get("nickname", ""))
 
+	# Assign a class — use the wild data's class if provided, otherwise random.
+	var wild_class: String = str(wild_sprite_data.get("class_type", ""))
+	if wild_class.is_empty():
+		sprite.class_type = SpriteRaceData.VALID_CLASSES[randi() % SpriteRaceData.VALID_CLASSES.size()]
+	else:
+		sprite.class_type = wild_class
+
 	# Preserve the wild Sprite's current HP.
 	sprite.current_hp = maxi(1, int(wild_sprite_data.get("current_hp", 1)))
 

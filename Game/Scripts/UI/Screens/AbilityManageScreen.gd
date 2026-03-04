@@ -318,10 +318,10 @@ func swap_ability(slot_index: int, ability_id: int) -> void:
 		return
 
 	# Ensure the equipped array is big enough.
-	while _sprite_instance.equipped_ability_ids.size() <= slot_index:
-		_sprite_instance.equipped_ability_ids.append(0)
+	while _sprite_instance.equipped_abilities.size() <= slot_index:
+		_sprite_instance.equipped_abilities.append(0)
 
-	_sprite_instance.equipped_ability_ids[slot_index] = ability_id
+	_sprite_instance.equipped_abilities[slot_index] = ability_id
 	_refresh_display()
 
 
@@ -356,8 +356,8 @@ func _refresh_display() -> void:
 		if ability_label == null:
 			continue
 
-		if i < _sprite_instance.equipped_ability_ids.size() and _sprite_instance.equipped_ability_ids[i] > 0:
-			ability_label.text = "Ability #%d" % _sprite_instance.equipped_ability_ids[i]
+		if i < _sprite_instance.equipped_abilities.size() and _sprite_instance.equipped_abilities[i] > 0:
+			ability_label.text = "Ability #%d" % _sprite_instance.equipped_abilities[i]
 		else:
 			ability_label.text = "-- Empty --"
 
@@ -366,8 +366,8 @@ func _refresh_display() -> void:
 
 	# Update learned list.
 	learned_list.clear()
-	for ability_id in _sprite_instance.known_ability_ids:
-		var is_equipped: bool = ability_id in _sprite_instance.equipped_ability_ids
+	for ability_id in _sprite_instance.learned_abilities:
+		var is_equipped: bool = ability_id in _sprite_instance.equipped_abilities
 		var prefix: String = "[E] " if is_equipped else ""
 		learned_list.add_item("%sAbility #%d" % [prefix, ability_id])
 
@@ -397,8 +397,8 @@ func _on_equipped_slot_pressed(index: int) -> void:
 
 func _on_learned_item_selected(index: int) -> void:
 	_selected_learned_index = index
-	if _sprite_instance and index < _sprite_instance.known_ability_ids.size():
-		show_ability_detail(_sprite_instance.known_ability_ids[index])
+	if _sprite_instance and index < _sprite_instance.learned_abilities.size():
+		show_ability_detail(_sprite_instance.learned_abilities[index])
 	_update_swap_button()
 
 
@@ -407,10 +407,10 @@ func _on_swap_pressed() -> void:
 		return
 	if _sprite_instance == null:
 		return
-	if _selected_learned_index >= _sprite_instance.known_ability_ids.size():
+	if _selected_learned_index >= _sprite_instance.learned_abilities.size():
 		return
 
-	var ability_id: int = _sprite_instance.known_ability_ids[_selected_learned_index]
+	var ability_id: int = _sprite_instance.learned_abilities[_selected_learned_index]
 	swap_ability(_selected_equipped_slot, ability_id)
 
 

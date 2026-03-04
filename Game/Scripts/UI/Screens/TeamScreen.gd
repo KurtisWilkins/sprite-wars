@@ -261,7 +261,9 @@ func _create_team_slot(index: int, sprite_data: SpriteInstance) -> PanelContaine
 		hbox.add_child(info)
 
 		# Name.
-		var display_name: String = sprite_data.nickname if not sprite_data.nickname.is_empty() else "Sprite #%d" % sprite_data.race_id
+		var race_data: Dictionary = SpriteRaces.get_race(sprite_data.race_id)
+		var race_name_fallback: String = race_data.get("race_name", "Sprite #%d" % sprite_data.race_id)
+		var display_name: String = sprite_data.nickname if not sprite_data.nickname.is_empty() else race_name_fallback
 		var name_label := Label.new()
 		name_label.name = "NameLabel"
 		name_label.text = display_name
@@ -303,16 +305,26 @@ func _create_team_slot(index: int, sprite_data: SpriteInstance) -> PanelContaine
 		hp_bar.add_theme_stylebox_override("background", bg_style)
 		info.add_child(hp_bar)
 
-		# Element icons.
+		# Element icons — look up from race data since element_types lives on SpriteRaceData.
 		var element_hbox := HBoxContainer.new()
 		element_hbox.name = "Elements"
 		element_hbox.add_theme_constant_override("separation", 4)
-		for element in sprite_data.element_types:
+		var race_info: Dictionary = SpriteRaces.get_race(sprite_data.race_id)
+		var elements: Array = race_info.get("element_types", [])
+		for element in elements:
 			var elem_label := Label.new()
 			elem_label.text = element
 			elem_label.add_theme_font_size_override("font_size", 14)
 			elem_label.add_theme_color_override("font_color", _get_element_color(element))
 			element_hbox.add_child(elem_label)
+
+		# Class badge.
+		if not sprite_data.class_type.is_empty():
+			var class_lbl := Label.new()
+			class_lbl.text = " | %s" % sprite_data.class_type
+			class_lbl.add_theme_font_size_override("font_size", 14)
+			class_lbl.add_theme_color_override("font_color", Color(0.6, 0.7, 0.9))
+			element_hbox.add_child(class_lbl)
 		info.add_child(element_hbox)
 
 	# Make the slot clickable.

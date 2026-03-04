@@ -108,6 +108,9 @@ func initialize_starter(starter_choice: int = 0) -> void:
 	starter.current_xp = 0
 	starter.randomize_ivs()
 
+	# Assign a random class from the 16 available classes.
+	starter.class_type = SpriteRaceData.VALID_CLASSES[randi() % SpriteRaceData.VALID_CLASSES.size()]
+
 	# Register the starter in the Sprite registry.
 	sprite_registry[starter.form_id] = "caught"
 
