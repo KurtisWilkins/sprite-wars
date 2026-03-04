@@ -551,7 +551,7 @@ export class SpriteCenterScene extends Scene {
     _createTeamRow(sprite, index) {
         const inst = sprite.instance || sprite;
         const raceData = sprite.raceData || {};
-        const elemTypes = raceData.elementTypes || [];
+        const elemTypes = inst.elementTypes || inst.element_types || raceData.elementTypes || [];
 
         const row = document.createElement('div');
         row.dataset.teamIndex = index;
@@ -748,7 +748,8 @@ export class SpriteCenterScene extends Scene {
             const sprite = box[i] || null;
             const cell = document.createElement('div');
 
-            const elemTypes = sprite && sprite.raceData ? (sprite.raceData.elementTypes || []) : [];
+            const spriteInst = sprite ? (sprite.instance || sprite) : null;
+            const elemTypes = spriteInst && spriteInst.elementTypes ? spriteInst.elementTypes : (sprite && sprite.raceData ? (sprite.raceData.elementTypes || []) : []);
             const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#333';
             const borderColor = sprite ? elemColor : 'rgba(255,255,255,0.06)';
 
@@ -1031,7 +1032,7 @@ export class SpriteCenterScene extends Scene {
         const raceData = sprite.raceData || {};
         const stageData = sprite.stageData || {};
         const abilities = sprite.abilities || inst.abilities || [];
-        const elemTypes = raceData.elementTypes || [];
+        const elemTypes = inst.elementTypes || inst.element_types || raceData.elementTypes || [];
 
         // Close button
         const closeBtn = document.createElement('button');
@@ -1105,7 +1106,7 @@ export class SpriteCenterScene extends Scene {
         // Class & race summary next to preview
         const summaryCol = document.createElement('div');
         summaryCol.style.cssText = 'flex:1;min-width:0;';
-        const classType = raceData.classType || raceData.class_type || 'Unknown';
+        const classType = inst.classType || inst.class_type || raceData.classType || raceData.class_type || (raceData.available_classes && raceData.available_classes[0]) || 'Fighter';
         const rarity = raceData.rarity || 'common';
         const rarityColor = RARITY_COLORS_GLOBAL[rarity] || '#888';
         const classLine = document.createElement('div');
