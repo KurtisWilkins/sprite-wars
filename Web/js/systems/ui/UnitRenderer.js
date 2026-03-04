@@ -38,19 +38,6 @@ const RARITY_COLORS = {
     legendary: '#ffaa00',
 };
 
-// ── Weapon theme sheet layout ───────────────────────────────────────────────
-// Rows/cols of the "best" weapon icon to extract per weapon type mapping
-const WEAPON_TYPE_CELLS = {
-    sword:  { col: 0, row: 0 },
-    axe:    { col: 2, row: 0 },
-    staff:  { col: 4, row: 0 },
-    bow:    { col: 6, row: 0 },
-    dagger: { col: 1, row: 0 },
-    spear:  { col: 3, row: 0 },
-    mace:   { col: 5, row: 0 },
-    default:{ col: 0, row: 0 },
-};
-
 // (Old character sheet constants removed — HumanoidSpriteSystem handles all rendering)
 
 // ── Animation timing ────────────────────────────────────────────────────────
@@ -189,7 +176,6 @@ export class UnitRenderer {
         const hpFraction = opts.hpFraction !== undefined ? opts.hpFraction : 1;
         const showLevel = opts.showLevel !== undefined ? opts.showLevel : true;
         const showAura = opts.showAura !== undefined ? opts.showAura : true;
-        const showWeapon = opts.showWeapon !== undefined ? opts.showWeapon : true;
         const showArmorGlow = opts.showArmorGlow !== undefined ? opts.showArmorGlow : true;
         const showElementBadge = opts.showElementBadge !== undefined ? opts.showElementBadge : true;
         const showStatusIcons = opts.showStatusIcons || false;
@@ -372,53 +358,6 @@ export class UnitRenderer {
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
         ctx.stroke();
-        ctx.restore();
-    }
-
-    /**
-     * Draw weapon overlay from theme sprite sheet.
-     */
-    static _drawWeaponOverlay(ctx, weaponIdOrData, raceId, cx, cy, size, direction) {
-        const weaponData = UnitRenderer._getEquipmentData(weaponIdOrData);
-        if (!weaponData) return;
-
-        const weaponPath = UnitRenderer._getWeaponThemePath(weaponData, raceId);
-        const img = _getCachedImage(weaponPath);
-        if (!img) return;
-
-        // Extract weapon icon from the theme sheet
-        // Theme sheets are large (1691x1039) grids. We'll pick a weapon
-        // based on the weapon name hints.
-        const wType = UnitRenderer._guessWeaponType(weaponData.equipment_name);
-        const cell = WEAPON_TYPE_CELLS[wType] || WEAPON_TYPE_CELLS.default;
-
-        const imgW = img.naturalWidth || img.width;
-        const imgH = img.naturalHeight || img.height;
-
-        // Calculate actual cell dimensions from the sheet
-        // Theme sheets appear to be roughly 35 columns × 21 rows of ~48px cells
-        const actualCellW = Math.floor(imgW / 35);
-        const actualCellH = Math.floor(imgH / 21);
-
-        const sx = cell.col * actualCellW;
-        const sy = cell.row * actualCellH;
-
-        // Draw weapon icon overlaid in the bottom-right of the sprite
-        const weaponSize = size * 0.45;
-        const weaponX = cx + size * 0.15;
-        const weaponY = cy + size * 0.1;
-
-        ctx.save();
-        // Slight rotation based on direction
-        const rotations = [0, -0.3, 0.3, 0];
-        ctx.translate(weaponX, weaponY);
-        ctx.rotate(rotations[direction % 4]);
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(img,
-            sx, sy, actualCellW, actualCellH,
-            -weaponSize / 2, -weaponSize / 2, weaponSize, weaponSize
-        );
-        ctx.imageSmoothingEnabled = true;
         ctx.restore();
     }
 
