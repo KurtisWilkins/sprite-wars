@@ -157,6 +157,8 @@ func _anim_idle(sprite_root: Node2D, speed_mult: float) -> void:
 	if head:
 		var origin_y: float = head.position.y
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:y", origin_y - 1.5, half)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(head, "position:y", origin_y, half)\
@@ -166,6 +168,8 @@ func _anim_idle(sprite_root: Node2D, speed_mult: float) -> void:
 	if body:
 		var origin_y: float = body.position.y
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.set_parallel(true)
 		t.tween_property(body, "position:y", origin_y - 1.0, half)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -180,6 +184,8 @@ func _anim_idle(sprite_root: Node2D, speed_mult: float) -> void:
 	# Front arm gentle sway.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(3.0), half)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(front_arm, "rotation", 0.0, half)\
@@ -188,6 +194,8 @@ func _anim_idle(sprite_root: Node2D, speed_mult: float) -> void:
 	# Back arm counter-sway.
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(-2.0), half)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(back_arm, "rotation", 0.0, half)\
@@ -212,6 +220,8 @@ func _anim_ready(sprite_root: Node2D, speed_mult: float) -> void:
 	if body:
 		var origin_y: float = body.position.y
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "position:y", origin_y - 2.0, half)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(body, "position:y", origin_y, half)\
@@ -220,6 +230,8 @@ func _anim_ready(sprite_root: Node2D, speed_mult: float) -> void:
 	# Arms held in guard position.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(-15.0), half)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(front_arm, "rotation", deg_to_rad(-10.0), half)\
@@ -227,6 +239,8 @@ func _anim_ready(sprite_root: Node2D, speed_mult: float) -> void:
 
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(10.0), half)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(back_arm, "rotation", deg_to_rad(5.0), half)\
@@ -236,6 +250,8 @@ func _anim_ready(sprite_root: Node2D, speed_mult: float) -> void:
 	if legs:
 		var origin_y: float = legs.position.y
 		var t := _create_tween(sprite_root, legs)
+		if t == null:
+			return
 		t.tween_property(legs, "position:y", origin_y + 1.0, half)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(legs, "position:y", origin_y, half)\
@@ -261,6 +277,8 @@ func _anim_walk(sprite_root: Node2D, speed_mult: float) -> void:
 	if body:
 		var origin_y: float = body.position.y
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "position:y", origin_y - 2.0, quarter)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		t.tween_property(body, "position:y", origin_y, quarter)\
@@ -274,6 +292,8 @@ func _anim_walk(sprite_root: Node2D, speed_mult: float) -> void:
 	if head:
 		var origin_y: float = head.position.y
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:y", origin_y - 1.5, quarter)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		t.tween_property(head, "position:y", origin_y, quarter)\
@@ -286,6 +306,8 @@ func _anim_walk(sprite_root: Node2D, speed_mult: float) -> void:
 	# Front arm swings: forward on step 1, back on step 2.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(20.0), dur * 0.5)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(front_arm, "rotation", deg_to_rad(-20.0), dur * 0.5)\
@@ -294,6 +316,8 @@ func _anim_walk(sprite_root: Node2D, speed_mult: float) -> void:
 	# Back arm swings opposite.
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(-15.0), dur * 0.5)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(back_arm, "rotation", deg_to_rad(15.0), dur * 0.5)\
@@ -302,6 +326,8 @@ func _anim_walk(sprite_root: Node2D, speed_mult: float) -> void:
 	# Legs alternate tilt to simulate stepping.
 	if legs:
 		var t := _create_tween(sprite_root, legs)
+		if t == null:
+			return
 		t.tween_property(legs, "rotation", deg_to_rad(8.0), quarter)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(legs, "rotation", 0.0, quarter)\
@@ -338,16 +364,22 @@ func _anim_attack_slash(sprite_root: Node2D, speed_mult: float) -> void:
 	# Front arm rotates back to -60 deg; weapon raised.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(-60.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	# Back arm counters slightly (+15 deg).
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(15.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	# Body starts neutral.
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "rotation", deg_to_rad(2.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await sprite_root.get_tree().create_timer(fd).timeout
@@ -356,18 +388,26 @@ func _anim_attack_slash(sprite_root: Node2D, speed_mult: float) -> void:
 	# Front arm at -90 deg; body leans back slightly.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(-90.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(25.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "rotation", deg_to_rad(5.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if head:
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:y", head.position.y - 1.0, fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await sprite_root.get_tree().create_timer(fd).timeout
@@ -376,14 +416,20 @@ func _anim_attack_slash(sprite_root: Node2D, speed_mult: float) -> void:
 	# Front arm sweeps forward to -30 deg; body lurches forward.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(-30.0), fd)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(10.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "rotation", deg_to_rad(-3.0), fd)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
 	await sprite_root.get_tree().create_timer(fd).timeout
@@ -392,23 +438,33 @@ func _anim_attack_slash(sprite_root: Node2D, speed_mult: float) -> void:
 	# Front arm at +30 deg (below horizontal); head bobs forward; body commits.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(30.0), fd * 0.8)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(-10.0), fd * 0.8)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "rotation", deg_to_rad(-6.0), fd * 0.8)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	if head:
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:y", head.position.y + 2.0, fd * 0.8)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	# Extra weapon rotation kick on impact for axes.
 	if weapon:
 		var t := _create_tween(sprite_root, weapon)
+		if t == null:
+			return
 		t.tween_property(weapon, "rotation", deg_to_rad(15.0), fd * 0.8)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	await sprite_root.get_tree().create_timer(fd).timeout
@@ -417,18 +473,26 @@ func _anim_attack_slash(sprite_root: Node2D, speed_mult: float) -> void:
 	# Front arm continues to +60 deg.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(60.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(-15.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "rotation", deg_to_rad(-4.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if weapon:
 		var t := _create_tween(sprite_root, weapon)
+		if t == null:
+			return
 		t.tween_property(weapon, "rotation", deg_to_rad(20.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await sprite_root.get_tree().create_timer(fd).timeout
@@ -438,22 +502,32 @@ func _anim_attack_slash(sprite_root: Node2D, speed_mult: float) -> void:
 	var recovery_dur: float = fd * 1.5  # Slightly longer for a smooth settle.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if head:
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:y", head.position.y, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if weapon:
 		var t := _create_tween(sprite_root, weapon)
+		if t == null:
+			return
 		t.tween_property(weapon, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	await sprite_root.get_tree().create_timer(recovery_dur).timeout
@@ -474,14 +548,20 @@ func _anim_attack_thrust(sprite_root: Node2D, speed_mult: float) -> void:
 	# ── Pull back ──
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(-40.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(10.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "rotation", deg_to_rad(4.0), fd)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await sprite_root.get_tree().create_timer(fd).timeout
@@ -493,19 +573,27 @@ func _anim_attack_thrust(sprite_root: Node2D, speed_mult: float) -> void:
 	var strike_dur: float = fd * 0.7  # Very fast snap.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(35.0), strike_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	if front_arm:
 		# Push arm position forward for visual punch.
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "position:x", front_arm.position.x + 6.0, strike_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "rotation", deg_to_rad(-5.0), strike_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(-5.0), strike_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	await sprite_root.get_tree().create_timer(strike_dur).timeout
@@ -517,6 +605,8 @@ func _anim_attack_thrust(sprite_root: Node2D, speed_mult: float) -> void:
 	var recovery_dur: float = fd * 1.5
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.set_parallel(true)
 		t.tween_property(front_arm, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
@@ -524,10 +614,14 @@ func _anim_attack_thrust(sprite_root: Node2D, speed_mult: float) -> void:
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	await sprite_root.get_tree().create_timer(recovery_dur).timeout
@@ -550,15 +644,21 @@ func _anim_attack_smash(sprite_root: Node2D, speed_mult: float) -> void:
 	var raise_dur: float = fd * 2.0
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(-90.0), raise_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(-90.0), raise_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if body:
 		# Body stretches upward.
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.set_parallel(true)
 		t.tween_property(body, "scale", Vector2(0.95, 1.08), raise_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -566,6 +666,8 @@ func _anim_attack_smash(sprite_root: Node2D, speed_mult: float) -> void:
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if head:
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:y", head.position.y - 4.0, raise_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await sprite_root.get_tree().create_timer(raise_dur).timeout
@@ -577,16 +679,22 @@ func _anim_attack_smash(sprite_root: Node2D, speed_mult: float) -> void:
 	var slam_dur: float = fd * 0.8  # Fast slam.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(70.0), slam_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(70.0), slam_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
 	# Body squash on impact.
 	if body:
 		var body_origin_y: float = body.position.y + 3.0  # Undo the raise offset.
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.set_parallel(true)
 		t.tween_property(body, "scale", Vector2(1.12, 0.88), slam_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
@@ -594,11 +702,15 @@ func _anim_attack_smash(sprite_root: Node2D, speed_mult: float) -> void:
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
 	if head:
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:y", head.position.y + 5.0, slam_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
 	# Extra weapon slam rotation.
 	if weapon:
 		var t := _create_tween(sprite_root, weapon)
+		if t == null:
+			return
 		t.tween_property(weapon, "rotation", deg_to_rad(25.0), slam_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
 	await sprite_root.get_tree().create_timer(slam_dur).timeout
@@ -610,14 +722,20 @@ func _anim_attack_smash(sprite_root: Node2D, speed_mult: float) -> void:
 	var recovery_dur: float = fd * 2.5
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.set_parallel(true)
 		t.tween_property(body, "scale", Vector2(1.0, 1.0), recovery_dur)\
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
@@ -625,10 +743,14 @@ func _anim_attack_smash(sprite_root: Node2D, speed_mult: float) -> void:
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if head:
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:y", head.position.y, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if weapon:
 		var t := _create_tween(sprite_root, weapon)
+		if t == null:
+			return
 		t.tween_property(weapon, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	await sprite_root.get_tree().create_timer(recovery_dur).timeout
@@ -650,14 +772,20 @@ func _anim_attack_cast(sprite_root: Node2D, speed_mult: float) -> void:
 	var raise_dur: float = fd * 2.0
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(-70.0), raise_dur)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(-60.0), raise_dur)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.set_parallel(true)
 		t.tween_property(body, "position:y", body.position.y - 4.0, raise_dur)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
@@ -665,6 +793,8 @@ func _anim_attack_cast(sprite_root: Node2D, speed_mult: float) -> void:
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	if head:
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:y", head.position.y - 5.0, raise_dur)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	await sprite_root.get_tree().create_timer(raise_dur).timeout
@@ -673,12 +803,16 @@ func _anim_attack_cast(sprite_root: Node2D, speed_mult: float) -> void:
 	var pulse_dur: float = fd * 1.5
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(-85.0), pulse_dur * 0.5)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(front_arm, "rotation", deg_to_rad(-70.0), pulse_dur * 0.5)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(-75.0), pulse_dur * 0.5)\
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(back_arm, "rotation", deg_to_rad(-60.0), pulse_dur * 0.5)\
@@ -686,6 +820,8 @@ func _anim_attack_cast(sprite_root: Node2D, speed_mult: float) -> void:
 	# Body scale pulse for magical energy burst.
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "scale", Vector2(1.1, 1.1), pulse_dur * 0.4)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 		t.tween_property(body, "scale", Vector2(1.05, 1.05), pulse_dur * 0.6)\
@@ -696,10 +832,14 @@ func _anim_attack_cast(sprite_root: Node2D, speed_mult: float) -> void:
 	var release_dur: float = fd * 0.8
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(-30.0), release_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(-20.0), release_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	await sprite_root.get_tree().create_timer(release_dur).timeout
@@ -708,14 +848,20 @@ func _anim_attack_cast(sprite_root: Node2D, speed_mult: float) -> void:
 	var recovery_dur: float = fd * 2.0
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.set_parallel(true)
 		t.tween_property(body, "position:y", body.position.y + 4.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
@@ -723,6 +869,8 @@ func _anim_attack_cast(sprite_root: Node2D, speed_mult: float) -> void:
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if head:
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:y", head.position.y + 5.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	await sprite_root.get_tree().create_timer(recovery_dur).timeout
@@ -744,16 +892,22 @@ func _anim_attack_shoot(sprite_root: Node2D, speed_mult: float) -> void:
 	if front_arm:
 		# Front arm holds at slight forward angle (gripping the bow).
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(15.0), draw_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if back_arm:
 		# Back arm draws back (pulling the string).
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(-50.0), draw_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if body:
 		# Slight lean back for draw tension.
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.set_parallel(true)
 		t.tween_property(body, "rotation", deg_to_rad(3.0), draw_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -768,10 +922,14 @@ func _anim_attack_shoot(sprite_root: Node2D, speed_mult: float) -> void:
 	var release_dur: float = fd * 0.5
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(10.0), release_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.set_parallel(true)
 		t.tween_property(body, "rotation", deg_to_rad(-2.0), release_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
@@ -783,14 +941,20 @@ func _anim_attack_shoot(sprite_root: Node2D, speed_mult: float) -> void:
 	var recovery_dur: float = fd * 2.0
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.set_parallel(true)
 		t.tween_property(body, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
@@ -816,18 +980,26 @@ func _anim_hit(sprite_root: Node2D, speed_mult: float) -> void:
 	# ── Recoil: body jerks backward, arms flinch up ──
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "position:x", body.position.x - 4.0, recoil_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	if head:
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:x", head.position.x - 3.0, recoil_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(-25.0), recoil_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(-20.0), recoil_dur)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 
@@ -841,6 +1013,8 @@ func _anim_hit(sprite_root: Node2D, speed_mult: float) -> void:
 		var step: float = shake_dur / 4.0
 		var origin_x: float = body.position.x
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "position:x", origin_x + 3.0, step)
 		t.tween_property(body, "position:x", origin_x - 2.0, step)
 		t.tween_property(body, "position:x", origin_x + 1.0, step)
@@ -849,18 +1023,26 @@ func _anim_hit(sprite_root: Node2D, speed_mult: float) -> void:
 	# ── Settle back to neutral ──
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "position:x", body.position.x + 4.0, settle_dur)\
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	if head:
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.tween_property(head, "position:x", head.position.x + 3.0, settle_dur)\
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", 0.0, settle_dur)\
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", 0.0, settle_dur)\
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
@@ -888,22 +1070,30 @@ func _anim_faint(sprite_root: Node2D, speed_mult: float) -> void:
 	# Arms dangle down.
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
+		if t == null:
+			return
 		t.tween_property(front_arm, "rotation", deg_to_rad(80.0), collapse_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
+		if t == null:
+			return
 		t.tween_property(back_arm, "rotation", deg_to_rad(70.0), collapse_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 	# Body tilts to the side.
 	if body:
 		var t := _create_tween(sprite_root, body)
+		if t == null:
+			return
 		t.tween_property(body, "rotation", deg_to_rad(25.0), collapse_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 	# Head droops forward and to the side.
 	if head:
 		var t := _create_tween(sprite_root, head)
+		if t == null:
+			return
 		t.set_parallel(true)
 		t.tween_property(head, "rotation", deg_to_rad(30.0), collapse_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -913,12 +1103,16 @@ func _anim_faint(sprite_root: Node2D, speed_mult: float) -> void:
 	# Legs buckle.
 	if legs:
 		var t := _create_tween(sprite_root, legs)
+		if t == null:
+			return
 		t.tween_property(legs, "scale", Vector2(1.1, 0.7), collapse_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 	# Weapon drops (extra rotation).
 	if weapon:
 		var t := _create_tween(sprite_root, weapon)
+		if t == null:
+			return
 		t.tween_property(weapon, "rotation", deg_to_rad(45.0), collapse_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
@@ -927,12 +1121,16 @@ func _anim_faint(sprite_root: Node2D, speed_mult: float) -> void:
 	# ── Fade out phase ──
 	# Fade the entire sprite root.
 	var t := _create_tween(sprite_root, sprite_root)
+	if t == null:
+		return
 	t.tween_property(sprite_root, "modulate:a", 0.0, fade_dur)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 	# Slight downward drift during fade.
 	if body:
 		var tb := _create_tween(sprite_root, body)
+		if tb == null:
+			return
 		tb.tween_property(body, "position:y", body.position.y + 8.0, fade_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
@@ -964,10 +1162,16 @@ func _get_part(sprite_root: Node2D, part_name: String) -> Node2D:
 ## Create a tween from the given node and track it for cleanup.
 ## [owner_root] is used as the dictionary key for tracking.
 ## [target_node] is the node the tween is created on (must be in tree).
+## Falls back to owner_root if target_node is not in tree.
+## Returns null only when no valid in-tree node exists at all — callers
+## that chain methods on the return value MUST null-check first.
 func _create_tween(owner_root: Node2D, target_node: Node2D = null) -> Tween:
 	var node: Node2D = target_node if target_node != null else owner_root
+	# If the preferred node is unavailable, fall back to the owner root.
 	if node == null or not is_instance_valid(node) or not node.is_inside_tree():
-		push_warning("ChibiSpriteAnimator: Cannot create tween — node not in tree.")
+		node = owner_root
+	if node == null or not is_instance_valid(node) or not node.is_inside_tree():
+		push_warning("ChibiSpriteAnimator: Cannot create tween — no valid in-tree node.")
 		return null
 
 	var tween: Tween = node.create_tween()
