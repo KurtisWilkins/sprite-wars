@@ -4,6 +4,9 @@
  *
  * Drives unit lunge/recoil movement, hit flash, screen shake, and coordinates
  * with the VFX system. Uses tween-style interpolation on unit draw offsets.
+ *
+ * Doodle Art Style: sketch wobble on units, enhanced squash-stretch (20% more),
+ * doodle-style damage numbers, and motion lines trailing attack movements.
  */
 
 import { AttackStyle, getWeaponProfile, getTotalDuration } from '../../data/WeaponAnimationData.js';
@@ -25,6 +28,12 @@ function easeOutElastic(t) {
     return Math.pow(2, -10 * t) * Math.sin((t - 0.075) * (2 * Math.PI) / 0.3) + 1;
 }
 
+// ── Doodle Art Style Constants ──────────────────────────────────────────────
+/** Subtle per-frame sketch wobble offset in pixels. */
+const SKETCH_WOBBLE_AMOUNT = 0.5;
+/** Squash-stretch enhancement factor for cartoony doodle feel (20% boost). */
+const SQUASH_STRETCH_BOOST = 1.2;
+
 // ── Animation State ─────────────────────────────────────────────────────────
 // Each active animation tracks offsets applied to a unit during rendering.
 
@@ -34,25 +43,41 @@ export class BattleAnimationController {
          * Map of unit -> animation state.
          * @type {Map<object, {offsetX: number, offsetY: number, scaleX: number, scaleY: number,
          *   rotation: number, flashColor: string|null, flashAlpha: number, opacity: number,
-         *   anims: Array}>}
+         *   sketchWobbleX: number, sketchWobbleY: number, anims: Array}>}
          */
         this._unitStates = new Map();
 
         /** Screen shake state. */
         this._shake = { intensity: 0, timer: 0, duration: 0, offsetX: 0, offsetY: 0 };
+
+        /** Active motion lines for doodle-style trailing effects. */
+        this._motionLines = [];
+
+        /** Doodle-style damage number popups. */
+        this._damageNumbers = [];
     }
 
     // ── Public API ──────────────────────────────────────────────────────────
 
     /**
-     * Get the current visual offsets for a unit.
+     * Get the current visual offsets for a unit (includes sketch wobble).
      * @param {object} unit - RTSUnit
      * @returns {{offsetX: number, offsetY: number, scaleX: number, scaleY: number, rotation: number, flashColor: string|null, flashAlpha: number, opacity: number}}
      */
     getUnitVisuals(unit) {
         const state = this._unitStates.get(unit);
         if (!state) return { offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1, rotation: 0, flashColor: null, flashAlpha: 0, opacity: 1 };
-        return state;
+        // Apply sketch wobble to returned offsets
+        return {
+            offsetX: state.offsetX + (state.sketchWobbleX || 0),
+            offsetY: state.offsetY + (state.sketchWobbleY || 0),
+            scaleX: state.scaleX,
+            scaleY: state.scaleY,
+            rotation: state.rotation,
+            flashColor: state.flashColor,
+            flashAlpha: state.flashAlpha,
+            opacity: state.opacity,
+        };
     }
 
     /**
@@ -141,6 +166,10 @@ export class BattleAnimationController {
         state._animTime = 0;
         state._totalDuration = totalDur;
 
+        // Store attacker info for motion lines
+        state._attackDir = { x: dirX, y: dirY };
+        state._isAttacking = true;
+
         // Shake on impact
         if (shake > 0) {
             const hitTime = totalDur * profile.hit_frame_pct;
@@ -179,12 +208,12 @@ export class BattleAnimationController {
         ];
 
         if (isCrit) {
-            // Squash-stretch
+            // Squash-stretch enhanced by 20% for doodle feel
             state.anims.push(
-                { prop: 'scaleX', from: 1, to: 1.2, start: 0, dur: duration * 0.3, ease: easeOutExpo },
-                { prop: 'scaleY', from: 1, to: 0.85, start: 0, dur: duration * 0.3, ease: easeOutExpo },
-                { prop: 'scaleX', from: 1.2, to: 1, start: duration * 0.3, dur: duration * 0.7, ease: easeOutElastic },
-                { prop: 'scaleY', from: 0.85, to: 1, start: duration * 0.3, dur: duration * 0.7, ease: easeOutElastic },
+                { prop: 'scaleX', from: 1, to: 1.2 * SQUASH_STRETCH_BOOST, start: 0, dur: duration * 0.3, ease: easeOutExpo },
+                { prop: 'scaleY', from: 1, to: 0.85 / SQUASH_STRETCH_BOOST, start: 0, dur: duration * 0.3, ease: easeOutExpo },
+                { prop: 'scaleX', from: 1.2 * SQUASH_STRETCH_BOOST, to: 1, start: duration * 0.3, dur: duration * 0.7, ease: easeOutElastic },
+                { prop: 'scaleY', from: 0.85 / SQUASH_STRETCH_BOOST, to: 1, start: duration * 0.3, dur: duration * 0.7, ease: easeOutElastic },
             );
         }
 
@@ -245,7 +274,7 @@ export class BattleAnimationController {
 
             // Vanish
             anims.push({ prop: 'opacity', from: 1, to: 0, start: 0, dur: vanishDur, ease: easeInExpo });
-            anims.push({ prop: 'scaleY', from: 1, to: 1.3, start: 0, dur: vanishDur, ease: easeInQuad });
+            anims.push({ prop: 'scaleY', from: 1, to: 1.3 * SQUASH_STRETCH_BOOST, start: 0, dur: vanishDur, ease: easeInQuad });
 
             // Teleport smoke at vanish point
             if (vfxSystem && field) {
@@ -262,7 +291,7 @@ export class BattleAnimationController {
             // Appear
             anims.push({ prop: 'opacity', from: 0, to: 1, start: vanishDur, dur: appearDur, ease: easeOutExpo });
             anims.push({ prop: 'scaleX', from: 1, to: 1, start: vanishDur, dur: 0.01, ease: easeOutQuad });
-            anims.push({ prop: 'scaleY', from: 1.3, to: 1, start: vanishDur, dur: appearDur, ease: easeOutQuad });
+            anims.push({ prop: 'scaleY', from: 1.3 * SQUASH_STRETCH_BOOST, to: 1, start: vanishDur, dur: appearDur, ease: easeOutQuad });
 
             // Teleport smoke at appear point
             if (vfxSystem && field && target) {
@@ -311,6 +340,8 @@ export class BattleAnimationController {
         state.anims = anims;
         state._animTime = 0;
         state._totalDuration = totalDur;
+        state._attackDir = { x: dirX, y: dirY };
+        state._isAttacking = true;
 
         // Screen shake on final impact
         if (shake > 0) {
@@ -328,6 +359,30 @@ export class BattleAnimationController {
         this._shake.timer = 0;
     }
 
+    /**
+     * Spawn a doodle-style damage number popup.
+     * @param {number} x - Screen X position
+     * @param {number} y - Screen Y position
+     * @param {number} damage - Damage amount to display
+     * @param {boolean} [isCrit=false] - Whether this is a critical hit
+     * @param {string} [color='#ffffe6'] - Text color
+     */
+    spawnDamageNumber(x, y, damage, isCrit = false, color = '#ffffe6') {
+        this._damageNumbers.push({
+            x: x + (Math.random() - 0.5) * 10,
+            y: y,
+            text: String(Math.round(damage)),
+            isCrit: isCrit,
+            color: color,
+            life: 0.8,
+            maxLife: 0.8,
+            vx: (Math.random() - 0.5) * 20,
+            vy: -60 - Math.random() * 30,
+            rotation: (Math.random() - 0.5) * 0.3,
+            scale: isCrit ? 1.4 : 1.0,
+        });
+    }
+
     // ── Update ──────────────────────────────────────────────────────────────
 
     /**
@@ -337,10 +392,22 @@ export class BattleAnimationController {
     update(dt) {
         // Update unit animations
         for (const [unit, state] of this._unitStates) {
+            // Apply sketch wobble each frame: tiny random offset for doodle feel
+            state.sketchWobbleX = (Math.random() - 0.5) * SKETCH_WOBBLE_AMOUNT * 2;
+            state.sketchWobbleY = (Math.random() - 0.5) * SKETCH_WOBBLE_AMOUNT * 2;
+
             if (!state.anims || state.anims.length === 0) continue;
 
             state._animTime += dt;
             const t = state._animTime;
+
+            // Spawn motion lines during attack movement
+            if (state._isAttacking && state._attackDir) {
+                const speed = Math.abs(state.offsetX) + Math.abs(state.offsetY);
+                if (speed > 2) {
+                    this._spawnMotionLine(unit, state);
+                }
+            }
 
             // Process animation keyframes
             for (const anim of state.anims) {
@@ -385,6 +452,8 @@ export class BattleAnimationController {
                 state.rotation = 0;
                 state.flashColor = null;
                 state.flashAlpha = 0;
+                state._isAttacking = false;
+                state._attackDir = null;
                 // Reset opacity for non-faint animations (faint ends at opacity 0)
                 if (state.opacity > 0) {
                     state.opacity = 1;
@@ -403,11 +472,173 @@ export class BattleAnimationController {
             this._shake.offsetX = 0;
             this._shake.offsetY = 0;
         }
+
+        // Update motion lines
+        for (let i = this._motionLines.length - 1; i >= 0; i--) {
+            this._motionLines[i].life -= dt;
+            if (this._motionLines[i].life <= 0) {
+                this._motionLines.splice(i, 1);
+            }
+        }
+
+        // Update damage numbers
+        for (let i = this._damageNumbers.length - 1; i >= 0; i--) {
+            const dn = this._damageNumbers[i];
+            dn.life -= dt;
+            if (dn.life <= 0) {
+                this._damageNumbers.splice(i, 1);
+                continue;
+            }
+            dn.x += dn.vx * dt;
+            dn.y += dn.vy * dt;
+            dn.vy += 80 * dt; // gravity
+        }
+    }
+
+    /**
+     * Render doodle-style overlays (motion lines, damage numbers).
+     * Call after rendering units.
+     * @param {CanvasRenderingContext2D} ctx
+     */
+    renderDoodleOverlays(ctx) {
+        // Render motion lines
+        this._renderMotionLines(ctx);
+        // Render damage numbers
+        this._renderDamageNumbers(ctx);
     }
 
     clear() {
         this._unitStates.clear();
         this._shake = { intensity: 0, timer: 0, duration: 0, offsetX: 0, offsetY: 0 };
+        this._motionLines = [];
+        this._damageNumbers = [];
+    }
+
+    // ── Motion Lines ────────────────────────────────────────────────────────
+
+    /**
+     * Spawn small parallel sketch lines trailing behind a moving sprite.
+     */
+    _spawnMotionLine(unit, state) {
+        if (!unit.worldPos) return;
+        const dir = state._attackDir;
+        if (!dir) return;
+
+        // Only spawn every few frames (throttle)
+        if (Math.random() > 0.3) return;
+
+        const perpX = -dir.y;
+        const perpY = dir.x;
+        const count = 2 + Math.floor(Math.random() * 2);
+
+        for (let i = 0; i < count; i++) {
+            const spread = (i - count / 2) * 4;
+            const baseX = (unit.worldPos.x || 0) + state.offsetX - dir.x * 8;
+            const baseY = (unit.worldPos.y || 0) + state.offsetY - dir.y * 8;
+            this._motionLines.push({
+                x1: baseX + perpX * spread + (Math.random() - 0.5) * 2,
+                y1: baseY + perpY * spread + (Math.random() - 0.5) * 2,
+                x2: baseX + perpX * spread - dir.x * (6 + Math.random() * 8) + (Math.random() - 0.5) * 2,
+                y2: baseY + perpY * spread - dir.y * (6 + Math.random() * 8) + (Math.random() - 0.5) * 2,
+                life: 0.15 + Math.random() * 0.1,
+                maxLife: 0.15 + Math.random() * 0.1,
+            });
+        }
+    }
+
+    /**
+     * Render motion lines with sketchy doodle style.
+     * @param {CanvasRenderingContext2D} ctx
+     */
+    _renderMotionLines(ctx) {
+        if (this._motionLines.length === 0) return;
+
+        ctx.save();
+        ctx.strokeStyle = 'rgba(45, 45, 45, 0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
+
+        for (const ml of this._motionLines) {
+            const alpha = ml.life / ml.maxLife;
+            ctx.globalAlpha = alpha * 0.6;
+            ctx.beginPath();
+            // Wobbly line for sketch feel
+            const midX = (ml.x1 + ml.x2) / 2 + (Math.random() - 0.5) * 2;
+            const midY = (ml.y1 + ml.y2) / 2 + (Math.random() - 0.5) * 2;
+            ctx.moveTo(ml.x1, ml.y1);
+            ctx.lineTo(midX, midY);
+            ctx.lineTo(ml.x2, ml.y2);
+            ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+
+    /**
+     * Render doodle-style damage numbers with hand-drawn outline.
+     * @param {CanvasRenderingContext2D} ctx
+     */
+    _renderDamageNumbers(ctx) {
+        if (this._damageNumbers.length === 0) return;
+
+        for (const dn of this._damageNumbers) {
+            const alpha = Math.min(1, dn.life / (dn.maxLife * 0.3));
+
+            ctx.save();
+            ctx.translate(dn.x, dn.y);
+            ctx.rotate(dn.rotation);
+            ctx.scale(dn.scale, dn.scale);
+            ctx.globalAlpha = alpha;
+
+            const fontSize = dn.isCrit ? 18 : 14;
+            ctx.font = `bold ${fontSize}px 'Comic Sans MS', 'Segoe Print', cursive, monospace`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Hand-drawn outline: multiple slightly offset strokes
+            ctx.strokeStyle = 'rgba(26, 20, 20, 0.9)';
+            ctx.lineWidth = 3.5;
+            ctx.lineJoin = 'round';
+            const wobbleOffsets = [
+                { x: 0.5, y: 0.3 },
+                { x: -0.4, y: 0.5 },
+                { x: 0.3, y: -0.4 },
+            ];
+            for (const wo of wobbleOffsets) {
+                ctx.strokeText(dn.text, wo.x, wo.y);
+            }
+
+            // Fill text
+            ctx.fillStyle = dn.color;
+            ctx.fillText(dn.text, 0, 0);
+
+            // Decorative marks for crits
+            if (dn.isCrit) {
+                ctx.strokeStyle = dn.color;
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = alpha * 0.5;
+                // Small stars around crit number
+                for (let i = 0; i < 3; i++) {
+                    const starAngle = (Math.PI * 2 * i) / 3 + dn.rotation;
+                    const starDist = fontSize * 0.8;
+                    const sx = Math.cos(starAngle) * starDist;
+                    const sy = Math.sin(starAngle) * starDist;
+                    ctx.beginPath();
+                    for (let j = 0; j < 8; j++) {
+                        const a = (Math.PI * 2 * j) / 8;
+                        const r = j % 2 === 0 ? 3 : 1.5;
+                        const px = sx + Math.cos(a) * r;
+                        const py = sy + Math.sin(a) * r;
+                        if (j === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+            }
+
+            ctx.restore();
+        }
     }
 
     // ── Animation Builders ──────────────────────────────────────────────────
@@ -418,12 +649,19 @@ export class BattleAnimationController {
             { prop: 'offsetX', from: 0, to: -lx * 0.2, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'offsetY', from: 0, to: -ly * 0.2, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'rotation', from: 0, to: -halfArc, start: 0, dur: windUp, ease: easeOutQuad },
+            // Enhanced squash-stretch on wind-up (doodle 20% boost)
+            { prop: 'scaleX', from: 1, to: 1 - 0.06 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleY', from: 1, to: 1 + 0.08 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'offsetX', from: -lx * 0.2, to: lx, start: windUp, dur: strike, ease: easeOutBack },
             { prop: 'offsetY', from: -ly * 0.2, to: ly, start: windUp, dur: strike, ease: easeOutBack },
             { prop: 'rotation', from: -halfArc, to: halfArc, start: windUp, dur: strike, ease: easeInQuad },
+            { prop: 'scaleX', from: 1 - 0.06 * SQUASH_STRETCH_BOOST, to: 1 + 0.08 * SQUASH_STRETCH_BOOST, start: windUp, dur: strike, ease: easeOutBack },
+            { prop: 'scaleY', from: 1 + 0.08 * SQUASH_STRETCH_BOOST, to: 1 - 0.06 * SQUASH_STRETCH_BOOST, start: windUp, dur: strike, ease: easeOutBack },
             { prop: 'offsetX', from: lx, to: 0, start: windUp + strike, dur: recovery, ease: easeOutQuad },
             { prop: 'offsetY', from: ly, to: 0, start: windUp + strike, dur: recovery, ease: easeOutQuad },
             { prop: 'rotation', from: halfArc, to: 0, start: windUp + strike, dur: recovery, ease: easeOutQuad },
+            { prop: 'scaleX', from: 1 + 0.08 * SQUASH_STRETCH_BOOST, to: 1, start: windUp + strike, dur: recovery, ease: easeOutQuad },
+            { prop: 'scaleY', from: 1 - 0.06 * SQUASH_STRETCH_BOOST, to: 1, start: windUp + strike, dur: recovery, ease: easeOutQuad },
         ];
     }
 
@@ -431,8 +669,13 @@ export class BattleAnimationController {
         return [
             { prop: 'offsetX', from: 0, to: -lx * 0.3, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'offsetY', from: 0, to: -ly * 0.3, start: 0, dur: windUp, ease: easeOutQuad },
+            // Doodle squash on wind-up
+            { prop: 'scaleX', from: 1, to: 1 + 0.06 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleY', from: 1, to: 1 - 0.06 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'offsetX', from: -lx * 0.3, to: lx, start: windUp, dur: strike, ease: easeOutExpo },
             { prop: 'offsetY', from: -ly * 0.3, to: ly, start: windUp, dur: strike, ease: easeOutExpo },
+            { prop: 'scaleX', from: 1 + 0.06 * SQUASH_STRETCH_BOOST, to: 1, start: windUp, dur: strike, ease: easeOutExpo },
+            { prop: 'scaleY', from: 1 - 0.06 * SQUASH_STRETCH_BOOST, to: 1, start: windUp, dur: strike, ease: easeOutExpo },
             { prop: 'offsetX', from: lx, to: 0, start: windUp + strike, dur: recovery, ease: easeOutQuad },
             { prop: 'offsetY', from: ly, to: 0, start: windUp + strike, dur: recovery, ease: easeOutQuad },
         ];
@@ -441,27 +684,27 @@ export class BattleAnimationController {
     _buildSmash(lx, ly, windUp, strike, recovery) {
         return [
             { prop: 'offsetY', from: 0, to: -20, start: 0, dur: windUp, ease: easeOutQuad },
-            { prop: 'scaleX', from: 1, to: 0.9, start: 0, dur: windUp, ease: easeOutQuad },
-            { prop: 'scaleY', from: 1, to: 1.15, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleX', from: 1, to: 0.9 / SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleY', from: 1, to: 1.15 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'offsetX', from: 0, to: lx, start: windUp, dur: strike, ease: easeInExpo },
             { prop: 'offsetY', from: -20, to: ly + 8, start: windUp, dur: strike, ease: easeInExpo },
-            { prop: 'scaleX', from: 0.9, to: 1.15, start: windUp, dur: strike, ease: easeInExpo },
-            { prop: 'scaleY', from: 1.15, to: 0.85, start: windUp, dur: strike, ease: easeInExpo },
+            { prop: 'scaleX', from: 0.9 / SQUASH_STRETCH_BOOST, to: 1.15 * SQUASH_STRETCH_BOOST, start: windUp, dur: strike, ease: easeInExpo },
+            { prop: 'scaleY', from: 1.15 * SQUASH_STRETCH_BOOST, to: 0.85 / SQUASH_STRETCH_BOOST, start: windUp, dur: strike, ease: easeInExpo },
             { prop: 'offsetX', from: lx, to: 0, start: windUp + strike, dur: recovery, ease: easeOutElastic },
             { prop: 'offsetY', from: ly + 8, to: 0, start: windUp + strike, dur: recovery, ease: easeOutElastic },
-            { prop: 'scaleX', from: 1.15, to: 1, start: windUp + strike, dur: recovery, ease: easeOutElastic },
-            { prop: 'scaleY', from: 0.85, to: 1, start: windUp + strike, dur: recovery, ease: easeOutElastic },
+            { prop: 'scaleX', from: 1.15 * SQUASH_STRETCH_BOOST, to: 1, start: windUp + strike, dur: recovery, ease: easeOutElastic },
+            { prop: 'scaleY', from: 0.85 / SQUASH_STRETCH_BOOST, to: 1, start: windUp + strike, dur: recovery, ease: easeOutElastic },
         ];
     }
 
     _buildDrawRelease(lx, ly, windUp, strike, recovery) {
         return [
             { prop: 'offsetX', from: 0, to: lx, start: 0, dur: windUp, ease: easeOutQuad },
-            { prop: 'scaleX', from: 1, to: 1.08, start: 0, dur: windUp, ease: easeOutQuad },
-            { prop: 'scaleY', from: 1, to: 0.95, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleX', from: 1, to: 1.08 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleY', from: 1, to: 0.95 / SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'offsetX', from: lx, to: -lx * 0.3, start: windUp, dur: strike, ease: easeOutExpo },
-            { prop: 'scaleX', from: 1.08, to: 0.95, start: windUp, dur: strike, ease: easeOutExpo },
-            { prop: 'scaleY', from: 0.95, to: 1.05, start: windUp, dur: strike, ease: easeOutExpo },
+            { prop: 'scaleX', from: 1.08 * SQUASH_STRETCH_BOOST, to: 0.95, start: windUp, dur: strike, ease: easeOutExpo },
+            { prop: 'scaleY', from: 0.95 / SQUASH_STRETCH_BOOST, to: 1.05, start: windUp, dur: strike, ease: easeOutExpo },
             { prop: 'offsetX', from: -lx * 0.3, to: 0, start: windUp + strike, dur: recovery, ease: easeOutQuad },
             { prop: 'scaleX', from: 0.95, to: 1, start: windUp + strike, dur: recovery, ease: easeOutQuad },
             { prop: 'scaleY', from: 1.05, to: 1, start: windUp + strike, dur: recovery, ease: easeOutQuad },
@@ -482,12 +725,12 @@ export class BattleAnimationController {
     _buildCast(windUp, strike, recovery, element) {
         return [
             { prop: 'offsetY', from: 0, to: -12, start: 0, dur: windUp, ease: easeOutQuad },
-            { prop: 'scaleX', from: 1, to: 1.1, start: 0, dur: windUp, ease: easeOutQuad },
-            { prop: 'scaleY', from: 1, to: 1.1, start: 0, dur: windUp, ease: easeOutQuad },
-            { prop: 'scaleX', from: 1.1, to: 1.2, start: windUp, dur: strike * 0.3, ease: easeOutExpo },
-            { prop: 'scaleY', from: 1.1, to: 1.2, start: windUp, dur: strike * 0.3, ease: easeOutExpo },
-            { prop: 'scaleX', from: 1.2, to: 1, start: windUp + strike * 0.3, dur: strike * 0.7, ease: easeInQuad },
-            { prop: 'scaleY', from: 1.2, to: 1, start: windUp + strike * 0.3, dur: strike * 0.7, ease: easeInQuad },
+            { prop: 'scaleX', from: 1, to: 1.1 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleY', from: 1, to: 1.1 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleX', from: 1.1 * SQUASH_STRETCH_BOOST, to: 1.2 * SQUASH_STRETCH_BOOST, start: windUp, dur: strike * 0.3, ease: easeOutExpo },
+            { prop: 'scaleY', from: 1.1 * SQUASH_STRETCH_BOOST, to: 1.2 * SQUASH_STRETCH_BOOST, start: windUp, dur: strike * 0.3, ease: easeOutExpo },
+            { prop: 'scaleX', from: 1.2 * SQUASH_STRETCH_BOOST, to: 1, start: windUp + strike * 0.3, dur: strike * 0.7, ease: easeInQuad },
+            { prop: 'scaleY', from: 1.2 * SQUASH_STRETCH_BOOST, to: 1, start: windUp + strike * 0.3, dur: strike * 0.7, ease: easeInQuad },
             { prop: 'offsetY', from: -12, to: 0, start: windUp + strike, dur: recovery, ease: easeOutQuad },
         ];
     }
@@ -495,22 +738,29 @@ export class BattleAnimationController {
     _buildPunch(lx, ly, windUp, strike, recovery) {
         return [
             { prop: 'offsetX', from: 0, to: -lx * 0.1, start: 0, dur: windUp, ease: easeOutQuad },
+            // Doodle squash-stretch on punch wind-up
+            { prop: 'scaleX', from: 1, to: 1 - 0.08 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleY', from: 1, to: 1 + 0.1 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'offsetX', from: -lx * 0.1, to: lx, start: windUp, dur: strike, ease: easeOutExpo },
             { prop: 'offsetY', from: 0, to: ly, start: windUp, dur: strike, ease: easeOutExpo },
+            { prop: 'scaleX', from: 1 - 0.08 * SQUASH_STRETCH_BOOST, to: 1 + 0.1 * SQUASH_STRETCH_BOOST, start: windUp, dur: strike, ease: easeOutExpo },
+            { prop: 'scaleY', from: 1 + 0.1 * SQUASH_STRETCH_BOOST, to: 1 - 0.08 * SQUASH_STRETCH_BOOST, start: windUp, dur: strike, ease: easeOutExpo },
             { prop: 'offsetX', from: lx, to: 0, start: windUp + strike, dur: recovery, ease: easeOutBounce },
             { prop: 'offsetY', from: ly, to: 0, start: windUp + strike, dur: recovery, ease: easeOutBounce },
+            { prop: 'scaleX', from: 1 + 0.1 * SQUASH_STRETCH_BOOST, to: 1, start: windUp + strike, dur: recovery, ease: easeOutBounce },
+            { prop: 'scaleY', from: 1 - 0.08 * SQUASH_STRETCH_BOOST, to: 1, start: windUp + strike, dur: recovery, ease: easeOutBounce },
         ];
     }
 
     _buildBlockBash(lx, ly, windUp, strike, recovery) {
         return [
-            { prop: 'scaleX', from: 1, to: 1.15, start: 0, dur: windUp, ease: easeOutQuad },
-            { prop: 'scaleY', from: 1, to: 0.95, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleX', from: 1, to: 1.15 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleY', from: 1, to: 0.95 / SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'offsetX', from: 0, to: -lx * 0.1, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'offsetX', from: -lx * 0.1, to: lx, start: windUp, dur: strike, ease: easeOutBack },
             { prop: 'offsetY', from: 0, to: ly, start: windUp, dur: strike, ease: easeOutBack },
-            { prop: 'scaleX', from: 1.15, to: 1, start: windUp, dur: strike, ease: easeOutQuad },
-            { prop: 'scaleY', from: 0.95, to: 1.05, start: windUp, dur: strike, ease: easeOutQuad },
+            { prop: 'scaleX', from: 1.15 * SQUASH_STRETCH_BOOST, to: 1, start: windUp, dur: strike, ease: easeOutQuad },
+            { prop: 'scaleY', from: 0.95 / SQUASH_STRETCH_BOOST, to: 1.05, start: windUp, dur: strike, ease: easeOutQuad },
             { prop: 'offsetX', from: lx, to: 0, start: windUp + strike, dur: recovery, ease: easeOutQuad },
             { prop: 'offsetY', from: ly, to: 0, start: windUp + strike, dur: recovery, ease: easeOutQuad },
             { prop: 'scaleX', from: 1, to: 1, start: windUp + strike, dur: recovery, ease: easeOutQuad },
@@ -521,16 +771,16 @@ export class BattleAnimationController {
     _buildHolyStrike(lx, ly, windUp, strike, recovery) {
         return [
             { prop: 'offsetY', from: 0, to: -24, start: 0, dur: windUp, ease: easeOutQuad },
-            { prop: 'scaleX', from: 1, to: 1.1, start: 0, dur: windUp, ease: easeOutQuad },
-            { prop: 'scaleY', from: 1, to: 1.15, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleX', from: 1, to: 1.1 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
+            { prop: 'scaleY', from: 1, to: 1.15 * SQUASH_STRETCH_BOOST, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'offsetX', from: 0, to: lx, start: windUp, dur: strike, ease: easeInExpo },
             { prop: 'offsetY', from: -24, to: ly, start: windUp, dur: strike, ease: easeInExpo },
-            { prop: 'scaleX', from: 1.1, to: 1.15, start: windUp, dur: strike, ease: easeInExpo },
-            { prop: 'scaleY', from: 1.15, to: 0.9, start: windUp, dur: strike, ease: easeInExpo },
+            { prop: 'scaleX', from: 1.1 * SQUASH_STRETCH_BOOST, to: 1.15 * SQUASH_STRETCH_BOOST, start: windUp, dur: strike, ease: easeInExpo },
+            { prop: 'scaleY', from: 1.15 * SQUASH_STRETCH_BOOST, to: 0.9 / SQUASH_STRETCH_BOOST, start: windUp, dur: strike, ease: easeInExpo },
             { prop: 'offsetX', from: lx, to: 0, start: windUp + strike, dur: recovery, ease: easeOutElastic },
             { prop: 'offsetY', from: ly, to: 0, start: windUp + strike, dur: recovery, ease: easeOutElastic },
-            { prop: 'scaleX', from: 1.15, to: 1, start: windUp + strike, dur: recovery, ease: easeOutElastic },
-            { prop: 'scaleY', from: 0.9, to: 1, start: windUp + strike, dur: recovery, ease: easeOutElastic },
+            { prop: 'scaleX', from: 1.15 * SQUASH_STRETCH_BOOST, to: 1, start: windUp + strike, dur: recovery, ease: easeOutElastic },
+            { prop: 'scaleY', from: 0.9 / SQUASH_STRETCH_BOOST, to: 1, start: windUp + strike, dur: recovery, ease: easeOutElastic },
         ];
     }
 
@@ -566,10 +816,13 @@ export class BattleAnimationController {
                 rotation: 0,
                 flashColor: null, flashAlpha: 0,
                 opacity: 1,
+                sketchWobbleX: 0, sketchWobbleY: 0,
                 anims: [],
                 _animTime: 0, _totalDuration: 0,
                 _shakeAt: null, _shakeIntensity: 0,
                 _vfxAt: null,
+                _isAttacking: false,
+                _attackDir: null,
             });
         }
         return this._unitStates.get(unit);
