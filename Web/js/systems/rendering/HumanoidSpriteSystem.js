@@ -38,14 +38,14 @@ const DIR_RIGHT = 2;
 const DIR_UP    = 3;
 
 // ── Chibi Body Proportions (within 64×64 frame) ─────────────────────────────
-// Chibi-style humanoid: big head, compact body, stubby limbs (~42px tall)
+// Doodle chibi-style humanoid: oversized head, compact body, stubby limbs (~42px tall)
 const BODY = {
-    headW: 28, headH: 22,
-    torsoW: 20, torsoH: 10,
+    headW: 32, headH: 25,   // Enlarged head for exaggerated chibi/doodle look
+    torsoW: 18, torsoH: 9,  // Slightly smaller torso to emphasize head ratio
     armW: 6,   armH: 10,
-    legW: 8,   legH: 8,
+    legW: 7,   legH: 7,     // Slightly shorter/narrower legs for chibi proportions
     footW: 10, footH: 3,
-    shoulderW: 24,
+    shoulderW: 22,
 };
 
 /**
@@ -198,10 +198,15 @@ export class HumanoidSpriteSystem {
         const sy = direction * FRAME_SIZE;
         const halfSize = size / 2;
 
+        // Doodle art style: subtle position jitter for "sketch redraw" effect
+        // Each frame gets a tiny random offset so the sprite looks hand-drawn
+        const jitterX = (Math.sin(Date.now() * 0.017 + x * 3.7) * 0.5);
+        const jitterY = (Math.cos(Date.now() * 0.013 + y * 2.3) * 0.5);
+
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(sheet,
             sx, sy, FRAME_SIZE, FRAME_SIZE,
-            x - halfSize, y - size, size, size
+            x - halfSize + jitterX, y - size + jitterY, size, size
         );
         ctx.imageSmoothingEnabled = true;
     }
@@ -212,6 +217,11 @@ export class HumanoidSpriteSystem {
     static drawWithEquipment(ctx, raceId, stage, direction, frame, x, y, size, opts = {}) {
         const equipment = opts.equipment || null;
         this.drawFrame(ctx, raceId, stage, direction, frame, x, y, size, equipment);
+
+        // Doodle art style: motion lines near moving sprites (only during walk frames 1 & 3)
+        if (frame === 1 || frame === 3) {
+            this._drawDoodleMotionLines(ctx, x, y, size, direction, frame);
+        }
 
         // Rarity glow effect for highest-rarity equipped item
         if (equipment) {
@@ -704,5 +714,73 @@ export class HumanoidSpriteSystem {
             }
         }
         return best;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Doodle Art Style: Motion Lines
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Draw small sketch-style motion lines near a moving sprite.
+     * These appear as short dashes trailing behind the movement direction,
+     * giving a hand-drawn "whoosh" feel.
+     */
+    static _drawDoodleMotionLines(ctx, x, y, size, direction, frame) {
+        ctx.save();
+        ctx.globalAlpha = 0.3;
+        ctx.strokeStyle = '#2D2D2D';
+        ctx.lineWidth = 1;
+        ctx.lineCap = 'round';
+
+        // Determine trail position based on movement direction
+        let lineStartX, lineStartY, dx, dy;
+        const halfSize = size * 0.4;
+        const bodyMidY = y - size * 0.5;
+
+        switch (direction) {
+            case DIR_DOWN:
+                lineStartX = x;
+                lineStartY = bodyMidY - halfSize;
+                dx = 0; dy = -1;
+                break;
+            case DIR_UP:
+                lineStartX = x;
+                lineStartY = bodyMidY + halfSize;
+                dx = 0; dy = 1;
+                break;
+            case DIR_LEFT:
+                lineStartX = x + halfSize;
+                lineStartY = bodyMidY;
+                dx = 1; dy = 0;
+                break;
+            case DIR_RIGHT:
+                lineStartX = x - halfSize;
+                lineStartY = bodyMidY;
+                dx = -1; dy = 0;
+                break;
+            default:
+                ctx.restore();
+                return;
+        }
+
+        // Draw 3 small sketch lines with slight wobble
+        const seed = (frame * 17 + Math.floor(x * 3)) % 7;
+        for (let i = 0; i < 3; i++) {
+            const offset = (i - 1) * 4;
+            const perpX = dy !== 0 ? offset : 0;
+            const perpY = dx !== 0 ? offset : 0;
+            const len = 3 + (seed + i) % 4;
+            const wobble = Math.sin((i + seed) * 1.7) * 0.8;
+
+            ctx.beginPath();
+            ctx.moveTo(lineStartX + perpX, lineStartY + perpY);
+            ctx.lineTo(
+                lineStartX + perpX + dx * len + wobble,
+                lineStartY + perpY + dy * len + wobble
+            );
+            ctx.stroke();
+        }
+
+        ctx.restore();
     }
 }

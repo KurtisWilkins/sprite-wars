@@ -363,10 +363,10 @@ static func get_attack_arm_rotations() -> Dictionary:
 static func get_body_motion() -> Dictionary:
 	return {
 		"idle": [
-			{ "body_offset": Vector2(0, 0), "body_scale": Vector2(1.0, 1.0),   "head_offset": Vector2(0, 0) },
-			{ "body_offset": Vector2(0, -1), "body_scale": Vector2(1.0, 1.01), "head_offset": Vector2(0, -1) },
-			{ "body_offset": Vector2(0, 0), "body_scale": Vector2(1.0, 1.0),   "head_offset": Vector2(0, 0) },
-			{ "body_offset": Vector2(0, 1), "body_scale": Vector2(1.0, 0.99),  "head_offset": Vector2(0, 1) },
+			{ "body_offset": Vector2(0, 0), "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(0, -1), "body_scale": Vector2(1.0, 1.012),  "head_offset": Vector2(0, -2) },
+			{ "body_offset": Vector2(0, 0), "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(0, 1), "body_scale": Vector2(1.0, 0.988),   "head_offset": Vector2(0, 2) },
 		],
 		"walk": [
 			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(0, 0) },
@@ -377,51 +377,51 @@ static func get_body_motion() -> Dictionary:
 			{ "body_offset": Vector2(0, -1), "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(0, 0) },
 		],
 		"attack_slash": [
-			{ "body_offset": Vector2(-2, 0), "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(-1, 0) },
-			{ "body_offset": Vector2(-3, -1), "body_scale": Vector2(1.0, 1.02), "head_offset": Vector2(-1, -1) },
-			{ "body_offset": Vector2(1, 0),  "body_scale": Vector2(1.02, 0.98), "head_offset": Vector2(1, 0) },
-			{ "body_offset": Vector2(3, 1),  "body_scale": Vector2(1.03, 0.97), "head_offset": Vector2(2, 0) },
-			{ "body_offset": Vector2(2, 0),  "body_scale": Vector2(1.01, 0.99), "head_offset": Vector2(1, 0) },
-			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(-2, 0), "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(-1, 0) },
+			{ "body_offset": Vector2(-3, -1), "body_scale": Vector2(1.0, 1.024),  "head_offset": Vector2(-1, -1) },
+			{ "body_offset": Vector2(1, 0),  "body_scale": Vector2(1.024, 0.976), "head_offset": Vector2(1, 0) },
+			{ "body_offset": Vector2(3, 1),  "body_scale": Vector2(1.036, 0.964), "head_offset": Vector2(2, 0) },
+			{ "body_offset": Vector2(2, 0),  "body_scale": Vector2(1.012, 0.988), "head_offset": Vector2(1, 0) },
+			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(0, 0) },
 		],
 		"attack_thrust": [
-			{ "body_offset": Vector2(-3, 0), "body_scale": Vector2(0.98, 1.02), "head_offset": Vector2(-2, 0) },
-			{ "body_offset": Vector2(-4, 0), "body_scale": Vector2(0.97, 1.02), "head_offset": Vector2(-2, 0) },
-			{ "body_offset": Vector2(2, 0),  "body_scale": Vector2(1.04, 0.97), "head_offset": Vector2(1, 0) },
-			{ "body_offset": Vector2(4, 0),  "body_scale": Vector2(1.05, 0.96), "head_offset": Vector2(2, 0) },
-			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(-3, 0), "body_scale": Vector2(0.976, 1.024), "head_offset": Vector2(-2, 0) },
+			{ "body_offset": Vector2(-4, 0), "body_scale": Vector2(0.964, 1.024), "head_offset": Vector2(-2, 0) },
+			{ "body_offset": Vector2(2, 0),  "body_scale": Vector2(1.048, 0.964), "head_offset": Vector2(1, 0) },
+			{ "body_offset": Vector2(4, 0),  "body_scale": Vector2(1.060, 0.952), "head_offset": Vector2(2, 0) },
+			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(0, 0) },
 		],
 		"attack_smash": [
-			{ "body_offset": Vector2(0, 1),  "body_scale": Vector2(1.0, 0.98),  "head_offset": Vector2(0, 0) },
-			{ "body_offset": Vector2(0, -2), "body_scale": Vector2(0.98, 1.04), "head_offset": Vector2(0, -2) },
-			{ "body_offset": Vector2(0, -3), "body_scale": Vector2(0.97, 1.05), "head_offset": Vector2(0, -2) },
-			{ "body_offset": Vector2(0, 2),  "body_scale": Vector2(1.04, 0.96), "head_offset": Vector2(0, 1) },
-			{ "body_offset": Vector2(0, 3),  "body_scale": Vector2(1.06, 0.94), "head_offset": Vector2(0, 2) },
-			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(0, 1),  "body_scale": Vector2(1.0, 0.976),   "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(0, -2), "body_scale": Vector2(0.976, 1.048), "head_offset": Vector2(0, -2) },
+			{ "body_offset": Vector2(0, -3), "body_scale": Vector2(0.964, 1.060), "head_offset": Vector2(0, -2) },
+			{ "body_offset": Vector2(0, 2),  "body_scale": Vector2(1.048, 0.952), "head_offset": Vector2(0, 1) },
+			{ "body_offset": Vector2(0, 3),  "body_scale": Vector2(1.072, 0.928), "head_offset": Vector2(0, 2) },
+			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(0, 0) },
 		],
 		"attack_cast": [
-			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(0, 0) },
-			{ "body_offset": Vector2(0, -1), "body_scale": Vector2(1.0, 1.02), "head_offset": Vector2(0, -1) },
-			{ "body_offset": Vector2(0, -2), "body_scale": Vector2(0.99, 1.03), "head_offset": Vector2(0, -1) },
-			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.02, 0.98), "head_offset": Vector2(0, 1) },
-			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(0, -1), "body_scale": Vector2(1.0, 1.024),   "head_offset": Vector2(0, -1) },
+			{ "body_offset": Vector2(0, -2), "body_scale": Vector2(0.988, 1.036), "head_offset": Vector2(0, -1) },
+			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.024, 0.976), "head_offset": Vector2(0, 1) },
+			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(0, 0) },
 		],
 		"hit": [
-			{ "body_offset": Vector2(-3, 0), "body_scale": Vector2(0.95, 1.04), "head_offset": Vector2(-2, -1) },
-			{ "body_offset": Vector2(-5, 1), "body_scale": Vector2(0.93, 1.06), "head_offset": Vector2(-3, 0) },
-			{ "body_offset": Vector2(-1, 0), "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(-3, 0), "body_scale": Vector2(0.940, 1.048), "head_offset": Vector2(-2, -1) },
+			{ "body_offset": Vector2(-5, 1), "body_scale": Vector2(0.916, 1.072), "head_offset": Vector2(-3, 0) },
+			{ "body_offset": Vector2(-1, 0), "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(0, 0) },
 		],
 		"faint": [
-			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(0, 0) },
-			{ "body_offset": Vector2(-2, 2), "body_scale": Vector2(1.02, 0.96), "head_offset": Vector2(-1, 1) },
-			{ "body_offset": Vector2(-4, 5), "body_scale": Vector2(1.06, 0.90), "head_offset": Vector2(-2, 3) },
-			{ "body_offset": Vector2(-5, 8), "body_scale": Vector2(1.10, 0.85), "head_offset": Vector2(-3, 5) },
+			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(-2, 2), "body_scale": Vector2(1.024, 0.952), "head_offset": Vector2(-1, 1) },
+			{ "body_offset": Vector2(-4, 5), "body_scale": Vector2(1.072, 0.880), "head_offset": Vector2(-2, 3) },
+			{ "body_offset": Vector2(-5, 8), "body_scale": Vector2(1.120, 0.820), "head_offset": Vector2(-3, 5) },
 		],
 		"ready": [
-			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(0, 0) },
-			{ "body_offset": Vector2(0, -1), "body_scale": Vector2(1.01, 0.99), "head_offset": Vector2(0, -1) },
-			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),  "head_offset": Vector2(0, 0) },
-			{ "body_offset": Vector2(0, 1),  "body_scale": Vector2(0.99, 1.01), "head_offset": Vector2(0, 1) },
+			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(0, -1), "body_scale": Vector2(1.012, 0.988), "head_offset": Vector2(0, -1) },
+			{ "body_offset": Vector2(0, 0),  "body_scale": Vector2(1.0, 1.0),     "head_offset": Vector2(0, 0) },
+			{ "body_offset": Vector2(0, 1),  "body_scale": Vector2(0.988, 1.012), "head_offset": Vector2(0, 1) },
 		],
 	}
 
@@ -470,18 +470,18 @@ static func get_skin_palettes() -> Dictionary:
 			Color("6a4830"),
 			Color("886040"),
 		],
-		# Fantasy / non-human tones
+		# Fantasy / non-human tones — pastel doodle palette
 		"green": [
-			Color("2a4a20"),
-			Color("4a7a30"),
-			Color("6aaa48"),
-			Color("90d068"),
+			Color("5a8a60"),  # shadow — pastel mint
+			Color("80b888"),  # mid
+			Color("a8ddb0"),  # base
+			Color("d0f0d8"),  # highlight
 		],
 		"blue": [
-			Color("203050"),
-			Color("305880"),
-			Color("4880b0"),
-			Color("68a8d8"),
+			Color("5070a0"),  # shadow — pastel sky blue
+			Color("78a0c8"),  # mid
+			Color("a0c8e8"),  # base
+			Color("c8e4f8"),  # highlight
 		],
 		"grey": [
 			Color("3a3a3a"),
@@ -490,10 +490,29 @@ static func get_skin_palettes() -> Dictionary:
 			Color("b8b8b8"),
 		],
 		"red": [
-			Color("4a1818"),
-			Color("803030"),
-			Color("b04848"),
-			Color("d87070"),
+			Color("a05858"),  # shadow — pastel rosy
+			Color("c88080"),  # mid
+			Color("e8a8a8"),  # base
+			Color("f8d0d0"),  # highlight
+		],
+		# Additional doodle fantasy palettes
+		"lavender": [
+			Color("7868a0"),  # shadow
+			Color("a090c8"),  # mid
+			Color("c8b8e8"),  # base
+			Color("e8e0f8"),  # highlight
+		],
+		"peach": [
+			Color("b08060"),  # shadow
+			Color("d8a880"),  # mid
+			Color("f0c8a0"),  # base
+			Color("f8e8d8"),  # highlight
+		],
+		"mint": [
+			Color("50a090"),  # shadow
+			Color("78c8b8"),  # mid
+			Color("a8e8d8"),  # base
+			Color("d0f8f0"),  # highlight
 		],
 	}
 

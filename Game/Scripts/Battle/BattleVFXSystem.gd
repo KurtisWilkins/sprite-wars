@@ -46,6 +46,28 @@ const ELEMENT_COLORS: Dictionary = {
 ## Neutral hit color when element is unknown.
 const DEFAULT_HIT_COLOR := Color(1.0, 1.0, 1.0)
 
+## ── Doodle Art Style Settings ────────────────────────────────────────────────
+
+## Enable/disable doodle hand-drawn look for all VFX.
+var doodle_enabled: bool = true
+
+## Amount of random wobble applied to Line2D points (pixels).
+const DOODLE_LINE_WOBBLE: float = 2.0
+
+## Number of hatching lines drawn over colored VFX areas.
+const DOODLE_HATCH_LINE_COUNT: int = 5
+
+## Sketch outline color used for doodle pen strokes.
+const DOODLE_STROKE_COLOR := Color("2d2d2d", 0.7)
+
+## Doodle particle shape types.
+const DOODLE_PARTICLE_SHAPES: PackedStringArray = PackedStringArray([
+	"star", "spiral", "heart", "scribble_cloud",
+])
+
+## Active VFX tracked for doodle impact cleanup.
+var _active_vfx: Array[Node2D] = []
+
 
 ## ── Initialization ──────────────────────────────────────────────────────────
 
@@ -114,6 +136,39 @@ func spawn_comic_impact(pos: Vector2, damage: int) -> void:
 	# Random slight rotation for comic feel.
 	label.rotation = randf_range(deg_to_rad(-15.0), deg_to_rad(15.0))
 
+	# Doodle mode: add a hand-drawn speech bubble behind the text.
+	var bubble_container := Node2D.new()
+	bubble_container.position = label.position + Vector2(label.size.x * 0.5, label.size.y * 0.5)
+	if doodle_enabled:
+		var bubble := Line2D.new()
+		bubble.width = randf_range(2.0, 3.5)
+		bubble.default_color = DOODLE_STROKE_COLOR
+		bubble.z_index = -1
+		# Draw a wobbly rounded rectangle around the text area.
+		var bw: float = label.size.x * 0.6 + 6.0
+		var bh: float = label.size.y * 0.6 + 4.0
+		var corners: Array[Vector2] = [
+			Vector2(-bw, -bh), Vector2(bw, -bh),
+			Vector2(bw, bh), Vector2(-bw, bh),
+		]
+		for idx in range(corners.size()):
+			var next_idx: int = (idx + 1) % corners.size()
+			_add_wobbly_line_points(bubble, corners[idx], corners[next_idx], 3)
+		# Close the shape.
+		bubble.add_point(corners[0] + Vector2(
+			randf_range(-DOODLE_LINE_WOBBLE, DOODLE_LINE_WOBBLE),
+			randf_range(-DOODLE_LINE_WOBBLE, DOODLE_LINE_WOBBLE)))
+		bubble_container.add_child(bubble)
+		# Add a small tail/pointer at the bottom.
+		var tail := Line2D.new()
+		tail.width = 2.0
+		tail.default_color = DOODLE_STROKE_COLOR
+		tail.add_point(Vector2(-4.0, bh))
+		tail.add_point(Vector2(0.0, bh + 8.0))
+		tail.add_point(Vector2(4.0, bh))
+		bubble_container.add_child(tail)
+	add_child(bubble_container)
+
 	add_child(label)
 
 	# Animate: pop in, hold briefly, fade out.
@@ -145,6 +200,12 @@ func spawn_comic_impact(pos: Vector2, damage: int) -> void:
 	tween.set_parallel(false)
 
 	tween.tween_callback(label.queue_free)
+	# Also fade and free the doodle bubble container.
+	if doodle_enabled:
+		var bubble_tween := create_tween()
+		bubble_tween.tween_interval(0.48)
+		bubble_tween.tween_property(bubble_container, "modulate:a", 0.0, 0.25)
+		bubble_tween.tween_callback(bubble_container.queue_free)
 
 
 ## Spawn teleport smoke cloud for assassin abilities.
@@ -177,6 +238,10 @@ func _spawn_basic_hit(pos: Vector2, color: Color) -> void:
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vfx.add_child(rect)
 
+	# Doodle mode: add thin hatching lines over the hit flash area.
+	if doodle_enabled:
+		_add_sketch_hatching(vfx, radius_end)
+
 	var tween := create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(rect, "size", Vector2(radius_end * 2, radius_end * 2), duration)\
@@ -190,6 +255,7 @@ func _spawn_basic_hit(pos: Vector2, color: Color) -> void:
 
 
 ## Slash mark: angled line that appears and fades.
+## Doodle mode: uses wobbly multi-segment lines instead of clean straight ones.
 func _spawn_slash_mark(pos: Vector2, color: Color) -> void:
 	var vfx := _create_vfx_node(pos)
 
@@ -200,9 +266,18 @@ func _spawn_slash_mark(pos: Vector2, color: Color) -> void:
 		line.default_color = Color(color, 0.9)
 		var angle: float = deg_to_rad(45.0 + 90.0 * float(i))
 		var half_len: float = 18.0
-		line.add_point(Vector2(cos(angle), sin(angle)) * -half_len)
-		line.add_point(Vector2(cos(angle), sin(angle)) * half_len)
+		var start_pt := Vector2(cos(angle), sin(angle)) * -half_len
+		var end_pt := Vector2(cos(angle), sin(angle)) * half_len
+		if doodle_enabled:
+			_add_wobbly_line_points(line, start_pt, end_pt, 5)
+			line.width = randf_range(2.0, 4.0)
+		else:
+			line.add_point(start_pt)
+			line.add_point(end_pt)
 		vfx.add_child(line)
+	# Doodle: add a thin sketch outline layer behind the colored slash.
+	if doodle_enabled:
+		_add_sketch_outline_layer(vfx, color)
 
 	var tween := create_tween()
 	tween.tween_property(vfx, "modulate:a", 0.0, 0.3)\
@@ -212,6 +287,7 @@ func _spawn_slash_mark(pos: Vector2, color: Color) -> void:
 
 
 ## Stab point: small concentrated impact burst.
+## Doodle mode: radial lines are wobbly and vary in width.
 func _spawn_stab_point(pos: Vector2, color: Color) -> void:
 	var vfx := _create_vfx_node(pos)
 
@@ -222,8 +298,12 @@ func _spawn_stab_point(pos: Vector2, color: Color) -> void:
 		line.default_color = Color(color, 0.85)
 		var angle: float = deg_to_rad(float(i) * 90.0 + 45.0)
 		var dir := Vector2(cos(angle), sin(angle))
-		line.add_point(dir * 3.0)
-		line.add_point(dir * 12.0)
+		if doodle_enabled:
+			_add_wobbly_line_points(line, dir * 3.0, dir * 12.0, 4)
+			line.width = randf_range(1.5, 3.0)
+		else:
+			line.add_point(dir * 3.0)
+			line.add_point(dir * 12.0)
 		vfx.add_child(line)
 
 	vfx.scale = Vector2(0.5, 0.5)
@@ -236,6 +316,7 @@ func _spawn_stab_point(pos: Vector2, color: Color) -> void:
 
 
 ## Shockwave ring: expanding ring outline.
+## Doodle mode: ring has wobbly edges like a hand-drawn circle.
 func _spawn_shockwave_ring(pos: Vector2, color: Color) -> void:
 	var vfx := _create_vfx_node(pos)
 
@@ -247,7 +328,12 @@ func _spawn_shockwave_ring(pos: Vector2, color: Color) -> void:
 	var radius: float = 6.0
 	for i in range(ring_points + 1):
 		var angle: float = TAU * float(i) / float(ring_points)
-		ring.add_point(Vector2(cos(angle), sin(angle)) * radius)
+		var wobble_r: float = radius
+		if doodle_enabled:
+			wobble_r += randf_range(-DOODLE_LINE_WOBBLE, DOODLE_LINE_WOBBLE)
+		ring.add_point(Vector2(cos(angle), sin(angle)) * wobble_r)
+	if doodle_enabled:
+		ring.width = randf_range(2.0, 4.0)
 	vfx.add_child(ring)
 
 	var tween := create_tween()
@@ -263,6 +349,7 @@ func _spawn_shockwave_ring(pos: Vector2, color: Color) -> void:
 
 
 ## Magic burst: expanding star/sparkle pattern.
+## Doodle mode: star rays are wobbly with varying widths.
 func _spawn_magic_burst(pos: Vector2, color: Color) -> void:
 	var vfx := _create_vfx_node(pos)
 
@@ -274,8 +361,12 @@ func _spawn_magic_burst(pos: Vector2, color: Color) -> void:
 		line.default_color = Color(color, 0.85)
 		var angle: float = TAU * float(i) / float(points)
 		var dir := Vector2(cos(angle), sin(angle))
-		line.add_point(dir * 2.0)
-		line.add_point(dir * 16.0)
+		if doodle_enabled:
+			_add_wobbly_line_points(line, dir * 2.0, dir * 16.0, 4)
+			line.width = randf_range(2.0, 3.5)
+		else:
+			line.add_point(dir * 2.0)
+			line.add_point(dir * 16.0)
 		vfx.add_child(line)
 
 	vfx.scale = Vector2(0.3, 0.3)
@@ -292,6 +383,7 @@ func _spawn_magic_burst(pos: Vector2, color: Color) -> void:
 
 
 ## Punch star: classic cartoon impact star.
+## Doodle mode: star rays are wobbly with hand-drawn feel.
 func _spawn_punch_star(pos: Vector2, color: Color) -> void:
 	var vfx := _create_vfx_node(pos)
 
@@ -304,8 +396,12 @@ func _spawn_punch_star(pos: Vector2, color: Color) -> void:
 		var angle: float = TAU * float(i) / float(points)
 		var dir := Vector2(cos(angle), sin(angle))
 		var length: float = 14.0 if i % 2 == 0 else 8.0
-		line.add_point(Vector2.ZERO)
-		line.add_point(dir * length)
+		if doodle_enabled:
+			_add_wobbly_line_points(line, Vector2.ZERO, dir * length, 4)
+			line.width = randf_range(1.5, 3.0)
+		else:
+			line.add_point(Vector2.ZERO)
+			line.add_point(dir * length)
 		vfx.add_child(line)
 
 	vfx.scale = Vector2(0.2, 0.2)

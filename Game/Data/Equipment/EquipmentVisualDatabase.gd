@@ -15,23 +15,23 @@ extends RefCounted
 static func get_weapon_visuals() -> Dictionary:
 	return {
 		# Base weapons (1001-1006)
-		1001: {"shape":"sword","bladeColor":"#8a8e96","bladeHighlight":"#bcc0c8","handleColor":"#553311","guardColor":"#887744","glowColor":"","bladeLength":10,"bladeWidth":2,"hasParticles":false,"particleColor":""},
-		1002: {"shape":"sword","bladeColor":"#b0b8c8","bladeHighlight":"#dde0e8","handleColor":"#443322","guardColor":"#998855","glowColor":"","bladeLength":11,"bladeWidth":2,"hasParticles":false,"particleColor":""},
-		1003: {"shape":"sword","bladeColor":"#e86030","bladeHighlight":"#ffaa44","handleColor":"#663311","guardColor":"#cc6622","glowColor":"#ff6600","bladeLength":11,"bladeWidth":2,"hasParticles":true,"particleColor":"#ff8833"},
-		1004: {"shape":"sword","bladeColor":"#88ccdd","bladeHighlight":"#cceeFF","handleColor":"#445566","guardColor":"#77aacc","glowColor":"#66ccff","bladeLength":12,"bladeWidth":2,"hasParticles":true,"particleColor":"#aaeeff"},
-		1005: {"shape":"sword","bladeColor":"#6633aa","bladeHighlight":"#9955dd","handleColor":"#221133","guardColor":"#553388","glowColor":"#8844cc","bladeLength":13,"bladeWidth":2,"hasParticles":true,"particleColor":"#aa66ff"},
-		1006: {"shape":"broadsword","bladeColor":"#e8c840","bladeHighlight":"#fff8aa","handleColor":"#886622","guardColor":"#ddaa33","glowColor":"#ffdd66","bladeLength":14,"bladeWidth":3,"hasParticles":true,"particleColor":"#ffeeaa"},
+		1001: {"shape":"sword","bladeColor":"#a5a8ad","bladeHighlight":"#d8dade","handleColor":"#774c21","guardColor":"#a3915b","glowColor":"","bladeLength":10,"bladeWidth":2,"hasParticles":false,"particleColor":""},
+		1002: {"shape":"sword","bladeColor":"#cfd3db","bladeHighlight":"#fbfbfc","handleColor":"#624c36","guardColor":"#ab9d75","glowColor":"","bladeLength":11,"bladeWidth":2,"hasParticles":false,"particleColor":""},
+		1003: {"shape":"sword","bladeColor":"#e28868","bladeHighlight":"#f4c081","handleColor":"#884a21","guardColor":"#d3834d","glowColor":"#ef8742","bladeLength":11,"bladeWidth":2,"hasParticles":true,"particleColor":"#f3a771"},
+		1004: {"shape":"sword","bladeColor":"#b3dae4","bladeHighlight":"#ffffff","handleColor":"#5b6e81","guardColor":"#a0c0d5","glowColor":"#a0daf7","bladeLength":12,"bladeWidth":2,"hasParticles":true,"particleColor":"#dff6fc"},
+		1005: {"shape":"sword","bladeColor":"#8051be","bladeHighlight":"#b287dd","handleColor":"#3b2254","guardColor":"#6d49a4","glowColor":"#a174ce","bladeLength":13,"bladeWidth":2,"hasParticles":true,"particleColor":"#c7a0f7"},
+		1006: {"shape":"broadsword","bladeColor":"#e3cf77","bladeHighlight":"#fcfadf","handleColor":"#a68136","guardColor":"#dab868","glowColor":"#f7e4a0","bladeLength":14,"bladeWidth":3,"hasParticles":true,"particleColor":"#fcf6df"},
 		# Expanded weapons (1101-1110)
-		1101: {"shape":"battleaxe","bladeColor":"#44aa88","bladeHighlight":"#88ddbb","handleColor":"#334444","guardColor":"#558877","glowColor":"#55cc99","bladeLength":12,"bladeWidth":3,"hasParticles":true,"particleColor":"#66ddaa"},
-		1102: {"shape":"dagger","bladeColor":"#553388","bladeHighlight":"#8855cc","handleColor":"#221133","guardColor":"#442266","glowColor":"#7744bb","bladeLength":8,"bladeWidth":1,"hasParticles":true,"particleColor":"#9966dd"},
-		1103: {"shape":"greataxe","bladeColor":"#ddaa22","bladeHighlight":"#ffdd44","handleColor":"#554422","guardColor":"#998833","glowColor":"#ffcc00","bladeLength":14,"bladeWidth":3,"hasParticles":true,"particleColor":"#ffee66"},
-		1104: {"shape":"scimitar","bladeColor":"#44aa44","bladeHighlight":"#88dd88","handleColor":"#224422","guardColor":"#55aa55","glowColor":"#66cc66","bladeLength":12,"bladeWidth":2,"hasParticles":true,"particleColor":"#88ee88"},
-		1105: {"shape":"broadsword","bladeColor":"#ddcc44","bladeHighlight":"#ffee88","handleColor":"#776622","guardColor":"#ccaa33","glowColor":"#ffdd44","bladeLength":14,"bladeWidth":3,"hasParticles":true,"particleColor":"#ffeeaa"},
-		1106: {"shape":"mace","bladeColor":"#998877","bladeHighlight":"#bbaa99","handleColor":"#554433","guardColor":"#776655","glowColor":"","bladeLength":11,"bladeWidth":3,"hasParticles":false,"particleColor":""},
-		1107: {"shape":"katana","bladeColor":"#88bbdd","bladeHighlight":"#bbddff","handleColor":"#334455","guardColor":"#6699bb","glowColor":"#88ccff","bladeLength":13,"bladeWidth":1,"hasParticles":true,"particleColor":"#aaddff"},
-		1108: {"shape":"hammer","bladeColor":"#ddaa22","bladeHighlight":"#ffdd66","handleColor":"#664411","guardColor":"#bb8811","glowColor":"#ffcc33","bladeLength":12,"bladeWidth":3,"hasParticles":true,"particleColor":"#ffee88"},
-		1109: {"shape":"scythe","bladeColor":"#aabbdd","bladeHighlight":"#ddeeff","handleColor":"#445566","guardColor":"#8899bb","glowColor":"#aaccff","bladeLength":15,"bladeWidth":2,"hasParticles":true,"particleColor":"#bbddff"},
-		1110: {"shape":"broadsword","bladeColor":"#cc2222","bladeHighlight":"#ff5544","handleColor":"#331111","guardColor":"#882222","glowColor":"#ff3333","bladeLength":16,"bladeWidth":3,"hasParticles":true,"particleColor":"#ff6644"},
+		1101: {"shape":"battleaxe","bladeColor":"#68b89d","bladeHighlight":"#b3e4d0","handleColor":"#4a5f5f","guardColor":"#709f8f","glowColor":"#83d0af","bladeLength":12,"bladeWidth":3,"hasParticles":true,"particleColor":"#96dfc0"},
+		1102: {"shape":"dagger","bladeColor":"#6d49a4","bladeHighlight":"#a483d0","handleColor":"#3b2254","guardColor":"#5d3585","glowColor":"#9370c1","bladeLength":8,"bladeWidth":1,"hasParticles":true,"particleColor":"#b596df"},
+		1103: {"shape":"greataxe","bladeColor":"#d8b559","bladeHighlight":"#f4df81","handleColor":"#735f36","guardColor":"#b5a349","glowColor":"#efcd42","bladeLength":14,"bladeWidth":3,"hasParticles":true,"particleColor":"#f7eda0"},
+		1104: {"shape":"scimitar","bladeColor":"#68b868","bladeHighlight":"#b3e4b3","handleColor":"#366236","guardColor":"#7cb57c","glowColor":"#91d391","bladeLength":12,"bladeWidth":2,"hasParticles":true,"particleColor":"#b9efb9"},
+		1105: {"shape":"broadsword","bladeColor":"#dcd077","bladeHighlight":"#f9f1c0","handleColor":"#968235","guardColor":"#cdb564","glowColor":"#f4df81","bladeLength":14,"bladeWidth":3,"hasParticles":true,"particleColor":"#fcf6df"},
+		1106: {"shape":"mace","bladeColor":"#aca196","bladeHighlight":"#cdc3b9","handleColor":"#715d49","guardColor":"#917f6d","glowColor":"","bladeLength":11,"bladeWidth":3,"hasParticles":false,"particleColor":""},
+		1107: {"shape":"katana","bladeColor":"#b3d0e4","bladeHighlight":"#eff6fd","handleColor":"#495d71","guardColor":"#8eafc5","glowColor":"#c0e1f9","bladeLength":13,"bladeWidth":1,"hasParticles":true,"particleColor":"#dff0fc"},
+		1108: {"shape":"hammer","bladeColor":"#d8b559","bladeHighlight":"#f7e4a0","handleColor":"#885f21","guardColor":"#d9a325","glowColor":"#f3d371","bladeLength":12,"bladeWidth":3,"hasParticles":true,"particleColor":"#f9f1c0"},
+		1109: {"shape":"scythe","bladeColor":"#d0d8e9","bladeHighlight":"#ffffff","handleColor":"#5b6e81","guardColor":"#abb5ca","glowColor":"#dfebfc","bladeLength":15,"bladeWidth":2,"hasParticles":true,"particleColor":"#eff6fd"},
+		1110: {"shape":"broadsword","bladeColor":"#d34d4d","bladeHighlight":"#f48b81","handleColor":"#542222","guardColor":"#a63636","glowColor":"#f37171","bladeLength":16,"bladeWidth":3,"hasParticles":true,"particleColor":"#f49681"},
 	}
 
 
@@ -64,6 +64,9 @@ static func get_helmet_visuals() -> Dictionary:
 ## ── Chest Visual Configs ─────────────────────────────────────────────────────
 ## style, mainColor, trimColor, accentColor, hasShoulders, shoulderColor,
 ## hasBelt, beltColor, glowColor, pattern
+## Valid patterns: none, chains, runes, scales, crystal, stripes, doodle_sketch
+## "doodle_sketch" — small hand-drawn decorative marks (dots, tiny stars, squiggles)
+## used for the Color Doodle Chibi art style.
 
 static func get_chest_visuals() -> Dictionary:
 	return {
@@ -215,6 +218,12 @@ static func get_amulet_visuals() -> Dictionary:
 
 ## ── Crystal Visual Configs ───────────────────────────────────────────────────
 ## crystalColor, innerColor, outlineColor, size, shape, pulseSpeed, glowColor, hasTrail
+## Valid shapes: diamond, prism, hexagon, orb, star, shard
+## Doodle style note: In Color Doodle Chibi rendering mode, all crystal and gem
+## shapes are drawn as simple colorful filled shapes with sketchy hand-drawn
+## outlines (1-2px wobble). Complex facets are replaced with a single bright
+## inner highlight dot and hatching lines for depth. This keeps gems readable
+## at chibi sprite scale while matching the illustrated doodle aesthetic.
 
 static func get_crystal_visuals() -> Dictionary:
 	return {
@@ -299,6 +308,21 @@ static func get_slot_defaults(slot_type: String) -> Dictionary:
 			return {"crystalColor":"#888899","innerColor":"#aaaaaa","outlineColor":"#666677","size":"small","shape":"diamond","pulseSpeed":0.5,"glowColor":"#888888","hasTrail":false}
 		_:
 			return {}
+
+
+## Doodle art style rendering overrides for equipment visuals.
+## Equipment drawn on chibi sprites uses sketchy outlines and soft fills.
+static func get_doodle_equipment_style() -> Dictionary:
+	return {
+		"outline_wobble": 1.0,           # Pixel wobble for hand-drawn outlines
+		"outline_thickness": 2.0,        # Thicker outlines for doodle look
+		"outline_color": Color("2d2d2d"),# Soft black ink
+		"fill_hatching": true,           # Add hatching to metal/armor surfaces
+		"glow_style": "scribble",        # "scribble" circles instead of smooth glow
+		"sparkle_style": "star_doodle",  # Hand-drawn stars instead of clean sparkles
+		"gem_style": "colored_circle",   # Simple colored circles for gems
+		"pastel_shift": 0.15,            # How much to shift colors toward pastel
+	}
 
 
 ## Validate that all equipment IDs in the database have visual configs.

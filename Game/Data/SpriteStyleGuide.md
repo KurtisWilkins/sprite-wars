@@ -38,7 +38,7 @@ Each evolution stage uses a progressively larger canvas to reflect growing power
 - All canvases must be **square** (1:1 aspect ratio).
 - Sprites should fill **75-85%** of the canvas area; leave a small margin for visual breathing room and animation overshoot.
 - Export as **PNG-32** (RGBA, 8 bits per channel) with transparent background.
-- No anti-aliasing to external edges -- keep pixel-perfect outlines. Internal shading may use limited anti-aliasing between owned colors.
+- Soft anti-aliasing is encouraged on all edges to support the hand-drawn doodle feel. The Color Doodle Chibi style does not require pixel-perfect hard edges.
 
 ---
 
@@ -430,13 +430,15 @@ res://Sprites/Characters/
 Before any Sprite art is approved for integration, it must pass this checklist:
 
 - [ ] Canvas is correct size for stage (64/96/128 px square)
-- [ ] Maximum 16 unique colors (verify with indexed color count)
-- [ ] Colors pull from the correct element palette
-- [ ] Head-to-body ratio matches stage guidelines
+- [ ] Maximum 24 unique colors (verify with indexed color count)
+- [ ] Colors pull from the correct element palette with pastel/desaturated treatment
+- [ ] Head-to-body ratio matches chibi stage guidelines (1:1.5 / 1:2 / 1:2.5)
 - [ ] Passes silhouette test at 32x32 (submit silhouette sheet)
 - [ ] Evolution continuity: shared features with previous/next stage
-- [ ] 1-2px dark outline is continuous with no gaps
-- [ ] No internal detail lines thinner than 2px
+- [ ] 2-4px wobbly doodle outline is continuous with no gaps, uses doodle ink colors
+- [ ] Hatching/cross-hatching used for shading (no smooth gradients)
+- [ ] Color bleed present at select outline edges
+- [ ] Sketch marks included where appropriate (motion lines, blush, sparkles)
 - [ ] Readable at 50% zoom on a mobile device
 - [ ] Contrast passes against all battle background types
 - [ ] Shadow ellipse included for battle rendering
@@ -450,27 +452,67 @@ Before any Sprite art is approved for integration, it must pass this checklist:
 
 Quick reference for each element's visual motifs beyond color:
 
-| Element | Shape Motifs | Texture Cues | Particle FX |
-|---------|-------------|--------------|-------------|
-| Fire | Sharp angles, flame shapes | Crackled, ember texture | Rising sparks, heat haze |
-| Water | Curves, wave shapes, droplets | Glossy, reflective highlights | Bubbles, water droplets |
-| Plant | Organic curves, leaf shapes | Bark texture, vein patterns | Floating leaves, pollen |
-| Ice | Crystalline angles, hexagons | Frosted, semi-transparent | Snowflakes, frost mist |
-| Wind | Flowing curves, spiral shapes | Wispy, semi-transparent | Swirling lines, feathers |
-| Earth | Blocky, angular, solid | Rough stone, cracked dirt | Dust clouds, pebbles |
-| Electric | Zigzag lines, bolt shapes | Crackling, bright edges | Sparks, arcing bolts |
-| Dark | Pointed, angular, shadow wisps | Smoky, void-like | Shadow tendrils, dark mist |
-| Light | Radial, starburst, halos | Smooth, luminous | Light rays, lens flares |
-| Fairy | Rounded, heart/star shapes | Sparkly, iridescent | Glitter, tiny stars |
-| Lunar | Crescent curves, orbital arcs | Pale, ethereal | Moon dust, soft glow |
-| Solar | Radial spikes, corona shapes | Warm, pulsing brightness | Solar flares, heat lines |
-| Metal | Geometric, plated, rivets | Polished, reflective | Metal shards, sparks |
-| Poison | Dripping, bubbling, thorns | Slimy, corroded | Toxic drips, gas clouds |
+| Element | Shape Motifs | Texture Cues | Particle FX | Doodle Motif |
+|---------|-------------|--------------|-------------|--------------|
+| Fire | Sharp angles, flame shapes | Crackled, ember texture | Rising sparks, heat haze | Crayon scribble flames, zigzag heat lines |
+| Water | Curves, wave shapes, droplets | Glossy, reflective highlights | Bubbles, water droplets | Wavy doodle lines, sketched splash drops |
+| Plant | Organic curves, leaf shapes | Bark texture, vein patterns | Floating leaves, pollen | Scribbly vine curls, doodled leaf spirals |
+| Ice | Crystalline angles, hexagons | Frosted, semi-transparent | Snowflakes, frost mist | Sketched snowflake stars, hatched ice shards |
+| Wind | Flowing curves, spiral shapes | Wispy, semi-transparent | Swirling lines, feathers | Loose spiral doodles, quick-stroke breeze lines |
+| Earth | Blocky, angular, solid | Rough stone, cracked dirt | Dust clouds, pebbles | Cross-hatched rock texture, scribbled cracks |
+| Electric | Zigzag lines, bolt shapes | Crackling, bright edges | Sparks, arcing bolts | Jagged crayon bolts, scribble spark bursts |
+| Dark | Pointed, angular, shadow wisps | Smoky, void-like | Shadow tendrils, dark mist | Heavy ink scribble shadows, scribbly wisps |
+| Light | Radial, starburst, halos | Smooth, luminous | Light rays, lens flares | Doodled starburst rays, sketched halo rings |
+| Fairy | Rounded, heart/star shapes | Sparkly, iridescent | Glitter, tiny stars | Doodled hearts and stars, sparkle pen marks |
+| Lunar | Crescent curves, orbital arcs | Pale, ethereal | Moon dust, soft glow | Sketched crescent moons, soft pencil glow lines |
+| Solar | Radial spikes, corona shapes | Warm, pulsing brightness | Solar flares, heat lines | Crayon sun rays, scribbled corona spikes |
+| Metal | Geometric, plated, rivets | Polished, reflective | Metal shards, sparks | Hatched metal plates, doodled rivet circles |
+| Poison | Dripping, bubbling, thorns | Slimy, corroded | Toxic drips, gas clouds | Scribbly drip lines, doodled bubble clusters |
 
 ---
 
-## 13. Revision History
+## 13. Doodle Art Style Rules
+
+These rules define the core artistic principles of the Color Doodle Chibi style. All artists must internalize these before creating Sprite assets.
+
+### Line Quality
+All outlines must appear **hand-drawn** with slight wobble and irregularity. No perfectly straight lines anywhere — even horizontal and vertical edges should have subtle organic waviness. Lines may vary in thickness along their length, as a real pen or marker stroke would.
+
+### Shading
+Use **hatching, cross-hatching, and scribble fills** instead of flat color fills or smooth gradients. Shading should look loose and sketchy, as if applied with colored pencils. Keep hatching strokes visible — they are a feature, not a flaw. Vary stroke density to control value (tighter hatching = darker, looser = lighter).
+
+### Color Fills
+Colors should **slightly bleed past outlines** for that hand-colored feel. This means color regions extend 1-2px beyond the outline boundary in places, creating the look of a coloring page filled in with markers or crayons. Not every edge needs bleed — use it selectively for organic, natural-feeling results.
+
+### Expressions
+Chibi faces use **simple but expressive features**:
+- **Eyes:** Dot eyes (Stage 1) or large sparkle eyes (Stages 2-3) — always oversized relative to face.
+- **Mouths:** Simple curved lines — a smile is a single arc, surprise is a small circle, determination is a flat dash.
+- **Blush circles:** Small pink/red circles on cheeks — use liberally for cute expressions.
+- **Eyebrows:** Optional short strokes above eyes for emotion (anger, worry, surprise).
+
+### Motion
+Add **doodle motion lines** (short parallel strokes) around moving parts to convey energy and action. These are 2-4 short lines in Soft Gray or the Sprite's outline color, placed near tails, wings, flames, or any animated feature. Motion lines are essential during attack and ability animations.
+
+### Decorative
+Small **doodle decorative marks** add charm and emphasis:
+- **Stars** — tiny 4- or 5-point stars near shiny or magical features.
+- **Hearts** — small hearts for Fairy-type or affection-related expressions.
+- **Spirals** — loose spiral doodles for confusion, wind, or whimsy.
+- **Scribble clouds** — small scribbly cloud puffs for dust, smoke, or comedic emphasis.
+These marks should be used where appropriate to enhance personality without cluttering the silhouette.
+
+### Texture
+Surfaces should have **visible pencil/pen texture marks** rather than being perfectly smooth. Even flat color areas benefit from subtle hatching or crayon-grain texture. This applies to all materials — fur, scales, metal, stone, water — everything should feel hand-drawn and tactile.
+
+### Backgrounds
+Battle backgrounds use the **same doodle/sketch treatment** with colored pencil fills. Background elements (grass, rocks, water, walls) should have visible sketch strokes, hatching, and wobbly outlines. Backgrounds should feel like they belong in the same sketchbook as the Sprites, maintaining visual cohesion across the entire game.
+
+---
+
+## 14. Revision History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-02-16 | Art Lead | Initial style guide |
+| 2.0 | 2026-03-08 | Art Lead | Art direction changed to Color Doodle Chibi style |
