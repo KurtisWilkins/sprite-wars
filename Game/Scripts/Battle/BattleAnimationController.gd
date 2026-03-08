@@ -20,8 +20,20 @@ var grid_display: Node2D = null
 ## Reference to BattleVFXSystem for spawning impact effects.
 var vfx_system: Node = null
 
+## Chibi sprite animator for modular body-part animations.
+var chibi_animator: ChibiSpriteAnimator = null
+
 ## Active tweens tracked for cleanup.
 var _active_tweens: Array[Tween] = []
+
+
+## ── Chibi Detection ─────────────────────────────────────────────────────────
+
+## Check if a sprite node is a chibi modular sprite (has body part children).
+func _is_chibi_sprite(sprite: Node2D) -> bool:
+	if sprite == null or not is_instance_valid(sprite):
+		return false
+	return sprite.has_node("FrontArm") and sprite.has_node("Head")
 
 
 ## ── Main Attack Animation ───────────────────────────────────────────────────
@@ -64,6 +76,23 @@ func play_attack_animation(
 
 	var lunge_offset: Vector2 = direction * move_dist
 
+	# ── Chibi modular sprite: play body-part animations ──────────────────
+	# If the attacker is a chibi sprite with modular body parts (arms, weapon),
+	# play the arm swing / weapon animation using ChibiSpriteAnimator alongside
+	# the whole-sprite motion.
+	if _is_chibi_sprite(attacker_sprite):
+		_ensure_chibi_animator()
+		# Map weapon attack style to chibi animation state.
+		var chibi_state: int = _weapon_style_to_chibi_state(style)
+		# Play chibi body-part animation (arms, weapon swing) in parallel.
+		chibi_animator.play_animation(attacker_sprite, chibi_state, speed_multiplier)
+		# Flip sprite to face target direction.
+		if direction.x < 0.0:
+			attacker_sprite.scale.x = -absf(attacker_sprite.scale.x)
+		else:
+			attacker_sprite.scale.x = absf(attacker_sprite.scale.x)
+
+	# ── Whole-sprite procedural motion (lunge, recoil, etc.) ─────────────
 	match style:
 		WeaponAnimationData.AttackStyle.SLASH:
 			await _animate_slash(attacker_sprite, origin_pos, lunge_offset, arc_deg, wind_up, strike, recovery)
@@ -114,6 +143,8 @@ func _animate_slash(
 
 	# Wind-up: slight pull back and rotate to start of arc.
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin - lunge * 0.2, wind_up)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -149,18 +180,24 @@ func _animate_thrust(
 ) -> void:
 	# Wind-up: pull back.
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.tween_property(sprite, "position", origin - lunge * 0.3, wind_up)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await tween.finished
 
 	# Strike: rapid lunge forward.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.tween_property(sprite, "position", origin + lunge, strike_time)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	await tween.finished
 
 	# Recovery: return.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.tween_property(sprite, "position", origin, recovery)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	await tween.finished
@@ -465,6 +502,13 @@ func play_hit_reaction(
 	if target_sprite == null or not is_instance_valid(target_sprite):
 		return
 
+	# Play chibi body-part hit reaction (arms flinch, head jerks).
+	if _is_chibi_sprite(target_sprite):
+		_ensure_chibi_animator()
+		chibi_animator.play_animation(
+			target_sprite, ChibiSpriteAnimator.AnimState.HIT, speed_multiplier
+		)
+
 	var duration: float = 0.25 / speed_multiplier
 	var flash_color := Color(1.0, 0.4, 0.4, 1.0)
 	var shake_amount: float = 4.0 if not is_crit else 8.0
@@ -506,6 +550,13 @@ func play_faint_animation(
 ) -> void:
 	if sprite == null or not is_instance_valid(sprite):
 		return
+
+	# Play chibi body-part faint (arms drop, head droops).
+	if _is_chibi_sprite(sprite):
+		_ensure_chibi_animator()
+		chibi_animator.play_animation(
+			sprite, ChibiSpriteAnimator.AnimState.FAINT, speed_multiplier
+		)
 
 	var duration: float = 0.6 / speed_multiplier
 
@@ -711,6 +762,7 @@ func play_knockback_animation(
 ## Create and track a tween. Uses the sprite's scene tree for tween creation.
 ## If the node is invalid, returns a minimal tween from grid_display as fallback
 ## to prevent null dereference crashes during mid-animation node freeing.
+## Returns null only if no valid node is available — callers MUST null-check.
 func _create_tween(node: Node2D) -> Tween:
 	if node != null and is_instance_valid(node) and node.is_inside_tree():
 		var tween: Tween = node.create_tween()
@@ -721,8 +773,6 @@ func _create_tween(node: Node2D) -> Tween:
 		var fallback: Tween = grid_display.create_tween()
 		_active_tweens.append(fallback)
 		return fallback
-	# Last resort: return a dummy tween. This should never happen in practice
-	# since grid_display should always be valid during battle.
 	push_warning("BattleAnimationController: No valid node for tween creation.")
 	return null
 
@@ -784,6 +834,54 @@ func _get_element_glow(element_type: String) -> Color:
 		"Metal":    return Color(0.8, 0.85, 0.95, 1.0)
 		"Poison":   return Color(0.6, 1.0, 0.4, 1.0)
 		_:          return Color(1.1, 1.1, 1.1, 1.0)
+
+
+## ── Chibi Animation Helpers ────────────────────────────────────────────────
+
+## Lazily initialize the chibi animator.
+func _ensure_chibi_animator() -> void:
+	if chibi_animator == null:
+		chibi_animator = ChibiSpriteAnimator.new()
+
+
+## Map WeaponAnimationData.AttackStyle to ChibiSpriteAnimator.AnimState.
+func _weapon_style_to_chibi_state(style: int) -> int:
+	match style:
+		WeaponAnimationData.AttackStyle.SLASH:
+			return ChibiSpriteAnimator.AnimState.ATTACK_SLASH
+		WeaponAnimationData.AttackStyle.THRUST:
+			return ChibiSpriteAnimator.AnimState.ATTACK_THRUST
+		WeaponAnimationData.AttackStyle.SMASH:
+			return ChibiSpriteAnimator.AnimState.ATTACK_SMASH
+		WeaponAnimationData.AttackStyle.DRAW_RELEASE:
+			return ChibiSpriteAnimator.AnimState.ATTACK_SHOOT
+		WeaponAnimationData.AttackStyle.THROW:
+			return ChibiSpriteAnimator.AnimState.ATTACK_SLASH
+		WeaponAnimationData.AttackStyle.CAST:
+			return ChibiSpriteAnimator.AnimState.ATTACK_CAST
+		WeaponAnimationData.AttackStyle.PUNCH:
+			return ChibiSpriteAnimator.AnimState.ATTACK_THRUST
+		WeaponAnimationData.AttackStyle.BLOCK_BASH:
+			return ChibiSpriteAnimator.AnimState.ATTACK_SMASH
+		WeaponAnimationData.AttackStyle.HOLY_STRIKE:
+			return ChibiSpriteAnimator.AnimState.ATTACK_SMASH
+		WeaponAnimationData.AttackStyle.GUNFIRE:
+			return ChibiSpriteAnimator.AnimState.ATTACK_SHOOT
+		_:
+			return ChibiSpriteAnimator.AnimState.ATTACK_SLASH
+
+
+## Start idle animation loop on a chibi sprite.
+func start_chibi_idle(sprite: Node2D) -> void:
+	if _is_chibi_sprite(sprite):
+		_ensure_chibi_animator()
+		chibi_animator.play_idle_loop(sprite)
+
+
+## Stop all chibi animations on a sprite.
+func stop_chibi_animation(sprite: Node2D) -> void:
+	if _is_chibi_sprite(sprite) and chibi_animator != null:
+		chibi_animator.stop_animation(sprite)
 
 
 ## Kill all active tweens (for battle end cleanup).

@@ -132,7 +132,7 @@ func clear_highlights() -> void:
 
 ## -- Public API: Unit Visuals -------------------------------------------------
 
-## Place a sprite visual at a grid position.
+## Place a sprite visual at a grid position (legacy texture-based).
 func place_sprite_visual(unit_id: int, pos: Vector2i, texture: Texture2D) -> void:
 	# Remove existing visual if present.
 	if _unit_visuals.has(unit_id):
@@ -154,13 +154,58 @@ func place_sprite_visual(unit_id: int, pos: Vector2i, texture: Texture2D) -> voi
 	_unit_visuals[unit_id] = {"sprite": sprite, "grid_pos": pos}
 
 
+## Place a chibi modular sprite at a grid position.
+## [chibi_root] is a Node2D assembled by ChibiSpriteAssembler with child parts:
+## Head, Body, FrontArm, BackArm, Weapon, Legs.
+func place_chibi_sprite(unit_id: int, pos: Vector2i, chibi_root: Node2D) -> void:
+	if chibi_root == null:
+		return
+
+	# Remove existing visual if present.
+	if _unit_visuals.has(unit_id):
+		remove_sprite_visual(unit_id)
+
+	# Scale the chibi sprite (64x64 canvas) to fit the grid cell.
+	var target_size: float = cell_size.x * 0.85
+	var chibi_canvas: float = 64.0
+	var s: float = target_size / chibi_canvas
+	chibi_root.scale = Vector2(s, s)
+
+	chibi_root.position = grid_to_screen(pos)
+	add_child(chibi_root)
+
+	# Store as "sprite" key for compatibility with existing animation code.
+	# The chibi_root Node2D acts as the sprite reference for tweens.
+	_unit_visuals[unit_id] = {"sprite": chibi_root, "grid_pos": pos, "is_chibi": true}
+
+
+## Check if a unit visual is a chibi modular sprite.
+func is_chibi_sprite(unit_id: int) -> bool:
+	if not _unit_visuals.has(unit_id):
+		return false
+	return _unit_visuals[unit_id].get("is_chibi", false)
+
+
+## Get the chibi sprite root node for a unit (for body part animation).
+func get_chibi_root(unit_id: int) -> Node2D:
+	if not _unit_visuals.has(unit_id):
+		return null
+	var data: Dictionary = _unit_visuals[unit_id]
+	if not data.get("is_chibi", false):
+		return null
+	var root: Node2D = data.get("sprite")
+	if root != null and is_instance_valid(root):
+		return root
+	return null
+
+
 ## Animate a sprite visual moving to a new grid position.
 func move_sprite_visual(unit_id: int, to_pos: Vector2i, duration: float) -> void:
 	if not _unit_visuals.has(unit_id):
 		return
 
 	var data: Dictionary = _unit_visuals[unit_id]
-	var sprite: Sprite2D = data["sprite"]
+	var sprite: Node2D = data["sprite"]
 	var target_screen: Vector2 = grid_to_screen(to_pos)
 
 	# Kill any existing move tween for this unit.
@@ -182,7 +227,7 @@ func remove_sprite_visual(unit_id: int) -> void:
 		return
 
 	var data: Dictionary = _unit_visuals[unit_id]
-	var sprite: Sprite2D = data["sprite"]
+	var sprite: Node2D = data.get("sprite")
 	if sprite != null and is_instance_valid(sprite):
 		sprite.queue_free()
 

@@ -54,9 +54,20 @@ func register_unit_visual(sprite_instance: Resource, unit_id: int) -> void:
 	if sprite_instance != null:
 		_sprite_to_unit_id[sprite_instance] = unit_id
 
+	# Start idle loop for chibi sprites.
+	if grid_display != null and anim_controller != null:
+		var sprite: Node2D = _get_sprite_node(sprite_instance)
+		if sprite != null:
+			anim_controller.start_chibi_idle(sprite)
+
 
 ## Unregister a unit visual.
 func unregister_unit_visual(sprite_instance: Resource) -> void:
+	# Stop chibi animations before removing.
+	if anim_controller != null:
+		var sprite: Node2D = _get_sprite_node(sprite_instance)
+		if sprite != null:
+			anim_controller.stop_chibi_animation(sprite)
 	_sprite_to_unit_id.erase(sprite_instance)
 
 
