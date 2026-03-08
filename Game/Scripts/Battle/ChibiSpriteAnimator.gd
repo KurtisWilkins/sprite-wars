@@ -522,7 +522,8 @@ func _anim_attack_slash(sprite_root: Node2D, speed_mult: float) -> void:
 		var t := _create_tween(sprite_root, head)
 		if t == null:
 			return
-		t.tween_property(head, "position:y", head.position.y, recovery_dur)\
+		var head_origin: Vector2 = _get_original_position(sprite_root, PART_HEAD)
+		t.tween_property(head, "position:y", head_origin.y, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if weapon:
 		var t := _create_tween(sprite_root, weapon)
@@ -610,7 +611,8 @@ func _anim_attack_thrust(sprite_root: Node2D, speed_mult: float) -> void:
 		t.set_parallel(true)
 		t.tween_property(front_arm, "rotation", 0.0, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
-		t.tween_property(front_arm, "position:x", front_arm.position.x - 6.0, recovery_dur)\
+		var arm_origin: Vector2 = _get_original_position(sprite_root, PART_FRONT_ARM)
+		t.tween_property(front_arm, "position:x", arm_origin.x, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if back_arm:
 		var t := _create_tween(sprite_root, back_arm)
@@ -1230,6 +1232,21 @@ func _cache_original_positions(sprite_root: Node2D) -> void:
 			var part := _get_part(sprite_root, part_name)
 			if part:
 				_original_positions[key] = part.position
+
+
+## ── Utility: Get Original Position ────────────────────────────────────────────
+## Returns the cached original position for a body part, or its current position
+## if not cached. Used by recovery frames to tween back to the correct origin.
+
+func _get_original_position(sprite_root: Node2D, part_name: String) -> Vector2:
+	var sid: int = sprite_root.get_instance_id()
+	var key: String = str(sid) + ":" + part_name
+	if _original_positions.has(key):
+		return _original_positions[key]
+	var part := _get_part(sprite_root, part_name)
+	if part:
+		return part.position
+	return Vector2.ZERO
 
 
 ## ── Utility: Flash All Parts ──────────────────────────────────────────────────
