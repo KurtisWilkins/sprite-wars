@@ -754,11 +754,12 @@ export class InventoryScreen {
         }
         Object.assign(select.style, {
             padding: '6px 10px',
-            background: 'rgba(25,25,40,1)',
+            background: '#2A2050',
             color: COLORS.textSecondary,
-            border: `1px solid ${COLORS.border}`,
+            border: `2px solid ${COLORS.border}`,
             borderRadius: '6px',
             fontSize: '14px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
         });
         select.addEventListener('change', () => {
             this._populateItems(this._currentTab);
@@ -858,9 +859,10 @@ export class InventoryScreen {
     /** @private Shared style for filter/sort selects */
     _filterSelectStyle() {
         return `
-            padding: 5px 8px; background: rgba(25,25,40,1);
-            color: ${COLORS.textSecondary}; border: 1px solid ${COLORS.border};
+            padding: 5px 8px; background: #2A2050;
+            color: ${COLORS.textSecondary}; border: 2px solid ${COLORS.border};
             border-radius: 6px; font-size: 13px; min-height: 36px;
+            font-family: Arial, Helvetica, sans-serif;
         `;
     }
 
@@ -885,19 +887,17 @@ export class InventoryScreen {
             if (e.target === this._detailOverlay) this._closeDetail();
         });
 
-        // Popup panel — doodle: paper background, wobbly border
+        // Popup panel — clean cel-shaded: flat color, uniform black outline
         const popup = document.createElement('div');
         popup.className = 'item-detail-popup';
         Object.assign(popup.style, {
             background: COLORS.bgPanel,
-            borderRadius: '16px 8px 14px 10px',
-            border: `2.5px solid #2D2D2D`,
+            borderRadius: '8px',
+            border: `3px solid #1A1A1A`,
             padding: '24px 28px',
             minWidth: '280px',
             maxWidth: '90%',
-            boxShadow: '2px 3px 0 #2D2D2D',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-            transform: 'rotate(-0.5deg)',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         this._detailName = document.createElement('div');
@@ -1218,32 +1218,25 @@ export class InventoryScreen {
         const levelReq = eqData.level_requirement || eqData.levelRequirement || 1;
         const description = eqData.description || '';
 
-        // Doodle: uneven border, paper fill, slight rotation, ink borders
-        const eqCardRotation = (Math.random() - 0.5) * 1.5;
+        // Clean cel-shaded equipment card: flat color, uniform outline
         const card = document.createElement('div');
         card.style.cssText = `
             display: flex; flex-direction: column;
             padding: 12px 14px;
             background: ${COLORS.bgCard};
-            border-radius: 12px 5px 10px 7px;
-            border: 2px solid ${COLORS.border};
-            border-left: 4px solid ${rarityColor};
+            border-radius: 8px;
+            border: 3px solid ${COLORS.border};
+            border-left: 5px solid ${rarityColor};
             cursor: pointer;
-            transition: background 0.15s, border-color 0.15s, transform 0.15s;
+            transition: background 0.15s;
             min-height: 44px;
-            transform: rotate(${eqCardRotation}deg);
-            box-shadow: 1px 2px 0 #2D2D2D;
-            font-family: 'Patrick Hand', 'Comic Sans MS', cursive;
+            font-family: Arial, Helvetica, sans-serif;
         `;
         card.addEventListener('mouseenter', () => {
-            card.style.background = '#FEF0C7';
-            card.style.transform = `rotate(${eqCardRotation}deg) scale(1.01)`;
+            card.style.background = '#332855';
         });
         card.addEventListener('mouseleave', () => {
             card.style.background = COLORS.bgCard;
-            card.style.transform = `rotate(${eqCardRotation}deg)`;
-            card.style.borderColor = COLORS.border;
-            card.style.borderLeftColor = rarityColor;
         });
 
         // ── Top row: name + rarity stars ──
@@ -1594,7 +1587,7 @@ export class SettingsScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'settings-screen';
-        // Doodle: paper background, handwriting font
+        // Clean cel-shaded style
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -1602,7 +1595,7 @@ export class SettingsScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         // Top bar

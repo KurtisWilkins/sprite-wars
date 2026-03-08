@@ -1,6 +1,9 @@
 /**
  * UnitRenderer — Shared composite sprite renderer for all scenes.
  *
+ * Art style: Clean cel-shaded, uniform black outlines, flat fills,
+ * no gradients, no wobbly/sketchy lines, bold readable silhouettes.
+ *
  * Draws a fully composited unit on a Canvas context:
  *   1. Base sprite via HumanoidSpriteSystem (with equipment layers)
  *   2. Weapon overlay from the equipped weapon's theme sheet
@@ -255,21 +258,13 @@ export class UnitRenderer {
             UnitRenderer._drawStatusIcons(ctx, statusEffects, x, top + size + (showHpBar ? 10 : 2), size, time);
         }
 
-        // ── Team indicator border — doodle wobbly outline ──────────
+        // ── Team indicator border — clean uniform outline ──────────
         const teamColor = team === 0 ? 'rgba(51,153,255,0.6)' : 'rgba(255,51,51,0.6)';
         ctx.save();
         ctx.strokeStyle = teamColor;
         ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        const tw = 1.0;
-        ctx.beginPath();
-        ctx.moveTo(left + (Math.random() - 0.5) * tw, top + bobOffset + (Math.random() - 0.5) * tw);
-        ctx.lineTo(left + size + (Math.random() - 0.5) * tw, top + bobOffset + (Math.random() - 0.5) * tw);
-        ctx.lineTo(left + size + (Math.random() - 0.5) * tw, top + bobOffset + size + (Math.random() - 0.5) * tw);
-        ctx.lineTo(left + (Math.random() - 0.5) * tw, top + bobOffset + size + (Math.random() - 0.5) * tw);
-        ctx.closePath();
-        ctx.stroke();
+        ctx.lineJoin = 'miter';
+        ctx.strokeRect(left, top + bobOffset, size, size);
         ctx.restore();
 
         ctx.restore();
