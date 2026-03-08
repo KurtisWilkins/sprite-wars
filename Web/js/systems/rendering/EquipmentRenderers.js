@@ -1366,19 +1366,14 @@ export function drawRingByConfig(ctx, rx, ry, config) {
         }
     }
 
-    // Sparkle
+    // Doodle art style: sparkle as tiny star doodle
     if (sparkle) {
-        ctx.fillStyle = 'rgba(255,255,255,0.8)';
-        ctx.fillRect(rx + 2, ry - 2, 2, 2);
+        _eqDrawDoodleStar(ctx, rx + 3, ry - 2, 2, '#ffffff');
     }
 
-    // Glow
+    // Doodle art style: glow as scribble circle
     if (gl) {
-        ctx.save();
-        ctx.globalAlpha = 0.2;
-        ctx.fillStyle = gl;
-        ctx.fillRect(rx - 2, ry - 4, 10, 8);
-        ctx.restore();
+        _eqDrawDoodleScribbleCircle(ctx, rx + 3, ry, 4, gl);
     }
 }
 
@@ -1465,15 +1460,13 @@ export function drawAmuletByConfig(ctx, cx, neckY, dir, config) {
     if (gemC) {
         ctx.fillStyle = gemC;
         ctx.fillRect(gemX + (dir === DIR_DOWN ? 2 : 0), gemY, 2, 2);
+        // Doodle art style: tiny star sparkle on gem
+        _eqDrawDoodleStar(ctx, gemX + (dir === DIR_DOWN ? 3 : 1), gemY + 1, 2, gemC);
     }
 
-    // Glow
+    // Doodle art style: glow as scribble circle
     if (gl) {
-        ctx.save();
-        ctx.globalAlpha = 0.15;
-        ctx.fillStyle = gl;
-        ctx.fillRect(gemX - 2, gemY - 2, 10, 8);
-        ctx.restore();
+        _eqDrawDoodleScribbleCircle(ctx, gemX + 3, gemY + 2, 5, gl);
     }
 }
 
@@ -1587,12 +1580,13 @@ export function drawCrystalByConfig(ctx, crx, cry, dir, frame, config) {
     ctx.fillStyle = ic;
     ctx.fillRect(crx + Math.round(1 * s), cry + Math.round(0.5 * s), Math.round(1 * s), Math.round(1 * s));
 
-    // Outer glow
+    // Doodle art style: outer glow as scribble circle + star doodle
     if (gl) {
-        ctx.globalAlpha = adjustedPulse * 0.2;
-        ctx.fillStyle = gl;
-        const glowSize = Math.round(2 * s);
-        ctx.fillRect(crx - glowSize, cry - glowSize, Math.round(3 * s) + glowSize * 2, Math.round(3 * s) + glowSize * 2);
+        ctx.restore(); // restore before calling doodle helpers that manage their own state
+        const glowRadius = Math.round(2.5 * s);
+        _eqDrawDoodleScribbleCircle(ctx, crx + Math.round(1.5 * s), cry + Math.round(1.5 * s), glowRadius, gl);
+        _eqDrawDoodleStar(ctx, crx + Math.round(1.5 * s), cry + Math.round(1.5 * s), Math.round(1.5 * s), gl);
+        return; // already restored
     }
 
     ctx.restore();
