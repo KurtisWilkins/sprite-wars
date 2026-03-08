@@ -1031,13 +1031,15 @@ func _anim_hit(sprite_root: Node2D, speed_mult: float) -> void:
 		var t := _create_tween(sprite_root, body)
 		if t == null:
 			return
-		t.tween_property(body, "position:x", body.position.x + 4.0, settle_dur)\
+		var body_origin: Vector2 = _get_original_position(sprite_root, PART_BODY)
+		t.tween_property(body, "position:x", body_origin.x, settle_dur)\
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	if head:
 		var t := _create_tween(sprite_root, head)
 		if t == null:
 			return
-		t.tween_property(head, "position:x", head.position.x + 3.0, settle_dur)\
+		var head_origin: Vector2 = _get_original_position(sprite_root, PART_HEAD)
+		t.tween_property(head, "position:x", head_origin.x, settle_dur)\
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	if front_arm:
 		var t := _create_tween(sprite_root, front_arm)
@@ -1300,3 +1302,4 @@ func cleanup() -> void:
 				tween.kill()
 	_active_tweens.clear()
 	_idle_loops.clear()
+	_original_positions.clear()
