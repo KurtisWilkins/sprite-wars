@@ -2127,7 +2127,7 @@ export class OverworldScene extends Scene {
         if (this._mapData && this._mapData.layers && this._mapData.layers[0]) {
             const ground = this._mapData.layers[0];
             const collisionMap = this._mapData.collisionMap;
-            ctx.font = '8px monospace';
+            ctx.font = '8px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
@@ -2203,7 +2203,7 @@ export class OverworldScene extends Scene {
         ctx.fillRect(0, barY, screenW, barHeight);
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = '11px monospace';
+        ctx.font = '11px sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
 
@@ -2252,7 +2252,7 @@ export class OverworldScene extends Scene {
         ctx.strokeRect(panelX, panelY, panelW, panelH);
 
         // Panel text
-        ctx.font = '10px monospace';
+        ctx.font = '10px sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
         for (let i = 0; i < panelLines.length; i++) {
@@ -2264,7 +2264,7 @@ export class OverworldScene extends Scene {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(8, 8, 58, 18);
         ctx.fillStyle = '#ff4444';
-        ctx.font = 'bold 11px monospace';
+        ctx.font = 'bold 11px sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
         ctx.fillText('DEBUG', 14, 12);

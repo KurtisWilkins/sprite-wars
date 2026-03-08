@@ -14,16 +14,16 @@ const TITLE_Y = 170;
 const SUBTITLE_Y = 200;
 const VERSION_TEXT = 'v0.1.0 Web';
 
-const BG_COLOR = '#0d0d1e';
-const STAR_COUNT = 80;
-const STAR_SPEED_MIN = 4;
-const STAR_SPEED_MAX = 20;
+const BG_COLOR = '#1a3355';  // Medieval fantasy deep blue, flat cel-shaded
+const STAR_COUNT = 40;       // Reduced for cleaner look
+const STAR_SPEED_MIN = 2;
+const STAR_SPEED_MAX = 8;
 
 const BUTTON_DEFS = [
-    { id: 'continue', label: 'Continue',  color: '#339966', hoverColor: '#3db87a' },
-    { id: 'new_game', label: 'New Game',  color: '#3380e6', hoverColor: '#4a96ff' },
-    { id: 'settings', label: 'Settings',  color: '#5a5a73', hoverColor: '#6e6e8c' },
-    { id: 'credits',  label: 'Credits',   color: '#5a5a73', hoverColor: '#6e6e8c' },
+    { id: 'continue', label: 'Continue',  color: '#22aa55', hoverColor: '#33cc66' },
+    { id: 'new_game', label: 'New Game',  color: '#2266cc', hoverColor: '#3388ee' },
+    { id: 'settings', label: 'Settings',  color: '#555577', hoverColor: '#6666aa' },
+    { id: 'credits',  label: 'Credits',   color: '#555577', hoverColor: '#6666aa' },
 ];
 
 const BUTTON_WIDTH = 240;
@@ -198,11 +198,11 @@ export class MainMenuScene extends Scene {
         renderer.save();
         renderer.setAlpha(this._fadeAlpha);
 
-        // Draw stars
+        // Draw stars — flat cel-shaded dots, no gradients
         for (const star of this._stars) {
-            const flicker = 0.5 + 0.5 * Math.sin(star.twinkle);
+            const flicker = Math.sin(star.twinkle) > 0 ? 1.0 : 0.6;
             const alpha = star.baseAlpha * flicker * this._fadeAlpha;
-            ctx.fillStyle = `rgba(200, 210, 255, ${alpha})`;
+            ctx.fillStyle = `rgba(220, 230, 255, ${alpha})`;
             ctx.beginPath();
             ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
             ctx.fill();
@@ -218,12 +218,11 @@ export class MainMenuScene extends Scene {
 
         // Title text (always drawn, acts as fallback if logo missing)
         renderer.drawText('SPRITE WARS', this.engine.designWidth / 2, TITLE_Y, {
-            color: '#f2d966',
+            color: '#ffcc33',
             font: 'bold 32px sans-serif',
             align: 'center',
             baseline: 'middle',
-            shadow: true,
-            shadowColor: 'rgba(242, 217, 102, 0.3)',
+            shadow: false,
         });
 
         // Subtitle
@@ -246,12 +245,18 @@ export class MainMenuScene extends Scene {
             const isHovered = (this._hoveredButton === btn.id);
             const bgColor = isHovered ? btn.hoverColor : btn.color;
 
-            // Button background with rounded corners
+            // Button background with rounded corners — flat cel-shaded fill
             this._drawRoundedRect(ctx, btn.x, drawY, btn.w, btn.h, 10, bgColor);
 
-            // Pressed darkening
+            // Clean black outline (uniform 2px)
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            this._fillRoundedRect(ctx, btn.x, drawY, btn.w, btn.h, 10);
+            ctx.stroke();
+
+            // Pressed darkening — flat shadow zone (no gradient)
             if (isHovered && this.engine.input.isPressed()) {
-                ctx.fillStyle = 'rgba(0,0,0,0.15)';
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 this._fillRoundedRect(ctx, btn.x, drawY, btn.w, btn.h, 10);
             }
 

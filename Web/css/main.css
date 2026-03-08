@@ -1,11 +1,11 @@
 /* ============================================
    Sprite Wars - Web Game Stylesheet
-   Color Doodle Chibi Art Style Theme
+   Flat Cel-Shaded Chibi Art Style Theme
    Mobile-first responsive design (landscape 960x540 base)
    ============================================ */
 
 /* === Google Font Import === */
-@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
 /* === Reset & Base === */
 *, *::before, *::after {
@@ -15,52 +15,52 @@
 }
 
 :root {
-    /* Doodle color palette */
-    --primary: #FF8A4C;
-    --primary-dark: #E06A2C;
-    --secondary: #6BB5FF;
-    --secondary-dark: #4A95DF;
-    --bg-dark: #FFF8E7;
-    --bg-darker: #FEF3D0;
-    --bg-panel: #FFF8E7;
-    --bg-panel-light: #FFFDF5;
-    --text: #2D2D2D;
-    --text-dim: #8A7A6A;
-    --text-bright: #2D2D2D;
-    --hp-green: #66CC66;
-    --hp-yellow: #E8CC44;
-    --hp-red: #E85454;
-    --mp-blue: #6B99EE;
-    --xp-purple: #BB66EE;
-    --border: #C4A882;
-    --shadow: rgba(92, 64, 51, 0.25);
-    --font-main: 'Patrick Hand', 'Comic Sans MS', cursive, sans-serif;
-    --font-pixel: 'Patrick Hand', 'Comic Sans MS', cursive, monospace;
-    --transition-speed: 0.3s;
+    /* Cel-shaded color palette — vibrant & saturated */
+    --primary: #FF6B2B;
+    --primary-dark: #D94E10;
+    --secondary: #3DA5FF;
+    --secondary-dark: #1A80E0;
+    --bg-dark: #F0F4FA;
+    --bg-darker: #E2E8F2;
+    --bg-panel: #FFFFFF;
+    --bg-panel-light: #F8FAFF;
+    --text: #1A1A2E;
+    --text-dim: #6B7280;
+    --text-bright: #1A1A2E;
+    --hp-green: #22CC55;
+    --hp-yellow: #FFBB00;
+    --hp-red: #FF3344;
+    --mp-blue: #4488FF;
+    --xp-purple: #AA44FF;
+    --border: #C0C8D8;
+    --shadow: rgba(26, 26, 46, 0.15);
+    --font-main: 'Nunito', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --font-ui: 'Nunito', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --transition-speed: 0.2s;
 
-    /* Doodle-specific variables */
-    --doodle-ink: #2D2D2D;
-    --doodle-ink-warm: #5C4033;
-    --doodle-ink-blue: #2B3A67;
-    --doodle-paper: #FFF8E7;
-    --doodle-paper-alt: #FEF3D0;
-    --doodle-border-width: 2.5px;
+    /* Cel-shaded style variables — clean uniform outlines */
+    --outline-color: #1A1A2E;
+    --outline-width: 2px;
+    --panel-bg: #FFFFFF;
+    --panel-bg-alt: #F0F4FA;
+    --panel-shadow: rgba(26, 26, 46, 0.12);
+    --border-radius: 8px;
 
-    /* Element colors */
-    --el-fire: #ff4422;
-    --el-water: #2288ff;
-    --el-nature: #22cc44;
-    --el-ice: #88ddff;
-    --el-air: #aaddee;
-    --el-earth: #aa7744;
-    --el-electric: #ffcc00;
-    --el-dark: #6644aa;
-    --el-light: #ffeeaa;
-    --el-psychic: #ee66cc;
-    --el-spirit: #aaeeff;
-    --el-chaos: #ff2266;
-    --el-metal: #888899;
-    --el-poison: #aa44cc;
+    /* Element colors — vibrant saturated fantasy palette */
+    --el-fire: #FF3311;
+    --el-water: #0077FF;
+    --el-nature: #00CC44;
+    --el-ice: #44CCFF;
+    --el-air: #88CCEE;
+    --el-earth: #CC8833;
+    --el-electric: #FFCC00;
+    --el-dark: #6633BB;
+    --el-light: #FFDD55;
+    --el-psychic: #FF44CC;
+    --el-spirit: #55CCFF;
+    --el-chaos: #FF1155;
+    --el-metal: #7788AA;
+    --el-poison: #BB33DD;
 }
 
 html, body {
@@ -68,12 +68,6 @@ html, body {
     height: 100%;
     overflow: hidden;
     background: var(--bg-darker);
-    background-image: repeating-linear-gradient(
-        transparent,
-        transparent 28px,
-        #E8DCC8 28px,
-        #E8DCC8 29px
-    );
     color: var(--text);
     font-family: var(--font-main);
     -webkit-tap-highlight-color: transparent;
@@ -82,19 +76,11 @@ html, body {
     -webkit-user-select: none;
 }
 
-/* === Doodle Utility Classes === */
-.doodle-border {
-    border: var(--doodle-border-width) solid var(--doodle-ink);
-    border-radius: 12px 8px 14px 6px;
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
-}
-
-.doodle-stars::before {
-    content: '\2605';
-    position: absolute;
-    color: var(--doodle-ink);
-    opacity: 0.3;
-    font-size: 12px;
+/* === Cel-Shaded Utility Classes === */
+.cel-border {
+    border: var(--outline-width) solid var(--outline-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px var(--panel-shadow);
 }
 
 /* === Screens === */
@@ -117,15 +103,7 @@ html, body {
 
 /* === Login Screen === */
 #login-screen {
-    background: linear-gradient(135deg, var(--doodle-paper) 0%, var(--doodle-paper-alt) 50%, #F5E6C8 100%);
-    background-image:
-        linear-gradient(135deg, var(--doodle-paper) 0%, var(--doodle-paper-alt) 50%, #F5E6C8 100%),
-        repeating-linear-gradient(
-            transparent,
-            transparent 28px,
-            #E8DCC8 28px,
-            #E8DCC8 29px
-        );
+    background: var(--bg-darker);
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -141,27 +119,25 @@ html, body {
     width: 90%;
     max-height: 100vh;
     overflow-y: auto;
-    background: var(--doodle-paper);
-    border: var(--doodle-border-width) solid var(--doodle-ink);
-    border-radius: 14px 8px 12px 10px;
-    box-shadow: 3px 3px 0px var(--doodle-ink-warm);
-    transform: rotate(-0.5deg);
+    background: var(--panel-bg);
+    border: var(--outline-width) solid var(--outline-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 16px var(--panel-shadow);
 }
 
 .logo {
     width: 200px;
     height: auto;
     image-rendering: auto;
-    filter: drop-shadow(2px 3px 0px var(--doodle-ink-warm));
+    filter: drop-shadow(0 2px 4px var(--panel-shadow));
 }
 
 .game-title {
     font-size: 2.5rem;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--primary);
-    text-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    text-shadow: none;
     letter-spacing: 2px;
-    transform: rotate(-1deg);
 }
 
 .auth-form {
@@ -173,20 +149,20 @@ html, body {
 
 .auth-form input {
     padding: 14px 18px;
-    border: var(--doodle-border-width) solid var(--doodle-ink);
-    border-radius: 10px 6px 12px 8px;
-    background: var(--doodle-paper);
+    border: var(--outline-width) solid var(--border);
+    border-radius: var(--border-radius);
+    background: var(--panel-bg);
     color: var(--text);
     font-size: 1rem;
     font-family: var(--font-main);
     outline: none;
     transition: border-color var(--transition-speed);
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: none;
 }
 
 .auth-form input:focus {
     border-color: var(--primary);
-    box-shadow: 2px 2px 0px var(--primary-dark);
+    box-shadow: 0 0 0 2px rgba(255, 107, 43, 0.2);
 }
 
 .auth-form input::placeholder {
@@ -197,45 +173,44 @@ html, body {
 /* === Buttons === */
 .btn {
     padding: 14px 24px;
-    border: var(--doodle-border-width) solid var(--doodle-ink);
-    border-radius: 12px 6px 14px 8px;
+    border: var(--outline-width) solid var(--outline-color);
+    border-radius: var(--border-radius);
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     font-family: var(--font-main);
     cursor: pointer;
     transition: all var(--transition-speed);
     text-transform: uppercase;
     letter-spacing: 1px;
-    transform: rotate(-1deg);
-    box-shadow: 2px 3px 0px var(--doodle-ink-warm);
+    box-shadow: 0 2px 0px var(--outline-color);
     position: relative;
 }
 
 .btn:active {
-    transform: rotate(-1deg) scale(0.96);
-    box-shadow: 1px 1px 0px var(--doodle-ink-warm);
+    transform: scale(0.96);
+    box-shadow: 0 1px 0px var(--outline-color);
 }
 
 .btn-primary {
-    background: #FFD4A8;
-    color: var(--doodle-ink);
-    border-color: var(--doodle-ink);
+    background: var(--primary);
+    color: #FFFFFF;
+    border-color: var(--outline-color);
 }
 
 .btn-primary:hover {
-    background: var(--primary);
-    box-shadow: 3px 4px 0px var(--doodle-ink-warm);
+    background: var(--primary-dark);
+    box-shadow: 0 3px 0px var(--outline-color);
 }
 
 .btn-secondary {
-    background: #D4EAFF;
-    color: var(--doodle-ink);
-    border: var(--doodle-border-width) solid var(--doodle-ink);
+    background: var(--secondary);
+    color: #FFFFFF;
+    border: var(--outline-width) solid var(--outline-color);
 }
 
 .btn-secondary:hover {
-    background: var(--secondary);
-    border-color: var(--doodle-ink);
+    background: var(--secondary-dark);
+    border-color: var(--outline-color);
 }
 
 .btn-tertiary {
@@ -262,7 +237,7 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: var(--doodle-paper-alt);
+    background: var(--panel-bg-alt);
 }
 
 #game-canvas {
@@ -291,9 +266,9 @@ html, body {
     justify-content: space-between;
     align-items: center;
     padding: 8px 16px;
-    background: var(--doodle-paper);
-    border-bottom: var(--doodle-border-width) solid var(--doodle-ink);
-    box-shadow: 0 2px 0px var(--doodle-ink-warm);
+    background: var(--panel-bg);
+    border-bottom: var(--outline-width) solid var(--outline-color);
+    box-shadow: 0 2px 8px var(--panel-shadow);
     min-height: 48px;
 }
 
@@ -305,21 +280,21 @@ html, body {
 
 .hud-text {
     font-size: 0.9rem;
-    color: var(--doodle-ink);
+    color: var(--outline-color);
     text-shadow: none;
     font-family: var(--font-main);
 }
 
 .hud-btn {
-    background: var(--doodle-paper);
-    border: var(--doodle-border-width) solid var(--doodle-ink);
-    color: var(--doodle-ink);
+    background: var(--panel-bg);
+    border: var(--outline-width) solid var(--outline-color);
+    color: var(--outline-color);
     padding: 6px 12px;
-    border-radius: 10px 6px 12px 8px;
+    border-radius: var(--border-radius);
     font-size: 1.2rem;
     cursor: pointer;
     font-family: var(--font-main);
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 0 2px 0px var(--outline-color);
 }
 
 /* === HUD Action Buttons (center) === */
@@ -334,9 +309,9 @@ html, body {
     flex-direction: column;
     align-items: center;
     gap: 1px;
-    background: var(--doodle-paper);
-    border: var(--doodle-border-width) solid var(--doodle-ink);
-    color: var(--doodle-ink);
+    background: var(--panel-bg);
+    border: var(--outline-width) solid var(--outline-color);
+    color: var(--outline-color);
     padding: 4px 10px;
     border-radius: 10px 6px 12px 8px;
     cursor: pointer;
@@ -344,7 +319,7 @@ html, body {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     font-family: var(--font-main);
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 2px 2px 0px var(--panel-shadow);
 }
 
 .hud-action-btn:hover, .hud-action-btn:active {
@@ -379,13 +354,13 @@ html, body {
     left: 0;
     right: 0;
     height: 200px;
-    background: var(--doodle-paper);
-    border-top: var(--doodle-border-width) solid var(--doodle-ink);
+    background: var(--panel-bg);
+    border-top: var(--outline-width) solid var(--outline-color);
     display: flex;
     flex-direction: column;
     z-index: 200;
     font-family: var(--font-main);
-    box-shadow: 0 -2px 0px var(--doodle-ink-warm);
+    box-shadow: 0 -2px 0px var(--panel-shadow);
 }
 
 .admin-log-header {
@@ -393,7 +368,7 @@ html, body {
     justify-content: space-between;
     align-items: center;
     padding: 4px 12px;
-    background: var(--doodle-paper-alt);
+    background: var(--panel-bg-alt);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
 }
@@ -413,20 +388,20 @@ html, body {
 }
 
 .admin-log-btn {
-    background: var(--doodle-paper);
-    border: var(--doodle-border-width) solid var(--doodle-ink);
+    background: var(--panel-bg);
+    border: var(--outline-width) solid var(--outline-color);
     color: var(--text-dim);
     padding: 2px 8px;
     border-radius: 8px 5px 10px 6px;
     font-size: 0.7rem;
     cursor: pointer;
     font-family: var(--font-main);
-    box-shadow: 1px 1px 0px var(--doodle-ink-warm);
+    box-shadow: 1px 1px 0px var(--panel-shadow);
 }
 
 .admin-log-btn:hover {
     background: #FFD4A8;
-    color: var(--doodle-ink);
+    color: var(--outline-color);
 }
 
 #admin-log-content {
@@ -448,7 +423,7 @@ html, body {
     margin-right: 8px;
 }
 
-#admin-log-content .log-event { color: var(--doodle-ink-blue); }
+#admin-log-content .log-event { color: var(--secondary-dark); }
 #admin-log-content .log-warn  { color: #CC9900; }
 #admin-log-content .log-error { color: var(--el-fire); }
 #admin-log-content .log-info  { color: #448844; }
@@ -468,17 +443,17 @@ html, body {
 }
 
 .notification {
-    background: var(--doodle-paper);
-    border: var(--doodle-border-width) solid var(--primary);
+    background: var(--panel-bg);
+    border: var(--outline-width) solid var(--primary);
     border-radius: 12px 8px 14px 6px;
     padding: 10px 20px;
-    color: var(--doodle-ink);
+    color: var(--outline-color);
     font-size: 0.85rem;
     font-family: var(--font-main);
     text-align: center;
     animation: notif-in 0.3s ease-out, notif-out 0.3s ease-in 2.7s forwards;
     white-space: nowrap;
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 2px 2px 0px var(--panel-shadow);
 }
 
 @keyframes notif-in {
@@ -497,13 +472,13 @@ html, body {
     bottom: 16px;
     left: 16px;
     right: 16px;
-    background: var(--doodle-paper);
-    border: var(--doodle-border-width) solid var(--doodle-ink);
+    background: var(--panel-bg);
+    border: var(--outline-width) solid var(--outline-color);
     border-radius: 14px 8px 12px 10px;
     padding: 16px;
     min-height: 100px;
     z-index: 50;
-    box-shadow: 3px 3px 0px var(--doodle-ink-warm);
+    box-shadow: 3px 3px 0px var(--panel-shadow);
     transform: rotate(0.3deg);
     background-image: repeating-linear-gradient(
         transparent,
@@ -519,13 +494,13 @@ html, body {
     margin-bottom: 8px;
     font-size: 0.9rem;
     font-family: var(--font-main);
-    text-shadow: 1px 1px 0px var(--doodle-ink-warm);
+    text-shadow: 1px 1px 0px var(--panel-shadow);
 }
 
 #dialogue-text {
     font-size: 1rem;
     line-height: 1.5;
-    color: var(--doodle-ink);
+    color: var(--outline-color);
     font-family: var(--font-main);
 }
 
@@ -538,14 +513,14 @@ html, body {
 
 .dialogue-choice {
     padding: 10px 16px;
-    background: var(--doodle-paper);
-    border: var(--doodle-border-width) solid var(--doodle-ink);
+    background: var(--panel-bg);
+    border: var(--outline-width) solid var(--outline-color);
     border-radius: 10px 6px 12px 8px;
-    color: var(--doodle-ink);
+    color: var(--outline-color);
     cursor: pointer;
     transition: all var(--transition-speed);
     font-family: var(--font-main);
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 2px 2px 0px var(--panel-shadow);
 }
 
 .dialogue-choice:hover, .dialogue-choice.selected {
@@ -588,27 +563,27 @@ html, body {
     gap: 4px;
     padding: 8px;
     justify-content: center;
-    background: var(--doodle-paper);
-    border-bottom: var(--doodle-border-width) solid var(--doodle-ink);
-    box-shadow: 0 2px 0px var(--doodle-ink-warm);
+    background: var(--panel-bg);
+    border-bottom: var(--outline-width) solid var(--outline-color);
+    box-shadow: 0 2px 0px var(--panel-shadow);
 }
 
 .turn-icon {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: var(--doodle-border-width) solid var(--doodle-ink);
-    background: var(--doodle-paper);
+    border: var(--outline-width) solid var(--outline-color);
+    background: var(--panel-bg);
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 2px 2px 0px var(--panel-shadow);
 }
 
 .turn-icon.active {
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--primary), 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 0 0 0 2px var(--primary), 2px 2px 0px var(--panel-shadow);
 }
 
 .turn-icon img {
@@ -627,9 +602,9 @@ html, body {
     gap: 8px;
     padding: 12px;
     justify-content: center;
-    background: var(--doodle-paper);
-    border-top: var(--doodle-border-width) solid var(--doodle-ink);
-    box-shadow: 0 -2px 0px var(--doodle-ink-warm);
+    background: var(--panel-bg);
+    border-top: var(--outline-width) solid var(--outline-color);
+    box-shadow: 0 -2px 0px var(--panel-shadow);
     flex-wrap: wrap;
 }
 
@@ -637,18 +612,18 @@ html, body {
     width: 64px;
     height: 64px;
     border-radius: 12px 8px 14px 6px;
-    border: var(--doodle-border-width) solid var(--doodle-ink);
-    background: var(--doodle-paper);
+    border: var(--outline-width) solid var(--outline-color);
+    background: var(--panel-bg);
     cursor: pointer;
     position: relative;
     overflow: hidden;
     transition: all 0.2s;
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 2px 2px 0px var(--panel-shadow);
 }
 
 .ability-btn:active {
     transform: scale(0.9);
-    box-shadow: 1px 1px 0px var(--doodle-ink-warm);
+    box-shadow: 1px 1px 0px var(--panel-shadow);
 }
 
 .ability-btn.on-cooldown {
@@ -666,13 +641,13 @@ html, body {
     position: absolute;
     bottom: 2px;
     right: 2px;
-    background: var(--doodle-paper);
+    background: var(--panel-bg);
     color: var(--hp-red);
     font-size: 0.7rem;
     font-family: var(--font-main);
     padding: 1px 4px;
     border-radius: 6px 4px 8px 4px;
-    border: 1px solid var(--doodle-ink);
+    border: 1px solid var(--outline-color);
 }
 
 #battle-log {
@@ -682,14 +657,14 @@ html, body {
     width: 200px;
     max-height: 200px;
     overflow-y: auto;
-    background: var(--doodle-paper);
-    border: var(--doodle-border-width) solid var(--doodle-ink);
+    background: var(--panel-bg);
+    border: var(--outline-width) solid var(--outline-color);
     border-radius: 10px 6px 12px 8px;
     padding: 8px;
     font-size: 0.75rem;
     color: var(--text-dim);
     pointer-events: auto;
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 2px 2px 0px var(--panel-shadow);
     font-family: var(--font-main);
 }
 
@@ -707,7 +682,7 @@ html, body {
 
 .unit-name {
     font-size: 0.6rem;
-    color: var(--doodle-ink);
+    color: var(--outline-color);
     text-shadow: none;
     font-family: var(--font-main);
     font-weight: 700;
@@ -716,8 +691,8 @@ html, body {
 .hp-bar {
     width: 100%;
     height: 6px;
-    background: var(--doodle-paper-alt);
-    border: 1px solid var(--doodle-ink);
+    background: var(--panel-bg-alt);
+    border: 1px solid var(--outline-color);
     border-radius: 6px 4px 8px 4px;
     overflow: hidden;
     margin-top: 2px;
@@ -763,11 +738,11 @@ html, body {
     font-size: 1.2rem;
     font-family: var(--font-main);
     text-shadow:
-        -1px -1px 0 var(--doodle-paper),
-        1px -1px 0 var(--doodle-paper),
-        -1px 1px 0 var(--doodle-paper),
-        1px 1px 0 var(--doodle-paper),
-        2px 2px 0 var(--doodle-ink-warm);
+        -1px -1px 0 var(--panel-bg),
+        1px -1px 0 var(--panel-bg),
+        -1px 1px 0 var(--panel-bg),
+        1px 1px 0 var(--panel-bg),
+        2px 2px 0 var(--panel-shadow);
     pointer-events: none;
     animation: float-up 1.2s ease-out forwards;
     z-index: 200;
@@ -792,7 +767,7 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--doodle-paper);
+    background: var(--panel-bg);
     background-image: repeating-linear-gradient(
         transparent,
         transparent 28px,
@@ -809,9 +784,9 @@ html, body {
     align-items: center;
     justify-content: space-between;
     padding: 16px;
-    background: var(--doodle-paper);
-    border-bottom: var(--doodle-border-width) solid var(--doodle-ink);
-    box-shadow: 0 2px 0px var(--doodle-ink-warm);
+    background: var(--panel-bg);
+    border-bottom: var(--outline-width) solid var(--outline-color);
+    box-shadow: 0 2px 0px var(--panel-shadow);
     position: sticky;
     top: 0;
     z-index: 5;
@@ -822,13 +797,13 @@ html, body {
     font-weight: 700;
     color: var(--primary);
     font-family: var(--font-main);
-    text-shadow: 1px 1px 0px var(--doodle-ink-warm);
+    text-shadow: 1px 1px 0px var(--panel-shadow);
 }
 
 .panel-back-btn {
     background: none;
     border: none;
-    color: var(--doodle-ink);
+    color: var(--outline-color);
     font-size: 1.5rem;
     cursor: pointer;
     padding: 4px 8px;
@@ -848,8 +823,8 @@ html, body {
 
 .grid-item {
     aspect-ratio: 1;
-    background: var(--doodle-paper);
-    border: var(--doodle-border-width) solid var(--doodle-ink);
+    background: var(--panel-bg);
+    border: var(--outline-width) solid var(--outline-color);
     border-radius: 12px 8px 14px 6px;
     cursor: pointer;
     display: flex;
@@ -857,7 +832,7 @@ html, body {
     justify-content: center;
     overflow: hidden;
     transition: all 0.2s;
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 2px 2px 0px var(--panel-shadow);
     transform: rotate(0deg);
 }
 
@@ -875,7 +850,7 @@ html, body {
 
 .grid-item.selected {
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--primary), 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 0 0 0 2px var(--primary), 2px 2px 0px var(--panel-shadow);
 }
 
 .grid-item img {
@@ -904,8 +879,8 @@ html, body {
 .stat-bar {
     flex: 1;
     height: 8px;
-    background: var(--doodle-paper-alt);
-    border: 1px solid var(--doodle-ink);
+    background: var(--panel-bg-alt);
+    border: 1px solid var(--outline-color);
     border-radius: 6px 4px 8px 4px;
     overflow: hidden;
 }
@@ -950,20 +925,20 @@ html, body {
     image-rendering: auto;
 }
 
-.element-fire { background: rgba(255,68,34,0.2); color: var(--el-fire); border: var(--doodle-border-width) solid var(--el-fire); box-shadow: 2px 2px 0px rgba(255,68,34,0.3); }
-.element-water { background: rgba(34,136,255,0.2); color: var(--el-water); border: var(--doodle-border-width) solid var(--el-water); box-shadow: 2px 2px 0px rgba(34,136,255,0.3); }
-.element-nature { background: rgba(34,204,68,0.2); color: var(--el-nature); border: var(--doodle-border-width) solid var(--el-nature); box-shadow: 2px 2px 0px rgba(34,204,68,0.3); }
-.element-ice { background: rgba(136,221,255,0.2); color: var(--el-ice); border: var(--doodle-border-width) solid var(--el-ice); box-shadow: 2px 2px 0px rgba(136,221,255,0.3); }
-.element-air { background: rgba(170,221,238,0.2); color: var(--el-air); border: var(--doodle-border-width) solid var(--el-air); box-shadow: 2px 2px 0px rgba(170,221,238,0.3); }
-.element-earth { background: rgba(170,119,68,0.2); color: var(--el-earth); border: var(--doodle-border-width) solid var(--el-earth); box-shadow: 2px 2px 0px rgba(170,119,68,0.3); }
-.element-electric { background: rgba(255,204,0,0.2); color: var(--el-electric); border: var(--doodle-border-width) solid var(--el-electric); box-shadow: 2px 2px 0px rgba(255,204,0,0.3); }
-.element-dark { background: rgba(102,68,170,0.2); color: var(--el-dark); border: var(--doodle-border-width) solid var(--el-dark); box-shadow: 2px 2px 0px rgba(102,68,170,0.3); }
-.element-light { background: rgba(255,238,170,0.2); color: var(--el-light); border: var(--doodle-border-width) solid var(--el-light); box-shadow: 2px 2px 0px rgba(255,238,170,0.3); }
-.element-psychic { background: rgba(238,102,204,0.2); color: var(--el-psychic); border: var(--doodle-border-width) solid var(--el-psychic); box-shadow: 2px 2px 0px rgba(238,102,204,0.3); }
-.element-spirit { background: rgba(170,238,255,0.2); color: var(--el-spirit); border: var(--doodle-border-width) solid var(--el-spirit); box-shadow: 2px 2px 0px rgba(170,238,255,0.3); }
-.element-chaos { background: rgba(255,34,102,0.2); color: var(--el-chaos); border: var(--doodle-border-width) solid var(--el-chaos); box-shadow: 2px 2px 0px rgba(255,34,102,0.3); }
-.element-metal { background: rgba(136,136,153,0.2); color: var(--el-metal); border: var(--doodle-border-width) solid var(--el-metal); box-shadow: 2px 2px 0px rgba(136,136,153,0.3); }
-.element-poison { background: rgba(170,68,204,0.2); color: var(--el-poison); border: var(--doodle-border-width) solid var(--el-poison); box-shadow: 2px 2px 0px rgba(170,68,204,0.3); }
+.element-fire { background: rgba(255,68,34,0.2); color: var(--el-fire); border: var(--outline-width) solid var(--el-fire); box-shadow: 2px 2px 0px rgba(255,68,34,0.3); }
+.element-water { background: rgba(34,136,255,0.2); color: var(--el-water); border: var(--outline-width) solid var(--el-water); box-shadow: 2px 2px 0px rgba(34,136,255,0.3); }
+.element-nature { background: rgba(34,204,68,0.2); color: var(--el-nature); border: var(--outline-width) solid var(--el-nature); box-shadow: 2px 2px 0px rgba(34,204,68,0.3); }
+.element-ice { background: rgba(136,221,255,0.2); color: var(--el-ice); border: var(--outline-width) solid var(--el-ice); box-shadow: 2px 2px 0px rgba(136,221,255,0.3); }
+.element-air { background: rgba(170,221,238,0.2); color: var(--el-air); border: var(--outline-width) solid var(--el-air); box-shadow: 2px 2px 0px rgba(170,221,238,0.3); }
+.element-earth { background: rgba(170,119,68,0.2); color: var(--el-earth); border: var(--outline-width) solid var(--el-earth); box-shadow: 2px 2px 0px rgba(170,119,68,0.3); }
+.element-electric { background: rgba(255,204,0,0.2); color: var(--el-electric); border: var(--outline-width) solid var(--el-electric); box-shadow: 2px 2px 0px rgba(255,204,0,0.3); }
+.element-dark { background: rgba(102,68,170,0.2); color: var(--el-dark); border: var(--outline-width) solid var(--el-dark); box-shadow: 2px 2px 0px rgba(102,68,170,0.3); }
+.element-light { background: rgba(255,238,170,0.2); color: var(--el-light); border: var(--outline-width) solid var(--el-light); box-shadow: 2px 2px 0px rgba(255,238,170,0.3); }
+.element-psychic { background: rgba(238,102,204,0.2); color: var(--el-psychic); border: var(--outline-width) solid var(--el-psychic); box-shadow: 2px 2px 0px rgba(238,102,204,0.3); }
+.element-spirit { background: rgba(170,238,255,0.2); color: var(--el-spirit); border: var(--outline-width) solid var(--el-spirit); box-shadow: 2px 2px 0px rgba(170,238,255,0.3); }
+.element-chaos { background: rgba(255,34,102,0.2); color: var(--el-chaos); border: var(--outline-width) solid var(--el-chaos); box-shadow: 2px 2px 0px rgba(255,34,102,0.3); }
+.element-metal { background: rgba(136,136,153,0.2); color: var(--el-metal); border: var(--outline-width) solid var(--el-metal); box-shadow: 2px 2px 0px rgba(136,136,153,0.3); }
+.element-poison { background: rgba(170,68,204,0.2); color: var(--el-poison); border: var(--outline-width) solid var(--el-poison); box-shadow: 2px 2px 0px rgba(170,68,204,0.3); }
 
 /* === Transition Overlay === */
 #transition-overlay {
@@ -972,7 +947,7 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--doodle-paper);
+    background: var(--panel-bg);
     z-index: 500;
     opacity: 0;
     transition: opacity 0.4s;
@@ -996,7 +971,7 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--doodle-paper);
+    background: var(--panel-bg);
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -1027,8 +1002,8 @@ html, body {
 #loading-bar-container {
     width: 200px;
     height: 6px;
-    background: var(--doodle-paper-alt);
-    border: 1px solid var(--doodle-ink);
+    background: var(--panel-bg-alt);
+    border: 1px solid var(--outline-color);
     border-radius: 6px 4px 8px 4px;
     overflow: hidden;
 }
@@ -1047,12 +1022,12 @@ html, body {
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--doodle-paper-alt);
+    background: var(--panel-bg-alt);
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--border);
-    border: 1px solid var(--doodle-ink);
+    border: 1px solid var(--outline-color);
     border-radius: 6px 4px 8px 4px;
 }
 
@@ -1133,9 +1108,9 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--doodle-paper);
-    border: var(--doodle-border-width) solid var(--doodle-ink);
-    color: var(--doodle-ink);
+    background: var(--panel-bg);
+    border: var(--outline-width) solid var(--outline-color);
+    color: var(--outline-color);
     font-size: 14px;
     border-radius: 10px 6px 12px 8px;
     cursor: pointer;
@@ -1145,12 +1120,12 @@ html, body {
     -webkit-user-select: none;
     pointer-events: auto;
     font-family: var(--font-main);
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 2px 2px 0px var(--panel-shadow);
 }
 
 .dpad-btn:active {
     background: #FFD4A8;
-    box-shadow: 1px 1px 0px var(--doodle-ink-warm);
+    box-shadow: 1px 1px 0px var(--panel-shadow);
 }
 
 .dpad-up {
@@ -1168,7 +1143,7 @@ html, body {
 .dpad-center {
     grid-column: 2;
     grid-row: 2;
-    background: var(--doodle-paper-alt);
+    background: var(--panel-bg-alt);
     border-color: var(--border);
     pointer-events: none;
     box-shadow: none;
@@ -1196,8 +1171,8 @@ html, body {
     height: 56px;
     border-radius: 50%;
     background: #FFD4A8;
-    border: var(--doodle-border-width) solid var(--doodle-ink);
-    color: var(--doodle-ink);
+    border: var(--outline-width) solid var(--outline-color);
+    color: var(--outline-color);
     font-size: 20px;
     font-weight: 700;
     font-family: var(--font-main);
@@ -1209,12 +1184,12 @@ html, body {
     touch-action: manipulation;
     user-select: none;
     -webkit-user-select: none;
-    box-shadow: 2px 2px 0px var(--doodle-ink-warm);
+    box-shadow: 2px 2px 0px var(--panel-shadow);
 }
 
 .mobile-action-btn:active {
     background: var(--primary);
-    box-shadow: 1px 1px 0px var(--doodle-ink-warm);
+    box-shadow: 1px 1px 0px var(--panel-shadow);
 }
 
 /* Ensure menu button has proper touch styles */

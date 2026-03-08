@@ -36,14 +36,14 @@ const MAX_DEPLOY_UNITS = 7;
 const PLAYER_DEPLOY_COLS = 3; // columns 0-2 on the player side (rows 0-4)
 
 // ── Colors ──────────────────────────────────────────────────────────────────
-const COLOR_BG = '#0e0e20';
+const COLOR_BG = '#1a2a3a';  // Medieval fantasy flat dark blue
 const COLOR_GRID_EMPTY = 'rgba(60, 80, 120, 0.15)';
 const COLOR_GRID_DEPLOY = 'rgba(50, 150, 255, 0.20)';
 const COLOR_GRID_ENEMY = 'rgba(200, 50, 50, 0.12)';
 const COLOR_GRID_PLACED = 'rgba(50, 200, 100, 0.35)';
 const COLOR_GRID_HOVER = 'rgba(255, 255, 100, 0.30)';
 const COLOR_GRID_INVALID = 'rgba(255, 80, 80, 0.20)';
-const COLOR_GRID_LINES = 'rgba(255,255,255,0.08)';
+const COLOR_GRID_LINES = '#222222';  // Clean black outlines
 
 const ELEMENT_COLORS = {
     Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
@@ -265,9 +265,9 @@ export class DeploymentScene extends Scene {
                     ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
                 }
 
-                // Cell border
+                // Cell border — clean black outlines, uniform 2px
                 ctx.strokeStyle = COLOR_GRID_LINES;
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 2;
                 ctx.strokeRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
 
                 // Deployment zone label (player deployable cells only)
@@ -285,8 +285,8 @@ export class DeploymentScene extends Scene {
         const dividerY = gy + BattleGrid.GRID_HEIGHT_PER_SIDE * cellStep - GRID_GAP / 2;
         const dividerX1 = gx;
         const dividerX2 = gx + BattleGrid.GRID_WIDTH * cellStep - GRID_GAP;
-        ctx.strokeStyle = 'rgba(255, 200, 50, 0.6)';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#222222';
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(dividerX1, dividerY);
         ctx.lineTo(dividerX2, dividerY);
@@ -366,7 +366,7 @@ export class DeploymentScene extends Scene {
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
         ctx.fillRect(cellX, cellY, 14, 10);
         ctx.fillStyle = '#fff';
-        ctx.font = '7px monospace';
+        ctx.font = '7px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(`${level}`, cellX + 7, cellY + 8);
         ctx.textAlign = 'left';
@@ -408,7 +408,7 @@ export class DeploymentScene extends Scene {
         ctx.fillStyle = 'rgba(100,20,20,0.7)';
         ctx.fillRect(cellX, cellY, 14, 10);
         ctx.fillStyle = '#ff8888';
-        ctx.font = '7px monospace';
+        ctx.font = '7px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(`${level}`, cellX + 7, cellY + 8);
         ctx.textAlign = 'left';

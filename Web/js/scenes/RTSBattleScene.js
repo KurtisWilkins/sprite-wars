@@ -416,7 +416,7 @@ export class RTSBattleScene extends Scene {
         const seconds = elapsed % 60;
         const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-        ctx.font = 'bold 14px monospace';
+        ctx.font = 'bold 14px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(460, 4, 40, 18);
@@ -427,7 +427,7 @@ export class RTSBattleScene extends Scene {
         const pAlive = mgr.field ? mgr.field.getLivingUnits(0).length : 0;
         const eAlive = mgr.field ? mgr.field.getLivingUnits(1).length : 0;
 
-        ctx.font = 'bold 12px monospace';
+        ctx.font = 'bold 12px sans-serif';
         ctx.textAlign = 'left';
         ctx.fillStyle = '#4488ff';
         ctx.fillText(`Player: ${pAlive}`, 10, 16);
@@ -440,7 +440,7 @@ export class RTSBattleScene extends Scene {
         if (mgr.speedMultiplier > 1) {
             ctx.textAlign = 'center';
             ctx.fillStyle = '#ffcc00';
-            ctx.font = 'bold 16px monospace';
+            ctx.font = 'bold 16px sans-serif';
             ctx.fillText(`${mgr.speedMultiplier}x`, 480, 36);
         }
 
@@ -450,7 +450,7 @@ export class RTSBattleScene extends Scene {
             ctx.fillStyle = 'rgba(0,0,0,0.5)';
             ctx.fillRect(380, 250, 200, 40);
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 20px monospace';
+            ctx.font = 'bold 20px sans-serif';
             ctx.fillText('⏸ PAUSED', 480, 276);
         }
 
@@ -467,12 +467,12 @@ export class RTSBattleScene extends Scene {
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(0, 220, 960, 100);
 
-        ctx.font = 'bold 32px monospace';
+        ctx.font = 'bold 32px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = this._isBoss ? '#ff4444' : '#ffffff';
         ctx.fillText(this._isBoss ? 'BOSS BATTLE!' : 'BATTLE START!', 480, 270);
 
-        ctx.font = '14px monospace';
+        ctx.font = '14px sans-serif';
         ctx.fillStyle = '#aaa';
         ctx.fillText('Units will fight automatically', 480, 296);
 
@@ -511,7 +511,7 @@ export class RTSBattleScene extends Scene {
         this._speedBtnEl.style.cssText = `
             position: absolute; bottom: 12px; right: 80px;
             padding: 6px 14px; background: rgba(0,0,0,0.7); color: #fff;
-            border: 1px solid #555; border-radius: 4px; font: bold 12px monospace;
+            border: 1px solid #555; border-radius: 4px; font: bold 12px sans-serif;
             cursor: pointer; pointer-events: auto;
         `;
         this._speedBtnEl.addEventListener('click', () => {
@@ -525,7 +525,7 @@ export class RTSBattleScene extends Scene {
         this._pauseBtnEl.style.cssText = `
             position: absolute; bottom: 12px; right: 12px;
             padding: 6px 14px; background: rgba(0,0,0,0.7); color: #fff;
-            border: 1px solid #555; border-radius: 4px; font: bold 12px monospace;
+            border: 1px solid #555; border-radius: 4px; font: bold 12px sans-serif;
             cursor: pointer; pointer-events: auto;
         `;
         this._pauseBtnEl.addEventListener('click', () => {
@@ -538,7 +538,7 @@ export class RTSBattleScene extends Scene {
         this._logPanelEl.style.cssText = `
             position: absolute; bottom: 12px; left: 12px; width: 280px; max-height: 100px;
             overflow-y: auto; background: rgba(0,0,0,0.6); color: #ccc;
-            font: 10px monospace; padding: 4px 6px; border-radius: 4px;
+            font: 10px sans-serif; padding: 4px 6px; border-radius: 4px;
             pointer-events: auto;
         `;
 
@@ -590,30 +590,30 @@ export class RTSBattleScene extends Scene {
                 `;
             }
             lootHtml = `
-                <div style="font: bold 11px monospace; color: #ffcc44; margin-bottom: 4px;">Equipment Found</div>
+                <div style="font: bold 11px sans-serif; color: #ffcc44; margin-bottom: 4px;">Equipment Found</div>
                 <div style="margin-bottom: 12px;">${itemsHtml}</div>
             `;
         }
 
         this._endScreenEl.innerHTML = `
-            <div style="font: bold 24px monospace; color: ${isWin ? '#44ff88' : '#ff4444'}; margin-bottom: 12px;">
+            <div style="font: bold 24px sans-serif; color: ${isWin ? '#44ff88' : '#ff4444'}; margin-bottom: 12px;">
                 ${isWin ? 'VICTORY!' : this._battleResult === 'draw' ? 'DRAW' : 'DEFEAT'}
             </div>
-            <div style="font: 12px monospace; color: #aaa; margin-bottom: 16px;">
+            <div style="font: 12px sans-serif; color: #aaa; margin-bottom: 16px;">
                 Time: ${Math.floor(this._battleManager.elapsedTime)}s
             </div>
             <div style="display: flex; gap: 24px; justify-content: center; margin-bottom: 16px;">
                 <div>
-                    <div style="color: #4488ff; font: bold 11px monospace;">PLAYER</div>
-                    <div style="font: 10px monospace; color: #ccc;">
+                    <div style="color: #4488ff; font: bold 11px sans-serif;">PLAYER</div>
+                    <div style="font: 10px sans-serif; color: #ccc;">
                         DMG: ${stats.totalDamageDealt.player}<br>
                         KOs: ${stats.unitsDefeated.player}<br>
                         Abilities: ${stats.abilitiesUsed.player}
                     </div>
                 </div>
                 <div>
-                    <div style="color: #ff4444; font: bold 11px monospace;">ENEMY</div>
-                    <div style="font: 10px monospace; color: #ccc;">
+                    <div style="color: #ff4444; font: bold 11px sans-serif;">ENEMY</div>
+                    <div style="font: 10px sans-serif; color: #ccc;">
                         DMG: ${stats.totalDamageDealt.enemy}<br>
                         KOs: ${stats.unitsDefeated.enemy}<br>
                         Abilities: ${stats.abilitiesUsed.enemy}

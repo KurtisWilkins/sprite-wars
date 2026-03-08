@@ -15,21 +15,21 @@ import { EQUIPMENT, SLOT_TYPES, RARITY_TIERS } from '../../data/EquipmentData.js
 
 // -- Shared Style Constants ------------------------------------------------------
 
-// Doodle chibi art style: paper/cream backgrounds, ink borders, pastel accents
+// Clean cel-shaded art style: vibrant saturated colors, flat fills, black outlines
 const COLORS = {
-    bgDark:     '#F5F0E0',
-    bgPanel:    '#FEF9E7',
-    bgCard:     '#FFF8EC',
-    bgCardDim:  'rgba(254,243,208,0.6)',
-    border:     '#2D2D2D',
+    bgDark:     '#1A1230',
+    bgPanel:    '#221A3D',
+    bgCard:     '#2A2050',
+    bgCardDim:  'rgba(42,32,80,0.6)',
+    border:     '#1A1A1A',
     borderHi:   '#4A90D9',
-    textPrimary:'#2D2D2D',
-    textSecondary:'#5A5A7A',
-    textDim:    'rgba(90,90,100,0.6)',
+    textPrimary:'#FFFFFF',
+    textSecondary:'#B0B8CC',
+    textDim:    'rgba(140,148,170,0.6)',
     accent:     '#4A90D9',
-    success:    '#5CB85C',
-    danger:     '#D9534F',
-    gold:       '#E8A838',
+    success:    '#44CC66',
+    danger:     '#DD4444',
+    gold:       '#FFAA33',
 };
 
 const ELEMENT_COLORS = {
@@ -73,40 +73,36 @@ const STAT_COLORS = {
 function createButton(text, bgColor, opts = {}) {
     const btn = document.createElement('button');
     btn.textContent = text;
-    // Doodle: uneven border-radius, ink border, pastel fill, subtle rotation
-    const btnRotation = (Math.random() - 0.5) * 2.5;
+    // Clean cel-shaded button: uniform black outline, flat color fill, rounded corners
     Object.assign(btn.style, {
         padding: opts.padding || '10px 20px',
         background: bgColor,
-        color: COLORS.textPrimary,
-        border: '2px solid #2D2D2D',
-        borderRadius: '14px 6px 12px 8px',
+        color: '#FFFFFF',
+        border: '3px solid #1A1A1A',
+        borderRadius: '8px',
         fontSize: opts.fontSize || '16px',
         fontWeight: 'bold',
-        fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+        fontFamily: "Arial, Helvetica, sans-serif",
         cursor: 'pointer',
         minWidth: opts.minWidth || '0',
         textAlign: 'center',
         transition: 'background 0.15s, transform 0.15s',
         userSelect: 'none',
         WebkitTapHighlightColor: 'transparent',
-        transform: `rotate(${btnRotation}deg)`,
-        boxShadow: '1px 2px 0 #2D2D2D',
     });
 
-    // Hover and active states — doodle
-    btn.addEventListener('mouseenter', () => { btn.style.filter = 'brightness(1.08)'; btn.style.transform = `rotate(${btnRotation}deg) scale(1.03)`; });
-    btn.addEventListener('mouseleave', () => { btn.style.filter = ''; btn.style.transform = `rotate(${btnRotation}deg)`; });
-    btn.addEventListener('mousedown', () => { btn.style.transform = `rotate(${btnRotation}deg) scale(0.97)`; });
-    btn.addEventListener('mouseup', () => { btn.style.transform = `rotate(${btnRotation}deg)`; });
-    btn.addEventListener('mouseleave', () => { btn.style.transform = `rotate(${btnRotation}deg)`; });
+    // Hover and active states — clean
+    btn.addEventListener('mouseenter', () => { btn.style.filter = 'brightness(1.15)'; });
+    btn.addEventListener('mouseleave', () => { btn.style.filter = ''; btn.style.transform = ''; });
+    btn.addEventListener('mousedown', () => { btn.style.transform = 'scale(0.97)'; });
+    btn.addEventListener('mouseup', () => { btn.style.transform = ''; });
 
     if (opts.disabled) {
         btn.disabled = true;
-        btn.style.background = '#E8E0D0';
+        btn.style.background = '#333344';
         btn.style.color = 'rgba(120,120,120,0.5)';
         btn.style.cursor = 'default';
-        btn.style.borderColor = '#AAA';
+        btn.style.borderColor = '#555';
     }
 
     return btn;
@@ -117,22 +113,22 @@ function createButton(text, bgColor, opts = {}) {
 function createTopBar(title, onBack) {
     const bar = document.createElement('div');
     bar.className = 'screen-top-bar';
-    // Doodle: paper background, ink border, handwriting font
+    // Clean cel-shaded top bar: flat color, black outline border
     Object.assign(bar.style, {
         display: 'flex',
         alignItems: 'center',
         gap: '16px',
         padding: '12px 16px',
-        background: '#FEF3D0',
-        borderBottom: '2.5px solid #2D2D2D',
+        background: '#221A3D',
+        borderBottom: '3px solid #1A1A1A',
         minHeight: '60px',
         boxSizing: 'border-box',
         flexShrink: '0',
-        fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+        fontFamily: "Arial, Helvetica, sans-serif",
     });
 
     if (onBack) {
-        const backBtn = createButton('<  Back', 'rgba(35,35,55,1)', { fontSize: '14px', padding: '8px 14px' });
+        const backBtn = createButton('<  Back', '#3D3060', { fontSize: '14px', padding: '8px 14px' });
         backBtn.addEventListener('click', onBack);
         bar.appendChild(backBtn);
     }
@@ -177,7 +173,7 @@ export class MainMenuScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'main-menu-screen';
-        // Doodle: paper/cream background, handwriting font
+        // Clean cel-shaded style: vibrant saturated colors, flat fills
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -187,10 +183,10 @@ export class MainMenuScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
-        // Title section — doodle style
+        // Title section — clean cel-shaded style
         const titleSection = document.createElement('div');
         titleSection.style.cssText = 'text-align:center;margin-bottom:40px;';
 
@@ -199,12 +195,11 @@ export class MainMenuScreen {
         Object.assign(title.style, {
             fontSize: '46px',
             fontWeight: 'bold',
-            color: '#2D2D2D',
+            color: '#FFCC33',
             marginBottom: '8px',
             letterSpacing: '3px',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-            textShadow: '2px 2px 0 #D6CEB0',
-            transform: 'rotate(-1.5deg)',
+            fontFamily: "Arial, Helvetica, sans-serif",
+            textShadow: '3px 3px 0 #1A1A1A',
         });
         titleSection.appendChild(title);
 
@@ -212,9 +207,8 @@ export class MainMenuScreen {
         subtitle.textContent = 'Legends of the Shattered Grid';
         Object.assign(subtitle.style, {
             fontSize: '17px',
-            color: '#5A5A7A',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-            transform: 'rotate(0.5deg)',
+            color: '#B0B8CC',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
         titleSection.appendChild(subtitle);
 
@@ -355,7 +349,7 @@ export class TeamScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'team-screen';
-        // Doodle: paper background, handwriting font
+        // Clean cel-shaded style
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -363,7 +357,7 @@ export class TeamScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         // Top bar
@@ -399,8 +393,7 @@ export class TeamScreen {
     _createTeamSlot(index, spriteData) {
         const isEmpty = !spriteData;
 
-        // Doodle: uneven border, paper fill, slight rotation for "scattered" feel
-        const slotRotation = (Math.random() - 0.5) * 1.5;
+        // Clean cel-shaded slot with uniform outline
         const slot = document.createElement('div');
         slot.className = 'team-slot';
         Object.assign(slot.style, {
@@ -409,14 +402,12 @@ export class TeamScreen {
             gap: '12px',
             padding: '10px 12px',
             background: isEmpty ? COLORS.bgCardDim : COLORS.bgCard,
-            borderRadius: '14px 6px 10px 8px',
-            border: `2px solid ${COLORS.border}`,
+            borderRadius: '8px',
+            border: `3px solid ${COLORS.border}`,
             cursor: 'pointer',
             minHeight: '80px',
-            transition: 'border-color 0.15s, transform 0.15s',
-            transform: `rotate(${slotRotation}deg)`,
-            boxShadow: '1px 2px 0 #2D2D2D',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            transition: 'border-color 0.15s',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         if (isEmpty) {
@@ -464,21 +455,21 @@ export class TeamScreen {
             const displayName = spriteData.nickname || `Sprite #${spriteData.raceId || '?'}`;
             const nameEl = document.createElement('div');
             nameEl.textContent = displayName;
-            nameEl.style.cssText = "color:#2D2D2D;font-size:16px;font-weight:bold;font-family:'Patrick Hand','Comic Sans MS',cursive;";
+            nameEl.style.cssText = "color:#FFFFFF;font-size:16px;font-weight:bold;font-family:Arial,Helvetica,sans-serif;";
             info.appendChild(nameEl);
 
             // Level
             const levelEl = document.createElement('div');
             levelEl.textContent = `Lv. ${spriteData.level || 1}`;
-            levelEl.style.cssText = "color:#5A5A7A;font-size:14px;font-family:'Patrick Hand','Comic Sans MS',cursive;";
+            levelEl.style.cssText = "color:#B0B8CC;font-size:14px;font-family:Arial,Helvetica,sans-serif;";
             info.appendChild(levelEl);
 
-            // HP bar — doodle: paper bg, ink border, hatching
+            // HP bar — clean flat rectangle with black outline
             const hpBar = document.createElement('div');
-            hpBar.style.cssText = 'width:100%;height:8px;background:#FEF3D0;border-radius:6px 3px 5px 4px;overflow:hidden;border:1.5px solid #2D2D2D;position:relative;';
+            hpBar.style.cssText = 'width:100%;height:8px;background:#1A1A2E;border-radius:4px;overflow:hidden;border:2px solid #1A1A1A;position:relative;';
             const hpFill = document.createElement('div');
             const hpPct = spriteData.maxHp > 0 ? (spriteData.currentHp / spriteData.maxHp) * 100 : 100;
-            hpFill.style.cssText = `width:${hpPct}%;height:100%;background:#33cc55;border-radius:5px 2px 4px 3px;position:relative;z-index:1;`;
+            hpFill.style.cssText = `width:${hpPct}%;height:100%;background:#33CC55;border-radius:2px;position:relative;z-index:1;`;
             hpBar.appendChild(hpFill);
             info.appendChild(hpBar);
 

@@ -1,6 +1,6 @@
 /**
  * EquipmentVisualConfig.js — Unique visual configurations for all 144 equipment items.
- * Maps equipment_id to pixel-art rendering parameters for the HumanoidSpriteSystem.
+ * Maps equipment_id to cel-shaded rendering parameters for the HumanoidSpriteSystem.
  *
  * Equipment ID ranges:
  *   Base (54):     1001-1006 weapon, 1011-1016 helmet, 1021-1026 chest,

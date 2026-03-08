@@ -1,5 +1,9 @@
 /**
- * RTSBattleField.js — Continuous 2D battlefield for Hero's Hour-style combat.
+ * RTSBattleField.js — Continuous 2D battlefield for RTS combat.
+ *
+ * Art Style Support: Flat cel-shaded 2D mobile game style.
+ * The battlefield provides world-space coordinates and spatial queries.
+ * Rendering (flat cel-shaded terrain, clean outlines) is handled by RTSBattleRenderer.
  *
  * Unlike BattleGrid (7x9 discrete cells), RTSBattleField operates on continuous
  * pixel coordinates. Units move freely within the battlefield bounds.

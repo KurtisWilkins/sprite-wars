@@ -110,7 +110,7 @@ export class BattleUI {
 
     /** @private */
     _buildComponents() {
-        // Turn Order Bar (top) — doodle chibi style with wobbly hand-drawn border
+        // Turn Order Bar (top) — clean cel-shaded style with uniform black outline
         this._turnOrderBar = document.createElement('div');
         this._turnOrderBar.className = 'battle-turn-order';
         Object.assign(this._turnOrderBar.style, {
@@ -123,24 +123,22 @@ export class BattleUI {
             padding: '4px 12px',
             boxSizing: 'border-box',
             pointerEvents: 'none',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
-        // Doodle: wobbly SVG border behind turn order
+        // Clean cel-shaded background panel
         const turnOrderBg = document.createElement('div');
         turnOrderBg.style.cssText = `
-            position:absolute;top:-2px;left:5%;right:5%;bottom:-2px;
-            background:#FEF9E7;
-            border:2.5px solid #2D2D2D;
-            border-radius:18px 6px 14px 8px;
-            transform:rotate(-0.4deg);
+            position:absolute;top:0;left:5%;right:5%;bottom:0;
+            background:#2A1F4E;
+            border:3px solid #1A1A1A;
+            border-radius:8px;
             z-index:-1;
-            box-shadow:1px 2px 0 #2D2D2D;
         `;
         this._turnOrderBar.style.position = 'absolute';
         this._turnOrderBar.appendChild(turnOrderBg);
         this._container.appendChild(this._turnOrderBar);
 
-        // Event Feed (top-left) — doodle paper-like background
+        // Event Feed (top-left) — clean flat panel
         this._eventFeed = document.createElement('div');
         this._eventFeed.className = 'battle-event-feed';
         Object.assign(this._eventFeed.style, {
@@ -154,16 +152,11 @@ export class BattleUI {
             gap: '2px',
             pointerEvents: 'none',
             fontSize: '13px',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-            background: '#FEF9E7',
-            border: '2px solid #2D2D2D',
-            borderRadius: '6px 14px 8px 12px',
+            fontFamily: "Arial, Helvetica, sans-serif",
+            background: '#1E1533',
+            border: '3px solid #1A1A1A',
+            borderRadius: '8px',
             padding: '8px 10px',
-            boxShadow: '2px 3px 0 #2D2D2D',
-            transform: 'rotate(-0.3deg)',
-            // Ruled-paper lines
-            backgroundImage: 'repeating-linear-gradient(transparent, transparent 19px, #D6CEB0 19px, #D6CEB0 20px)',
-            backgroundSize: '100% 20px',
         });
         this._container.appendChild(this._eventFeed);
 
@@ -394,26 +387,23 @@ export class BattleUI {
 
     /** @private */
     _addTurnOrderPortrait(unitId, textureUrl, team) {
-        // Doodle: wobbly border, paper background, handwriting font
-        const portraitRotation = (Math.random() - 0.5) * 4;
+        // Clean cel-shaded portrait with uniform outline
         const el = document.createElement('div');
         el.className = 'turn-order-portrait';
         Object.assign(el.style, {
             width: '48px',
             height: '48px',
-            borderRadius: '14px 6px 10px 8px',
-            border: `2.5px solid #2D2D2D`,
-            background: team === 0 ? '#E0ECFF' : '#FFE0E0',
+            borderRadius: '6px',
+            border: `3px solid #1A1A1A`,
+            background: team === 0 ? '#4A90D9' : '#D94A4A',
             overflow: 'hidden',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '12px',
-            color: '#2D2D2D',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            color: '#FFFFFF',
+            fontFamily: "Arial, Helvetica, sans-serif",
             transition: 'transform 0.2s, box-shadow 0.2s',
-            transform: `rotate(${portraitRotation}deg)`,
-            boxShadow: '1px 1px 0 #2D2D2D',
         });
 
         if (textureUrl) {
@@ -464,23 +454,20 @@ export class BattleUI {
         for (const ability of abilities) {
             const btn = document.createElement('button');
             btn.className = 'ability-btn';
-            // Doodle: uneven border-radius, slight rotation, pastel fill, ink border
-            const rotation = (Math.random() - 0.5) * 3;
+            // Clean cel-shaded button with uniform outline
             Object.assign(btn.style, {
                 padding: '10px 14px',
-                background: '#E8F0FE',
-                color: '#2D2D2D',
-                border: '2px solid #2D2D2D',
-                borderRadius: '14px 6px 12px 8px',
+                background: '#3366AA',
+                color: '#FFFFFF',
+                border: '3px solid #1A1A1A',
+                borderRadius: '8px',
                 fontSize: '14px',
                 cursor: 'pointer',
                 minWidth: '80px',
                 textAlign: 'center',
                 pointerEvents: 'auto',
-                fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-                transform: `rotate(${rotation}deg)`,
-                boxShadow: '1px 2px 0 #2D2D2D',
-                transition: 'transform 0.15s, background 0.15s',
+                fontFamily: "Arial, Helvetica, sans-serif",
+                transition: 'background 0.15s',
             });
 
             const nameSpan = document.createElement('div');
@@ -491,21 +478,19 @@ export class BattleUI {
             if (ability.element) {
                 const elemSpan = document.createElement('div');
                 elemSpan.textContent = ability.element;
-                elemSpan.style.cssText = "font-size:11px;color:#5A5A7A;margin-top:2px;font-family:'Patrick Hand','Comic Sans MS',cursive;";
+                elemSpan.style.cssText = "font-size:11px;color:#AABBDD;margin-top:2px;font-family:Arial,Helvetica,sans-serif;";
                 btn.appendChild(elemSpan);
             }
 
             const abilityId = ability.abilityId !== undefined ? ability.abilityId : ability.ability_id;
             btn.addEventListener('click', () => this._onAbilitySelected(abilityId));
 
-            // Hover — doodle: slight scale bump
+            // Hover — clean highlight
             btn.addEventListener('mouseenter', () => {
-                btn.style.background = '#D6E4FF';
-                btn.style.transform = `rotate(${rotation}deg) scale(1.05)`;
+                btn.style.background = '#4477BB';
             });
             btn.addEventListener('mouseleave', () => {
-                btn.style.background = '#E8F0FE';
-                btn.style.transform = `rotate(${rotation}deg)`;
+                btn.style.background = '#3366AA';
             });
 
             this._abilityBar.appendChild(btn);
@@ -514,23 +499,20 @@ export class BattleUI {
         // Add a "Catch" button if applicable (can be shown conditionally)
         const catchBtn = document.createElement('button');
         catchBtn.className = 'ability-btn catch-btn';
-        // Doodle: pastel green, uneven border, ink border, slight rotation
-        const catchRotation = (Math.random() - 0.5) * 3;
+        // Clean cel-shaded catch button
         Object.assign(catchBtn.style, {
             padding: '10px 14px',
-            background: '#D4EDDA',
-            color: '#2D2D2D',
-            border: '2px solid #2D2D2D',
-            borderRadius: '8px 14px 6px 12px',
+            background: '#33AA55',
+            color: '#FFFFFF',
+            border: '3px solid #1A1A1A',
+            borderRadius: '8px',
             fontSize: '14px',
             cursor: 'pointer',
             minWidth: '80px',
             textAlign: 'center',
             pointerEvents: 'auto',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            fontFamily: "Arial, Helvetica, sans-serif",
             fontWeight: 'bold',
-            transform: `rotate(${catchRotation}deg)`,
-            boxShadow: '1px 2px 0 #2D2D2D',
         });
         catchBtn.textContent = 'Catch';
         catchBtn.addEventListener('click', () => this._onCatchButtonPressed());
@@ -597,11 +579,13 @@ export class BattleUI {
             left: '50%',
             transform: 'translateX(-50%)',
             padding: '10px 24px',
-            background: 'rgba(80,30,30,0.9)',
-            color: '#fff',
-            border: '1px solid rgba(255,100,100,0.5)',
+            background: '#AA3333',
+            color: '#FFFFFF',
+            border: '3px solid #1A1A1A',
             borderRadius: '8px',
             fontSize: '14px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            fontWeight: 'bold',
             cursor: 'pointer',
         });
         cancelBtn.addEventListener('click', () => this._onTargetCancelled());
@@ -634,25 +618,12 @@ export class BattleUI {
         Object.assign(bar.style, {
             width: '100%',
             height: '8px',
-            background: '#FEF3D0',
-            borderRadius: '6px 3px 5px 4px',
+            background: '#1A1A2E',
+            borderRadius: '4px',
             overflow: 'hidden',
-            border: '1.5px solid #2D2D2D',
+            border: '2px solid #1A1A1A',
             position: 'relative',
         });
-
-        // Doodle: hatching pattern overlay on the health bar background
-        const hatchOverlay = document.createElement('div');
-        hatchOverlay.className = 'health-bar-hatch';
-        Object.assign(hatchOverlay.style, {
-            position: 'absolute',
-            top: '0', left: '0', width: '100%', height: '100%',
-            pointerEvents: 'none',
-            opacity: '0.12',
-            backgroundImage: 'repeating-linear-gradient(45deg, #2D2D2D 0px, #2D2D2D 1px, transparent 1px, transparent 4px)',
-            backgroundSize: '5px 5px',
-        });
-        bar.appendChild(hatchOverlay);
 
         const fill = document.createElement('div');
         fill.className = 'health-bar-fill';
@@ -660,8 +631,8 @@ export class BattleUI {
         Object.assign(fill.style, {
             width: pct + '%',
             height: '100%',
-            background: team === 0 ? '#33cc55' : '#cc3333',
-            borderRadius: '5px 2px 4px 3px',
+            background: team === 0 ? '#33CC55' : '#CC3333',
+            borderRadius: '2px',
             transition: 'width 0.3s ease-out',
             position: 'relative',
             zIndex: '1',
@@ -733,8 +704,8 @@ export class BattleUI {
         Object.assign(icon.style, {
             width: '20px', height: '20px',
             borderRadius: '4px',
-            background: 'rgba(120,80,200,0.7)',
-            border: '1px solid rgba(180,140,255,0.5)',
+            background: '#6B44BB',
+            border: '2px solid #1A1A1A',
             fontSize: '10px',
             color: '#fff',
             display: 'flex',
@@ -813,7 +784,7 @@ export class BattleUI {
             color = '#ffdd00';
         }
 
-        // Doodle: handwriting font, hand-drawn outline stroke, decorative marks
+        // Clean cel-shaded floating damage with solid outline
         el.textContent = prefix + amount;
         Object.assign(el.style, {
             position: 'absolute',
@@ -822,26 +793,14 @@ export class BattleUI {
             color,
             fontSize: isCrit ? '26px' : '21px',
             fontWeight: 'bold',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-            textShadow: `-1px -1px 0 #2D2D2D, 1px -1px 0 #2D2D2D, -1px 1px 0 #2D2D2D, 1px 1px 0 #2D2D2D`,
+            fontFamily: "Arial, Helvetica, sans-serif",
+            textShadow: `-2px -2px 0 #1A1A1A, 2px -2px 0 #1A1A1A, -2px 2px 0 #1A1A1A, 2px 2px 0 #1A1A1A`,
             pointerEvents: 'none',
             transition: 'transform 1s ease-out, opacity 1s ease-out',
             zIndex: '150',
         });
 
-        // Doodle: add small decorative marks (stars, motion lines) around damage
-        const marks = document.createElement('span');
-        marks.style.cssText = `position:absolute;top:-6px;right:-14px;font-size:12px;color:${color};pointer-events:none;`;
-        if (isCrit) {
-            marks.textContent = '\u2605\u2727';  // star + sparkle
-        } else {
-            // Motion lines for regular damage
-            marks.textContent = '\u2726';  // four-pointed star
-        }
-        el.style.position = 'relative';
-        el.appendChild(marks);
-
-        // Wrap in a positioned container so marks render correctly
+        // Wrap in a positioned container
         const wrapper = document.createElement('div');
         wrapper.style.cssText = `position:absolute;left:${(screenPos.x || 100)}px;top:${(screenPos.y || 200)}px;pointer-events:none;z-index:150;`;
         wrapper.appendChild(el);
@@ -879,8 +838,8 @@ export class BattleUI {
             color,
             fontSize: '16px',
             fontWeight: 'bold',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-            textShadow: '-1px -1px 0 #2D2D2D, 1px -1px 0 #2D2D2D, -1px 1px 0 #2D2D2D, 1px 1px 0 #2D2D2D',
+            fontFamily: "Arial, Helvetica, sans-serif",
+            textShadow: '-2px -2px 0 #1A1A1A, 2px -2px 0 #1A1A1A, -2px 2px 0 #1A1A1A, 2px 2px 0 #1A1A1A',
             pointerEvents: 'none',
             transition: 'transform 1.2s ease-out, opacity 1.2s ease-out',
             zIndex: '150',
@@ -913,7 +872,7 @@ export class BattleUI {
             padding: '2px 0',
             opacity: '1',
             transition: 'opacity 0.5s',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            fontFamily: "Arial, Helvetica, sans-serif",
             fontSize: '13px',
             lineHeight: '20px',
         });
@@ -988,11 +947,13 @@ export class BattleUI {
         btn.textContent = 'Continue';
         Object.assign(btn.style, {
             padding: '12px 36px',
-            background: 'rgba(40,80,160,0.9)',
-            color: '#fff',
-            border: '1px solid rgba(100,160,255,0.5)',
-            borderRadius: '10px',
+            background: '#3366AA',
+            color: '#FFFFFF',
+            border: '3px solid #1A1A1A',
+            borderRadius: '8px',
             fontSize: '18px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            fontWeight: 'bold',
             cursor: 'pointer',
         });
         btn.addEventListener('click', () => this._onResultsClosed());
@@ -1022,9 +983,9 @@ export class BattleUI {
         for (const sprite of availableSprites) {
             const slot = document.createElement('div');
             slot.style.cssText = `
-                width:80px;height:100px;background:rgba(20,40,80,0.8);border:2px solid rgba(100,160,255,0.4);
-                border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                cursor:pointer;color:#fff;font-size:13px;padding:4px;
+                width:80px;height:100px;background:#2A1F4E;border:3px solid #1A1A1A;
+                border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                cursor:pointer;color:#fff;font-size:13px;padding:4px;font-family:Arial,Helvetica,sans-serif;
             `;
             slot.textContent = sprite.nickname || `#${sprite.instanceId || '?'}`;
             slot.addEventListener('click', () => {
@@ -1043,9 +1004,10 @@ export class BattleUI {
         confirmBtn.textContent = 'Deploy';
         Object.assign(confirmBtn.style, {
             marginTop: '20px', padding: '12px 36px',
-            background: 'rgba(30,100,60,0.9)', color: '#fff',
-            border: '1px solid rgba(100,220,160,0.5)', borderRadius: '10px',
-            fontSize: '18px', cursor: 'pointer',
+            background: '#33AA55', color: '#FFFFFF',
+            border: '3px solid #1A1A1A', borderRadius: '8px',
+            fontSize: '18px', fontFamily: 'Arial, Helvetica, sans-serif',
+            fontWeight: 'bold', cursor: 'pointer',
         });
         confirmBtn.addEventListener('click', () => {
             this._deploymentScreen.style.display = 'none';

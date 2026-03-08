@@ -1,7 +1,11 @@
 /**
- * RaceBodyRendererExt.js — Chibi-style race-specific humanoid body rendering (Races 13-24).
- * Each race has a unique chibi body shape with big head, stubby limbs, anime eyes,
- * blush marks, and distinguishing characteristics drawn at 64×64 pixel resolution.
+ * RaceBodyRendererExt.js — Cel-shaded race-specific humanoid body rendering (Races 13-24).
+ * Each race has a unique chibi body shape with big head, stubby limbs, simple dot eyes,
+ * and distinguishing characteristics drawn at 64×64 pixel resolution.
+ *
+ * Art style: Flat cel-shaded, clean black outlines of uniform thickness (2-3px),
+ * chibi proportions, vibrant saturated colors, hard-edged shading (flat fills),
+ * NO gradients, simple dot eyes, no pixel art.
  *
  * Race mappings:
  *   13=Lizard man, 14=Minotaur, 15=Monkey man, 16=Mummy, 17=Ork, 18=Rat man,
@@ -38,95 +42,76 @@ const WALK_CYCLES = [
     { armL: 4,  armR: -4, legL: -2, legR: 4,  bob: -2 },
 ];
 
-// ── Shared Chibi Helpers ──────────────────────────────────────────────────
+// ── Clean Cel-Shaded Helpers ─────────────────────────────────────────────
+
+/** Clean uniform-thickness outline around a rectangle (2px black) */
+function _drawCleanRectOutline(ctx, x, y, w, h, color = '#111111', lineWidth = 2) {
+    const fx = Math.floor(x);
+    const fy = Math.floor(y);
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.lineJoin = 'miter';
+    ctx.strokeRect(fx, fy, w, h);
+    ctx.restore();
+}
 
 function _drawOutlinedRect(ctx, x, y, w, h, fillColor, outlineColor) {
-    ctx.fillStyle = outlineColor;
-    ctx.fillRect(Math.floor(x) - 1, Math.floor(y) - 1, w + 2, h + 2);
+    const fx = Math.floor(x);
+    const fy = Math.floor(y);
+    // Clean cel-shaded: solid fill + uniform black outline
     ctx.fillStyle = fillColor;
-    ctx.fillRect(Math.floor(x), Math.floor(y), w, h);
+    ctx.fillRect(fx, fy, w, h);
+    _drawCleanRectOutline(ctx, fx, fy, w, h, '#111111', 2);
 }
 
 function _drawRoundedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     const fx = Math.floor(x);
     const fy = Math.floor(y);
-    ctx.fillStyle = outlineColor;
-    ctx.fillRect(fx, fy - 1, w, h + 2);
-    ctx.fillRect(fx - 1, fy, w + 2, h);
+    // Clean cel-shaded: solid fill + uniform black outline
     ctx.fillStyle = fillColor;
     ctx.fillRect(fx, fy, w, h);
+    _drawCleanRectOutline(ctx, fx, fy, w, h, '#111111', 2);
 }
 
+/** Hard-edged shadow zone on the right side (flat fill, no gradient) */
 function _drawShading(ctx, x, y, w, h, midColor) {
     ctx.fillStyle = midColor;
     ctx.fillRect(Math.floor(x) + Math.floor(w * 0.55), Math.floor(y) + 1, Math.ceil(w * 0.45) - 1, h - 2);
 }
 
+/** Hard-edged cel-shade shadow on right half (flat fill, no gradient) */
 function _drawSoftShading(ctx, x, y, w, h, midColor) {
     ctx.fillStyle = midColor;
-    ctx.globalAlpha = 0.4;
-    ctx.fillRect(Math.floor(x) + Math.floor(w * 0.5), Math.floor(y) + 1, Math.ceil(w * 0.5), h - 2);
-    ctx.globalAlpha = 1.0;
+    ctx.fillRect(Math.floor(x) + Math.floor(w * 0.55), Math.floor(y) + 1, Math.ceil(w * 0.45) - 1, h - 2);
 }
 
-// ── Chibi anime-style eyes ───────────────────────────────────────────────
+// ── Simple dot eyes (small filled black circles) ──────────────────────────
 function _drawEyes(ctx, cx, eyeY, dir, colors, spacing) {
     const sp = spacing || 7;
+    ctx.fillStyle = '#111111';
     if (dir === DIR_DOWN) {
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(cx - sp - 3, eyeY, 7, 7);
-        ctx.fillRect(cx + sp - 3, eyeY, 7, 7);
-        ctx.fillStyle = colors.eye;
-        ctx.fillRect(cx - sp - 2, eyeY + 1, 5, 6);
-        ctx.fillRect(cx + sp - 2, eyeY + 1, 5, 6);
-        ctx.fillStyle = '#111';
-        ctx.fillRect(cx - sp - 1, eyeY + 3, 3, 3);
-        ctx.fillRect(cx + sp - 1, eyeY + 3, 3, 3);
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(cx - sp - 2, eyeY + 1, 2, 2);
-        ctx.fillRect(cx + sp - 2, eyeY + 1, 2, 2);
-        ctx.fillRect(cx - sp + 1, eyeY + 4, 1, 1);
-        ctx.fillRect(cx + sp + 1, eyeY + 4, 1, 1);
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(cx - sp - 3, eyeY - 1, 7, 1);
-        ctx.fillRect(cx + sp - 3, eyeY - 1, 7, 1);
+        // Two small filled black dots
+        ctx.fillRect(cx - sp - 1, eyeY + 2, 3, 3);
+        ctx.fillRect(cx + sp - 1, eyeY + 2, 3, 3);
     } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
-        const ex = dir === DIR_RIGHT ? cx + 2 : cx - 6;
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(ex, eyeY, 6, 7);
-        ctx.fillStyle = colors.eye;
-        ctx.fillRect(ex + 1, eyeY + 1, 4, 6);
-        ctx.fillStyle = '#111';
-        ctx.fillRect(ex + 2, eyeY + 3, 2, 3);
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(ex + 1, eyeY + 1, 2, 2);
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(ex, eyeY - 1, 6, 1);
+        // Single dot for side view
+        const ex = dir === DIR_RIGHT ? cx + 3 : cx - 5;
+        ctx.fillRect(ex, eyeY + 2, 3, 3);
     }
 }
 
 function _drawMouth(ctx, cx, y, dir, color) {
     if (dir === DIR_DOWN) {
-        ctx.fillStyle = color;
+        ctx.fillStyle = '#111111';
+        // Simple small line mouth
         ctx.fillRect(cx - 1, y, 3, 1);
-        ctx.fillRect(cx - 2, y - 1, 1, 1);
-        ctx.fillRect(cx + 2, y - 1, 1, 1);
     }
 }
 
+// ── Clean blush marks — no-op in cel-shaded style ──────────────────────
 function _drawBlush(ctx, cx, blushY, dir, spacing) {
-    if (dir === DIR_UP) return;
-    const sp = spacing || 10;
-    ctx.globalAlpha = 0.35;
-    ctx.fillStyle = '#ff6688';
-    if (dir === DIR_DOWN) {
-        ctx.fillRect(cx - sp - 1, blushY, 4, 2);
-        ctx.fillRect(cx + sp - 2, blushY, 4, 2);
-    } else {
-        const bx = dir === DIR_RIGHT ? cx + 3 : cx - 6;
-        ctx.fillRect(bx, blushY, 4, 2);
-    }
-    ctx.globalAlpha = 1.0;
+    // No blush in clean cel-shaded style — keeping function as no-op for compatibility
 }
 
 function _drawHairTop(ctx, x, y, w, dir, hairColor) {

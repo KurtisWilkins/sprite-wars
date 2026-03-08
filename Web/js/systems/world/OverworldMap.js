@@ -416,10 +416,10 @@ export class OverworldMap {
         return this._layers.length;
     }
 
-    // ── Doodle Art Style Rendering ──────────────────────────────────────────
+    // ── Cel-Shaded Art Style Rendering ─────────────────────────────────────
 
     /**
-     * Renders the doodle overlay effects on top of already-rendered tiles.
+     * Renders the cel-shaded overlay effects on top of already-rendered tiles.
      * Call this after the tile renderer has drawn the base map.
      *
      * @param {CanvasRenderingContext2D} ctx
@@ -430,20 +430,17 @@ export class OverworldMap {
     renderDoodleOverlay(ctx, cameraOffset, viewWidth, viewHeight) {
         ctx.save();
 
-        // 1. Paper texture: subtle grain overlay
-        this._renderPaperGrain(ctx, viewWidth, viewHeight);
+        // 1. Clean grid lines over tiles
+        this._renderCleanGrid(ctx, cameraOffset, viewWidth, viewHeight);
 
-        // 2. Doodle grid lines: wobbly hand-drawn grid over tiles
-        this._renderDoodleGrid(ctx, cameraOffset, viewWidth, viewHeight);
-
-        // 3. Ambient doodle decorations (flowers, clouds, etc.)
-        this._renderDoodleDecorations(ctx, cameraOffset, viewWidth, viewHeight);
+        // 2. Ambient geometric decorations (flowers, clouds, etc.)
+        this._renderDecorations(ctx, cameraOffset, viewWidth, viewHeight);
 
         ctx.restore();
     }
 
     /**
-     * Renders a doodle-style chibi player character on the overworld.
+     * Renders a cel-shaded chibi player character on the overworld.
      * @param {CanvasRenderingContext2D} ctx
      * @param {number} screenX - Screen X position (center)
      * @param {number} screenY - Screen Y position (center)
@@ -463,58 +460,99 @@ export class OverworldMap {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
-        // Chibi proportions: oversized head, small body
+        // Chibi proportions: oversized head, small compact body
         const headR = this.gridSize * 0.35;
         const bodyH = this.gridSize * 0.25;
 
-        // Body (small rectangle with wobbly edges)
-        ctx.fillStyle = color;
-        ctx.strokeStyle = '#2D2D2D';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
+        // Shadow cel-shade color (darken the base color)
+        const shadowColor = this._darkenColor(color, 0.7);
+
+        // Body (clean rectangle with flat fill and uniform black outline)
         const bw = headR * 0.7;
-        ctx.moveTo(-bw + (Math.random() - 0.5) * 0.5, 0);
-        ctx.lineTo(bw + (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.5);
-        ctx.lineTo(bw + (Math.random() - 0.5) * 0.5, bodyH + (Math.random() - 0.5) * 0.5);
-        ctx.lineTo(-bw + (Math.random() - 0.5) * 0.5, bodyH + (Math.random() - 0.5) * 0.5);
-        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.rect(-bw, 0, bw * 2, bodyH);
         ctx.fill();
         ctx.stroke();
 
-        // Head (large wobbly circle)
+        // Body shadow zone (hard-edged, right side)
+        ctx.fillStyle = shadowColor;
+        ctx.beginPath();
+        ctx.rect(0, 0, bw, bodyH);
+        ctx.fill();
+
+        // Body outline re-stroke for clean edge
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.rect(-bw, 0, bw * 2, bodyH);
+        ctx.stroke();
+
+        // Head (large clean circle with flat fill)
         ctx.fillStyle = '#ffe8cc';
-        this._drawWobblyCircleLocal(ctx, 0, -headR * 0.6, headR, 12);
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, -headR * 0.6, headR, 0, Math.PI * 2);
         ctx.fill();
+
+        // Head shadow (hard-edged right half)
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, -headR * 0.6, headR, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.fillStyle = '#f0d0a8';
+        ctx.beginPath();
+        ctx.rect(0, -headR * 0.6 - headR, headR, headR * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Head outline
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, -headR * 0.6, headR, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Eyes (simple dots, position based on direction)
-        ctx.fillStyle = '#2D2D2D';
+        // Head highlight (small bright spot, top-left)
+        ctx.fillStyle = '#fff4e0';
+        ctx.beginPath();
+        ctx.arc(-headR * 0.3, -headR * 1.0, headR * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Eyes (simple dot eyes, position based on direction)
+        ctx.fillStyle = '#000000';
         if (dir !== 3) { // Not facing up
             const eyeSpread = headR * 0.3;
             const eyeY = -headR * 0.7;
             const eyeOffX = dir === 1 ? -2 : dir === 2 ? 2 : 0;
             ctx.beginPath();
-            ctx.arc(-eyeSpread + eyeOffX, eyeY, 1.2, 0, Math.PI * 2);
+            ctx.arc(-eyeSpread + eyeOffX, eyeY, 1.5, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(eyeSpread + eyeOffX, eyeY, 1.2, 0, Math.PI * 2);
+            ctx.arc(eyeSpread + eyeOffX, eyeY, 1.5, 0, Math.PI * 2);
             ctx.fill();
         }
 
-        // Hair tuft (wobbly triangle on top)
-        ctx.strokeStyle = '#2D2D2D';
-        ctx.lineWidth = 1;
+        // Hair tuft (clean triangle on top with flat fill)
+        ctx.fillStyle = '#5566aa';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(-2 + (Math.random() - 0.5), -headR * 1.4);
-        ctx.lineTo(0, -headR * 1.8 + (Math.random() - 0.5));
-        ctx.lineTo(2 + (Math.random() - 0.5), -headR * 1.4);
+        ctx.moveTo(-3, -headR * 1.4);
+        ctx.lineTo(0, -headR * 1.85);
+        ctx.lineTo(3, -headR * 1.4);
+        ctx.closePath();
+        ctx.fill();
         ctx.stroke();
 
         ctx.restore();
     }
 
     /**
-     * Renders a doodle-style NPC on the overworld.
+     * Renders a cel-shaded NPC on the overworld.
      * @param {CanvasRenderingContext2D} ctx
      * @param {number} screenX
      * @param {number} screenY
@@ -536,87 +574,129 @@ export class OverworldMap {
 
         const headR = this.gridSize * 0.32;
         const bodyH = this.gridSize * 0.22;
+        const shadowColor = this._darkenColor(color, 0.7);
 
-        // Body
-        ctx.fillStyle = color;
-        ctx.strokeStyle = '#2D2D2D';
-        ctx.lineWidth = 1.5;
+        // Body (clean rectangle)
         const bw = headR * 0.65;
+        ctx.fillStyle = color;
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(-bw + (Math.random() - 0.5) * 0.5, 0);
-        ctx.lineTo(bw + (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.5);
-        ctx.lineTo(bw + (Math.random() - 0.5) * 0.5, bodyH + (Math.random() - 0.5) * 0.5);
-        ctx.lineTo(-bw + (Math.random() - 0.5) * 0.5, bodyH + (Math.random() - 0.5) * 0.5);
-        ctx.closePath();
+        ctx.rect(-bw, 0, bw * 2, bodyH);
         ctx.fill();
+
+        // Body shadow zone (hard-edged, right side)
+        ctx.fillStyle = shadowColor;
+        ctx.beginPath();
+        ctx.rect(0, 0, bw, bodyH);
+        ctx.fill();
+
+        // Body outline
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.rect(-bw, 0, bw * 2, bodyH);
         ctx.stroke();
 
-        // Head
+        // Head (clean circle)
         ctx.fillStyle = '#ffe0c0';
-        this._drawWobblyCircleLocal(ctx, 0, -headR * 0.55, headR, 12);
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, -headR * 0.55, headR, 0, Math.PI * 2);
         ctx.fill();
+
+        // Head shadow (hard-edged right half)
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, -headR * 0.55, headR, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.fillStyle = '#f0c8a0';
+        ctx.beginPath();
+        ctx.rect(0, -headR * 0.55 - headR, headR, headR * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Head outline
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, -headR * 0.55, headR, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Eyes
-        ctx.fillStyle = '#2D2D2D';
+        // Head highlight
+        ctx.fillStyle = '#fff0d8';
+        ctx.beginPath();
+        ctx.arc(-headR * 0.3, -headR * 0.95, headR * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Eyes (simple dots)
+        ctx.fillStyle = '#000000';
         const eyeSpread = headR * 0.3;
         const eyeY = -headR * 0.65;
         ctx.beginPath();
-        ctx.arc(-eyeSpread, eyeY, 1, 0, Math.PI * 2);
+        ctx.arc(-eyeSpread, eyeY, 1.3, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(eyeSpread, eyeY, 1, 0, Math.PI * 2);
+        ctx.arc(eyeSpread, eyeY, 1.3, 0, Math.PI * 2);
         ctx.fill();
 
         // Simple smile
-        ctx.strokeStyle = '#2D2D2D';
-        ctx.lineWidth = 0.8;
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(0, eyeY + 3, headR * 0.2, 0.1, Math.PI - 0.1);
         ctx.stroke();
 
-        // Optional hat
+        // Optional hat (clean geometric shape with flat fill)
         if (hatColor) {
+            const hatShadow = this._darkenColor(hatColor, 0.7);
             ctx.fillStyle = hatColor;
-            ctx.strokeStyle = '#2D2D2D';
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(-headR * 0.8 + (Math.random() - 0.5), -headR * 1.1);
-            ctx.lineTo(headR * 0.8 + (Math.random() - 0.5), -headR * 1.1 + (Math.random() - 0.5));
-            ctx.lineTo(headR * 0.5 + (Math.random() - 0.5), -headR * 1.6 + (Math.random() - 0.5));
-            ctx.lineTo(-headR * 0.5 + (Math.random() - 0.5), -headR * 1.6 + (Math.random() - 0.5));
+            ctx.moveTo(-headR * 0.8, -headR * 1.1);
+            ctx.lineTo(headR * 0.8, -headR * 1.1);
+            ctx.lineTo(headR * 0.5, -headR * 1.6);
+            ctx.lineTo(-headR * 0.5, -headR * 1.6);
             ctx.closePath();
             ctx.fill();
+
+            // Hat shadow (right half)
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(-headR * 0.8, -headR * 1.1);
+            ctx.lineTo(headR * 0.8, -headR * 1.1);
+            ctx.lineTo(headR * 0.5, -headR * 1.6);
+            ctx.lineTo(-headR * 0.5, -headR * 1.6);
+            ctx.closePath();
+            ctx.clip();
+            ctx.fillStyle = hatShadow;
+            ctx.fillRect(0, -headR * 1.7, headR, headR);
+            ctx.restore();
+
+            // Hat outline
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-headR * 0.8, -headR * 1.1);
+            ctx.lineTo(headR * 0.8, -headR * 1.1);
+            ctx.lineTo(headR * 0.5, -headR * 1.6);
+            ctx.lineTo(-headR * 0.5, -headR * 1.6);
+            ctx.closePath();
             ctx.stroke();
         }
 
         ctx.restore();
     }
 
-    // ── Doodle Rendering Internals ──────────────────────────────────────────
+    // ── Cel-Shaded Rendering Internals ──────────────────────────────────────
 
     /**
-     * Render subtle paper grain texture across the viewport.
+     * Render clean straight grid lines over the tile grid.
      */
-    _renderPaperGrain(ctx, w, h) {
-        ctx.globalAlpha = PAPER_GRAIN_ALPHA;
-        // Draw a sparse dot pattern to simulate paper grain
-        const step = 4;
-        ctx.fillStyle = '#8B7D6B';
-        for (let y = 0; y < h; y += step) {
-            for (let x = 0; x < w; x += step) {
-                if (Math.random() < 0.3) {
-                    ctx.fillRect(x + Math.random() * 2, y + Math.random() * 2, 1, 1);
-                }
-            }
-        }
-    }
-
-    /**
-     * Render faint wobbly grid lines over the tile grid.
-     */
-    _renderDoodleGrid(ctx, cameraOffset, viewWidth, viewHeight) {
-        ctx.globalAlpha = DOODLE_GRID_ALPHA;
+    _renderCleanGrid(ctx, cameraOffset, viewWidth, viewHeight) {
+        ctx.globalAlpha = GRID_LINE_ALPHA;
         ctx.strokeStyle = '#4a4a4a';
         ctx.lineWidth = 0.5;
 
@@ -624,39 +704,29 @@ export class OverworldMap {
         const startX = Math.floor(cameraOffset.x / gs) * gs - cameraOffset.x;
         const startY = Math.floor(cameraOffset.y / gs) * gs - cameraOffset.y;
 
-        // Vertical lines
+        // Vertical lines (clean, straight)
         for (let x = startX; x < viewWidth; x += gs) {
             ctx.beginPath();
-            const segments = Math.ceil(viewHeight / 20);
-            for (let i = 0; i <= segments; i++) {
-                const py = (viewHeight / segments) * i;
-                const px = x + (Math.random() - 0.5) * 1.5;
-                if (i === 0) ctx.moveTo(px, py);
-                else ctx.lineTo(px, py);
-            }
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, viewHeight);
             ctx.stroke();
         }
 
-        // Horizontal lines
+        // Horizontal lines (clean, straight)
         for (let y = startY; y < viewHeight; y += gs) {
             ctx.beginPath();
-            const segments = Math.ceil(viewWidth / 20);
-            for (let i = 0; i <= segments; i++) {
-                const px = (viewWidth / segments) * i;
-                const py = y + (Math.random() - 0.5) * 1.5;
-                if (i === 0) ctx.moveTo(px, py);
-                else ctx.lineTo(px, py);
-            }
+            ctx.moveTo(0, y);
+            ctx.lineTo(viewWidth, y);
             ctx.stroke();
         }
     }
 
     /**
-     * Generate ambient doodle decorations across the map.
+     * Generate ambient geometric decorations across the map.
      * Decorations are seeded based on tile positions for consistency.
      */
-    _generateDoodleDecorations() {
-        this._doodleDecorations = [];
+    _generateDecorations() {
+        this._decorations = [];
         this._decoGenerated = true;
 
         const decoTypes = ['flower', 'cloud', 'grass_tuft', 'pebble', 'butterfly', 'mushroom'];
@@ -673,7 +743,7 @@ export class OverworldMap {
 
             if (pseudoRand < DECO_SPAWN_CHANCE * 200) {
                 const typeIndex = seed % decoTypes.length;
-                this._doodleDecorations.push({
+                this._decorations.push({
                     x: gx * this.gridSize + (((seed >> 3) % 100) / 100) * this.gridSize,
                     y: gy * this.gridSize + (((seed >> 7) % 100) / 100) * this.gridSize,
                     type: decoTypes[typeIndex],
@@ -685,18 +755,16 @@ export class OverworldMap {
     }
 
     /**
-     * Render doodle decorations visible in the viewport.
+     * Render geometric decorations visible in the viewport.
      */
-    _renderDoodleDecorations(ctx, cameraOffset, viewWidth, viewHeight) {
-        if (this._doodleDecorations.length === 0) return;
+    _renderDecorations(ctx, cameraOffset, viewWidth, viewHeight) {
+        if (this._decorations.length === 0) return;
 
-        ctx.globalAlpha = 0.25;
-        ctx.strokeStyle = '#5a5a4a';
-        ctx.fillStyle = '#5a5a4a';
-        ctx.lineWidth = 0.8;
+        ctx.globalAlpha = 0.35;
+        ctx.lineWidth = 2;
         ctx.lineCap = 'round';
 
-        for (const deco of this._doodleDecorations) {
+        for (const deco of this._decorations) {
             const sx = deco.x - cameraOffset.x;
             const sy = deco.y - cameraOffset.y;
 
@@ -709,22 +777,22 @@ export class OverworldMap {
 
             switch (deco.type) {
                 case 'flower':
-                    this._drawDoodleFlower(ctx, deco.size);
+                    this._drawFlower(ctx, deco.size);
                     break;
                 case 'cloud':
-                    this._drawDoodleCloud(ctx, deco.size);
+                    this._drawCloud(ctx, deco.size);
                     break;
                 case 'grass_tuft':
-                    this._drawDoodleGrassTuft(ctx, deco.size);
+                    this._drawGrassTuft(ctx, deco.size);
                     break;
                 case 'pebble':
-                    this._drawDoodlePebble(ctx, deco.size);
+                    this._drawPebble(ctx, deco.size);
                     break;
                 case 'butterfly':
-                    this._drawDoodleButterfly(ctx, deco.size);
+                    this._drawButterfly(ctx, deco.size);
                     break;
                 case 'mushroom':
-                    this._drawDoodleMushroom(ctx, deco.size);
+                    this._drawMushroom(ctx, deco.size);
                     break;
             }
 
@@ -733,81 +801,116 @@ export class OverworldMap {
     }
 
     /**
-     * Draw a tiny doodle flower.
+     * Draw a clean geometric flower with flat fill and black outline.
      */
-    _drawDoodleFlower(ctx, size) {
+    _drawFlower(ctx, size) {
         const s = size;
-        // Petals
+        // Petals (filled circles with outline)
+        ctx.fillStyle = '#ff6699';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1.5;
         for (let i = 0; i < 5; i++) {
             const angle = (Math.PI * 2 * i) / 5;
             ctx.beginPath();
             ctx.arc(Math.cos(angle) * s, Math.sin(angle) * s, s * 0.5, 0, Math.PI * 2);
+            ctx.fill();
             ctx.stroke();
         }
-        // Center dot
+        // Center dot (filled)
+        ctx.fillStyle = '#ffdd44';
         ctx.beginPath();
-        ctx.arc(0, 0, s * 0.3, 0, Math.PI * 2);
+        ctx.arc(0, 0, s * 0.35, 0, Math.PI * 2);
         ctx.fill();
-        // Stem
+        ctx.strokeStyle = '#000000';
+        ctx.stroke();
+        // Stem (clean straight line)
+        ctx.strokeStyle = '#33aa55';
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.moveTo(0, s);
-        ctx.lineTo(0 + (Math.random() - 0.5), s * 2.5);
+        ctx.lineTo(0, s * 2.5);
         ctx.stroke();
     }
 
     /**
-     * Draw a tiny doodle cloud.
+     * Draw a clean geometric cloud with flat fill and outline.
      */
-    _drawDoodleCloud(ctx, size) {
+    _drawCloud(ctx, size) {
         const s = size;
-        ctx.beginPath();
-        ctx.arc(-s * 0.5, 0, s * 0.6, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(s * 0.3, -s * 0.2, s * 0.5, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(s * 0.8, 0, s * 0.4, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.fillStyle = '#e8eeff';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1.5;
+        // Overlapping circles for cloud shape
+        const puffs = [
+            { x: -s * 0.5, y: 0, r: s * 0.6 },
+            { x: s * 0.3, y: -s * 0.2, r: s * 0.5 },
+            { x: s * 0.8, y: 0, r: s * 0.4 },
+        ];
+        for (const puff of puffs) {
+            ctx.beginPath();
+            ctx.arc(puff.x, puff.y, puff.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+        }
     }
 
     /**
-     * Draw a tiny grass tuft.
+     * Draw clean geometric grass blades with flat fill.
      */
-    _drawDoodleGrassTuft(ctx, size) {
+    _drawGrassTuft(ctx, size) {
+        ctx.fillStyle = '#44bb55';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1.5;
         for (let i = 0; i < 3; i++) {
             const baseX = (i - 1) * size * 0.5;
             ctx.beginPath();
-            ctx.moveTo(baseX, 0);
-            ctx.quadraticCurveTo(
-                baseX + (Math.random() - 0.5) * size, -size * 1.5,
-                baseX + (Math.random() - 0.5) * 2, -size * 2
-            );
+            ctx.moveTo(baseX - size * 0.15, 0);
+            ctx.lineTo(baseX, -size * 2);
+            ctx.lineTo(baseX + size * 0.15, 0);
+            ctx.closePath();
+            ctx.fill();
             ctx.stroke();
         }
     }
 
     /**
-     * Draw a tiny pebble.
+     * Draw a clean pebble with flat fill and outline.
      */
-    _drawDoodlePebble(ctx, size) {
+    _drawPebble(ctx, size) {
+        ctx.fillStyle = '#aaa89e';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.ellipse(0, 0, size * 0.6, size * 0.4, 0, 0, Math.PI * 2);
+        ctx.fill();
         ctx.stroke();
+
+        // Highlight
+        ctx.fillStyle = '#c8c6bc';
+        ctx.beginPath();
+        ctx.ellipse(-size * 0.15, -size * 0.1, size * 0.25, size * 0.15, 0, 0, Math.PI * 2);
+        ctx.fill();
     }
 
     /**
-     * Draw a tiny butterfly.
+     * Draw a clean geometric butterfly with flat fill and outline.
      */
-    _drawDoodleButterfly(ctx, size) {
-        // Wings
+    _drawButterfly(ctx, size) {
+        // Wings (filled ellipses)
+        ctx.fillStyle = '#aa66dd';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.ellipse(-size * 0.4, 0, size * 0.5, size * 0.3, -0.3, 0, Math.PI * 2);
+        ctx.fill();
         ctx.stroke();
         ctx.beginPath();
         ctx.ellipse(size * 0.4, 0, size * 0.5, size * 0.3, 0.3, 0, Math.PI * 2);
+        ctx.fill();
         ctx.stroke();
-        // Body
+        // Body (clean line)
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(0, -size * 0.3);
         ctx.lineTo(0, size * 0.3);
@@ -815,39 +918,60 @@ export class OverworldMap {
     }
 
     /**
-     * Draw a tiny mushroom.
+     * Draw a clean geometric mushroom with flat fill and outline.
      */
-    _drawDoodleMushroom(ctx, size) {
-        // Cap
+    _drawMushroom(ctx, size) {
+        // Cap (filled half-circle)
+        ctx.fillStyle = '#dd4444';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.arc(0, 0, size * 0.6, Math.PI, 0);
+        ctx.closePath();
+        ctx.fill();
         ctx.stroke();
-        // Stem
+
+        // Cap shadow (hard-edged right half)
+        ctx.save();
         ctx.beginPath();
-        ctx.moveTo(-size * 0.2, 0);
-        ctx.lineTo(-size * 0.2, size * 0.6);
-        ctx.lineTo(size * 0.2, size * 0.6);
-        ctx.lineTo(size * 0.2, 0);
+        ctx.arc(0, 0, size * 0.6, Math.PI, 0);
+        ctx.closePath();
+        ctx.clip();
+        ctx.fillStyle = '#bb2222';
+        ctx.fillRect(0, -size * 0.6, size * 0.6, size * 0.6);
+        ctx.restore();
+
+        // Cap outline re-stroke
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 0.6, Math.PI, 0);
+        ctx.closePath();
+        ctx.stroke();
+
+        // Stem (filled rectangle)
+        ctx.fillStyle = '#f5e8d0';
+        ctx.beginPath();
+        ctx.rect(-size * 0.2, 0, size * 0.4, size * 0.6);
+        ctx.fill();
+        ctx.strokeStyle = '#000000';
         ctx.stroke();
     }
 
     /**
-     * Helper: draw a wobbly circle at local coordinates.
+     * Helper: darken a hex color by a multiplier (0-1).
+     * @param {string} hex
+     * @param {number} factor
+     * @returns {string}
      */
-    _drawWobblyCircleLocal(ctx, cx, cy, radius, points = 12) {
-        ctx.beginPath();
-        for (let i = 0; i <= points; i++) {
-            const angle = (Math.PI * 2 * i) / points;
-            const wobble = radius + (Math.random() - 0.5) * radius * 0.15;
-            const px = cx + Math.cos(angle) * wobble;
-            const py = cy + Math.sin(angle) * wobble;
-            if (i === 0) {
-                ctx.moveTo(px, py);
-            } else {
-                ctx.lineTo(px, py);
-            }
-        }
-        ctx.closePath();
+    _darkenColor(hex, factor) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        const dr = Math.floor(r * factor);
+        const dg = Math.floor(g * factor);
+        const db = Math.floor(b * factor);
+        return `#${dr.toString(16).padStart(2, '0')}${dg.toString(16).padStart(2, '0')}${db.toString(16).padStart(2, '0')}`;
     }
 
     // ── Internals ───────────────────────────────────────────────────────────
@@ -879,7 +1003,7 @@ export class OverworldMap {
         this.transitionZones = {};
         this._layers = [];
         this.mapBoundsPx = { x: 0, y: 0, w: 0, h: 0 };
-        this._doodleDecorations = [];
+        this._decorations = [];
         this._decoGenerated = false;
     }
 

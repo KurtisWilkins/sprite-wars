@@ -37,15 +37,15 @@ const BATTLE_LOG_MAX_LINES = 40;
 // ── Colors ──────────────────────────────────────────────────────────────────
 const COLOR_GRID_PLAYER = 'rgba(50, 120, 200, 0.15)';
 const COLOR_GRID_ENEMY = 'rgba(200, 50, 50, 0.15)';
-const COLOR_GRID_LINES = 'rgba(255,255,255,0.08)';
+const COLOR_GRID_LINES = '#222222';  // Clean black outlines
 const COLOR_CELL_HIGHLIGHT = 'rgba(255, 255, 100, 0.35)';
 const COLOR_CELL_TARGET_VALID = 'rgba(0, 255, 100, 0.25)';
 const COLOR_CELL_TARGET_HOVER = 'rgba(0, 255, 100, 0.50)';
 const COLOR_HP_GREEN = '#33cc66';
 const COLOR_HP_YELLOW = '#cccc33';
 const COLOR_HP_RED = '#cc3333';
-const COLOR_BG_DEFAULT = '#0d0d1e';
-const COLOR_BG_BOSS = '#1a0a0a';
+const COLOR_BG_DEFAULT = '#2a4a3a';  // Medieval fantasy flat forest green
+const COLOR_BG_BOSS = '#3a1a1a';    // Dark crimson flat cel-shaded
 
 // ── Battle Phases ───────────────────────────────────────────────────────────
 const PHASE_INTRO = 'intro';
@@ -489,17 +489,17 @@ export class BattleScene extends Scene {
                     }
                 }
 
-                // Cell border
+                // Cell border — clean black outlines, uniform 2px
                 ctx.strokeStyle = COLOR_GRID_LINES;
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 2;
                 ctx.strokeRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
             }
         }
 
         // Draw divider between player and enemy sides
         const dividerY = gy + BattleGrid.GRID_HEIGHT_PER_SIDE * (CELL_SIZE + CELL_GAP) - CELL_GAP / 2;
-        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#222222';
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(gx - 4, dividerY);
         ctx.lineTo(gx + BattleGrid.GRID_WIDTH * (CELL_SIZE + CELL_GAP), dividerY);
@@ -637,7 +637,7 @@ export class BattleScene extends Scene {
             ctx.globalAlpha = 1;
         }
 
-        // Phase 2 (0.15-0.5): Impact flash at target cell
+        // Phase 2 (0.15-0.5): Impact flash at target cell (flat cel-shaded fill, no gradients)
         if (progress >= 0.15 && progress < 0.5) {
             const impactProgress = (progress - 0.15) / 0.35;
             const impactAlpha = (1 - impactProgress) * 0.6;
@@ -649,13 +649,14 @@ export class BattleScene extends Scene {
                 const radius = CELL_SIZE * (0.5 + impactProgress * 0.8);
 
                 ctx.globalAlpha = impactAlpha;
-                const gradient = ctx.createRadialGradient(tx, ty, 0, tx, ty, radius);
-                gradient.addColorStop(0, elemColor);
-                gradient.addColorStop(1, elemColor + '00');
-                ctx.fillStyle = gradient;
+                ctx.fillStyle = elemColor;
                 ctx.beginPath();
                 ctx.arc(tx, ty, radius, 0, Math.PI * 2);
                 ctx.fill();
+                // Clean black outline around impact
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
                 ctx.globalAlpha = 1;
             }
         }

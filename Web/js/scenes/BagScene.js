@@ -22,7 +22,7 @@ import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.
 const TABS = ['items', 'equipment', 'keyitems'];
 const TAB_LABELS = { items: 'Items', equipment: 'Equipment', keyitems: 'Key Items' };
 
-const COLOR_BG = '#0b0b1a';
+const COLOR_BG = '#1a2a3a';  // Medieval fantasy flat dark blue
 
 const RARITY_COLORS = {
     common: '#aaaaaa',

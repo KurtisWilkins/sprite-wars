@@ -6,8 +6,8 @@
  * Ported from Game/Scripts/World/WeatherSystem.gd
  * Adapted from Godot GPUParticles2D/ColorRect to Canvas-based rendering.
  *
- * Doodle Art Style: sketchy rain lines, hand-drawn snowflakes, wobbly clouds,
- * and doodle weather annotation marks (wind swirls, scribble puddles, etc.).
+ * Cel-Shaded Art Style: clean rain lines, geometric snowflakes, smooth clouds,
+ * and clean weather effect marks with flat fills and black outlines.
  */
 import { eventBus, GameEvents } from '../../core/EventBus.js';
 
@@ -231,10 +231,10 @@ export class WeatherSystem {
         /** Particle spawn accumulator. */
         this._spawnAccumulator = 0.0;
 
-        // ── Doodle Weather Marks ────────────────────────────────────────
+        // ── Weather Effect Marks ──────────────────────────────────────
 
         /**
-         * Doodle weather annotation marks (wind swirls, puddles, etc.).
+         * Weather effect marks (wind swirls, puddles, etc.).
          * Each: { x, y, type, life, maxLife, size, rotation }
          * @type {object[]}
          */
@@ -243,16 +243,16 @@ export class WeatherSystem {
         /** Weather mark spawn accumulator. */
         this._markSpawnAccumulator = 0.0;
 
-        // ── Doodle Cloud State ──────────────────────────────────────────
+        // ── Cloud State ─────────────────────────────────────────────────
 
         /**
-         * Doodle-style cloud shapes for overcast weather types.
-         * Each: { x, y, speed, size, wobblePhase }
+         * Clean cloud shapes for overcast weather types.
+         * Each: { x, y, speed, size, bobPhase }
          * @type {object[]}
          */
-        this._doodleClouds = [];
+        this._clouds = [];
 
-        /** Whether doodle clouds have been initialized. */
+        /** Whether clouds have been initialized. */
         this._cloudsInitialized = false;
 
         // Apply initial weather
@@ -303,8 +303,8 @@ export class WeatherSystem {
         // Start configuring particles for the new weather
         this._configureParticles(config);
 
-        // Initialize doodle clouds for cloud-based weather
-        this._initDoodleClouds(weatherType);
+        // Initialize clouds for cloud-based weather
+        this._initClouds(weatherType);
     }
 
     /**
@@ -372,11 +372,11 @@ export class WeatherSystem {
         // Update particle simulation
         this._updateParticles(delta);
 
-        // Update doodle weather marks
+        // Update weather effect marks
         this._updateWeatherMarks(delta);
 
-        // Update doodle clouds
-        this._updateDoodleClouds(delta);
+        // Update clouds
+        this._updateClouds(delta);
     }
 
     // ── Rendering ───────────────────────────────────────────────────────────
@@ -408,13 +408,13 @@ export class WeatherSystem {
             renderCtx.restore();
         }
 
-        // Draw doodle clouds (behind particles)
-        this._renderDoodleClouds(renderCtx, w, h);
+        // Draw clean clouds (behind particles)
+        this._renderClouds(renderCtx, w, h);
 
-        // Draw particles (doodle style)
+        // Draw particles (cel-shaded style)
         this._renderParticles(renderCtx);
 
-        // Draw doodle weather marks
+        // Draw weather effect marks
         this._renderWeatherMarks(renderCtx);
     }
 
@@ -454,8 +454,8 @@ export class WeatherSystem {
             this._particles = [];
         }
 
-        // Initialize doodle clouds
-        this._initDoodleClouds(weatherType);
+        // Initialize clouds
+        this._initClouds(weatherType);
     }
 
     // ── Internal: Particle Configuration ────────────────────────────────────
@@ -513,7 +513,7 @@ export class WeatherSystem {
             p.x += p.vx * delta;
             p.y += p.vy * delta;
 
-            // Update wobble phase for doodle effect
+            // Update phase for animation
             p.wobble = (p.wobble || 0) + delta * 3;
             p.rotation = (p.rotation || 0) + delta * (p.rotSpeed || 0);
 
@@ -584,7 +584,7 @@ export class WeatherSystem {
     }
 
     /**
-     * Renders particles to the canvas context with doodle art style.
+     * Renders particles to the canvas context with clean cel-shaded style.
      * @param {CanvasRenderingContext2D} ctx
      */
     _renderParticles(ctx) {
@@ -602,34 +602,29 @@ export class WeatherSystem {
             const weatherColor = this._getParticleColor();
 
             if (this.currentWeather === 'rain') {
-                // Doodle rain: sketchy lines with slight wobble and varied thickness
+                // Clean rain: straight lines with uniform thickness
                 ctx.strokeStyle = weatherColor;
-                ctx.lineWidth = 1 + Math.random() * 0.8;
+                ctx.lineWidth = 1.5;
                 ctx.globalAlpha = p.alpha * 0.5;
                 ctx.beginPath();
-                const wobX = Math.sin(p.wobble) * 1.5;
-                ctx.moveTo(p.x + wobX + (Math.random() - 0.5) * 0.5, p.y + (Math.random() - 0.5) * 0.5);
-                // Sketchy multi-segment line instead of clean line
                 const rainLen = 0.025;
-                const midX = p.x + p.vx * rainLen * 0.5 + (Math.random() - 0.5) * 1.5;
-                const midY = p.y + p.vy * rainLen * 0.5 + (Math.random() - 0.5) * 0.5;
-                ctx.lineTo(midX, midY);
-                ctx.lineTo(p.x + p.vx * rainLen + (Math.random() - 0.5) * 0.5, p.y + p.vy * rainLen + (Math.random() - 0.5) * 0.5);
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x + p.vx * rainLen, p.y + p.vy * rainLen);
                 ctx.stroke();
 
-                // Occasional small splash mark at bottom of raindrop
-                if (p.life < p.maxLife * 0.1 && Math.random() < 0.3) {
+                // Clean splash circle at end of life
+                if (p.life < p.maxLife * 0.1) {
                     ctx.globalAlpha = p.alpha * 0.3;
                     ctx.beginPath();
-                    ctx.arc(p.x, p.y, 2 + Math.random(), 0, Math.PI, true);
+                    ctx.arc(p.x, p.y, 2, 0, Math.PI, true);
                     ctx.stroke();
                 }
 
             } else if (this.currentWeather === 'snow') {
-                // Doodle snowflakes: hand-drawn wobbly circles or star shapes
+                // Clean geometric snowflakes
                 ctx.strokeStyle = weatherColor;
                 ctx.fillStyle = weatherColor;
-                ctx.lineWidth = 0.8;
+                ctx.lineWidth = 1;
                 ctx.globalAlpha = p.alpha * 0.7;
 
                 ctx.save();
@@ -637,19 +632,16 @@ export class WeatherSystem {
                 ctx.rotate(p.rotation);
 
                 if (p.size > 3.5) {
-                    // Larger snowflakes: hand-drawn star/crystal shape
+                    // Larger snowflakes: clean geometric crystal shape
                     const arms = 6;
                     const r = p.size * 0.6;
                     for (let i = 0; i < arms; i++) {
                         const angle = (Math.PI * 2 * i) / arms;
                         ctx.beginPath();
-                        ctx.moveTo((Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.5);
-                        ctx.lineTo(
-                            Math.cos(angle) * r + (Math.random() - 0.5) * 1,
-                            Math.sin(angle) * r + (Math.random() - 0.5) * 1
-                        );
+                        ctx.moveTo(0, 0);
+                        ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
                         ctx.stroke();
-                        // Small branch on each arm
+                        // Clean branch on each arm
                         const branchAngle = angle + 0.4;
                         const branchR = r * 0.4;
                         const branchStart = r * 0.5;
@@ -659,49 +651,30 @@ export class WeatherSystem {
                             Math.sin(angle) * branchStart
                         );
                         ctx.lineTo(
-                            Math.cos(angle) * branchStart + Math.cos(branchAngle) * branchR + (Math.random() - 0.5) * 0.5,
-                            Math.sin(angle) * branchStart + Math.sin(branchAngle) * branchR + (Math.random() - 0.5) * 0.5
+                            Math.cos(angle) * branchStart + Math.cos(branchAngle) * branchR,
+                            Math.sin(angle) * branchStart + Math.sin(branchAngle) * branchR
                         );
                         ctx.stroke();
                     }
                 } else {
-                    // Smaller snowflakes: wobbly circle
-                    ctx.beginPath();
-                    const points = 8;
-                    for (let i = 0; i <= points; i++) {
-                        const angle = (Math.PI * 2 * i) / points;
-                        const wobR = p.size * 0.4 + (Math.random() - 0.5) * p.size * 0.15;
-                        const px = Math.cos(angle) * wobR;
-                        const py = Math.sin(angle) * wobR;
-                        if (i === 0) ctx.moveTo(px, py);
-                        else ctx.lineTo(px, py);
-                    }
-                    ctx.closePath();
+                    // Smaller snowflakes: clean filled circle
                     ctx.globalAlpha = p.alpha * 0.4;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, p.size * 0.4, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.globalAlpha = p.alpha * 0.7;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, p.size * 0.4, 0, Math.PI * 2);
                     ctx.stroke();
                 }
 
                 ctx.restore();
 
             } else {
-                // Other weather: wobbly circles/dots instead of clean circles
+                // Other weather: clean filled circles
                 ctx.fillStyle = weatherColor;
-                ctx.strokeStyle = weatherColor;
-                ctx.lineWidth = 0.5;
-
                 ctx.beginPath();
-                const points = 8;
-                for (let i = 0; i <= points; i++) {
-                    const angle = (Math.PI * 2 * i) / points;
-                    const wobR = p.size * 0.5 + (Math.random() - 0.5) * p.size * 0.1;
-                    const px = p.x + Math.cos(angle) * wobR;
-                    const py = p.y + Math.sin(angle) * wobR;
-                    if (i === 0) ctx.moveTo(px, py);
-                    else ctx.lineTo(px, py);
-                }
-                ctx.closePath();
+                ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
@@ -726,15 +699,15 @@ export class WeatherSystem {
         }
     }
 
-    // ── Doodle Clouds ───────────────────────────────────────────────────────
+    // ── Clouds ───────────────────────────────────────────────────────────────
 
     /**
-     * Initialize doodle cloud shapes for the current weather.
+     * Initialize clean cloud shapes for the current weather.
      */
-    _initDoodleClouds(weatherType) {
-        this._doodleClouds = [];
+    _initClouds(weatherType) {
+        this._clouds = [];
 
-        // Only show doodle clouds for certain weather types
+        // Only show clouds for certain weather types
         const cloudWeathers = ['rain', 'snow', 'fog', 'sandstorm', 'volcanic_ash', 'shadow_mist'];
         if (!cloudWeathers.includes(weatherType)) {
             this._cloudsInitialized = false;
@@ -745,12 +718,12 @@ export class WeatherSystem {
         const cloudCount = weatherType === 'fog' ? 8 : 4;
 
         for (let i = 0; i < cloudCount; i++) {
-            this._doodleClouds.push({
+            this._clouds.push({
                 x: Math.random() * canvasW * 1.3 - canvasW * 0.15,
                 y: 10 + Math.random() * 60,
                 speed: 5 + Math.random() * 15,
                 size: 20 + Math.random() * 30,
-                wobblePhase: Math.random() * Math.PI * 2,
+                bobPhase: Math.random() * Math.PI * 2,
                 puffs: this._generateCloudPuffs(3 + Math.floor(Math.random() * 3)),
             });
         }
@@ -758,7 +731,7 @@ export class WeatherSystem {
     }
 
     /**
-     * Generate wobbly puff shapes for a single cloud.
+     * Generate smooth puff shapes for a single cloud.
      */
     _generateCloudPuffs(count) {
         const puffs = [];
@@ -773,16 +746,16 @@ export class WeatherSystem {
     }
 
     /**
-     * Update doodle cloud positions.
+     * Update cloud positions.
      */
-    _updateDoodleClouds(delta) {
-        if (this._doodleClouds.length === 0) return;
+    _updateClouds(delta) {
+        if (this._clouds.length === 0) return;
 
         const canvasW = this._canvas ? this._canvas.width : 800;
 
-        for (const cloud of this._doodleClouds) {
+        for (const cloud of this._clouds) {
             cloud.x += cloud.speed * delta;
-            cloud.wobblePhase += delta * 1.5;
+            cloud.bobPhase += delta * 1.5;
 
             // Wrap around screen
             if (cloud.x > canvasW + cloud.size * 2) {
@@ -792,53 +765,30 @@ export class WeatherSystem {
     }
 
     /**
-     * Render doodle-style clouds with wobbly outlines and sketchy fill.
+     * Render clean smooth clouds with flat fill and uniform outlines.
      */
-    _renderDoodleClouds(ctx, canvasWidth, canvasHeight) {
-        if (this._doodleClouds.length === 0) return;
+    _renderClouds(ctx, canvasWidth, canvasHeight) {
+        if (this._clouds.length === 0) return;
 
         ctx.save();
 
-        for (const cloud of this._doodleClouds) {
-            const wobbleY = Math.sin(cloud.wobblePhase) * 2;
+        for (const cloud of this._clouds) {
+            const bobY = Math.sin(cloud.bobPhase) * 2;
 
-            ctx.globalAlpha = 0.15;
-            ctx.fillStyle = 'rgba(220, 220, 230, 0.5)';
-            ctx.strokeStyle = 'rgba(120, 120, 140, 0.3)';
+            ctx.globalAlpha = 0.18;
+            ctx.fillStyle = 'rgba(220, 220, 235, 0.6)';
+            ctx.strokeStyle = 'rgba(100, 100, 120, 0.3)';
             ctx.lineWidth = 1.5;
-            ctx.lineCap = 'round';
 
-            // Draw each puff as a wobbly circle
+            // Draw each puff as a clean circle with flat fill
             for (const puff of cloud.puffs) {
                 const px = cloud.x + puff.ox;
-                const py = cloud.y + puff.oy + wobbleY;
+                const py = cloud.y + puff.oy + bobY;
                 const r = puff.radius;
 
-                // Wobbly circle
                 ctx.beginPath();
-                const segments = 12;
-                for (let i = 0; i <= segments; i++) {
-                    const angle = (Math.PI * 2 * i) / segments;
-                    const wobR = r + (Math.random() - 0.5) * r * 0.25;
-                    const cx = px + Math.cos(angle) * wobR;
-                    const cy = py + Math.sin(angle) * wobR;
-                    if (i === 0) ctx.moveTo(cx, cy);
-                    else ctx.lineTo(cx, cy);
-                }
-                ctx.closePath();
+                ctx.arc(px, py, r, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.stroke();
-            }
-
-            // Sketchy internal hatching lines for cloud texture
-            ctx.globalAlpha = 0.05;
-            ctx.strokeStyle = 'rgba(100, 100, 120, 0.3)';
-            ctx.lineWidth = 0.5;
-            const hatchSpacing = 5;
-            for (let i = -cloud.size; i < cloud.size; i += hatchSpacing) {
-                ctx.beginPath();
-                ctx.moveTo(cloud.x + i + (Math.random() - 0.5) * 2, cloud.y - 10 + wobbleY);
-                ctx.lineTo(cloud.x + i - 8 + (Math.random() - 0.5) * 2, cloud.y + 10 + wobbleY);
                 ctx.stroke();
             }
         }
@@ -846,10 +796,10 @@ export class WeatherSystem {
         ctx.restore();
     }
 
-    // ── Doodle Weather Marks ────────────────────────────────────────────────
+    // ── Weather Effect Marks ─────────────────────────────────────────────────
 
     /**
-     * Update and spawn doodle weather annotation marks.
+     * Update and spawn weather effect marks.
      */
     _updateWeatherMarks(delta) {
         const canvasW = this._canvas ? this._canvas.width : 800;

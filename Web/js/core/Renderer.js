@@ -1,6 +1,10 @@
 /**
  * Renderer - 2D Canvas rendering utilities
  * Replaces Godot's CanvasItem / draw_* functions
+ *
+ * Art style: flat cel-shaded, clean uniform-thickness black outlines,
+ * hard-edged shadow + highlight per colour zone, NO gradients, vibrant
+ * saturated fantasy palette, chibi proportions, simple dot eyes.
  */
 export class Renderer {
     constructor(ctx, engine) {
@@ -95,14 +99,16 @@ export class Renderer {
         }
     }
 
-    drawLine(x1, y1, x2, y2, color, width = 1) {
+    drawLine(x1, y1, x2, y2, color, width = Renderer.CEL_OUTLINE_WIDTH) {
+        this.ctx.save();
         this.ctx.strokeStyle = color;
         this.ctx.lineWidth = width;
+        this.ctx.lineCap = 'round';
         this.ctx.beginPath();
         this.ctx.moveTo(x1 - this._camera.x, y1 - this._camera.y);
         this.ctx.lineTo(x2 - this._camera.x, y2 - this._camera.y);
         this.ctx.stroke();
-        this.ctx.lineWidth = 1;
+        this.ctx.restore();
     }
 
     drawText(text, x, y, {

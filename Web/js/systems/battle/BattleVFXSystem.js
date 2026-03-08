@@ -5,8 +5,8 @@
  * Spawns hit impacts, comic-book text, teleport smoke, knockback trails,
  * and element-specific VFX — all rendered via Canvas 2D drawing primitives.
  *
- * Doodle Art Style: wobbly lines, hand-drawn shapes, sketch marks,
- * hatching overlays, and decorative doodle particles.
+ * Cel-Shaded Art Style: clean black outlines of uniform thickness,
+ * flat solid color fills, bold geometric shapes, no gradients or wobble.
  */
 
 import { AttackStyle } from '../../data/WeaponAnimationData.js';
@@ -15,6 +15,9 @@ import { AttackStyle } from '../../data/WeaponAnimationData.js';
 const MAX_VFX = 30;
 const COMIC_TEXT_THRESHOLD = 30;
 const IMPACT_WORDS = ['BAM!', 'POW!', 'WHAM!', 'CRACK!', 'SMASH!'];
+
+/** Uniform outline thickness for cel-shaded style (2-3px). */
+const OUTLINE_WIDTH = 2.5;
 
 // ── Element Color Palette ───────────────────────────────────────────────────
 const ELEMENT_COLORS = {
@@ -30,65 +33,49 @@ function elemColor(element) {
     return ELEMENT_COLORS[element] || DEFAULT_COLOR;
 }
 
+/**
+ * Derive a darker shade for cel-shaded shadow from a hex color.
+ */
+function darkenColor(hex, amount = 0.35) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    const dr = Math.round(r * (1 - amount));
+    const dg = Math.round(g * (1 - amount));
+    const db = Math.round(b * (1 - amount));
+    return `rgb(${dr},${dg},${db})`;
+}
+
 export class BattleVFXSystem {
     constructor() {
         /** @type {Array<{type: string, x: number, y: number, age: number, maxAge: number, data: object}>} */
         this._effects = [];
 
-        /** Doodle-style decorative particles. */
+        /** Clean geometric decorative particles. */
         this.particles = [];
     }
 
-    // ── Doodle Helpers ───────────────────────────────────────────────────────
+    // ── Clean Geometric Helpers ──────────────────────────────────────────────
 
     /**
-     * Draw a wobbly line between two points with hand-drawn jitter.
+     * Draw a clean circle with flat fill and uniform black outline.
      */
-    _drawWobblyLine(ctx, x1, y1, x2, y2, segments = 6) {
-        const dx = x2 - x1;
-        const dy = y2 - y1;
+    _drawCleanCircle(ctx, cx, cy, radius) {
         ctx.beginPath();
-        ctx.moveTo(x1 + (Math.random() - 0.5) * 1.5, y1 + (Math.random() - 0.5) * 1.5);
-        for (let i = 1; i <= segments; i++) {
-            const t = i / segments;
-            const px = x1 + dx * t + (Math.random() - 0.5) * 3;
-            const py = y1 + dy * t + (Math.random() - 0.5) * 3;
-            ctx.lineTo(px, py);
-        }
-        ctx.stroke();
-    }
-
-    /**
-     * Draw a wobbly circle (hand-drawn style).
-     */
-    _drawWobblyCircle(ctx, cx, cy, radius, points = 16) {
-        ctx.beginPath();
-        for (let i = 0; i <= points; i++) {
-            const angle = (Math.PI * 2 * i) / points;
-            const wobble = radius + (Math.random() - 0.5) * radius * 0.2;
-            const px = cx + Math.cos(angle) * wobble;
-            const py = cy + Math.sin(angle) * wobble;
-            if (i === 0) {
-                ctx.moveTo(px, py);
-            } else {
-                ctx.lineTo(px, py);
-            }
-        }
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
         ctx.closePath();
     }
 
     /**
-     * Draw a hand-drawn star shape with uneven points.
+     * Draw a clean star shape with precise even points.
      */
-    _drawUnevenStar(ctx, cx, cy, outerR, innerR, points = 5) {
+    _drawCleanStar(ctx, cx, cy, outerR, innerR, points = 5) {
         ctx.beginPath();
         for (let i = 0; i < points * 2; i++) {
             const angle = (Math.PI * 2 * i) / (points * 2) - Math.PI / 2;
-            const r = i % 2 === 0
-                ? outerR + (Math.random() - 0.5) * outerR * 0.3
-                : innerR + (Math.random() - 0.5) * innerR * 0.3;
-            const px = cx + Math.cos(angle) * r + (Math.random() - 0.5) * 1.5;
-            const py = cy + Math.sin(angle) * r + (Math.random() - 0.5) * 1.5;
+            const r = i % 2 === 0 ? outerR : innerR;
+            const px = cx + Math.cos(angle) * r;
+            const py = cy + Math.sin(angle) * r;
             if (i === 0) {
                 ctx.moveTo(px, py);
             } else {
@@ -99,70 +86,59 @@ export class BattleVFXSystem {
     }
 
     /**
-     * Draw small decorative sketch marks around a point (motion lines, stars, spirals).
+     * Draw a clean diamond shape.
      */
-    _drawSketchMarks(ctx, x, y, radius, count = 4) {
-        for (let i = 0; i < count; i++) {
-            const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
-            const dist = radius * (0.6 + Math.random() * 0.6);
-            const mx = x + Math.cos(angle) * dist;
-            const my = y + Math.sin(angle) * dist;
-            const markType = Math.floor(Math.random() * 3);
-
-            ctx.beginPath();
-            if (markType === 0) {
-                // Small motion line
-                const lineLen = 3 + Math.random() * 5;
-                this._drawWobblyLine(ctx, mx, my, mx + Math.cos(angle) * lineLen, my + Math.sin(angle) * lineLen, 3);
-            } else if (markType === 1) {
-                // Tiny star
-                this._drawUnevenStar(ctx, mx, my, 2 + Math.random() * 2, 1, 4);
-                ctx.stroke();
-            } else {
-                // Small spiral
-                for (let j = 0; j < 8; j++) {
-                    const sa = j * 0.8;
-                    const sr = j * 0.5;
-                    const sx = mx + Math.cos(sa) * sr;
-                    const sy = my + Math.sin(sa) * sr;
-                    if (j === 0) ctx.moveTo(sx, sy);
-                    else ctx.lineTo(sx, sy);
-                }
-                ctx.stroke();
-            }
-        }
+    _drawCleanDiamond(ctx, cx, cy, size) {
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - size);
+        ctx.lineTo(cx + size, cy);
+        ctx.lineTo(cx, cy + size);
+        ctx.lineTo(cx - size, cy);
+        ctx.closePath();
     }
 
     /**
-     * Draw a diagonal hatching overlay for sketch texture effect.
+     * Draw clean straight parallel lines radiating outward from a point.
      */
-    _drawHatchingOverlay(ctx, x, y, width, height, spacing = 6) {
-        ctx.save();
-        ctx.globalAlpha = 0.15;
-        ctx.strokeStyle = '#2D2D2D';
-        ctx.lineWidth = 0.5;
-        for (let i = -height; i < width + height; i += spacing) {
+    _drawCleanRadialLines(ctx, x, y, innerR, outerR, count = 4) {
+        for (let i = 0; i < count; i++) {
+            const angle = (Math.PI * 2 * i) / count;
             ctx.beginPath();
-            ctx.moveTo(x + i, y);
-            ctx.lineTo(x + i - height, y + height);
+            ctx.moveTo(x + Math.cos(angle) * innerR, y + Math.sin(angle) * innerR);
+            ctx.lineTo(x + Math.cos(angle) * outerR, y + Math.sin(angle) * outerR);
             ctx.stroke();
         }
-        ctx.restore();
     }
 
     /**
-     * Draw a wobbly speech/impact bubble border around text.
+     * Draw a clean four-pointed sparkle.
      */
-    _drawWobblyBubble(ctx, cx, cy, w, h, spikeCount = 8) {
+    _drawCleanSparkle(ctx, cx, cy, size) {
         ctx.beginPath();
-        const points = spikeCount * 2;
-        for (let i = 0; i <= points; i++) {
-            const angle = (Math.PI * 2 * i) / points;
-            const isSpike = i % 2 === 0;
-            const rx = w * (isSpike ? 1.3 : 1.0) + (Math.random() - 0.5) * 4;
-            const ry = h * (isSpike ? 1.3 : 1.0) + (Math.random() - 0.5) * 4;
-            const px = cx + Math.cos(angle) * rx + (Math.random() - 0.5) * 2;
-            const py = cy + Math.sin(angle) * ry + (Math.random() - 0.5) * 2;
+        // Vertical
+        ctx.moveTo(cx, cy - size);
+        ctx.lineTo(cx + size * 0.2, cy);
+        ctx.lineTo(cx, cy + size);
+        ctx.lineTo(cx - size * 0.2, cy);
+        ctx.closePath();
+        // Horizontal
+        ctx.moveTo(cx - size * 0.7, cy);
+        ctx.lineTo(cx, cy + size * 0.15);
+        ctx.lineTo(cx + size * 0.7, cy);
+        ctx.lineTo(cx, cy - size * 0.15);
+        ctx.closePath();
+    }
+
+    /**
+     * Draw a clean impact burst shape (spiky circle).
+     */
+    _drawCleanBurst(ctx, cx, cy, outerR, innerR, spikeCount = 10) {
+        ctx.beginPath();
+        for (let i = 0; i < spikeCount * 2; i++) {
+            const angle = (Math.PI * 2 * i) / (spikeCount * 2);
+            const r = i % 2 === 0 ? outerR : innerR;
+            const px = cx + Math.cos(angle) * r;
+            const py = cy + Math.sin(angle) * r;
             if (i === 0) {
                 ctx.moveTo(px, py);
             } else {
@@ -170,6 +146,19 @@ export class BattleVFXSystem {
             }
         }
         ctx.closePath();
+    }
+
+    /**
+     * Apply standard cel-shaded fill + black outline to the current path.
+     */
+    _celFillAndStroke(ctx, fillColor, outlineWidth = OUTLINE_WIDTH) {
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+        ctx.strokeStyle = '#1a1414';
+        ctx.lineWidth = outlineWidth;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.stroke();
     }
 
     // ── Public API ──────────────────────────────────────────────────────────
@@ -202,8 +191,8 @@ export class BattleVFXSystem {
                 this._addEffect('basic_hit', x, y, 0.25, { color });
                 break;
         }
-        // Spawn decorative doodle particles around every impact
-        this.spawnDoodleParticles(x, y, 3, color);
+        // Spawn clean geometric particles around every impact
+        this.spawnCleanParticles(x, y, 3, color);
     }
 
     /**
@@ -214,7 +203,7 @@ export class BattleVFXSystem {
         const color = elemColor(element);
         this._addEffect('basic_hit', x, y, 0.25, { color });
         this._addEffect('particles', x, y, 0.35, { color, count: 4, spread: 15 });
-        this.spawnDoodleParticles(x, y, 3, color);
+        this.spawnCleanParticles(x, y, 3, color);
     }
 
     /**
@@ -235,7 +224,7 @@ export class BattleVFXSystem {
      */
     spawnTeleportSmoke(x, y) {
         this._enforce();
-        this._addEffect('smoke_cloud', x, y, 0.50, { color: 'rgba(77, 51, 115, 0.7)', radius: 20 });
+        this._addEffect('smoke_cloud', x, y, 0.50, { color: '#4D3373', radius: 20 });
     }
 
     /**
@@ -244,16 +233,16 @@ export class BattleVFXSystem {
     spawnKnockbackTrail(fromX, fromY, toX, toY) {
         this._enforce();
         this._addEffect('motion_trail', fromX, fromY, 0.35, {
-            color: 'rgba(230, 179, 77, 0.5)',
+            color: '#e6b34d',
             toX, toY,
         });
     }
 
     /**
-     * Spawn doodle-style decorative particles (stars, hearts, spirals, scribbles).
+     * Spawn clean geometric decorative particles (stars, circles, diamonds, sparkles).
      */
-    spawnDoodleParticles(x, y, count = 4, color = '#2D2D2D') {
-        const shapes = ['star', 'heart', 'spiral', 'scribble', 'sparkle'];
+    spawnCleanParticles(x, y, count = 4, color = '#2D2D2D') {
+        const shapes = ['star', 'circle', 'diamond', 'sparkle'];
         for (let i = 0; i < count; i++) {
             const shape = shapes[Math.floor(Math.random() * shapes.length)];
             const angle = Math.random() * Math.PI * 2;
@@ -274,6 +263,11 @@ export class BattleVFXSystem {
         }
     }
 
+    // Keep legacy name as alias for backwards compatibility
+    spawnDoodleParticles(x, y, count = 4, color = '#2D2D2D') {
+        this.spawnCleanParticles(x, y, count, color);
+    }
+
     // ── Update & Render ─────────────────────────────────────────────────────
 
     /**
@@ -288,7 +282,7 @@ export class BattleVFXSystem {
             }
         }
 
-        // Update doodle particles
+        // Update particles
         for (let i = this.particles.length - 1; i >= 0; i--) {
             const p = this.particles[i];
             p.life -= dt;
@@ -326,9 +320,9 @@ export class BattleVFXSystem {
             }
         }
 
-        // Render doodle particles
+        // Render clean geometric particles
         for (const p of this.particles) {
-            this.renderDoodleParticle(ctx, p);
+            this.renderCleanParticle(ctx, p);
         }
     }
 
@@ -337,124 +331,82 @@ export class BattleVFXSystem {
         this.particles = [];
     }
 
-    // ── Doodle Particle Rendering ───────────────────────────────────────────
+    // ── Clean Particle Rendering ────────────────────────────────────────────
 
-    renderDoodleParticle(ctx, p) {
+    renderCleanParticle(ctx, p) {
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rotation);
         ctx.globalAlpha = p.life / p.maxLife;
-        ctx.strokeStyle = p.color;
-        ctx.fillStyle = p.color;
-        ctx.lineWidth = 1.5;
-        ctx.lineCap = 'round';
 
         switch (p.shape) {
             case 'star':
-                this.drawDoodleStar(ctx, 0, 0, p.size);
+                this._drawCleanStar(ctx, 0, 0, p.size, p.size * 0.4, 5);
+                this._celFillAndStroke(ctx, p.color, 2);
                 break;
-            case 'heart':
-                this.drawDoodleHeart(ctx, 0, 0, p.size);
+            case 'circle':
+                this._drawCleanCircle(ctx, 0, 0, p.size * 0.5);
+                this._celFillAndStroke(ctx, p.color, 2);
                 break;
-            case 'spiral':
-                this.drawDoodleSpiral(ctx, 0, 0, p.size);
-                break;
-            case 'scribble':
-                this.drawDoodleScribble(ctx, 0, 0, p.size);
+            case 'diamond':
+                this._drawCleanDiamond(ctx, 0, 0, p.size * 0.6);
+                this._celFillAndStroke(ctx, p.color, 2);
                 break;
             case 'sparkle':
-                this.drawDoodleSparkle(ctx, 0, 0, p.size);
+                this._drawCleanSparkle(ctx, 0, 0, p.size);
+                this._celFillAndStroke(ctx, p.color, 2);
                 break;
         }
         ctx.restore();
     }
 
-    drawDoodleStar(ctx, x, y, size) {
-        this._drawUnevenStar(ctx, x, y, size, size * 0.4, 5);
-        ctx.stroke();
+    // Keep legacy name as alias for backwards compatibility
+    renderDoodleParticle(ctx, p) {
+        this.renderCleanParticle(ctx, p);
     }
 
-    drawDoodleHeart(ctx, x, y, size) {
-        const s = size * 0.5;
-        ctx.beginPath();
-        ctx.moveTo(x, y + s * 0.4 + (Math.random() - 0.5));
-        ctx.bezierCurveTo(
-            x - s * 1.2 + (Math.random() - 0.5), y - s * 0.8 + (Math.random() - 0.5),
-            x - s * 0.4 + (Math.random() - 0.5), y - s * 1.4 + (Math.random() - 0.5),
-            x + (Math.random() - 0.5), y - s * 0.6 + (Math.random() - 0.5)
-        );
-        ctx.bezierCurveTo(
-            x + s * 0.4 + (Math.random() - 0.5), y - s * 1.4 + (Math.random() - 0.5),
-            x + s * 1.2 + (Math.random() - 0.5), y - s * 0.8 + (Math.random() - 0.5),
-            x + (Math.random() - 0.5), y + s * 0.4 + (Math.random() - 0.5)
-        );
-        ctx.stroke();
-    }
-
-    drawDoodleSpiral(ctx, x, y, size) {
-        ctx.beginPath();
-        const turns = 2.5;
-        const steps = 20;
-        for (let i = 0; i <= steps; i++) {
-            const t = i / steps;
-            const angle = t * Math.PI * 2 * turns;
-            const r = t * size + (Math.random() - 0.5) * 0.5;
-            const px = x + Math.cos(angle) * r;
-            const py = y + Math.sin(angle) * r;
-            if (i === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
-        }
-        ctx.stroke();
-    }
-
-    drawDoodleScribble(ctx, x, y, size) {
-        ctx.beginPath();
-        const points = 8;
-        for (let i = 0; i < points; i++) {
-            const px = x + (Math.random() - 0.5) * size * 2;
-            const py = y + (Math.random() - 0.5) * size * 2;
-            if (i === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
-        }
-        ctx.stroke();
-    }
-
-    drawDoodleSparkle(ctx, x, y, size) {
-        // Four-pointed sparkle with wobbly lines
-        for (let i = 0; i < 4; i++) {
-            const angle = (Math.PI / 2) * i;
-            const len = i % 2 === 0 ? size : size * 0.5;
-            this._drawWobblyLine(ctx,
-                x, y,
-                x + Math.cos(angle) * len, y + Math.sin(angle) * len,
-                3
-            );
-        }
-    }
-
-    // ── Drawing Implementations (Doodle Style) ──────────────────────────────
+    // ── Drawing Implementations (Cel-Shaded Style) ──────────────────────────
 
     _drawSlashMark(ctx, e, progress, alpha) {
         ctx.save();
         ctx.translate(e.x, e.y);
         ctx.globalAlpha = alpha * 0.9;
-        ctx.strokeStyle = e.data.color;
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#1a1414';
+        ctx.lineWidth = OUTLINE_WIDTH;
         ctx.lineCap = 'round';
-        // X-shaped slash with wobbly/sketchy lines
+
+        // Clean X-shaped slash with uniform straight lines
+        const len = 18;
         for (let i = 0; i < 2; i++) {
             const angle = (Math.PI / 4) + (Math.PI / 2) * i;
-            const len = 18;
             const x1 = Math.cos(angle) * -len;
             const y1 = Math.sin(angle) * -len;
             const x2 = Math.cos(angle) * len;
             const y2 = Math.sin(angle) * len;
-            this._drawWobblyLine(ctx, x1, y1, x2, y2, 5);
+
+            // Inner color line
+            ctx.strokeStyle = e.data.color;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            // Black outline on top
+            ctx.strokeStyle = '#1a1414';
+            ctx.lineWidth = OUTLINE_WIDTH;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
         }
-        // Decorative sketch marks around slash
-        ctx.lineWidth = 1;
+
+        // Clean radial accent lines
         ctx.globalAlpha = alpha * 0.5;
-        this._drawSketchMarks(ctx, 0, 0, 22, 3);
+        ctx.strokeStyle = '#1a1414';
+        ctx.lineWidth = 1.5;
+        this._drawCleanRadialLines(ctx, 0, 0, 14, 22, 4);
+
         ctx.restore();
     }
 
@@ -464,18 +416,37 @@ export class BattleVFXSystem {
         const scale = 0.5 + progress * 0.7;
         ctx.scale(scale, scale);
         ctx.globalAlpha = alpha * 0.85;
-        ctx.strokeStyle = e.data.color;
-        ctx.lineWidth = 2;
+
+        // Clean four-directional burst lines
+        ctx.strokeStyle = '#1a1414';
+        ctx.lineWidth = OUTLINE_WIDTH;
         ctx.lineCap = 'round';
         for (let i = 0; i < 4; i++) {
             const angle = (Math.PI / 4) + (Math.PI / 2) * i;
             const dir = { x: Math.cos(angle), y: Math.sin(angle) };
-            this._drawWobblyLine(ctx, dir.x * 3, dir.y * 3, dir.x * 12, dir.y * 12, 3);
+
+            // Color line
+            ctx.strokeStyle = e.data.color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(dir.x * 3, dir.y * 3);
+            ctx.lineTo(dir.x * 12, dir.y * 12);
+            ctx.stroke();
+
+            // Outline
+            ctx.strokeStyle = '#1a1414';
+            ctx.lineWidth = OUTLINE_WIDTH;
+            ctx.beginPath();
+            ctx.moveTo(dir.x * 3, dir.y * 3);
+            ctx.lineTo(dir.x * 12, dir.y * 12);
+            ctx.stroke();
         }
-        // Small decorative marks
-        ctx.lineWidth = 1;
-        ctx.globalAlpha = alpha * 0.4;
-        this._drawSketchMarks(ctx, 0, 0, 14, 2);
+
+        // Center diamond
+        ctx.globalAlpha = alpha * 0.6;
+        this._drawCleanDiamond(ctx, 0, 0, 4);
+        this._celFillAndStroke(ctx, e.data.color, 1.5);
+
         ctx.restore();
     }
 
@@ -484,16 +455,25 @@ export class BattleVFXSystem {
         const lineWidth = 3 - progress * 2;
         ctx.save();
         ctx.globalAlpha = alpha * 0.8;
+
+        // Clean circle outline
+        this._drawCleanCircle(ctx, e.x, e.y, radius);
         ctx.strokeStyle = e.data.color;
-        ctx.lineWidth = Math.max(0.5, lineWidth);
-        ctx.lineCap = 'round';
-        // Wobbly circle instead of clean arc
-        this._drawWobblyCircle(ctx, e.x, e.y, radius, 20);
+        ctx.lineWidth = Math.max(1, lineWidth);
         ctx.stroke();
-        // Decorative sketch marks around shockwave
-        ctx.lineWidth = 1;
+
+        // Black outline ring
+        this._drawCleanCircle(ctx, e.x, e.y, radius);
+        ctx.strokeStyle = '#1a1414';
+        ctx.lineWidth = OUTLINE_WIDTH;
+        ctx.stroke();
+
+        // Clean radial accent lines around shockwave
         ctx.globalAlpha = alpha * 0.4;
-        this._drawSketchMarks(ctx, e.x, e.y, radius + 6, 4);
+        ctx.strokeStyle = '#1a1414';
+        ctx.lineWidth = 1.5;
+        this._drawCleanRadialLines(ctx, e.x, e.y, radius + 2, radius + 8, 6);
+
         ctx.restore();
     }
 
@@ -504,26 +484,35 @@ export class BattleVFXSystem {
         ctx.rotate(progress * Math.PI / 6);
         ctx.scale(scale, scale);
         ctx.globalAlpha = alpha * 0.85;
-        ctx.strokeStyle = e.data.color;
-        ctx.lineWidth = 2.5;
-        ctx.lineCap = 'round';
+
+        // Clean six-pointed radial burst lines
         const points = 6;
         for (let i = 0; i < points; i++) {
             const angle = (Math.PI * 2 * i) / points;
             const dir = { x: Math.cos(angle), y: Math.sin(angle) };
-            this._drawWobblyLine(ctx, dir.x * 2, dir.y * 2, dir.x * 16, dir.y * 16, 4);
-        }
 
-        // Sketch texture hatching overlay on elemental burst
-        ctx.globalAlpha = alpha * 0.15;
-        ctx.strokeStyle = '#2D2D2D';
-        ctx.lineWidth = 0.5;
-        for (let i = -16; i < 16; i += 4) {
+            // Color line
+            ctx.strokeStyle = e.data.color;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
             ctx.beginPath();
-            ctx.moveTo(i, -16);
-            ctx.lineTo(i - 16, 16);
+            ctx.moveTo(dir.x * 2, dir.y * 2);
+            ctx.lineTo(dir.x * 16, dir.y * 16);
+            ctx.stroke();
+
+            // Black outline
+            ctx.strokeStyle = '#1a1414';
+            ctx.lineWidth = OUTLINE_WIDTH;
+            ctx.beginPath();
+            ctx.moveTo(dir.x * 2, dir.y * 2);
+            ctx.lineTo(dir.x * 16, dir.y * 16);
             ctx.stroke();
         }
+
+        // Center sparkle
+        ctx.globalAlpha = alpha * 0.7;
+        this._drawCleanSparkle(ctx, 0, 0, 6);
+        this._celFillAndStroke(ctx, e.data.color, 1.5);
 
         ctx.restore();
     }
@@ -536,37 +525,45 @@ export class BattleVFXSystem {
             : 1.3 - (progress - 0.3) * 0.43;
         ctx.scale(popScale, popScale);
         ctx.globalAlpha = alpha * 0.9;
-        ctx.strokeStyle = e.data.color;
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        // Hand-drawn star with uneven points
-        this._drawUnevenStar(ctx, 0, 0, 14, 8, 8);
-        ctx.stroke();
-        // Decorative sketch marks
-        ctx.lineWidth = 1;
-        ctx.globalAlpha = alpha * 0.5;
-        this._drawSketchMarks(ctx, 0, 0, 16, 3);
+
+        // Clean star with flat fill and black outline
+        this._drawCleanStar(ctx, 0, 0, 14, 8, 8);
+        this._celFillAndStroke(ctx, e.data.color, OUTLINE_WIDTH);
+
+        // Hard-edged shadow on lower half of star
+        ctx.globalAlpha = alpha * 0.25;
+        ctx.fillStyle = '#1a1414';
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(-16, 0, 32, 16);
+        ctx.clip();
+        this._drawCleanStar(ctx, 0, 0, 14, 8, 8);
+        ctx.fill();
+        ctx.restore();
+
         ctx.restore();
     }
 
     _drawBasicHit(ctx, e, progress, alpha) {
         const radius = 4 + progress * 16;
         ctx.save();
-        ctx.globalAlpha = alpha * 0.4;
-        ctx.fillStyle = e.data.color;
-        // Wobbly filled circle
-        this._drawWobblyCircle(ctx, e.x, e.y, radius, 12);
+        ctx.globalAlpha = alpha * 0.7;
+
+        // Flat filled circle with black outline
+        this._drawCleanCircle(ctx, e.x, e.y, radius);
+        this._celFillAndStroke(ctx, e.data.color, OUTLINE_WIDTH);
+
+        // Hard-edged shadow on lower half
+        ctx.globalAlpha = alpha * 0.2;
+        ctx.fillStyle = '#1a1414';
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(e.x - radius - 1, e.y, radius * 2 + 2, radius + 1);
+        ctx.clip();
+        this._drawCleanCircle(ctx, e.x, e.y, radius);
         ctx.fill();
-        ctx.globalAlpha = alpha * 0.8;
-        ctx.strokeStyle = e.data.color;
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        this._drawWobblyCircle(ctx, e.x, e.y, radius, 12);
-        ctx.stroke();
-        // Sketch marks
-        ctx.lineWidth = 1;
-        ctx.globalAlpha = alpha * 0.4;
-        this._drawSketchMarks(ctx, e.x, e.y, radius + 4, 2);
+        ctx.restore();
+
         ctx.restore();
     }
 
@@ -577,28 +574,30 @@ export class BattleVFXSystem {
             for (let i = 0; i < (e.data.count || 4); i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const dist = (e.data.spread || 15) * (0.3 + Math.random() * 0.7);
+                const shapeType = Math.floor(Math.random() * 3); // 0=circle, 1=diamond, 2=star
                 e.data._particles.push({
                     dx: Math.cos(angle) * dist,
                     dy: Math.sin(angle) * dist,
                     size: 2 + Math.random() * 2,
+                    shapeType: shapeType,
                 });
             }
         }
         ctx.save();
-        ctx.fillStyle = e.data.color;
         for (const p of e.data._particles) {
             ctx.globalAlpha = alpha * 0.9;
             const px = e.x + p.dx * progress;
             const py = e.y + p.dy * progress;
-            // Wobbly small rectangles instead of clean ones
-            ctx.beginPath();
-            const hs = p.size / 2;
-            ctx.moveTo(px - hs + (Math.random() - 0.5), py - hs + (Math.random() - 0.5));
-            ctx.lineTo(px + hs + (Math.random() - 0.5), py - hs + (Math.random() - 0.5));
-            ctx.lineTo(px + hs + (Math.random() - 0.5), py + hs + (Math.random() - 0.5));
-            ctx.lineTo(px - hs + (Math.random() - 0.5), py + hs + (Math.random() - 0.5));
-            ctx.closePath();
-            ctx.fill();
+
+            // Clean geometric particle shapes with outlines
+            if (p.shapeType === 0) {
+                this._drawCleanCircle(ctx, px, py, p.size);
+            } else if (p.shapeType === 1) {
+                this._drawCleanDiamond(ctx, px, py, p.size);
+            } else {
+                this._drawCleanStar(ctx, px, py, p.size, p.size * 0.4, 4);
+            }
+            this._celFillAndStroke(ctx, e.data.color, 1.5);
         }
         ctx.restore();
     }
@@ -607,69 +606,55 @@ export class BattleVFXSystem {
         // Pop in, hold, fade out
         let scale, textAlpha;
         if (progress < 0.15) {
-            // Pop in
             scale = 0.3 + (progress / 0.15) * 0.8;
             textAlpha = progress / 0.15;
         } else if (progress < 0.6) {
-            // Hold
             scale = 1.1 - (progress - 0.15) * 0.22;
             textAlpha = 1;
         } else {
-            // Fade out + float up
             scale = 1.0;
             textAlpha = 1 - (progress - 0.6) / 0.4;
         }
 
         const floatY = progress > 0.6 ? (progress - 0.6) / 0.4 * 30 : 0;
-        const rotation = (Math.random() - 0.5) * 0.01; // subtle jitter
 
         ctx.save();
         ctx.translate(e.x, e.y - floatY);
-        ctx.rotate(rotation);
         ctx.scale(scale, scale);
         ctx.globalAlpha = textAlpha;
 
-        // Measure text for bubble sizing
-        ctx.font = `bold ${e.data.fontSize}px 'Comic Sans MS', 'Segoe Print', cursive, monospace`;
+        // Measure text for bubble sizing — clean bold sans-serif font
+        ctx.font = `bold ${e.data.fontSize}px 'Arial Black', 'Arial', 'Helvetica', sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         const textMetrics = ctx.measureText(e.data.word);
         const textW = textMetrics.width * 0.6;
         const textH = e.data.fontSize * 0.5;
 
-        // Hand-drawn impact bubble with wobbly border
-        ctx.fillStyle = 'rgba(255, 255, 230, 0.85)';
-        this._drawWobblyBubble(ctx, 0, 0, textW, textH, 10);
+        // Clean impact burst bubble with uniform-thickness outline
+        this._drawCleanBurst(ctx, 0, 0, textW * 1.3, textH * 1.0, 10);
+        ctx.fillStyle = '#fffff0';
         ctx.fill();
-        ctx.strokeStyle = 'rgba(26, 20, 20, 0.9)';
-        ctx.lineWidth = 2.5;
-        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#1a1414';
+        ctx.lineWidth = OUTLINE_WIDTH;
         ctx.lineJoin = 'round';
-        this._drawWobblyBubble(ctx, 0, 0, textW, textH, 10);
         ctx.stroke();
 
-        // Small decoration marks around the text
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = 'rgba(26, 20, 20, 0.4)';
-        ctx.globalAlpha = textAlpha * 0.5;
-        this._drawSketchMarks(ctx, 0, 0, textW + 8, 4);
-        ctx.globalAlpha = textAlpha;
+        // Clean bold sans-serif text with uniform black outline
+        ctx.font = `bold ${e.data.fontSize}px 'Arial Black', 'Arial', 'Helvetica', sans-serif`;
 
-        // Handwriting-style font rendering: use cursive/comic font
-        ctx.font = `bold ${e.data.fontSize}px 'Comic Sans MS', 'Segoe Print', cursive, monospace`;
-
-        // Outline (hand-drawn look: slightly offset multiple strokes)
-        ctx.strokeStyle = 'rgba(26, 20, 20, 0.95)';
+        // Black outline (single clean stroke)
+        ctx.strokeStyle = '#1a1414';
         ctx.lineWidth = 4;
         ctx.lineJoin = 'round';
-        ctx.strokeText(e.data.word, (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.5);
+        ctx.strokeText(e.data.word, 0, 0);
 
-        // Shadow
-        ctx.fillStyle = 'rgba(26, 26, 38, 0.9)';
-        ctx.fillText(e.data.word, 3, 3);
+        // Hard-edged shadow offset
+        ctx.fillStyle = '#1a1a26';
+        ctx.fillText(e.data.word, 2, 2);
 
-        // Text
-        ctx.fillStyle = '#ffffe6';
+        // Text fill
+        ctx.fillStyle = '#fffff0';
         ctx.fillText(e.data.word, 0, 0);
 
         ctx.restore();
@@ -691,16 +676,16 @@ export class BattleVFXSystem {
                 });
             }
         }
-        ctx.fillStyle = e.data.color || 'rgba(77, 51, 115, 0.7)';
-        ctx.lineCap = 'round';
+
         for (const p of e.data._puffs) {
             const px = e.x + p.ox + p.dx * progress;
             const py = e.y + p.oy + p.dy * progress;
             const size = p.size * (1 + progress * 0.5);
             ctx.globalAlpha = alpha * 0.7;
-            // Wobbly puff circles instead of rectangles
-            this._drawWobblyCircle(ctx, px, py, size * 0.6, 8);
-            ctx.fill();
+
+            // Clean flat circle puffs with black outline
+            this._drawCleanCircle(ctx, px, py, size * 0.6);
+            this._celFillAndStroke(ctx, e.data.color || '#4D3373', OUTLINE_WIDTH);
         }
         ctx.restore();
     }
@@ -708,11 +693,24 @@ export class BattleVFXSystem {
     _drawMotionTrail(ctx, e, progress, alpha) {
         ctx.save();
         ctx.globalAlpha = alpha * 0.5;
-        ctx.strokeStyle = e.data.color || 'rgba(230, 179, 77, 0.5)';
         ctx.lineWidth = 4 - progress * 3.5;
         ctx.lineCap = 'round';
-        // Wobbly motion trail line
-        this._drawWobblyLine(ctx, e.x, e.y, e.data.toX, e.data.toY, 8);
+
+        // Clean straight motion trail line
+        ctx.strokeStyle = e.data.color || '#e6b34d';
+        ctx.beginPath();
+        ctx.moveTo(e.x, e.y);
+        ctx.lineTo(e.data.toX, e.data.toY);
+        ctx.stroke();
+
+        // Black outline
+        ctx.strokeStyle = '#1a1414';
+        ctx.lineWidth = OUTLINE_WIDTH;
+        ctx.beginPath();
+        ctx.moveTo(e.x, e.y);
+        ctx.lineTo(e.data.toX, e.data.toY);
+        ctx.stroke();
+
         ctx.restore();
     }
 

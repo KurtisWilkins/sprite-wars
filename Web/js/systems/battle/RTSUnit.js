@@ -1,6 +1,11 @@
 /**
  * RTSUnit.js — Real-time unit extending BattleUnit with continuous position,
- * velocity, attack cooldowns, and movement state for Hero's Hour-style combat.
+ * velocity, attack cooldowns, and movement state for RTS combat.
+ *
+ * Art Style: 2D mobile game cel-shaded style with chibi proportions.
+ * Visual rendering (clean outlines, flat shading, chibi body) is handled by
+ * RTSBattleRenderer + HumanoidSpriteSystem. This file provides the visual state
+ * data (facing, walkFrame, hitFlashTimer, raceId, equipment) they consume.
  *
  * Each RTSUnit exists on a continuous 2D battlefield (not grid-locked).
  * Units autonomously move toward enemies and attack/use abilities in real-time.
@@ -97,7 +102,7 @@ export class RTSUnit extends BattleUnit {
     /** Walk animation timer. */
     walkTimer = 0;
 
-    /** Flash timer for hit feedback. */
+    /** Flash timer for hit feedback (clean on/off flash, no wobbly sine). */
     hitFlashTimer = 0;
 
     /** Race ID for sprite rendering. */

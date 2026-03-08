@@ -135,7 +135,7 @@ const STAGE_DESCRIPTIONS = {
     3: 'The final evolution. A fully realized Sprite at the peak of its power.',
 };
 
-const COLOR_BG = '#0b0b1a';
+const COLOR_BG = '#1a2a3a';  // Medieval fantasy flat dark blue
 
 export class SpriteCenterScene extends Scene {
     constructor(engine) {
@@ -856,7 +856,7 @@ export class SpriteCenterScene extends Scene {
         const progressBar = document.createElement('div');
         progressBar.style.cssText = 'width:100%;height:6px;background:#1a1a2e;border-radius:3px;margin-bottom:12px;overflow:hidden;';
         const progressFill = document.createElement('div');
-        progressFill.style.cssText = `width:${(caughtCount / TOTAL_FORMS) * 100}%;height:100%;background:linear-gradient(90deg,#33cc66,#66ff99);`;
+        progressFill.style.cssText = `width:${(caughtCount / TOTAL_FORMS) * 100}%;height:100%;background:#33cc66;`;
         progressBar.appendChild(progressFill);
         this._contentEl.appendChild(progressBar);
 
@@ -2146,9 +2146,7 @@ export class SpriteCenterScene extends Scene {
         `;
         if (powerScore > 60) {
             powerBadge.style.cssText += `
-                background:linear-gradient(90deg, ${powerColor}22, ${powerColor}44, ${powerColor}22);
-                background-size:200% 100%;
-                animation:equip-power-shimmer 3s linear infinite;
+                background:${powerColor}33;
             `;
         }
         powerBadge.textContent = `\u2B50 ${powerScore} PWR`;
