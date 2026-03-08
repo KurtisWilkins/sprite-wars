@@ -255,11 +255,22 @@ export class UnitRenderer {
             UnitRenderer._drawStatusIcons(ctx, statusEffects, x, top + size + (showHpBar ? 10 : 2), size, time);
         }
 
-        // ── Team indicator border ───────────────────────────────────
-        const teamColor = team === 0 ? 'rgba(51,153,255,0.5)' : 'rgba(255,51,51,0.5)';
+        // ── Team indicator border — doodle wobbly outline ──────────
+        const teamColor = team === 0 ? 'rgba(51,153,255,0.6)' : 'rgba(255,51,51,0.6)';
+        ctx.save();
         ctx.strokeStyle = teamColor;
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(left, top + bobOffset, size, size);
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        const tw = 1.0;
+        ctx.beginPath();
+        ctx.moveTo(left + (Math.random() - 0.5) * tw, top + bobOffset + (Math.random() - 0.5) * tw);
+        ctx.lineTo(left + size + (Math.random() - 0.5) * tw, top + bobOffset + (Math.random() - 0.5) * tw);
+        ctx.lineTo(left + size + (Math.random() - 0.5) * tw, top + bobOffset + size + (Math.random() - 0.5) * tw);
+        ctx.lineTo(left + (Math.random() - 0.5) * tw, top + bobOffset + size + (Math.random() - 0.5) * tw);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
 
         ctx.restore();
     }
@@ -704,11 +715,14 @@ export class UnitRenderer {
      * @returns {HTMLElement}
      */
     static createEquipmentDisplay(equipment, size = 120) {
+        // Doodle: paper background with wobbly border for equipment display
         const container = document.createElement('div');
         container.style.cssText = `
             position:relative;width:${size}px;height:${size}px;
-            background:rgba(0,0,0,0.3);border-radius:8px;
-            border:1px solid rgba(255,255,255,0.1);
+            background:#FEF9E7;border-radius:14px 6px 10px 8px;
+            border:2px solid #2D2D2D;
+            box-shadow:2px 2px 0 #2D2D2D;
+            font-family:'Patrick Hand','Comic Sans MS',cursive;
         `;
 
         // Slot positions (relative percentages for paper-doll layout)
@@ -731,18 +745,23 @@ export class UnitRenderer {
             const eqData = eqId ? UnitRenderer._getEquipmentData(eqId) : null;
             const rarityColor = eqData ? (RARITY_COLORS[eqData.rarity] || '#555') : '#333';
 
+            // Doodle: uneven border-radius, ink border, paper fill
+            const slotRotation = (Math.random() - 0.5) * 4;
             const slotEl = document.createElement('div');
             slotEl.style.cssText = `
                 position:absolute;
                 left:${pos.x * size - slotSize / 2}px;
                 top:${pos.y * size - slotSize / 2}px;
                 width:${slotSize}px;height:${slotSize}px;
-                border-radius:4px;
-                background:${eqData ? rarityColor + '33' : 'rgba(60,60,80,0.4)'};
-                border:1px solid ${eqData ? rarityColor + '88' : 'rgba(255,255,255,0.1)'};
+                border-radius:8px 4px 6px 5px;
+                background:${eqData ? '#FEF0C7' : '#F5F0E0'};
+                border:1.5px solid #2D2D2D;
                 display:flex;align-items:center;justify-content:center;
-                font-size:${slotSize * 0.4}px;color:${eqData ? '#fff' : '#444'};
+                font-size:${slotSize * 0.4}px;color:${eqData ? '#2D2D2D' : '#999'};
                 cursor:pointer;
+                transform:rotate(${slotRotation}deg);
+                box-shadow:1px 1px 0 #2D2D2D;
+                font-family:'Patrick Hand','Comic Sans MS',cursive;
             `;
             slotEl.title = eqData ? `${eqData.equipment_name} (${eqData.rarity})` : `Empty ${slot} slot`;
             slotEl.textContent = pos.label;

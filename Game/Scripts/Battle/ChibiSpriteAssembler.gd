@@ -8,6 +8,13 @@
 ## sourced from ChibiSpriteConfig.get_doodle_style(). All pixel art is generated
 ## procedurally via Image + ImageTexture (no external texture files required).
 ##
+## Doodle rendering features:
+##   - Wobbly/sketchy outlines via _draw_doodle_line() and _draw_doodle_rect_outline()
+##   - Hatching/scribble shading via _apply_doodle_hatching()
+##   - Sparkle or dot eyes via _draw_doodle_eyes()
+##   - Wobbly ellipse outlines via _draw_doodle_ellipse_outline()
+##   - Filled circle helper via _draw_filled_circle()
+##
 ## Layer order (back to front):
 ##   BackArm -> Legs -> Body -> Head -> FrontArm -> Weapon
 class_name ChibiSpriteAssembler
@@ -61,6 +68,8 @@ func assemble_sprite(config: Dictionary) -> Node2D:
 	# Doodle art style: all outlines use wobbly/sketchy lines, shading uses
 	# hatching, and eyes are drawn in the chibi doodle style (sparkle or dot).
 	# Style parameters come from ChibiSpriteConfig.get_doodle_style().
+	# The doodle config controls wobble amplitude/frequency, hatching density,
+	# eye type (sparkle/dot), blush marks, and ink color variations.
 	var race_id: int = int(config.get("race_id", 0))
 	var stage: int = clampi(int(config.get("evolution_stage", 1)), 1, 3)
 	var skin_color_val = config.get("skin_color", DEFAULT_SKIN_COLOR)
@@ -149,6 +158,7 @@ func assemble_sprite(config: Dictionary) -> Node2D:
 
 ## Create the oversized chibi head (~26x24 px on a 64x64 canvas).
 ## Race ID controls shape variation; stage adds detail (horns, crest, etc.).
+## Eyes are rendered in doodle style (sparkle or dot) via _draw_doodle_eyes().
 func _create_head(race_id: int, stage: int, skin_color: Color) -> Sprite2D:
 	var img := Image.create(CANVAS_SIZE, CANVAS_SIZE, false, Image.FORMAT_RGBA8)
 
@@ -166,31 +176,29 @@ func _create_head(race_id: int, stage: int, skin_color: Color) -> Sprite2D:
 	# Draw rounded head shape: an ellipse filled with skin color.
 	_draw_filled_ellipse(img, cx, cy, half_w, half_h, skin_color)
 
-	# Outline (1 px darker).
+	# Doodle hatching on the head fill for sketchy shading.
+	var head_rect := Rect2i(left, top, half_w * 2, half_h * 2)
+	_apply_doodle_hatching(img, head_rect, skin_color, skin_color.darkened(0.20))
+
+	# Outline — wobbly doodle ellipse instead of clean ellipse.
 	var outline_color := skin_color.darkened(0.35)
-	_draw_ellipse_outline(img, cx, cy, half_w, half_h, outline_color)
+	_draw_doodle_ellipse_outline(img, cx, cy, half_w, half_h, outline_color)
 
-	# ── Eyes ─────────────────────────────────────────────────────────────
+	# ── Eyes — doodle style (sparkle / dot) ──────────────────────────────
 	var eye_color: Color = EYE_COLORS[race_id % EYE_COLORS.size()]
-	var eye_y: int = cy + 1
-	var eye_left_x: int = cx - 5
-	var eye_right_x: int = cx + 4
-
-	# 2x2 pixel eyes.
-	_draw_rect_filled(img, eye_left_x, eye_y, 2, 2, eye_color)
-	_draw_rect_filled(img, eye_right_x, eye_y, 2, 2, eye_color)
-
-	# White eye highlights (1 px).
-	img.set_pixel(eye_left_x, eye_y, Color.WHITE)
-	img.set_pixel(eye_right_x, eye_y, Color.WHITE)
+	var head_rect_f := Rect2(
+		Vector2(float(left), float(top)),
+		Vector2(float(half_w * 2), float(half_h * 2))
+	)
+	_draw_doodle_eyes(img, head_rect_f, eye_color)
 
 	# ── Mouth ────────────────────────────────────────────────────────────
 	var mouth_y: int = cy + 5
 	var mouth_color := skin_color.darkened(0.25)
-	# Simple 4-pixel line mouth.
-	for mx in range(cx - 2, cx + 2):
-		if mx >= 0 and mx < CANVAS_SIZE and mouth_y >= 0 and mouth_y < CANVAS_SIZE:
-			img.set_pixel(mx, mouth_y, mouth_color)
+	# Doodle-style wobbly mouth line instead of straight pixels.
+	var mouth_from := Vector2(float(cx - 2), float(mouth_y))
+	var mouth_to := Vector2(float(cx + 2), float(mouth_y))
+	_draw_doodle_line(img, mouth_from, mouth_to, mouth_color, 1.0)
 
 	# ── Race-based features ──────────────────────────────────────────────
 	# Odd races get pointed ears; even races get round cheeks.
@@ -204,11 +212,8 @@ func _create_head(race_id: int, stage: int, skin_color: Color) -> Sprite2D:
 				img.set_pixel(cx - ear_x_offset, ear_y_pos, ear_color)
 			if cx + ear_x_offset < CANVAS_SIZE and ear_y_pos >= 0:
 				img.set_pixel(cx + ear_x_offset - 1, ear_y_pos, ear_color)
-	else:
-		# Blush marks on cheeks.
-		var blush_color := Color(0.90, 0.55, 0.50, 0.50)
-		_draw_rect_filled(img, cx - 9, cy + 2, 3, 2, blush_color)
-		_draw_rect_filled(img, cx + 6, cy + 2, 3, 2, blush_color)
+	# Note: blush for even races is now handled by _draw_doodle_eyes() when
+	# blush_enabled is true in ChibiSpriteConfig.get_doodle_style().
 
 	# ── Stage detail (evolution) ─────────────────────────────────────────
 	if stage >= 2:
@@ -231,6 +236,7 @@ func _create_head(race_id: int, stage: int, skin_color: Color) -> Sprite2D:
 # ── Body ────────────────────────────────────────────────────────────────────
 
 ## Create the small torso (~16x14 px). Chest equipment overlays armor color.
+## Doodle hatching is applied to the armor area and outlines are wobbly.
 func _create_body(race_id: int, stage: int, equipment: Dictionary) -> Sprite2D:
 	var img := Image.create(CANVAS_SIZE, CANVAS_SIZE, false, Image.FORMAT_RGBA8)
 
@@ -257,6 +263,10 @@ func _create_body(race_id: int, stage: int, equipment: Dictionary) -> Sprite2D:
 	# Armor covers the top 10 rows of the body (chest plate area).
 	_draw_rect_filled(img, bx + 1, by + 1, body_w - 2, 10, armor_color)
 
+	# Doodle hatching on the armor area for sketchy shading.
+	var armor_rect := Rect2i(bx + 1, by + 1, body_w - 2, 10)
+	_apply_doodle_hatching(img, armor_rect, armor_color, armor_color.darkened(0.25))
+
 	# Armor highlight strip across the chest.
 	var highlight := armor_color.lightened(0.25)
 	_draw_rect_filled(img, bx + 2, by + 3, body_w - 4, 1, highlight)
@@ -268,9 +278,9 @@ func _create_body(race_id: int, stage: int, equipment: Dictionary) -> Sprite2D:
 	var buckle_color := Color(0.80, 0.70, 0.30)
 	_draw_rect_filled(img, cx - 1, by + body_h - 3, 2, 2, buckle_color)
 
-	# Outline.
+	# Outline — wobbly doodle outline instead of clean rectangle.
 	var outline := base_color.darkened(0.35)
-	_draw_rect_outline(img, bx, by, body_w, body_h, outline)
+	_draw_doodle_rect_outline(img, bx, by, body_w, body_h, outline)
 
 	# Stage 3 shoulder pads.
 	if stage >= 3:
@@ -287,6 +297,7 @@ func _create_body(race_id: int, stage: int, equipment: Dictionary) -> Sprite2D:
 
 ## Create an arm sprite (~4x10 px). The pivot is at the shoulder (top of the
 ## arm) so rotation animates naturally. We achieve this via Sprite2D.offset.
+## Outlines use doodle-style wobbly lines.
 func _create_arm(is_front: bool, skin_color: Color, glove_visuals: Dictionary) -> Sprite2D:
 	var img := Image.create(CANVAS_SIZE, CANVAS_SIZE, false, Image.FORMAT_RGBA8)
 
@@ -307,9 +318,9 @@ func _create_arm(is_front: bool, skin_color: Color, glove_visuals: Dictionary) -
 		glove_color = skin_color.darkened(0.10)
 	_draw_rect_filled(img, ax, ay + arm_h - 3, arm_w, 3, glove_color)
 
-	# Outline.
+	# Outline — wobbly doodle outline.
 	var outline := skin_color.darkened(0.30)
-	_draw_rect_outline(img, ax, ay, arm_w, arm_h, outline)
+	_draw_doodle_rect_outline(img, ax, ay, arm_w, arm_h, outline)
 
 	# Shoulder joint dot (1 px highlight at top-center).
 	var shoulder_highlight := skin_color.lightened(0.20)
@@ -328,6 +339,7 @@ func _create_arm(is_front: bool, skin_color: Color, glove_visuals: Dictionary) -
 # ── Legs ────────────────────────────────────────────────────────────────────
 
 ## Create leg sprites (~12x10 px). Two stubby legs side by side.
+## Outlines use doodle-style wobbly lines; pant areas get hatching.
 func _create_legs(race_id: int, stage: int, leg_visuals: Dictionary, boot_visuals: Dictionary) -> Sprite2D:
 	var img := Image.create(CANVAS_SIZE, CANVAS_SIZE, false, Image.FORMAT_RGBA8)
 
@@ -357,13 +369,15 @@ func _create_legs(race_id: int, stage: int, leg_visuals: Dictionary, boot_visual
 	var ly: int = cy - leg_h / 2
 	_draw_rect_filled(img, lx, ly, leg_w, leg_h - 3, pant_color)
 	_draw_rect_filled(img, lx, ly + leg_h - 3, leg_w, 3, boot_color)
-	_draw_rect_outline(img, lx, ly, leg_w, leg_h, pant_color.darkened(0.30))
+	_apply_doodle_hatching(img, Rect2i(lx, ly, leg_w, leg_h - 3), pant_color, pant_color.darkened(0.20))
+	_draw_doodle_rect_outline(img, lx, ly, leg_w, leg_h, pant_color.darkened(0.30))
 
 	# Right leg.
 	var rx: int = cx + gap / 2
 	_draw_rect_filled(img, rx, ly, leg_w, leg_h - 3, pant_color)
 	_draw_rect_filled(img, rx, ly + leg_h - 3, leg_w, 3, boot_color)
-	_draw_rect_outline(img, rx, ly, leg_w, leg_h, pant_color.darkened(0.30))
+	_apply_doodle_hatching(img, Rect2i(rx, ly, leg_w, leg_h - 3), pant_color, pant_color.darkened(0.20))
+	_draw_doodle_rect_outline(img, rx, ly, leg_w, leg_h, pant_color.darkened(0.30))
 
 	# Stage 2+ boot detail — add a strap.
 	if stage >= 2:
@@ -477,10 +491,10 @@ func _draw_bow(img: Image, cx: int, cy: int, wood: Color, string_color: Color) -
 	_draw_rect_filled(img, cx - 3, cy + 2, 2, 3, wood)
 	# Grip.
 	_draw_rect_filled(img, cx - 3, cy - 1, 2, 3, wood.darkened(0.15))
-	# Bowstring.
-	for y in range(cy - 7, cy + 8):
-		if y >= 0 and y < CANVAS_SIZE:
-			img.set_pixel(cx - 1, y, string_color)
+	# Bowstring — doodle wobbly line instead of straight.
+	var string_from := Vector2(float(cx - 1), float(cy - 7))
+	var string_to := Vector2(float(cx - 1), float(cy + 8))
+	_draw_doodle_line(img, string_from, string_to, string_color, 1.0)
 
 
 func _draw_staff(img: Image, cx: int, cy: int, orb_color: Color, shaft_color: Color) -> void:
@@ -514,6 +528,132 @@ func _draw_spear(img: Image, cx: int, cy: int, tip_color: Color, shaft_color: Co
 	_draw_rect_filled(img, cx, cy - 7, 1, 1, tip_color.lightened(0.10))
 
 
+# ── Doodle Art Style Helpers ───────────────────────────────────────────────
+
+## Draw a doodle-style wobbly line between two points
+func _draw_doodle_line(image: Image, from: Vector2, to: Vector2, color: Color, thickness: float = 2.5) -> void:
+	var doodle = ChibiSpriteConfig.get_doodle_style()
+	var segments := int(from.distance_to(to) / 3.0) + 1
+	var prev_point := from
+	for i in range(1, segments + 1):
+		var t := float(i) / float(segments)
+		var point := from.lerp(to, t)
+		# Add wobble perpendicular to line direction
+		var normal := (to - from).normalized().rotated(PI / 2.0)
+		var wobble := sin(t * PI * doodle["wobble_frequency"] * 10.0) * doodle["wobble_amplitude"]
+		point += normal * wobble
+		# Vary thickness
+		var local_thick := thickness + sin(t * PI * 3.0) * doodle["thickness_variance"]
+		# Draw thick line segment
+		for offset_x in range(-int(local_thick / 2.0), int(local_thick / 2.0) + 1):
+			for offset_y in range(-int(local_thick / 2.0), int(local_thick / 2.0) + 1):
+				var px := Vector2i(int(point.x) + offset_x, int(point.y) + offset_y)
+				if px.x >= 0 and px.x < image.get_width() and px.y >= 0 and px.y < image.get_height():
+					image.set_pixelv(px, color)
+		prev_point = point
+
+
+## Draw a doodle-style wobbly rectangle outline using _draw_doodle_line for
+## each edge. Replaces _draw_rect_outline for body-part outlines.
+func _draw_doodle_rect_outline(image: Image, x: int, y: int, w: int, h: int, color: Color) -> void:
+	var doodle = ChibiSpriteConfig.get_doodle_style()
+	var thick := doodle["thickness_base"]
+	var tl := Vector2(float(x), float(y))
+	var tr := Vector2(float(x + w - 1), float(y))
+	var bl := Vector2(float(x), float(y + h - 1))
+	var br := Vector2(float(x + w - 1), float(y + h - 1))
+	_draw_doodle_line(image, tl, tr, color, thick)  # Top edge
+	_draw_doodle_line(image, bl, br, color, thick)  # Bottom edge
+	_draw_doodle_line(image, tl, bl, color, thick)  # Left edge
+	_draw_doodle_line(image, tr, br, color, thick)  # Right edge
+
+
+## Add doodle-style hatching shading to a rectangular region
+func _apply_doodle_hatching(image: Image, rect: Rect2i, base_color: Color, shadow_color: Color) -> void:
+	var doodle = ChibiSpriteConfig.get_doodle_style()
+	if doodle["hatching_density"] <= 0.0:
+		return
+	# Draw diagonal hatching lines for shadow areas
+	var spacing := int(4.0 / doodle["hatching_density"])
+	for offset in range(0, rect.size.x + rect.size.y, spacing):
+		# Diagonal line from top-left to bottom-right
+		for i in range(0, mini(rect.size.x, rect.size.y)):
+			var x := rect.position.x + offset - i
+			var y := rect.position.y + i
+			if x >= rect.position.x and x < rect.position.x + rect.size.x:
+				if y >= rect.position.y and y < rect.position.y + rect.size.y:
+					var px := Vector2i(x, y)
+					if image.get_pixelv(px).a > 0.1:  # Only hatch non-transparent areas
+						var hatch_color := shadow_color
+						hatch_color.a = 0.3
+						image.set_pixelv(px, image.get_pixelv(px).blend(hatch_color))
+
+
+## Draw chibi doodle-style eyes
+func _draw_doodle_eyes(image: Image, head_rect: Rect2, eye_color: Color) -> void:
+	var doodle = ChibiSpriteConfig.get_doodle_style()
+	var style = doodle["expression_style"]
+	var center := Vector2(head_rect.position.x + head_rect.size.x / 2.0, head_rect.position.y + head_rect.size.y * 0.45)
+	var eye_spacing := 4.0
+
+	if style["eye_type"] == "sparkle":
+		# Large sparkle eyes
+		for side in [-1.0, 1.0]:
+			var eye_center := center + Vector2(side * eye_spacing, 0)
+			# Eye white
+			_draw_filled_circle(image, eye_center, 3.5, Color.WHITE)
+			# Iris
+			_draw_filled_circle(image, eye_center + Vector2(0, 0.5), 2.5, eye_color)
+			# Pupil
+			_draw_filled_circle(image, eye_center + Vector2(0, 0.5), 1.2, Color("1a1a1a"))
+			# Sparkle highlight
+			_draw_filled_circle(image, eye_center + Vector2(-1, -1), 1.0, Color.WHITE)
+	elif style["eye_type"] == "dot":
+		# Simple dot eyes
+		for side in [-1.0, 1.0]:
+			var eye_center := center + Vector2(side * eye_spacing, 0)
+			_draw_filled_circle(image, eye_center, 1.5, Color("1a1a1a"))
+			_draw_filled_circle(image, eye_center + Vector2(-0.5, -0.5), 0.5, Color.WHITE)
+
+	# Blush marks
+	if style["blush_enabled"]:
+		var blush_y := center.y + 3.0
+		for side in [-1.0, 1.0]:
+			var blush_center := Vector2(center.x + side * (eye_spacing + 2.0), blush_y)
+			var blush_color := style["blush_color"]
+			blush_color.a = 0.4
+			_draw_filled_circle(image, blush_center, 2.0, blush_color)
+
+
+## Draw a doodle-style wobbly ellipse outline. Instead of a clean mathematical
+## ellipse, each sample point is offset by a wobble amount for a hand-drawn look.
+func _draw_doodle_ellipse_outline(img: Image, cx: int, cy: int, rx: int, ry: int, color: Color) -> void:
+	var doodle = ChibiSpriteConfig.get_doodle_style()
+	var steps: int = maxi(rx, ry) * 8
+	var wobble_amp: float = doodle["wobble_amplitude"]
+	var wobble_freq: float = doodle["wobble_frequency"]
+	var thick_base: float = doodle["thickness_base"]
+	var thick_var: float = doodle["thickness_variance"]
+	for i in range(steps):
+		var t := float(i) / float(steps)
+		var angle: float = TAU * t
+		# Wobble the radius for a sketchy look
+		var wobble := sin(t * PI * wobble_freq * 20.0) * wobble_amp
+		var r_wobble_x := float(rx) + wobble
+		var r_wobble_y := float(ry) + wobble * 0.8
+		var base_x := float(cx) + r_wobble_x * cos(angle)
+		var base_y := float(cy) + r_wobble_y * sin(angle)
+		# Vary thickness along the outline
+		var local_thick := thick_base + sin(t * PI * 6.0) * thick_var
+		var half_t := int(local_thick / 2.0)
+		for ox in range(-half_t, half_t + 1):
+			for oy in range(-half_t, half_t + 1):
+				var px: int = int(base_x) + ox
+				var py: int = int(base_y) + oy
+				if px >= 0 and px < CANVAS_SIZE and py >= 0 and py < CANVAS_SIZE:
+					img.set_pixel(px, py, color)
+
+
 # ── Drawing Primitives ──────────────────────────────────────────────────────
 
 ## Fill a rectangle with the given color. Coordinates are clamped to canvas.
@@ -523,7 +663,8 @@ func _draw_rect_filled(img: Image, x: int, y: int, w: int, h: int, color: Color)
 			img.set_pixel(px, py, color)
 
 
-## Draw a 1-pixel outline rectangle.
+## Draw a 1-pixel outline rectangle. Used internally for weapon details and
+## other small elements where doodle wobble would be too heavy.
 func _draw_rect_outline(img: Image, x: int, y: int, w: int, h: int, color: Color) -> void:
 	# Top and bottom edges.
 	for px in range(maxi(x, 0), mini(x + w, CANVAS_SIZE)):
@@ -551,7 +692,7 @@ func _draw_filled_ellipse(img: Image, cx: int, cy: int, rx: int, ry: int, color:
 			img.set_pixel(px, py, color)
 
 
-## Draw a 1-pixel ellipse outline.
+## Draw a 1-pixel ellipse outline. Kept for internal use (e.g. weapon orbs).
 func _draw_ellipse_outline(img: Image, cx: int, cy: int, rx: int, ry: int, color: Color) -> void:
 	# Sample around the ellipse and plot pixels.
 	var steps: int = maxi(rx, ry) * 8
@@ -561,3 +702,14 @@ func _draw_ellipse_outline(img: Image, cx: int, cy: int, rx: int, ry: int, color
 		var py: int = cy + int(round(float(ry) * sin(angle)))
 		if px >= 0 and px < CANVAS_SIZE and py >= 0 and py < CANVAS_SIZE:
 			img.set_pixel(px, py, color)
+
+
+## Helper: draw a filled circle on an Image
+func _draw_filled_circle(image: Image, center: Vector2, radius: float, color: Color) -> void:
+	var r_sq := radius * radius
+	for y in range(int(center.y - radius) - 1, int(center.y + radius) + 2):
+		for x in range(int(center.x - radius) - 1, int(center.x + radius) + 2):
+			if x >= 0 and x < image.get_width() and y >= 0 and y < image.get_height():
+				var dist_sq := (Vector2(x, y) - center).length_squared()
+				if dist_sq <= r_sq:
+					image.set_pixelv(Vector2i(x, y), color)

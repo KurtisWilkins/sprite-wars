@@ -15,20 +15,21 @@ import { EQUIPMENT, SLOT_TYPES, RARITY_TIERS } from '../../data/EquipmentData.js
 
 // -- Shared Style Constants ------------------------------------------------------
 
+// Doodle chibi art style: paper/cream backgrounds, ink borders, pastel accents
 const COLORS = {
-    bgDark:     '#0d0d1a',
-    bgPanel:    '#13131f',
-    bgCard:     '#1e1e2e',
-    bgCardDim:  'rgba(20,20,30,0.5)',
-    border:     'rgba(50,50,75,0.6)',
-    borderHi:   'rgba(100,160,255,1)',
-    textPrimary:'#ffffff',
-    textSecondary:'rgba(180,180,200,0.9)',
-    textDim:    'rgba(120,120,140,0.6)',
-    accent:     '#3380e6',
-    success:    '#33a64c',
-    danger:     '#d93333',
-    gold:       '#f2c94c',
+    bgDark:     '#F5F0E0',
+    bgPanel:    '#FEF9E7',
+    bgCard:     '#FFF8EC',
+    bgCardDim:  'rgba(254,243,208,0.6)',
+    border:     '#2D2D2D',
+    borderHi:   '#4A90D9',
+    textPrimary:'#2D2D2D',
+    textSecondary:'#5A5A7A',
+    textDim:    'rgba(90,90,100,0.6)',
+    accent:     '#4A90D9',
+    success:    '#5CB85C',
+    danger:     '#D9534F',
+    gold:       '#E8A838',
 };
 
 const ELEMENT_COLORS = {
@@ -72,35 +73,40 @@ const STAT_COLORS = {
 function createButton(text, bgColor, opts = {}) {
     const btn = document.createElement('button');
     btn.textContent = text;
+    // Doodle: uneven border-radius, ink border, pastel fill, subtle rotation
+    const btnRotation = (Math.random() - 0.5) * 2.5;
     Object.assign(btn.style, {
         padding: opts.padding || '10px 20px',
         background: bgColor,
         color: COLORS.textPrimary,
-        border: 'none',
-        borderRadius: '12px',
+        border: '2px solid #2D2D2D',
+        borderRadius: '14px 6px 12px 8px',
         fontSize: opts.fontSize || '16px',
         fontWeight: 'bold',
+        fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
         cursor: 'pointer',
         minWidth: opts.minWidth || '0',
         textAlign: 'center',
-        transition: 'background 0.15s, transform 0.1s',
+        transition: 'background 0.15s, transform 0.15s',
         userSelect: 'none',
         WebkitTapHighlightColor: 'transparent',
+        transform: `rotate(${btnRotation}deg)`,
+        boxShadow: '1px 2px 0 #2D2D2D',
     });
 
-    // Hover and active states
-    const originalBg = bgColor;
-    btn.addEventListener('mouseenter', () => { btn.style.filter = 'brightness(1.15)'; });
-    btn.addEventListener('mouseleave', () => { btn.style.filter = ''; });
-    btn.addEventListener('mousedown', () => { btn.style.transform = 'scale(0.97)'; });
-    btn.addEventListener('mouseup', () => { btn.style.transform = ''; });
-    btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+    // Hover and active states — doodle
+    btn.addEventListener('mouseenter', () => { btn.style.filter = 'brightness(1.08)'; btn.style.transform = `rotate(${btnRotation}deg) scale(1.03)`; });
+    btn.addEventListener('mouseleave', () => { btn.style.filter = ''; btn.style.transform = `rotate(${btnRotation}deg)`; });
+    btn.addEventListener('mousedown', () => { btn.style.transform = `rotate(${btnRotation}deg) scale(0.97)`; });
+    btn.addEventListener('mouseup', () => { btn.style.transform = `rotate(${btnRotation}deg)`; });
+    btn.addEventListener('mouseleave', () => { btn.style.transform = `rotate(${btnRotation}deg)`; });
 
     if (opts.disabled) {
         btn.disabled = true;
-        btn.style.background = 'rgba(50,50,60,0.5)';
+        btn.style.background = '#E8E0D0';
         btn.style.color = 'rgba(120,120,120,0.5)';
         btn.style.cursor = 'default';
+        btn.style.borderColor = '#AAA';
     }
 
     return btn;
@@ -111,16 +117,18 @@ function createButton(text, bgColor, opts = {}) {
 function createTopBar(title, onBack) {
     const bar = document.createElement('div');
     bar.className = 'screen-top-bar';
+    // Doodle: paper background, ink border, handwriting font
     Object.assign(bar.style, {
         display: 'flex',
         alignItems: 'center',
         gap: '16px',
         padding: '12px 16px',
-        background: 'rgba(20,20,35,1)',
-        borderBottom: '2px solid rgba(50,50,75,0.6)',
+        background: '#FEF3D0',
+        borderBottom: '2.5px solid #2D2D2D',
         minHeight: '60px',
         boxSizing: 'border-box',
         flexShrink: '0',
+        fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
     });
 
     if (onBack) {
@@ -169,6 +177,7 @@ export class MainMenuScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'main-menu-screen';
+        // Doodle: paper/cream background, handwriting font
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -178,29 +187,34 @@ export class MainMenuScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: 'sans-serif',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
         });
 
-        // Title section
+        // Title section — doodle style
         const titleSection = document.createElement('div');
         titleSection.style.cssText = 'text-align:center;margin-bottom:40px;';
 
         const title = document.createElement('div');
         title.textContent = 'SPRITE WARS';
         Object.assign(title.style, {
-            fontSize: '42px',
+            fontSize: '46px',
             fontWeight: 'bold',
-            color: '#f2d966',
+            color: '#2D2D2D',
             marginBottom: '8px',
-            letterSpacing: '2px',
+            letterSpacing: '3px',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            textShadow: '2px 2px 0 #D6CEB0',
+            transform: 'rotate(-1.5deg)',
         });
         titleSection.appendChild(title);
 
         const subtitle = document.createElement('div');
         subtitle.textContent = 'Legends of the Shattered Grid';
         Object.assign(subtitle.style, {
-            fontSize: '16px',
-            color: 'rgba(180,180,200,0.8)',
+            fontSize: '17px',
+            color: '#5A5A7A',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            transform: 'rotate(0.5deg)',
         });
         titleSection.appendChild(subtitle);
 
@@ -341,6 +355,7 @@ export class TeamScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'team-screen';
+        // Doodle: paper background, handwriting font
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -348,7 +363,7 @@ export class TeamScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: 'sans-serif',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
         });
 
         // Top bar
@@ -384,6 +399,8 @@ export class TeamScreen {
     _createTeamSlot(index, spriteData) {
         const isEmpty = !spriteData;
 
+        // Doodle: uneven border, paper fill, slight rotation for "scattered" feel
+        const slotRotation = (Math.random() - 0.5) * 1.5;
         const slot = document.createElement('div');
         slot.className = 'team-slot';
         Object.assign(slot.style, {
@@ -392,11 +409,14 @@ export class TeamScreen {
             gap: '12px',
             padding: '10px 12px',
             background: isEmpty ? COLORS.bgCardDim : COLORS.bgCard,
-            borderRadius: '12px',
+            borderRadius: '14px 6px 10px 8px',
             border: `2px solid ${COLORS.border}`,
             cursor: 'pointer',
             minHeight: '80px',
-            transition: 'border-color 0.15s',
+            transition: 'border-color 0.15s, transform 0.15s',
+            transform: `rotate(${slotRotation}deg)`,
+            boxShadow: '1px 2px 0 #2D2D2D',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
         });
 
         if (isEmpty) {
@@ -444,21 +464,21 @@ export class TeamScreen {
             const displayName = spriteData.nickname || `Sprite #${spriteData.raceId || '?'}`;
             const nameEl = document.createElement('div');
             nameEl.textContent = displayName;
-            nameEl.style.cssText = 'color:#fff;font-size:16px;font-weight:bold;';
+            nameEl.style.cssText = "color:#2D2D2D;font-size:16px;font-weight:bold;font-family:'Patrick Hand','Comic Sans MS',cursive;";
             info.appendChild(nameEl);
 
             // Level
             const levelEl = document.createElement('div');
             levelEl.textContent = `Lv. ${spriteData.level || 1}`;
-            levelEl.style.cssText = 'color:rgba(180,200,255,0.9);font-size:14px;';
+            levelEl.style.cssText = "color:#5A5A7A;font-size:14px;font-family:'Patrick Hand','Comic Sans MS',cursive;";
             info.appendChild(levelEl);
 
-            // HP bar
+            // HP bar — doodle: paper bg, ink border, hatching
             const hpBar = document.createElement('div');
-            hpBar.style.cssText = 'width:100%;height:8px;background:rgba(35,35,50,1);border-radius:4px;overflow:hidden;';
+            hpBar.style.cssText = 'width:100%;height:8px;background:#FEF3D0;border-radius:6px 3px 5px 4px;overflow:hidden;border:1.5px solid #2D2D2D;position:relative;';
             const hpFill = document.createElement('div');
             const hpPct = spriteData.maxHp > 0 ? (spriteData.currentHp / spriteData.maxHp) * 100 : 100;
-            hpFill.style.cssText = `width:${hpPct}%;height:100%;background:#33cc55;border-radius:4px;`;
+            hpFill.style.cssText = `width:${hpPct}%;height:100%;background:#33cc55;border-radius:5px 2px 4px 3px;position:relative;z-index:1;`;
             hpBar.appendChild(hpFill);
             info.appendChild(hpBar);
 
@@ -487,16 +507,18 @@ export class TeamScreen {
     _buildBottomBar() {
         const bar = document.createElement('div');
         bar.className = 'screen-bottom-bar';
+        // Doodle: paper background, ink border
         Object.assign(bar.style, {
             display: 'flex',
             justifyContent: 'center',
             gap: '20px',
             padding: '12px 16px',
-            background: 'rgba(20,20,35,1)',
-            borderTop: '2px solid rgba(50,50,75,0.6)',
+            background: '#FEF3D0',
+            borderTop: '2.5px solid #2D2D2D',
             minHeight: '60px',
             boxSizing: 'border-box',
             flexShrink: '0',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
         });
 
         this._detailButton = createButton('Details', COLORS.accent, { disabled: true, padding: '10px 28px' });
@@ -617,6 +639,7 @@ export class InventoryScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'inventory-screen';
+        // Doodle: paper background, handwriting font
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -624,7 +647,7 @@ export class InventoryScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: 'sans-serif',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
         });
         this._screenEl = screen;
 
@@ -683,12 +706,14 @@ export class InventoryScreen {
     _buildTabBar() {
         const bar = document.createElement('div');
         bar.className = 'inventory-tab-bar';
+        // Doodle: paper background with ink border
         Object.assign(bar.style, {
             display: 'flex',
             overflow: 'auto',
-            background: 'rgba(18,18,30,1)',
-            borderBottom: '1px solid rgba(50,50,75,0.4)',
+            background: '#FEF3D0',
+            borderBottom: '2px solid #2D2D2D',
             flexShrink: '0',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
         });
 
         for (let i = 0; i < this.TAB_NAMES.length; i++) {
@@ -869,16 +894,19 @@ export class InventoryScreen {
             if (e.target === this._detailOverlay) this._closeDetail();
         });
 
-        // Popup panel
+        // Popup panel — doodle: paper background, wobbly border
         const popup = document.createElement('div');
         popup.className = 'item-detail-popup';
         Object.assign(popup.style, {
             background: COLORS.bgPanel,
-            borderRadius: '16px',
-            border: `2px solid rgba(70,70,100,0.6)`,
+            borderRadius: '16px 8px 14px 10px',
+            border: `2.5px solid #2D2D2D`,
             padding: '24px 28px',
             minWidth: '280px',
             maxWidth: '90%',
+            boxShadow: '2px 3px 0 #2D2D2D',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            transform: 'rotate(-0.5deg)',
         });
 
         this._detailName = document.createElement('div');
@@ -1024,14 +1052,16 @@ export class InventoryScreen {
         }
 
         for (const item of items) {
+            // Doodle: card-like item cells with uneven borders and slight rotation
+            const cellRotation = (Math.random() - 0.5) * 3;
             const cell = document.createElement('div');
             cell.className = 'item-cell';
             Object.assign(cell.style, {
                 width: '100%',
                 aspectRatio: '1',
                 background: COLORS.bgCard,
-                borderRadius: '10px',
-                border: `1px solid ${COLORS.border}`,
+                borderRadius: '12px 5px 10px 7px',
+                border: `2px solid ${COLORS.border}`,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -1041,6 +1071,10 @@ export class InventoryScreen {
                 color: COLORS.textSecondary,
                 padding: '4px',
                 boxSizing: 'border-box',
+                transform: `rotate(${cellRotation}deg)`,
+                boxShadow: '1px 1px 0 #2D2D2D',
+                fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+                transition: 'transform 0.15s',
             });
 
             // Item icon with category-specific emoji
@@ -1196,24 +1230,30 @@ export class InventoryScreen {
         const levelReq = eqData.level_requirement || eqData.levelRequirement || 1;
         const description = eqData.description || '';
 
+        // Doodle: uneven border, paper fill, slight rotation, ink borders
+        const eqCardRotation = (Math.random() - 0.5) * 1.5;
         const card = document.createElement('div');
         card.style.cssText = `
             display: flex; flex-direction: column;
             padding: 12px 14px;
             background: ${COLORS.bgCard};
-            border-radius: 10px;
-            border: 1px solid ${COLORS.border};
+            border-radius: 12px 5px 10px 7px;
+            border: 2px solid ${COLORS.border};
             border-left: 4px solid ${rarityColor};
             cursor: pointer;
-            transition: background 0.15s, border-color 0.15s, transform 0.1s;
+            transition: background 0.15s, border-color 0.15s, transform 0.15s;
             min-height: 44px;
+            transform: rotate(${eqCardRotation}deg);
+            box-shadow: 1px 2px 0 #2D2D2D;
+            font-family: 'Patrick Hand', 'Comic Sans MS', cursive;
         `;
         card.addEventListener('mouseenter', () => {
-            card.style.background = 'rgba(35, 35, 55, 1)';
-            card.style.borderColor = `${rarityColor}66`;
+            card.style.background = '#FEF0C7';
+            card.style.transform = `rotate(${eqCardRotation}deg) scale(1.01)`;
         });
         card.addEventListener('mouseleave', () => {
             card.style.background = COLORS.bgCard;
+            card.style.transform = `rotate(${eqCardRotation}deg)`;
             card.style.borderColor = COLORS.border;
             card.style.borderLeftColor = rarityColor;
         });
@@ -1566,6 +1606,7 @@ export class SettingsScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'settings-screen';
+        // Doodle: paper background, handwriting font
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -1573,7 +1614,7 @@ export class SettingsScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: 'sans-serif',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
         });
 
         // Top bar
