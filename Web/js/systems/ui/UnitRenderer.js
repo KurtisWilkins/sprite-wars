@@ -405,7 +405,7 @@ export class UnitRenderer {
     }
 
     /**
-     * Draw level badge (bottom-left corner) — doodle chibi style.
+     * Draw level badge (bottom-left corner) — clean cel-shaded style.
      */
     static _drawLevelBadge(ctx, level, leftX, topY, unitSize) {
         const badgeW = Math.max(14, unitSize * 0.35);
@@ -413,26 +413,17 @@ export class UnitRenderer {
         const bx = leftX;
         const by = topY;
 
-        // Doodle: wobbly rectangle with paper fill
+        // Clean rectangle with solid fill and uniform outline
         ctx.save();
-        ctx.fillStyle = '#FEF9E7';
-        ctx.strokeStyle = '#2D2D2D';
-        ctx.lineWidth = 1.5;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(bx, by, badgeW, badgeH);
+        ctx.strokeStyle = '#111111';
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'miter';
+        ctx.strokeRect(bx, by, badgeW, badgeH);
 
-        const wobble = 0.6;
-        ctx.beginPath();
-        ctx.moveTo(bx + (Math.random() - 0.5) * wobble, by + (Math.random() - 0.5) * wobble);
-        ctx.lineTo(bx + badgeW + (Math.random() - 0.5) * wobble, by + (Math.random() - 0.5) * wobble);
-        ctx.lineTo(bx + badgeW + (Math.random() - 0.5) * wobble, by + badgeH + (Math.random() - 0.5) * wobble);
-        ctx.lineTo(bx + (Math.random() - 0.5) * wobble, by + badgeH + (Math.random() - 0.5) * wobble);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#2D2D2D';
-        ctx.font = `bold ${Math.max(7, unitSize * 0.18)}px 'Patrick Hand', 'Comic Sans MS', cursive`;
+        ctx.fillStyle = '#111111';
+        ctx.font = `bold ${Math.max(7, unitSize * 0.18)}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(`${level}`, bx + badgeW / 2, by + badgeH / 2);
@@ -440,42 +431,19 @@ export class UnitRenderer {
     }
 
     /**
-     * Draw HP bar below the unit — doodle style with hatching pattern.
+     * Draw HP bar below the unit — clean cel-shaded style with flat fills.
      */
     static _drawHpBar(ctx, x, y, width, fraction) {
         const barH = Math.max(4, width * 0.09);
         const barW = width;
 
-        // Doodle: wobbly background bar
         ctx.save();
-        ctx.fillStyle = '#FEF3D0';
-        ctx.strokeStyle = '#2D2D2D';
-        ctx.lineWidth = 1.5;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
 
-        // Draw wobbly bar outline
-        const wobble = 0.8;
-        const segments = 6;
-        ctx.beginPath();
-        for (let i = 0; i <= segments; i++) {
-            const t = i / segments;
-            const px = x + barW * t + (Math.random() - 0.5) * wobble;
-            const py = y + (Math.random() - 0.5) * wobble;
-            if (i === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
-        }
-        for (let i = 0; i <= segments; i++) {
-            const t = i / segments;
-            const px = x + barW - barW * t + (Math.random() - 0.5) * wobble;
-            const py = y + barH + (Math.random() - 0.5) * wobble;
-            ctx.lineTo(px, py);
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
+        // Clean background bar with uniform outline
+        ctx.fillStyle = '#333333';
+        ctx.fillRect(x, y, barW, barH);
 
-        // HP fill
+        // HP fill (flat color, no hatching)
         let hpColor;
         if (fraction > 0.5) hpColor = '#33cc66';
         else if (fraction > 0.25) hpColor = '#cccc33';
@@ -485,18 +453,13 @@ export class UnitRenderer {
         if (fillW > 0) {
             ctx.fillStyle = hpColor;
             ctx.fillRect(x + 1, y + 1, fillW - 2, barH - 2);
-
-            // Doodle: hatching overlay on HP fill
-            ctx.globalAlpha = 0.15;
-            ctx.strokeStyle = '#2D2D2D';
-            ctx.lineWidth = 0.8;
-            ctx.beginPath();
-            for (let offset = 0; offset < fillW + barH; offset += 3) {
-                ctx.moveTo(x + offset, y);
-                ctx.lineTo(x + offset - barH, y + barH);
-            }
-            ctx.stroke();
         }
+
+        // Clean uniform outline
+        ctx.strokeStyle = '#111111';
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'miter';
+        ctx.strokeRect(x, y, barW, barH);
 
         ctx.restore();
     }

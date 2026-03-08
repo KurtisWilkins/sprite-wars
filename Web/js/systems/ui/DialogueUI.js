@@ -227,11 +227,12 @@ export class DialogueUI {
                 width: '100%',
                 padding: '10px 16px',
                 marginBottom: '6px',
-                background: 'rgba(30,50,80,0.9)',
-                color: '#ffffff',
-                border: '1px solid rgba(100,150,220,0.5)',
+                background: '#2A3D6E',
+                color: '#FFFFFF',
+                border: '3px solid #1A1A1A',
                 borderRadius: '8px',
                 fontSize: '15px',
+                fontFamily: 'Arial, Helvetica, sans-serif',
                 textAlign: 'left',
                 cursor: 'pointer',
             });
@@ -244,10 +245,10 @@ export class DialogueUI {
 
             // Hover effect
             button.addEventListener('mouseenter', () => {
-                button.style.background = 'rgba(50,80,130,0.9)';
+                button.style.background = '#3A5090';
             });
             button.addEventListener('mouseleave', () => {
-                button.style.background = 'rgba(30,50,80,0.9)';
+                button.style.background = '#2A3D6E';
             });
 
             this._choicesContainer.appendChild(button);
@@ -575,12 +576,13 @@ export class DialogueUI {
             left: '0',
             width: '100%',
             maxHeight: '40%',
-            background: 'rgba(10,10,20,0.95)',
-            borderTop: '2px solid rgba(100,150,220,0.5)',
+            background: '#1E1533',
+            borderTop: '3px solid #1A1A1A',
             padding: '16px 20px',
             boxSizing: 'border-box',
             zIndex: '8000',
             display: 'none',
+            fontFamily: 'Arial, Helvetica, sans-serif',
         });
 
         const portrait = document.createElement('img');
@@ -598,21 +600,23 @@ export class DialogueUI {
         const speaker = document.createElement('div');
         speaker.id = 'dialogue-speaker';
         Object.assign(speaker.style, {
-            color: '#aaccff',
+            color: '#66AAFF',
             fontSize: '18px',
             fontWeight: 'bold',
             marginBottom: '4px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
         });
         box.appendChild(speaker);
 
         const text = document.createElement('div');
         text.id = 'dialogue-text';
         Object.assign(text.style, {
-            color: '#ffffff',
+            color: '#FFFFFF',
             fontSize: '16px',
             lineHeight: '1.5',
             minHeight: '48px',
             marginBottom: '8px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
         });
         box.appendChild(text);
 
@@ -625,8 +629,9 @@ export class DialogueUI {
         indicator.id = 'dialogue-continue';
         Object.assign(indicator.style, {
             textAlign: 'right',
-            color: 'rgba(180,200,255,0.7)',
+            color: '#88AADD',
             fontSize: '14px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
             animation: 'pulse 1.2s infinite',
             display: 'none',
         });
