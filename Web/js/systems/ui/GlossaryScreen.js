@@ -151,11 +151,12 @@ function createTopBar(title, onBack) {
         alignItems: 'center',
         gap: '16px',
         padding: '12px 16px',
-        background: 'rgba(20,20,35,1)',
-        borderBottom: '2px solid rgba(50,50,75,0.6)',
+        background: '#221A3D',
+        borderBottom: '3px solid #1A1A1A',
         minHeight: '60px',
         boxSizing: 'border-box',
         flexShrink: '0',
+        fontFamily: 'Arial, Helvetica, sans-serif',
     });
 
     if (onBack) {
@@ -356,7 +357,7 @@ export class GlossaryScreen {
             gap: '8px',
             padding: '12px 16px',
             background: COLORS.bgPanel,
-            borderBottom: `1px solid ${COLORS.border}`,
+            borderBottom: `3px solid ${COLORS.border}`,
             flexShrink: '0',
         });
 
@@ -372,12 +373,13 @@ export class GlossaryScreen {
             Object.assign(btn.style, {
                 flex: '1',
                 padding: '10px 20px',
-                border: 'none',
-                borderRadius: '20px',
+                border: '3px solid #1A1A1A',
+                borderRadius: '8px',
                 fontSize: '15px',
                 fontWeight: 'bold',
+                fontFamily: 'Arial, Helvetica, sans-serif',
                 cursor: 'pointer',
-                color: COLORS.textPrimary,
+                color: '#FFFFFF',
                 transition: 'background 0.15s, transform 0.1s',
                 userSelect: 'none',
                 WebkitTapHighlightColor: 'transparent',
@@ -410,7 +412,7 @@ export class GlossaryScreen {
             if (key === this._activeTab) {
                 btn.style.background = COLORS.accent;
             } else {
-                btn.style.background = 'rgba(35,35,55,1)';
+                btn.style.background = '#3D3060';
             }
         }
     }
