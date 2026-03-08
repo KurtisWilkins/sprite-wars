@@ -233,8 +233,8 @@ export class SpriteInspectPanel {
         el.className = 'sprite-inspect-panel';
         el.style.cssText = `
             width: 380px;
-            background: rgba(0, 0, 0, 0.4);
-            border-${position === 'right' ? 'left' : 'right'}: 1px solid rgba(255, 255, 255, 0.06);
+            background: #1E1533;
+            border-${position === 'right' ? 'left' : 'right'}: 3px solid #1A1A1A;
             overflow-y: auto;
             padding: 14px;
             display: block;
@@ -244,7 +244,7 @@ export class SpriteInspectPanel {
             pointer-events: auto;
             max-height: ${this._options.isBattleUnit ? '560px' : '100%'};
             box-sizing: border-box;
-            font-family: sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             z-index: 20;
         `;
 
@@ -254,8 +254,9 @@ export class SpriteInspectPanel {
         closeBtn.style.cssText = `
             position: absolute; top: 6px; right: 6px;
             padding: 4px 8px; font-size: 0.85rem;
-            border: none; background: none; color: #888;
-            cursor: pointer;
+            border: 2px solid #1A1A1A; border-radius: 4px;
+            background: #3D3060; color: #FFFFFF;
+            cursor: pointer; font-family: Arial, Helvetica, sans-serif;
         `;
         closeBtn.addEventListener('click', () => {
             if (this._options.onClose) this._options.onClose();
@@ -430,7 +431,7 @@ export class SpriteInspectPanel {
     _renderStatsTab(container, d) {
         // ── Element / Race / Class info block ──
         const infoBlock = document.createElement('div');
-        infoBlock.style.cssText = 'margin-bottom: 10px; padding: 6px 8px; background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);';
+        infoBlock.style.cssText = 'margin-bottom: 10px; padding: 6px 8px; background: #2A2050; border-radius: 6px; border: 2px solid #1A1A1A;';
 
         // Race
         const raceEntry = SPRITE_RACES.find(r => r.race_id === d.raceId);
