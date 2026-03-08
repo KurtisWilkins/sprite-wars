@@ -339,7 +339,7 @@ export class DeploymentScene extends Scene {
 
         const centerX = cellX + GRID_CELL_SIZE / 2;
         const centerY = cellY + GRID_CELL_SIZE - 4;
-        const size = GRID_CELL_SIZE - 6;
+        const size = GRID_CELL_SIZE - 2; // chibi sprites fill more cell space
         const isSelected = deployedIdx !== undefined && deployedIdx === this._selectedDeployedIndex;
 
         // Draw humanoid sprite with equipment
@@ -388,7 +388,7 @@ export class DeploymentScene extends Scene {
         const inst = enemyData.instance || enemyData;
         const centerX = cellX + GRID_CELL_SIZE / 2;
         const centerY = cellY + GRID_CELL_SIZE - 4;
-        const size = GRID_CELL_SIZE - 6;
+        const size = GRID_CELL_SIZE - 2; // chibi sprites fill more cell space
 
         const raceId = inst.raceId || inst.race_id || 1;
         const stage = inst.evolutionStage || inst.evolution_stage || 1;
@@ -433,7 +433,7 @@ export class DeploymentScene extends Scene {
         ctx.globalAlpha = 0.75;
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, raceId, stage, 0, animFrame,
-            this._dragScreenX, this._dragScreenY + 4, GRID_CELL_SIZE - 6,
+            this._dragScreenX, this._dragScreenY + 4, GRID_CELL_SIZE - 2,
             { equipment }
         );
         ctx.globalAlpha = 1;

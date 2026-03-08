@@ -1,11 +1,12 @@
 /**
- * HumanoidSpriteSystem.js — Professional pixel-art humanoid sprite renderer
+ * HumanoidSpriteSystem.js — Chibi-style humanoid sprite renderer
  * with layered equipment overlays and race-specific body shapes.
  *
- * Generates animated humanoid sprites for all 72 forms by compositing:
- *   1. Race-specific humanoid body (24 unique races) with element-colored skin
+ * Generates animated chibi humanoid sprites for all 72 forms by compositing:
+ *   1. Race-specific chibi body (24 unique races) — big head, stubby limbs
  *   2. Equipment overlays with per-item unique visuals (144 items)
  *   3. Rarity glow effects for epic/legendary gear
+ *   4. Anime-style eyes with iris/pupil/highlight, blush marks
  *
  * Output format: 256x256 sprite sheets (4 dirs × 4 walk frames, 64×64 per frame)
  * Direction indices: 0=Down, 1=Left, 2=Right, 3=Up
@@ -36,15 +37,15 @@ const DIR_LEFT  = 1;
 const DIR_RIGHT = 2;
 const DIR_UP    = 3;
 
-// ── Pixel Body Proportions (within 64×64 frame) ────────────────────────────
-// Professional pixel-art humanoid at ~44px tall within frame
+// ── Chibi Body Proportions (within 64×64 frame) ─────────────────────────────
+// Chibi-style humanoid: big head, compact body, stubby limbs (~42px tall)
 const BODY = {
-    headW: 18, headH: 16,
-    torsoW: 18, torsoH: 14,
-    armW: 6,   armH: 14,
-    legW: 7,   legH: 12,
-    footW: 9,  footH: 4,
-    shoulderW: 22,
+    headW: 28, headH: 22,
+    torsoW: 20, torsoH: 10,
+    armW: 6,   armH: 10,
+    legW: 8,   legH: 8,
+    footW: 10, footH: 3,
+    shoulderW: 24,
 };
 
 /**

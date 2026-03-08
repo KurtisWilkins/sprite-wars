@@ -523,7 +523,7 @@ export class BattleScene extends Scene {
                 const cellY = gy + y * cellStep;
                 const centerX = cellX + CELL_SIZE / 2;
                 const centerY = cellY + CELL_SIZE / 2;
-                const spriteSize = CELL_SIZE - 8; // leave some padding
+                const spriteSize = CELL_SIZE - 4; // chibi sprites fill more of the cell
 
                 // Update render cache position for floating text placement
                 let cache = this._unitRenderCache.get(unit);

@@ -42,7 +42,7 @@ const ELEMENT_COLORS = {
 };
 
 // ── Unit Draw Constants ─────────────────────────────────────────────────────
-const UNIT_DRAW_SIZE = 48;        // Pixel size per unit sprite (uses 64x64 source, drawn at 48px)
+const UNIT_DRAW_SIZE = 54;        // Chibi sprites drawn slightly larger for big-head visibility
 const HP_BAR_WIDTH = 40;
 const HP_BAR_HEIGHT = 4;
 const HP_BAR_OFFSET_Y = 6;       // Above unit top

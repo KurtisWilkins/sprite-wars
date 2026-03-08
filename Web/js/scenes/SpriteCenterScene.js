@@ -343,7 +343,7 @@ export class SpriteCenterScene extends Scene {
                 HumanoidSpriteSystem.drawWithEquipment(
                     ctx, raceId, stage,
                     this._equipPreviewDir, this._equipPreviewFrame,
-                    128, 200, 160,
+                    128, 190, 180,
                     { equipment }
                 );
             }
@@ -573,11 +573,11 @@ export class SpriteCenterScene extends Scene {
         const hp = inst.currentHp !== undefined ? inst.currentHp : (inst.maxHp || 100);
         const maxHp = inst.maxHp || 100;
         const previewCanvas = document.createElement('canvas');
-        previewCanvas.width = 44;
-        previewCanvas.height = 50;
-        previewCanvas.style.cssText = 'width:44px;height:50px;flex-shrink:0;';
+        previewCanvas.width = 52;
+        previewCanvas.height = 58;
+        previewCanvas.style.cssText = 'width:52px;height:58px;flex-shrink:0;';
         const pCtx = previewCanvas.getContext('2d');
-        UnitRenderer.draw(pCtx, inst, 22, 22, 38, {
+        UnitRenderer.draw(pCtx, inst, 26, 26, 46, {
             time: this._time,
             showHpBar: true,
             hpFraction: hp / maxHp,
@@ -591,7 +591,7 @@ export class SpriteCenterScene extends Scene {
         this._previewCanvases.push({
             canvas: previewCanvas,
             inst,
-            opts: { cx: 22, cy: 22, size: 38, showHpBar: true, hpFraction: hp / maxHp, showLevel: true, showAura: true, showWeapon: true, showArmorGlow: true, showElementBadge: true },
+            opts: { cx: 26, cy: 26, size: 46, showHpBar: true, hpFraction: hp / maxHp, showLevel: true, showAura: true, showWeapon: true, showArmorGlow: true, showElementBadge: true },
         });
 
         // Info block
@@ -767,11 +767,11 @@ export class SpriteCenterScene extends Scene {
 
                 // Sprite preview canvas (rich composite via UnitRenderer)
                 const cellCanvas = document.createElement('canvas');
-                cellCanvas.width = 48;
-                cellCanvas.height = 52;
-                cellCanvas.style.cssText = 'width:48px;height:52px;';
+                cellCanvas.width = 56;
+                cellCanvas.height = 60;
+                cellCanvas.style.cssText = 'width:56px;height:60px;';
                 const cCtx = cellCanvas.getContext('2d');
-                UnitRenderer.draw(cCtx, inst, 24, 24, 40, {
+                UnitRenderer.draw(cCtx, inst, 28, 28, 48, {
                     time: this._time,
                     showHpBar: false,
                     showLevel: true,
@@ -784,7 +784,7 @@ export class SpriteCenterScene extends Scene {
                 this._previewCanvases.push({
                     canvas: cellCanvas,
                     inst,
-                    opts: { cx: 24, cy: 24, size: 40, showHpBar: false, showLevel: true, showAura: true, showWeapon: true, showArmorGlow: true, showElementBadge: true },
+                    opts: { cx: 28, cy: 28, size: 48, showHpBar: false, showLevel: true, showAura: true, showWeapon: true, showArmorGlow: true, showElementBadge: true },
                 });
 
                 const nameLabel = document.createElement('div');
@@ -1742,7 +1742,7 @@ export class SpriteCenterScene extends Scene {
         const stage = inst.evolutionStage || inst.evolution_stage || 1;
         HumanoidSpriteSystem.drawWithEquipment(
             pCtx, raceId, stage, 0, 0,
-            128, 200, 160,
+            128, 190, 180,
             { equipment }
         );
 
@@ -2337,7 +2337,7 @@ export class SpriteCenterScene extends Scene {
             const raceId = inst.raceId || inst.race_id || 1;
             const stg = inst.evolutionStage || inst.evolution_stage || 1;
             HumanoidSpriteSystem.drawWithEquipment(
-                cmCtx, raceId, stg, 0, 0, 24, 40, 32, { equipment: inst.equipment || {} }
+                cmCtx, raceId, stg, 0, 0, 24, 38, 38, { equipment: inst.equipment || {} }
             );
             curPreviewRow.appendChild(curMiniCanvas);
 
@@ -2462,7 +2462,7 @@ export class SpriteCenterScene extends Scene {
                 const rId = inst.raceId || inst.race_id || 1;
                 const stge = inst.evolutionStage || inst.evolution_stage || 1;
                 HumanoidSpriteSystem.drawWithEquipment(
-                    mCtx, rId, stge, 0, 0, 20, 34, 28, { equipment: hypotheticalEquip }
+                    mCtx, rId, stge, 0, 0, 20, 32, 34, { equipment: hypotheticalEquip }
                 );
                 topRow.appendChild(miniCanvas);
 

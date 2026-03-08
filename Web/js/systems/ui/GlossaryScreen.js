@@ -237,8 +237,8 @@ function drawSpritePreview(canvas, raceId, elementName) {
             equipment: {},
         };
 
-        // Draw the frame using HumanoidSpriteSystem
-        const spriteSize = size * 0.8;
+        // Draw the frame using HumanoidSpriteSystem (chibi sized)
+        const spriteSize = size * 0.9;
         HumanoidSpriteSystem.drawFrame(ctx, raceId, 1, 0, 0, (size - spriteSize) / 2, (size - spriteSize) / 2, spriteSize);
     } catch (e) {
         // Fallback: draw a colored circle with race initial

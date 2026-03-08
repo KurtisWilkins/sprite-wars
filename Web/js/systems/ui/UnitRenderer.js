@@ -201,7 +201,8 @@ export class UnitRenderer {
         ctx.globalAlpha = alpha;
 
         // ── Idle bob animation ──────────────────────────────────────
-        const bobOffset = Math.sin(time * IDLE_ANIM_SPEED * Math.PI) * (size * 0.03);
+        // Chibi characters have a bouncier idle bob
+        const bobOffset = Math.sin(time * IDLE_ANIM_SPEED * Math.PI) * (size * 0.045);
 
         // ── Selection highlight ring ────────────────────────────────
         if (isSelected) {

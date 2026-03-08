@@ -1,7 +1,7 @@
 /**
- * RaceBodyRendererExt.js — Race-specific humanoid body rendering (Races 13-24).
- * Each race has a unique body shape, head features, and distinguishing characteristics
- * drawn at 64×64 pixel resolution.
+ * RaceBodyRendererExt.js — Chibi-style race-specific humanoid body rendering (Races 13-24).
+ * Each race has a unique chibi body shape with big head, stubby limbs, anime eyes,
+ * blush marks, and distinguishing characteristics drawn at 64×64 pixel resolution.
  *
  * Race mappings:
  *   13=Lizard man, 14=Minotaur, 15=Monkey man, 16=Mummy, 17=Ork, 18=Rat man,
@@ -30,15 +30,15 @@ export const RACE_BODY_TYPES_EXT = {
     24: 'zombie',
 };
 
-// Walk animation cycles (4 frames)
+// Walk animation cycles (4 frames) — bouncier chibi walk
 const WALK_CYCLES = [
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: -3, armR: 3,  legL: 5,  legR: -3, bob: -1 },
+    { armL: -4, armR: 4,  legL: 4,  legR: -2, bob: -2 },
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: 3,  armR: -3, legL: -3, legR: 5,  bob: -1 },
+    { armL: 4,  armR: -4, legL: -2, legR: 4,  bob: -2 },
 ];
 
-// ── Shared Helpers ──────────────────────────────────────────────────────────
+// ── Shared Chibi Helpers ──────────────────────────────────────────────────
 
 function _drawOutlinedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     ctx.fillStyle = outlineColor;
@@ -47,73 +47,127 @@ function _drawOutlinedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     ctx.fillRect(Math.floor(x), Math.floor(y), w, h);
 }
 
-function _drawShading(ctx, x, y, w, h, midColor) {
-    ctx.fillStyle = midColor;
-    ctx.fillRect(Math.floor(x) + Math.floor(w * 0.55), Math.floor(y), Math.ceil(w * 0.45), h);
+function _drawRoundedRect(ctx, x, y, w, h, fillColor, outlineColor) {
+    const fx = Math.floor(x);
+    const fy = Math.floor(y);
+    ctx.fillStyle = outlineColor;
+    ctx.fillRect(fx, fy - 1, w, h + 2);
+    ctx.fillRect(fx - 1, fy, w + 2, h);
+    ctx.fillStyle = fillColor;
+    ctx.fillRect(fx, fy, w, h);
 }
 
+function _drawShading(ctx, x, y, w, h, midColor) {
+    ctx.fillStyle = midColor;
+    ctx.fillRect(Math.floor(x) + Math.floor(w * 0.55), Math.floor(y) + 1, Math.ceil(w * 0.45) - 1, h - 2);
+}
+
+function _drawSoftShading(ctx, x, y, w, h, midColor) {
+    ctx.fillStyle = midColor;
+    ctx.globalAlpha = 0.4;
+    ctx.fillRect(Math.floor(x) + Math.floor(w * 0.5), Math.floor(y) + 1, Math.ceil(w * 0.5), h - 2);
+    ctx.globalAlpha = 1.0;
+}
+
+// ── Chibi anime-style eyes ───────────────────────────────────────────────
 function _drawEyes(ctx, cx, eyeY, dir, colors, spacing) {
-    const sp = spacing || 5;
+    const sp = spacing || 7;
     if (dir === DIR_DOWN) {
         ctx.fillStyle = '#fff';
-        ctx.fillRect(cx - sp - 2, eyeY, 5, 4);
-        ctx.fillRect(cx + sp - 2, eyeY, 5, 4);
+        ctx.fillRect(cx - sp - 3, eyeY, 7, 7);
+        ctx.fillRect(cx + sp - 3, eyeY, 7, 7);
         ctx.fillStyle = colors.eye;
-        ctx.fillRect(cx - sp - 1, eyeY, 3, 4);
-        ctx.fillRect(cx + sp - 1, eyeY, 3, 4);
+        ctx.fillRect(cx - sp - 2, eyeY + 1, 5, 6);
+        ctx.fillRect(cx + sp - 2, eyeY + 1, 5, 6);
         ctx.fillStyle = '#111';
-        ctx.fillRect(cx - sp, eyeY + 2, 2, 2);
-        ctx.fillRect(cx + sp, eyeY + 2, 2, 2);
-    } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
-        const ex = dir === DIR_RIGHT ? cx + 2 : cx - 4;
+        ctx.fillRect(cx - sp - 1, eyeY + 3, 3, 3);
+        ctx.fillRect(cx + sp - 1, eyeY + 3, 3, 3);
         ctx.fillStyle = '#fff';
-        ctx.fillRect(ex - 1, eyeY, 5, 4);
+        ctx.fillRect(cx - sp - 2, eyeY + 1, 2, 2);
+        ctx.fillRect(cx + sp - 2, eyeY + 1, 2, 2);
+        ctx.fillRect(cx - sp + 1, eyeY + 4, 1, 1);
+        ctx.fillRect(cx + sp + 1, eyeY + 4, 1, 1);
+        ctx.fillStyle = colors.outline;
+        ctx.fillRect(cx - sp - 3, eyeY - 1, 7, 1);
+        ctx.fillRect(cx + sp - 3, eyeY - 1, 7, 1);
+    } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
+        const ex = dir === DIR_RIGHT ? cx + 2 : cx - 6;
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(ex, eyeY, 6, 7);
         ctx.fillStyle = colors.eye;
-        ctx.fillRect(ex, eyeY, 3, 4);
+        ctx.fillRect(ex + 1, eyeY + 1, 4, 6);
         ctx.fillStyle = '#111';
-        ctx.fillRect(ex + 1, eyeY + 2, 2, 2);
+        ctx.fillRect(ex + 2, eyeY + 3, 2, 3);
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(ex + 1, eyeY + 1, 2, 2);
+        ctx.fillStyle = colors.outline;
+        ctx.fillRect(ex, eyeY - 1, 6, 1);
     }
 }
 
 function _drawMouth(ctx, cx, y, dir, color) {
     if (dir === DIR_DOWN) {
         ctx.fillStyle = color;
-        ctx.fillRect(cx - 2, y, 4, 1);
+        ctx.fillRect(cx - 1, y, 3, 1);
+        ctx.fillRect(cx - 2, y - 1, 1, 1);
+        ctx.fillRect(cx + 2, y - 1, 1, 1);
     }
+}
+
+function _drawBlush(ctx, cx, blushY, dir, spacing) {
+    if (dir === DIR_UP) return;
+    const sp = spacing || 10;
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = '#ff6688';
+    if (dir === DIR_DOWN) {
+        ctx.fillRect(cx - sp - 1, blushY, 4, 2);
+        ctx.fillRect(cx + sp - 2, blushY, 4, 2);
+    } else {
+        const bx = dir === DIR_RIGHT ? cx + 3 : cx - 6;
+        ctx.fillRect(bx, blushY, 4, 2);
+    }
+    ctx.globalAlpha = 1.0;
 }
 
 function _drawHairTop(ctx, x, y, w, dir, hairColor) {
     if (dir !== DIR_UP) {
         ctx.fillStyle = hairColor;
-        ctx.fillRect(x - 1, y - 2, w + 2, 5);
-        if (dir === DIR_DOWN || dir === DIR_LEFT) ctx.fillRect(x - 2, y + 1, 3, 5);
-        if (dir === DIR_DOWN || dir === DIR_RIGHT) ctx.fillRect(x + w - 1, y + 1, 3, 5);
+        ctx.fillRect(x - 2, y - 3, w + 4, 6);
+        ctx.fillRect(x - 1, y - 5, w + 2, 3);
+        if (dir === DIR_DOWN || dir === DIR_LEFT) ctx.fillRect(x - 3, y + 1, 4, 7);
+        if (dir === DIR_DOWN || dir === DIR_RIGHT) ctx.fillRect(x + w - 1, y + 1, 4, 7);
+        ctx.fillRect(x + Math.floor(w / 2) - 2, y - 7, 4, 3);
     }
 }
 
 function _drawHairBack(ctx, x, y, w, h, colors) {
     ctx.fillStyle = colors.hair;
-    ctx.fillRect(x - 1, y, w + 2, h - 2);
+    ctx.fillRect(x - 2, y, w + 4, h);
     ctx.fillStyle = colors.outline;
-    ctx.fillRect(x - 1, y - 1, w + 2, 2);
-    ctx.fillRect(x - 2, y, 2, h - 3);
-    ctx.fillRect(x + w, y, 2, h - 3);
+    ctx.fillRect(x - 2, y - 1, w + 4, 2);
+    ctx.fillRect(x - 3, y, 2, h - 2);
+    ctx.fillRect(x + w + 1, y, 2, h - 2);
 }
 
 function _drawLeg(ctx, x, y, w, h, colors) {
-    _drawOutlinedRect(ctx, x, y, w, h, colors.skin, colors.outline);
-    _drawShading(ctx, x, y, w, h, colors.mid);
+    _drawRoundedRect(ctx, x, y, w, h, colors.skin, colors.outline);
+    _drawSoftShading(ctx, x, y, w, h, colors.mid);
 }
 
 function _drawArm(ctx, x, y, w, h, colors, side) {
-    _drawOutlinedRect(ctx, x, y, w, h, colors.skin, colors.outline);
-    if (side === 'right') _drawShading(ctx, x, y, w, h, colors.mid);
+    _drawRoundedRect(ctx, x, y, w, h, colors.skin, colors.outline);
+    if (side === 'right') _drawSoftShading(ctx, x, y, w, h, colors.mid);
 }
 
 function _drawShoes(ctx, lx, ly, rx, ry, legW, colors) {
     ctx.fillStyle = '#553322';
-    ctx.fillRect(lx - 1, ly, legW + 3, 4);
-    ctx.fillRect(rx - 1, ry, legW + 3, 4);
+    ctx.fillRect(lx - 1, ly, legW + 2, 3);
+    ctx.fillRect(lx, ly + 3, legW, 1);
+    ctx.fillRect(rx - 1, ry, legW + 2, 3);
+    ctx.fillRect(rx, ry + 3, legW, 1);
+    ctx.fillStyle = '#775544';
+    ctx.fillRect(lx, ly, legW, 1);
+    ctx.fillRect(rx, ry, legW, 1);
 }
 
 function _drawTunic(ctx, x, y, w, h, skinColor) {
@@ -121,7 +175,9 @@ function _drawTunic(ctx, x, y, w, h, skinColor) {
     const g = parseInt(skinColor.slice(3, 5), 16) - 30;
     const b = parseInt(skinColor.slice(5, 7), 16) - 30;
     ctx.fillStyle = `rgb(${Math.max(0, r)},${Math.max(0, g)},${Math.max(0, b)})`;
-    ctx.fillRect(x + 2, y + 2, w - 4, h - 2);
+    ctx.fillRect(x + 1, y + 1, w - 2, h - 1);
+    ctx.fillStyle = `rgb(${Math.max(0, r - 20)},${Math.max(0, g - 20)},${Math.max(0, b - 20)})`;
+    ctx.fillRect(x + 2, y + h - 3, w - 4, 2);
 }
 
 function _buildAnchors(cx, groundY, scale, walk, dims) {
@@ -136,9 +192,9 @@ function _buildAnchors(cx, groundY, scale, walk, dims) {
 
     const feetY = groundY;
     const legsTopY = feetY - legH;
-    const torsoTopY = legsTopY - torsoH + 2;
-    const headTopY = torsoTopY - headH + 3 + walk.bob;
-    const shoulderY = torsoTopY + 3 + walk.bob;
+    const torsoTopY = legsTopY - torsoH + 1;
+    const headTopY = torsoTopY - headH + 4 + walk.bob;
+    const shoulderY = torsoTopY + 2 + walk.bob;
 
     const gap = 2;
     const leftLegX = Math.floor(cx - legW - gap / 2);
@@ -171,17 +227,18 @@ function _drawGenericBody(ctx, a, dir, colors, hasTunic) {
     _drawLeg(ctx, rightLegX, legsTopY + walk.legR, legW, legH, colors);
     _drawShoes(ctx, leftLegX, legsTopY + walk.legL + legH - 3, rightLegX, legsTopY + walk.legR + legH - 3, legW);
 
-    _drawOutlinedRect(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.skin, colors.outline);
-    _drawShading(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.mid);
+    _drawRoundedRect(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.skin, colors.outline);
+    _drawSoftShading(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.mid);
     if (hasTunic) _drawTunic(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.skin);
 
     if (dir === DIR_UP) _drawHairBack(ctx, headX, headY, headW, headH, colors);
-    _drawOutlinedRect(ctx, headX, headY, headW, headH, colors.skin, colors.outline);
-    _drawShading(ctx, headX, headY, headW, headH, colors.mid);
+    _drawRoundedRect(ctx, headX, headY, headW, headH, colors.skin, colors.outline);
+    _drawSoftShading(ctx, headX, headY, headW, headH, colors.mid);
 
-    const eyeY = headY + Math.floor(headH * 0.35);
+    const eyeY = headY + Math.floor(headH * 0.3);
     _drawEyes(ctx, cx, eyeY, dir, colors);
-    _drawMouth(ctx, cx, headY + headH - 4, dir, colors.outline);
+    _drawMouth(ctx, cx, headY + headH - 5, dir, colors.outline);
+    _drawBlush(ctx, cx, eyeY + 9, dir);
     _drawHairTop(ctx, headX, headY, headW, dir, colors.hair);
 
     if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, rightArmX, shoulderY + walk.armR, armW, armH, colors, 'right');
@@ -296,9 +353,10 @@ function _drawMinotaur(ctx, a, dir, colors) {
     ctx.fillRect(mHeadX + mHeadW + 2, a.headY - 5, 4, 4);
     ctx.fillRect(mHeadX + mHeadW + 4, a.headY - 7, 3, 3);
 
-    // Face
+    // Face — chibi minotaur
     if (dir !== DIR_UP) {
         _drawEyes(ctx, cx, a.headY + Math.floor(a.headH * 0.3), dir, colors, 6);
+        _drawBlush(ctx, cx, a.headY + Math.floor(a.headH * 0.3) + 9, dir, 11);
         // Wide nose and nose ring
         if (dir === DIR_DOWN) {
             ctx.fillStyle = colors.mid;
@@ -355,9 +413,10 @@ function _drawMonkeyman(ctx, a, dir, colors) {
     ctx.fillRect(a.headX - 3, a.headY + 3, 3, 3);
     ctx.fillRect(a.headX + a.headW + 1, a.headY + 3, 3, 3);
 
-    // Face
+    // Face — chibi monkeyman
     if (dir !== DIR_UP) {
         _drawEyes(ctx, cx, a.headY + Math.floor(a.headH * 0.35), dir, colors);
+        _drawBlush(ctx, cx, a.headY + Math.floor(a.headH * 0.35) + 9, dir);
         // Wide grin
         if (dir === DIR_DOWN) {
             ctx.fillStyle = colors.outline;
@@ -478,10 +537,11 @@ function _drawOrk(ctx, a, dir, colors) {
         ctx.fillRect(cx + 3, a.headY + a.headH - 2, 2, 3);
     }
 
-    // Face (smaller eyes under brow)
+    // Face — chibi ork (smaller eyes under brow)
     if (dir !== DIR_UP) {
         const eyeY = a.headY + Math.floor(a.headH * 0.35) + 2;
         _drawEyes(ctx, cx, eyeY, dir, colors, 4);
+        _drawBlush(ctx, cx, eyeY + 9, dir, 9);
         // Flat nose
         if (dir === DIR_DOWN) {
             ctx.fillStyle = colors.mid;
@@ -889,9 +949,10 @@ function _drawTurtleman(ctx, a, dir, colors) {
     _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, colors.outline);
     _drawShading(ctx, a.headX, a.headY, a.headW, a.headH, colors.mid);
 
-    // Face
+    // Face — chibi turtleman
     if (dir !== DIR_UP) {
         _drawEyes(ctx, cx, a.headY + Math.floor(a.headH * 0.35), dir, colors);
+        _drawBlush(ctx, cx, a.headY + Math.floor(a.headH * 0.35) + 9, dir);
         // Beak-like mouth
         if (dir === DIR_DOWN) {
             ctx.fillStyle = '#bbaa66';
@@ -1089,11 +1150,12 @@ const RACE_RENDERERS_EXT = {
 export function drawRaceBodyExt(ctx, raceId, cx, groundY, dir, frame, scale, colors) {
     const walk = WALK_CYCLES[frame % 4];
 
+    // Chibi proportions: big head, compact body, stubby limbs
     const dims = {
-        headW: 18, headH: 16,
-        torsoW: 18, torsoH: 14,
-        armW: 6, armH: 14,
-        legW: 7, legH: 12,
+        headW: 28, headH: 22,
+        torsoW: 20, torsoH: 10,
+        armW: 6, armH: 10,
+        legW: 8, legH: 8,
     };
 
     const a = _buildAnchors(cx, groundY, scale, walk, dims);

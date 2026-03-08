@@ -432,7 +432,7 @@ export class TeamScreen {
             const sStage = spriteData.evolutionStage || spriteData.evolution_stage || 1;
             const sEquip = spriteData.equipment || {};
             HumanoidSpriteSystem.drawWithEquipment(
-                pCtx, sRaceId, sStage, 0, 0, 28, 50, 44, { equipment: sEquip }
+                pCtx, sRaceId, sStage, 0, 0, 28, 48, 50, { equipment: sEquip }
             );
             slot.appendChild(portrait);
 
@@ -1419,7 +1419,7 @@ export class InventoryScreen {
             const sRaceId = sprite.raceId || sprite.race_id || 1;
             const sStage = sprite.evolutionStage || sprite.evolution_stage || 1;
             HumanoidSpriteSystem.drawWithEquipment(
-                pCtx, sRaceId, sStage, 0, 0, 22, 38, 34, { equipment: sprite.equipment || {} }
+                pCtx, sRaceId, sStage, 0, 0, 22, 36, 40, { equipment: sprite.equipment || {} }
             );
             row.appendChild(portrait);
 

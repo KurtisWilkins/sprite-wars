@@ -291,7 +291,7 @@ export class SpriteInspectPanel {
         const ctx = canvas.getContext('2d');
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, d.raceId, d.evolutionStage, d.facing, 0,
-            128, 240, 192,
+            128, 230, 210,
             { equipment: d.equipment || {} }
         );
         previewRow.appendChild(canvas);
@@ -662,7 +662,7 @@ export class SpriteInspectPanel {
         const dollCtx = dollCanvas.getContext('2d');
         HumanoidSpriteSystem.drawWithEquipment(
             dollCtx, d.raceId, d.evolutionStage, d.facing, 0,
-            36, 70, 56,
+            36, 66, 64,
             { equipment: equipment }
         );
         paperDoll.appendChild(dollCanvas);
@@ -975,7 +975,7 @@ export class SpriteInspectPanel {
             const mCtx = miniCanvas.getContext('2d');
             HumanoidSpriteSystem.drawWithEquipment(
                 mCtx, d.raceId, stageNum, 0, 0,
-                24, 45, 36,
+                24, 44, 42,
                 { equipment: {} }
             );
             stageRow.appendChild(miniCanvas);

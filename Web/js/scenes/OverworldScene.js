@@ -9,6 +9,7 @@
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { SpriteSheetGenerator } from '../core/SpriteSheetGenerator.js';
+import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
 import { getTrainer } from '../data/TrainerData.js';
 import { ENCOUNTER_TABLES } from '../data/EncounterData.js';
 import { GlossaryScreen } from '../systems/ui/GlossaryScreen.js';
@@ -75,8 +76,8 @@ class AdminLog {
 // ── Map Constants ──────────────────────────────────────────────────────────
 const TILE_SIZE = 32;
 const TILE_DRAW_SIZE = 32;
-const PLAYER_SIZE = 28;          // Larger character fills more of the tile (classic RPG style)
-const NPC_DRAW_HALFSIZE = 14;    // NPC render radius matches player proportions
+const PLAYER_SIZE = 34;          // Chibi characters need more space for big heads
+const NPC_DRAW_HALFSIZE = 17;    // NPC render radius matches chibi player proportions
 const PLAYER_SPEED = 120;        // pixels per second
 const NPC_INTERACT_DISTANCE = 40;
 const ENCOUNTER_STEP_THRESHOLD = 10; // steps between encounter checks
@@ -2278,15 +2279,35 @@ export class OverworldScene extends Scene {
         const py = this._player.y;
         const halfSize = PLAYER_SIZE / 2;
 
+        // Use chibi HumanoidSpriteSystem for the player character
+        const dirMap = { down: 0, left: 1, right: 2, up: 3 };
+        const dir = dirMap[this._player.facing] || 0;
+        const animFrame = this._player.moving ? (this._player.animFrame % 4) : 0;
+        const raceId = this._player.raceId || 12; // Default to Human
+        const stage = this._player.stage || 1;
+        const equipment = this._player.equipment || {};
+
+        try {
+            const ctx = renderer.ctx || renderer._ctx;
+            if (ctx) {
+                ctx.imageSmoothingEnabled = false;
+                HumanoidSpriteSystem.drawWithEquipment(
+                    ctx, raceId, stage, dir, animFrame,
+                    px, py + halfSize * 0.3, PLAYER_SIZE,
+                    { equipment }
+                );
+                ctx.imageSmoothingEnabled = true;
+                return;
+            }
+        } catch (_) { /* fall through to legacy rendering */ }
+
+        // Legacy fallback: sprite sheet rendering
         if (this._player.spriteImg && this._player.spriteImg.complete) {
-            // Character sprite sheet: 4 columns x 4 rows, square frames
-            // Row 0: down, Row 1: left, Row 2: right, Row 3: up
-            // Use frame 0 for idle, animate through columns for walking
             const dirRow = { down: 0, left: 1, right: 2, up: 3 };
             const row = dirRow[this._player.facing] || 0;
             const numRows = this._player.spriteRows || 4;
             const sh = this._player.spriteImg.height / numRows;
-            const sw = this._player.spriteFrameW || sh; // square frames
+            const sw = this._player.spriteFrameW || sh;
             const numCols = this._player.spriteCols || Math.floor(this._player.spriteImg.width / sw) || 4;
             const col = this._player.moving ? (this._player.animFrame % numCols) : 0;
             renderer.drawSprite(
@@ -2297,7 +2318,6 @@ export class OverworldScene extends Scene {
         } else {
             // Fallback: colored circle
             renderer.drawCircle(px, py, halfSize, '#44aaff');
-            // Direction indicator
             const d = DIR[this._player.facing] || DIR.down;
             renderer.drawCircle(
                 px + d.x * halfSize * 0.6,
@@ -2308,10 +2328,28 @@ export class OverworldScene extends Scene {
     }
 
     _renderNpc(renderer, npc) {
+        // Try chibi HumanoidSpriteSystem rendering for NPCs with race data
+        if (npc.raceId) {
+            try {
+                const ctx = renderer.ctx || renderer._ctx;
+                if (ctx) {
+                    const dirMap = { down: 0, left: 1, right: 2, up: 3 };
+                    const dir = dirMap[npc.facing] || 0;
+                    const animFrame = npc.moving ? ((npc.animFrame || 0) % 4) : 0;
+                    const npcSize = NPC_DRAW_HALFSIZE * 2;
+                    ctx.imageSmoothingEnabled = false;
+                    HumanoidSpriteSystem.drawWithEquipment(
+                        ctx, npc.raceId, npc.stage || 1, dir, animFrame,
+                        npc.x, npc.y + NPC_DRAW_HALFSIZE * 0.3, npcSize,
+                        { equipment: npc.equipment || {} }
+                    );
+                    ctx.imageSmoothingEnabled = true;
+                    return;
+                }
+            } catch (_) { /* fall through to legacy */ }
+        }
+
         if (npc.spriteSheet && npc.spriteSheet.complete) {
-            // Character sprite sheets: 4 rows (down, left, right, up), square frames.
-            // Use pre-calculated frame dimensions from load phase to avoid
-            // incorrect division when sheet dimensions don't evenly divide by 4.
             const dirRow = { down: 0, left: 1, right: 2, up: 3 };
             const row = dirRow[npc.facing] || 0;
             const col = npc.moving ? ((npc.animFrame || 0) % (npc.spriteCols || 4)) : 0;
@@ -2338,7 +2376,6 @@ export class OverworldScene extends Scene {
             const color = colors[npc.type] || '#ffffff';
             renderer.drawCircle(npc.x, npc.y, NPC_DRAW_HALFSIZE, color);
         }
-        // NPC name labels drawn in screen space after zoom restore (see render method)
     }
 
     _getTileFallbackColor(tileIndex) {
