@@ -1,7 +1,7 @@
 # [P10-014] Sprite Wars — Animation Specification Sheet
 
-> **Version:** 1.0
-> **Last Updated:** 2026-02-16
+> **Version:** 2.0
+> **Last Updated:** 2026-03-08
 > **Owner:** 2D Animator / Art Lead
 > **Engine:** Godot 4.2 (SpriteFrames / AnimatedSprite2D)
 > **Target Platforms:** Android / iOS (Mobile)
@@ -13,6 +13,8 @@
 This document defines the animation pipeline for all 72 Sprite forms in Sprite Wars. It covers animation states, frame counts, frame rates, sprite sheet layout, naming conventions, pivot points, timing hooks (hit frames), and loop behavior. Animators must follow these specifications for consistency and correct integration with the battle and world systems.
 
 **Total animation workload:** 72 forms x 6 core states = **432 animation clips** (minimum). Additional states (special abilities, emotes) may increase this count.
+
+**Color Doodle Chibi Art Style:** All animations in Sprite Wars use the Color Doodle Chibi art style, which influences every aspect of the animation pipeline. Sprites should exhibit a subtle "sketch wobble" effect -- a small random position jitter (0.5-1px) applied per frame to make characters feel hand-drawn and alive. Squash-and-stretch values are exaggerated approximately 20% beyond standard proportions to reinforce the cartoony doodle aesthetic. During key frames (hit frames, ability casts, landing frames), decorative sketch marks should appear as overlays, including motion lines near fast-moving limbs, small stars or spirals on impact, and chibi expression marks such as blush marks, sweat drops, or exclamation pops. These doodle elements are integral to the visual identity and must be present in all animation deliverables.
 
 ---
 
@@ -28,6 +30,8 @@ Every Sprite form requires the following core animation states:
 | **Ability** | 8 | 12 | 0.67s | No | Special ability cast. Play once, return to idle |
 | **Faint** | 4 | 8 | 0.50s | No | Defeat animation. Play once, hold last frame |
 | **Hit** | 3 | 12 | 0.25s | No | Damage reaction. Play once, return to idle |
+
+**Doodle Wobble Layer:** All animation states include an optional "doodle wobble" layer -- a 0.5-1px random position offset applied per frame. This subtle jitter makes sprites look hand-drawn and alive, as if they are being continuously redrawn by an artist's pen. The wobble is applied as a post-process on the sprite's position and does not affect hitbox alignment or pivot anchoring. Animators do not need to bake this into sprite sheets; it is applied procedurally at runtime by the animation controller.
 
 ### Optional / Extended States
 
@@ -302,6 +306,15 @@ Attack effect animations (hit sparks, elemental bursts) follow separate but rela
 - VFX playback duration should not exceed **0.5s** (6 frames at 12 FPS).
 - VFX fades to transparent on the last 1-2 frames (no hard cut).
 
+### Doodle VFX Rules
+All VFX must conform to the Color Doodle Chibi art style:
+
+- **Sketchy outlines:** VFX should use wobbly, hand-drawn outlines instead of clean geometric shapes. Outlines may vary 1-2px in thickness along their length to simulate pen strokes.
+- **Hand-drawn hit effects:** Hit impacts should include sketch-style marks such as hand-drawn stars, spirals, and short motion lines radiating from the impact point.
+- **Hatching overlays:** Elemental effects (fire, ice, lightning, etc.) should have visible hatching or crosshatch texture overlays to reinforce the illustrated, sketched aesthetic.
+- **Wobbly impact text:** Comic impact text bubbles ("BAM!", "POW!", etc.) should have hand-drawn wobbly borders instead of clean rounded rectangles. Border lines should vary in thickness.
+- **Doodle particles:** Decorative particle effects should use hand-drawn shapes -- small stars, hearts, spirals, and scribble clouds -- rather than smooth circles or geometric sprites. These spawn during hits, ability activations, and evolution sequences to add visual charm.
+
 ---
 
 ## 11. Sprite Sheet Export Pipeline
@@ -445,11 +458,60 @@ On significant hits (30+ damage), the VFX system displays comic-book style impac
 - Pop-in animated, then fade out upward
 - Kept subtle (brief display, moderate size) to avoid overstimulation
 
+### Doodle Enhancements for Weapon Animations
+The following doodle-style modifications apply to all procedural weapon animations:
+
+- **Sketchy motion trails:** Motion trails during swings and thrusts should be rendered as sketchy, hand-drawn doodled lines rather than smooth gradients. Trail lines should have slight wobble and vary in thickness.
+- **Hand-drawn impact stars:** Impact effects on hit use hand-drawn star shapes with uneven points and wobbly outlines, matching the doodle aesthetic.
+- **Wobbly speech bubbles:** Comic impact text ("BAM!", "POW!", etc.) gets speech bubble borders with hand-drawn wobbly edges. Border thickness varies along the path to simulate ink pen strokes.
+
 ---
 
-## 15. Revision History
+## 15. Doodle Animation Style Rules
+
+This section consolidates all doodle-specific animation rules that apply globally across the Color Doodle Chibi art style.
+
+### Wobble Effect
+All sprites have a subtle **0.5-1px random position jitter** applied each frame. This is handled procedurally by the animation controller and gives every sprite the appearance of being continuously hand-drawn. The wobble uses a per-sprite random seed to avoid synchronized movement across multiple sprites on screen.
+
+### Sketch Redraw
+Every **3-4 frames**, sprite outlines slightly shift position (1-2px) to simulate the effect of an artist redrawing the character. This is distinct from the per-frame wobble -- it is a less frequent, slightly larger shift that creates a "boiling line" effect common in hand-drawn animation.
+
+### Squash-Stretch
+Squash-and-stretch values are **20% more exaggerated** than standard animation proportions. This amplification reinforces the cartoony doodle feel. For example, a standard 10% squash on landing becomes 12%, and a standard 15% stretch on jump becomes 18%.
+
+### Motion Lines
+Short parallel sketch marks (3-5 small lines) appear near fast-moving body parts during attacks, dashes, and ability casts. These motion lines are drawn with a slight wobble and fade out within 2-3 frames. They should match the sprite's outline color.
+
+### Expression Pops
+Chibi expression marks appear during key gameplay moments:
+- **!** (exclamation) -- when a critical hit lands
+- **?** (question mark) -- when an attack misses or is dodged
+- **Hearts** -- during healing abilities or friendship interactions
+- **Anger veins** -- when a Sprite enters berserk/enraged state
+- **Sweat drops** -- when a Sprite is at low HP or under status pressure
+- **Stars** -- when a Sprite is stunned or confused
+
+These marks appear as floating overlays near the sprite's head and persist for 0.3-0.5 seconds before fading.
+
+### Decorative Particles
+Small hand-drawn particles spawn during hits, ability activations, and evolution sequences:
+- **Stars** (4-6 point, wobbly) -- general impact and celebration
+- **Hearts** -- healing and support abilities
+- **Spirals** -- confusion, psychic, and wind effects
+- **Scribble clouds** -- dust, smoke, and earth impacts
+
+Particles use the doodle wobble effect and have slightly uneven shapes to maintain the hand-drawn look.
+
+### Bouncy Landing
+Characters have an **extra bounce frame** when landing from jumps, knockback recovery, or attack lunges. After the initial landing squash, the sprite overshoots upward by 2-3px before settling into its resting position. This adds a playful, springy quality consistent with the chibi proportions.
+
+---
+
+## 16. Revision History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-02-16 | 2D Animator / Art Lead | Initial specification |
 | 1.1 | 2026-03-04 | Gameplay Programmer (Battle) | Added weapon animation system, class specials, VFX, teleport, knockback visuals |
+| 2.0 | 2026-03-08 | Art Lead / 2D Animator | Animation spec updated for Color Doodle Chibi art style |

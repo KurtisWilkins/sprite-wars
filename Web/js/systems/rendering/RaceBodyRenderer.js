@@ -38,6 +38,94 @@ const WALK_CYCLES = [
     { armL: 4,  armR: -4, legL: -2, legR: 4,  bob: -2 },
 ];
 
+// ── Doodle Art Style Helpers ─────────────────────────────────────────────────
+
+/** Doodle art style: Draw a hand-drawn wobbly line */
+function _drawDoodleLine(ctx, x1, y1, x2, y2, color = '#2D2D2D', lineWidth = 2.5) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const segments = Math.max(3, Math.floor(dist / 3));
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+
+    for (let i = 1; i <= segments; i++) {
+        const t = i / segments;
+        const px = x1 + dx * t;
+        const py = y1 + dy * t;
+        // Add wobble perpendicular to line direction
+        const nx = -dy / dist;
+        const ny = dx / dist;
+        const wobble = Math.sin(t * Math.PI * 3) * 1.2;
+        // Vary thickness slightly
+        ctx.lineWidth = lineWidth + Math.sin(t * Math.PI * 2) * 0.8;
+        ctx.lineTo(px + nx * wobble, py + ny * wobble);
+    }
+
+    ctx.stroke();
+    ctx.restore();
+}
+
+/** Doodle art style: Add hatching shading overlay */
+function _drawDoodleHatching(ctx, x, y, width, height, color = '#2D2D2D', density = 0.4) {
+    ctx.save();
+    ctx.globalAlpha = 0.15;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.lineCap = 'round';
+
+    const spacing = Math.floor(4 / density);
+    ctx.beginPath();
+    for (let offset = -height; offset < width + height; offset += spacing) {
+        ctx.moveTo(x + offset, y);
+        ctx.lineTo(x + offset - height, y + height);
+    }
+    ctx.stroke();
+    ctx.restore();
+}
+
+/** Doodle art style: Draw a wobbly ellipse shadow */
+function _drawDoodleShadow(ctx, cx, cy, rx, ry, color = 'rgba(0,0,0,0.15)') {
+    ctx.save();
+    ctx.globalAlpha = 0.2;
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.lineCap = 'round';
+
+    ctx.beginPath();
+    const steps = 16;
+    for (let i = 0; i <= steps; i++) {
+        const angle = (i / steps) * Math.PI * 2;
+        const wobble = Math.sin(angle * 3) * 0.8;
+        const px = cx + (rx + wobble) * Math.cos(angle);
+        const py = cy + (ry + wobble * 0.5) * Math.sin(angle);
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+}
+
+/** Doodle art style: Draw wobbly outline around a rectangle */
+function _drawDoodleRectOutline(ctx, x, y, w, h, color = '#2D2D2D', lineWidth = 2) {
+    const fx = Math.floor(x);
+    const fy = Math.floor(y);
+    _drawDoodleLine(ctx, fx, fy, fx + w, fy, color, lineWidth);             // top
+    _drawDoodleLine(ctx, fx + w, fy, fx + w, fy + h, color, lineWidth);     // right
+    _drawDoodleLine(ctx, fx + w, fy + h, fx, fy + h, color, lineWidth);     // bottom
+    _drawDoodleLine(ctx, fx, fy + h, fx, fy, color, lineWidth);             // left
+}
+
 // ── Shared Helpers ──────────────────────────────────────────────────────────
 
 function _drawOutlinedRect(ctx, x, y, w, h, fillColor, outlineColor) {
@@ -45,6 +133,10 @@ function _drawOutlinedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     ctx.fillRect(Math.floor(x) - 1, Math.floor(y) - 1, w + 2, h + 2);
     ctx.fillStyle = fillColor;
     ctx.fillRect(Math.floor(x), Math.floor(y), w, h);
+    // Doodle art style: hatching overlay on filled shapes
+    _drawDoodleHatching(ctx, Math.floor(x), Math.floor(y), w, h, outlineColor, 0.3);
+    // Doodle art style: wobbly outline on top
+    _drawDoodleRectOutline(ctx, Math.floor(x), Math.floor(y), w, h, outlineColor, 1.5);
 }
 
 function _drawRoundedRect(ctx, x, y, w, h, fillColor, outlineColor) {
@@ -57,6 +149,10 @@ function _drawRoundedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     // Fill
     ctx.fillStyle = fillColor;
     ctx.fillRect(fx, fy, w, h);
+    // Doodle art style: hatching overlay on filled shapes
+    _drawDoodleHatching(ctx, fx, fy, w, h, outlineColor, 0.3);
+    // Doodle art style: wobbly outline on top
+    _drawDoodleRectOutline(ctx, fx, fy, w, h, outlineColor, 1.5);
 }
 
 function _drawShading(ctx, x, y, w, h, midColor) {
@@ -71,7 +167,7 @@ function _drawSoftShading(ctx, x, y, w, h, midColor) {
     ctx.globalAlpha = 1.0;
 }
 
-// ── Chibi anime-style eyes with iris, pupil, and highlight ───────────────
+// ── Chibi doodle-style eyes with iris, pupil, sparkle highlights ──────────
 function _drawEyes(ctx, cx, eyeY, dir, colors, spacing) {
     const sp = spacing || 7;
     if (dir === DIR_DOWN) {
@@ -87,17 +183,19 @@ function _drawEyes(ctx, cx, eyeY, dir, colors, spacing) {
         ctx.fillStyle = '#111';
         ctx.fillRect(cx - sp - 1, eyeY + 3, 3, 3);
         ctx.fillRect(cx + sp - 1, eyeY + 3, 3, 3);
-        // Highlight sparkle (top-left of each eye)
+        // Doodle sparkle highlight (larger, two white dots per eye)
         ctx.fillStyle = '#fff';
-        ctx.fillRect(cx - sp - 2, eyeY + 1, 2, 2);
-        ctx.fillRect(cx + sp - 2, eyeY + 1, 2, 2);
-        // Small secondary highlight
-        ctx.fillRect(cx - sp + 1, eyeY + 4, 1, 1);
-        ctx.fillRect(cx + sp + 1, eyeY + 4, 1, 1);
-        // Top eyelid line
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(cx - sp - 3, eyeY - 1, 7, 1);
-        ctx.fillRect(cx + sp - 3, eyeY - 1, 7, 1);
+        ctx.fillRect(cx - sp - 2, eyeY + 1, 3, 3);
+        ctx.fillRect(cx + sp - 2, eyeY + 1, 3, 3);
+        // Small secondary sparkle highlight
+        ctx.fillRect(cx - sp + 1, eyeY + 4, 2, 2);
+        ctx.fillRect(cx + sp + 1, eyeY + 4, 2, 2);
+        // Doodle-style wobbly eyelid line (top)
+        _drawDoodleLine(ctx, cx - sp - 3, eyeY - 1, cx - sp + 4, eyeY - 1, colors.outline, 1.5);
+        _drawDoodleLine(ctx, cx + sp - 3, eyeY - 1, cx + sp + 4, eyeY - 1, colors.outline, 1.5);
+        // Doodle-style lower lash accent
+        _drawDoodleLine(ctx, cx - sp - 2, eyeY + 7, cx - sp + 3, eyeY + 7, colors.outline, 1);
+        _drawDoodleLine(ctx, cx + sp - 2, eyeY + 7, cx + sp + 3, eyeY + 7, colors.outline, 1);
     } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
         const ex = dir === DIR_RIGHT ? cx + 2 : cx - 6;
         // Single large eye for side view
@@ -109,12 +207,12 @@ function _drawEyes(ctx, cx, eyeY, dir, colors, spacing) {
         // Pupil
         ctx.fillStyle = '#111';
         ctx.fillRect(ex + 2, eyeY + 3, 2, 3);
-        // Highlight
+        // Doodle sparkle highlight (larger)
         ctx.fillStyle = '#fff';
         ctx.fillRect(ex + 1, eyeY + 1, 2, 2);
-        // Eyelid
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(ex, eyeY - 1, 6, 1);
+        ctx.fillRect(ex + 3, eyeY + 4, 1, 1);
+        // Doodle-style wobbly eyelid
+        _drawDoodleLine(ctx, ex, eyeY - 1, ex + 6, eyeY - 1, colors.outline, 1.5);
     }
 }
 
@@ -129,20 +227,39 @@ function _drawMouth(ctx, cx, y, dir, outlineColor) {
     }
 }
 
-// ── Chibi blush marks (pink circles on cheeks) ──────────────────────────
+// ── Doodle chibi blush marks (sketchy pink circles on cheeks) ────────────
 function _drawBlush(ctx, cx, blushY, dir, spacing) {
     if (dir === DIR_UP) return;
     const sp = spacing || 10;
-    ctx.globalAlpha = 0.35;
+    ctx.save();
+    ctx.globalAlpha = 0.4;
     ctx.fillStyle = '#ff6688';
     if (dir === DIR_DOWN) {
-        ctx.fillRect(cx - sp - 1, blushY, 4, 2);
-        ctx.fillRect(cx + sp - 2, blushY, 4, 2);
+        // Doodle-style: slightly larger, softer blush ovals
+        ctx.fillRect(cx - sp - 2, blushY, 5, 3);
+        ctx.fillRect(cx + sp - 2, blushY, 5, 3);
+        // Add doodle hatching lines inside blush for sketchy feel
+        ctx.globalAlpha = 0.2;
+        ctx.strokeStyle = '#ff4466';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(cx - sp - 1, blushY);
+        ctx.lineTo(cx - sp + 2, blushY + 2);
+        ctx.moveTo(cx + sp - 1, blushY);
+        ctx.lineTo(cx + sp + 2, blushY + 2);
+        ctx.stroke();
     } else {
         const bx = dir === DIR_RIGHT ? cx + 3 : cx - 6;
-        ctx.fillRect(bx, blushY, 4, 2);
+        ctx.fillRect(bx, blushY, 5, 3);
+        ctx.globalAlpha = 0.2;
+        ctx.strokeStyle = '#ff4466';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(bx + 1, blushY);
+        ctx.lineTo(bx + 3, blushY + 2);
+        ctx.stroke();
     }
-    ctx.globalAlpha = 1.0;
+    ctx.restore();
 }
 
 // ── Fluffy chibi hair ────────────────────────────────────────────────────

@@ -110,7 +110,7 @@ export class BattleUI {
 
     /** @private */
     _buildComponents() {
-        // Turn Order Bar (top)
+        // Turn Order Bar (top) — doodle chibi style with wobbly hand-drawn border
         this._turnOrderBar = document.createElement('div');
         this._turnOrderBar.className = 'battle-turn-order';
         Object.assign(this._turnOrderBar.style, {
@@ -123,7 +123,21 @@ export class BattleUI {
             padding: '4px 12px',
             boxSizing: 'border-box',
             pointerEvents: 'none',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
         });
+        // Doodle: wobbly SVG border behind turn order
+        const turnOrderBg = document.createElement('div');
+        turnOrderBg.style.cssText = `
+            position:absolute;top:-2px;left:5%;right:5%;bottom:-2px;
+            background:#FEF9E7;
+            border:2.5px solid #2D2D2D;
+            border-radius:18px 6px 14px 8px;
+            transform:rotate(-0.4deg);
+            z-index:-1;
+            box-shadow:1px 2px 0 #2D2D2D;
+        `;
+        this._turnOrderBar.style.position = 'absolute';
+        this._turnOrderBar.appendChild(turnOrderBg);
         this._container.appendChild(this._turnOrderBar);
 
         // Event Feed (top-left)

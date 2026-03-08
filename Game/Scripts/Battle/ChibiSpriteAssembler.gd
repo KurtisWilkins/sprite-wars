@@ -2,9 +2,11 @@
 ## individual body parts at runtime. Each part is a separate Sprite2D node
 ## so it can be independently animated (arm swings, head bobs, etc.).
 ##
-## Art style: "HippoGames Fantasy Heroes" chibi proportions — large oversized
-## head, small body, stubby limbs. All pixel art is generated procedurally
-## via Image + ImageTexture (no external texture files required).
+## Art style: "Color Doodle Chibi" — hand-drawn, sketchy, colorful doodle art
+## with exaggerated chibi proportions. Outlines are wobbly/hand-drawn, shading
+## uses hatching, and eyes are large sparkle-style. Doodle parameters are
+## sourced from ChibiSpriteConfig.get_doodle_style(). All pixel art is generated
+## procedurally via Image + ImageTexture (no external texture files required).
 ##
 ## Layer order (back to front):
 ##   BackArm -> Legs -> Body -> Head -> FrontArm -> Weapon
@@ -56,6 +58,9 @@ const BLADE_COLOR := Color(0.75, 0.78, 0.82)
 ##   "weapon_type"       : String — sword, axe, mace, bow, staff, dagger, etc.
 ##   "facing"            : String — "left" or "right" (default "right")
 func assemble_sprite(config: Dictionary) -> Node2D:
+	# Doodle art style: all outlines use wobbly/sketchy lines, shading uses
+	# hatching, and eyes are drawn in the chibi doodle style (sparkle or dot).
+	# Style parameters come from ChibiSpriteConfig.get_doodle_style().
 	var race_id: int = int(config.get("race_id", 0))
 	var stage: int = clampi(int(config.get("evolution_stage", 1)), 1, 3)
 	var skin_color_val = config.get("skin_color", DEFAULT_SKIN_COLOR)

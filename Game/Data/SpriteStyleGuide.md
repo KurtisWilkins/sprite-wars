@@ -1,7 +1,7 @@
 # [P10-001] Sprite Wars — Sprite Design Style Guide
 
-> **Version:** 1.0
-> **Last Updated:** 2026-02-16
+> **Version:** 2.0
+> **Last Updated:** 2026-03-08
 > **Owner:** Art Lead
 > **Engine:** Godot 4.2
 > **Target Platforms:** Android / iOS (Mobile)
@@ -10,7 +10,17 @@
 
 ## 1. Overview
 
-This document defines the visual art direction for all 72 Sprite forms (24 races x 3 evolution stages) in Sprite Wars. Every artist contributing character art must follow these standards to maintain a cohesive, readable, and mobile-optimized visual identity.
+This document defines the **Color Doodle Chibi** art direction for all 72 Sprite forms (24 races x 3 evolution stages) in Sprite Wars. The visual style is hand-drawn, sketchy, colorful, and playful — evoking the feel of doodle art with chibi proportions.
+
+### Core Style Characteristics
+- **Thick uneven outlines** — as if drawn with a marker or crayon, never perfectly straight or uniform.
+- **Visible pen strokes** — line work retains the energy and imperfection of hand-drawing.
+- **Hand-drawn imperfections** — wobbly edges, overlapping strokes, and slight asymmetry are intentional and desirable.
+- **Soft colorful fills with visible hatching/cross-hatching** — shading uses sketch techniques (hatching, cross-hatching, scribble fills) rather than smooth gradients.
+- **Pastel-meets-vibrant color palette** — colors lean slightly desaturated and warm, but pop with vibrant accents.
+- **Whimsical and playful feel** — every Sprite should look like it was lovingly doodled in a sketchbook and then colored in.
+
+Every artist contributing character art must follow these standards to maintain a cohesive, readable, and mobile-optimized visual identity rooted in the Color Doodle Chibi aesthetic.
 
 ---
 
@@ -35,20 +45,36 @@ Each evolution stage uses a progressively larger canvas to reflect growing power
 ## 3. Color Palette
 
 ### Per-Sprite Limit
-Each individual Sprite form uses a **maximum of 16 unique colors** (excluding full transparency). This constraint ensures:
+Each individual Sprite form uses a **maximum of 24 unique colors** (excluding full transparency). The doodle style requires additional colors for sketch strokes, hatching lines, and color-bleed edges. This constraint ensures:
 - Clean, readable silhouettes on mobile screens.
-- Consistency with the pixel art aesthetic.
+- Consistency with the Color Doodle Chibi aesthetic.
 - Efficient texture memory usage.
 
 ### Color Breakdown per Sprite
 | Allocation | Count | Purpose |
 |-----------|-------|---------|
-| Outline | 1-2 | Dark outline + highlight edge |
+| Doodle ink outline | 2-3 | Wobbly outlines + sketch strokes |
 | Primary body | 3-4 | Main body color + shading |
+| Hatching/shading | 2-3 | Cross-hatch lines, scribble shading |
 | Secondary feature | 2-3 | Accent markings, belly, mane |
 | Element accent | 2-3 | Elemental glow, particles, aura |
 | Eyes & details | 2-3 | Eyes, claws, teeth, gems |
-| Highlight/specular | 1 | White or near-white specular pop |
+| Color bleed edges | 1-2 | Soft bleed past outlines |
+| Highlight/specular | 1-2 | White or near-white specular pop |
+| Sketch marks | 1-2 | Blush circles, motion lines, decorative marks |
+
+### Doodle Ink Colors
+All Sprite outlines and sketch strokes should use one of these doodle ink colors rather than pure black. Choose based on the Sprite's overall warmth/coolness:
+
+| Swatch | Hex | Usage |
+|--------|-----|-------|
+| Soft Black | `#2D2D2D` | Default outline for neutral/dark Sprites |
+| Warm Brown | `#5C4033` | Outlines for warm-toned Sprites (Fire, Earth, Solar) |
+| Dark Blue | `#2B3A67` | Outlines for cool-toned Sprites (Water, Ice, Lunar) |
+| Soft Gray | `#7A7A7A` | Secondary sketch marks, hatching lines, motion lines |
+
+### Doodle Color Treatment
+> **Important:** All colors should appear **slightly desaturated/pastel** compared to standard pixel art. The Color Doodle Chibi style favors soft, crayon-like color fills over high-saturation digital color. Colors should show **visible color bleeding at edges** — fills intentionally extend slightly past outlines for that hand-colored feel.
 
 ### Element Color Palettes
 
@@ -184,31 +210,40 @@ Each of the 14 elements has a defined color family. Sprites of that element must
 
 ## 4. Proportions & Anatomy
 
-Evolution stages use a consistent head-to-body ratio that shifts from cute to imposing.
+All evolution stages use **chibi/doodle proportions** — even final forms remain cute and round. The style shifts from extra-chibi to slightly more detailed chibi, never reaching realistic proportions.
 
-### Stage 1 — Cute / Chibi
-- **Head-to-body ratio:** 1:2 to 1:3 (large head, small body)
-- **Eyes:** Large, round, expressive — take up ~30-40% of face area
-- **Limbs:** Short, stubby, simplified
-- **Details:** Minimal; 1-2 distinguishing features (e.g., a tail flame, ear tufts)
-- **Personality:** Approachable, endearing, mascot-like
+### Universal Doodle Body Rules (All Stages)
+- **Rounded, blobby limbs** with no sharp angles — everything should look soft and squishy.
+- **Hands** are simple mittens or circles (no individual fingers unless the Sprite specifically requires them for identity).
+- **Feet** are round stubs — simple, chunky, and cute.
+- **No hard geometric angles** on bodies — even armored or metallic Sprites should have rounded, doodled edges.
+
+### Stage 1 — Extra Chibi / Baby Doodle
+- **Head-to-body ratio:** 1:1.5 (very large, round head dominates the body)
+- **Eyes:** Dot eyes or large sparkly eyes — take up ~40-50% of face area
+- **Limbs:** Tiny, blobby nubs — barely visible
+- **Details:** Minimal; 1-2 distinguishing features (e.g., a scribbled tail flame, tiny ear tufts)
+- **Personality:** Maximum cute, baby-like, irresistible
 - **Pose:** Forward-facing, slightly tilted for charm
+- **Doodle feel:** Simplest sketch marks, minimal hatching, big round shapes
 
-### Stage 2 — Balanced / Adolescent
-- **Head-to-body ratio:** 1:3 to 1:4 (proportional head, defined body)
-- **Eyes:** Medium, still expressive but more determined
-- **Limbs:** Defined joints, claws/paws visible
-- **Details:** Moderate; 3-4 features that build on Stage 1 (e.g., larger flame, mane growth)
-- **Personality:** Confident, capable, growing
+### Stage 2 — Chibi / Kid Doodle
+- **Head-to-body ratio:** 1:2 (still chibi, cute with bigger features than realistic)
+- **Eyes:** Large and expressive, still sparkly but more determined
+- **Limbs:** Short and rounded, mitten hands slightly defined, stubby feet
+- **Details:** Moderate; 3-4 features that build on Stage 1 (e.g., larger scribble flame, mane growth)
+- **Personality:** Confident but still cute, capable little adventurer
 - **Pose:** Slight action stance, weight shifted
+- **Doodle feel:** More hatching detail, additional sketch marks, slightly more complex shapes
 
-### Stage 3 — Imposing / Mature
-- **Head-to-body ratio:** 1:4 to 1:5 (smaller head relative to powerful body)
-- **Eyes:** Focused, intense, may have additional eye details (pupils, glow)
-- **Limbs:** Fully articulated, muscular or sleek depending on species
-- **Details:** Rich; 5+ features with intricate element-themed ornamentation
-- **Personality:** Powerful, awe-inspiring, formidable
-- **Pose:** Dynamic, commanding, may have spread wings/arms
+### Stage 3 — Chibi / Final Doodle Form
+- **Head-to-body ratio:** 1:2.5 (still chibi even at final form, slightly more detailed)
+- **Eyes:** Expressive and detailed, may have additional eye features (sparkle highlights, element-colored irises)
+- **Limbs:** Rounded but slightly more defined, mitten hands may show claw shapes, feet slightly articulated
+- **Details:** Rich; 5+ features with doodle-style element-themed ornamentation (scribbled flames, sketchy crystals, etc.)
+- **Personality:** Powerful but still adorably chibi — formidable yet huggable
+- **Pose:** Dynamic, commanding, may have spread wings/arms — but with rounded chibi proportions
+- **Doodle feel:** Most detailed hatching and cross-hatching, elaborate sketch marks, decorative doodle effects
 
 ---
 
@@ -223,6 +258,9 @@ This is the single most important readability rule. On mobile screens, during fa
 2. Scale down to 32x32 pixels using nearest-neighbor interpolation (no smoothing).
 3. The Sprite must still be identifiable — distinguishable from every other Sprite in the game.
 4. Key identifying features (horns, wings, tail shape, ear shape) must remain visible at this scale.
+
+### Doodle Outline Note
+In the Color Doodle Chibi style, outlines are **2-4px thick** and **slightly wobbly/uneven** to achieve the hand-drawn feel. This thicker, irregular outline actually aids silhouette readability at small sizes, as the heavier line weight makes shapes more distinct. When creating silhouette test sheets, the wobbly outline is part of the silhouette shape.
 
 ### Silhouette Design Principles
 - **Unique contour:** No two Sprites in the same stage should share the same general outline shape.
@@ -270,16 +308,26 @@ Each 3-stage evolution line must feel like a natural progression while maintaini
 All art must pass readability checks on actual mobile devices (or accurate emulators) at target resolution.
 
 ### Outline Requirements
-- **Outline width:** 1-2 pixels of dark outline on all Sprites.
-- **Outline color:** Use a darkened, desaturated version of the adjacent body color (not pure black unless the Sprite itself is very dark).
-  - Example: For a Fire Sprite with body color `#E86A17`, outline could be `#5C2A0A`.
-- **Inner outlines:** Optional 1px inner outlines to separate major body sections (head/body/limbs). These should be lighter than the external outline.
-- **No outline breaks:** The silhouette outline must be continuous -- no gaps where background shows through at the edge.
+- **Outline width:** 2-4 pixels, **slightly uneven/wobbly** to achieve the hand-drawn doodle feel. Outlines should never be perfectly straight or uniform in thickness.
+- **Outline color:** Use **Doodle Ink Colors** (see Section 3) — Soft Black, Warm Brown, Dark Blue, or Soft Gray depending on the Sprite's color temperature. Do not use pure black (`#000000`).
+  - Example: For a Fire Sprite, use Warm Brown (`#5C4033`) for primary outlines.
+- **Inner outlines:** Optional 1-2px inner lines to separate major body sections (head/body/limbs). These should use Soft Gray (`#7A7A7A`) or a lighter doodle ink.
+- **No outline breaks:** The silhouette outline must be continuous -- no gaps where background shows through at the edge. Wobble is fine, gaps are not.
+- **Soft edges:** The doodle style uses soft, slightly fuzzy edges rather than pixel-perfect hard edges. Anti-aliasing and soft edge treatment is encouraged to support the hand-drawn feel.
 
 ### Detail Line Rules
-- **Minimum line width:** 2 pixels for any visible detail line at native resolution.
-- **No 1px internal detail lines** -- these become invisible or noisy on mobile displays.
-- **Use color contrast** instead of thin lines to delineate features where possible.
+- **Minimum line width:** 1 pixel is acceptable for internal detail lines in the doodle style, as the sketchy aesthetic is more forgiving of fine lines.
+- **2px recommended** for important feature-defining details that must read at small sizes.
+- **Use hatching and sketch strokes** to add detail and shading rather than relying solely on color fills.
+
+### Sketch Marks
+The doodle aesthetic includes small **decorative sketch marks** near features that add personality and expressiveness:
+- **Motion lines** — short parallel strokes near moving parts (tails, wings, flames).
+- **Blush marks** — small pink/red circles on cheeks for cute expressions.
+- **Sweat drops** — classic doodle sweat drop near the head for stressed/nervous expressions.
+- **Sparkle marks** — tiny star/cross shapes near eyes or shiny surfaces.
+- **Emphasis lines** — short radiating lines around important features.
+These marks are part of the art style and should be included where appropriate — they are not optional decorations but core to the Color Doodle Chibi identity.
 
 ### Zoom Testing
 Every Sprite must be reviewed at these zoom levels:
@@ -310,6 +358,9 @@ Every Sprite must be reviewed at these zoom levels:
 - Flying Sprites render at +1 z-layer above grounded Sprites in the same row.
 - Attack VFX render at +2 z-layers above the attacker.
 
+### Doodle Grid Lines
+The battle grid itself should use **hand-drawn wobbly grid borders** rather than pixel-perfect straight lines. Grid lines should appear sketched with slight irregularity, matching the overall Color Doodle Chibi aesthetic. Use Soft Gray (`#7A7A7A`) at 40% opacity for grid lines.
+
 ### Shadow
 - All grounded Sprites have a simple **elliptical shadow** beneath them: 60% of Sprite width, 20% of Sprite height, color `#00000040` (black at 25% opacity).
 - Flying Sprites have the same shadow but positioned at ground level (offset downward).
@@ -329,8 +380,9 @@ Sprites appear in UI contexts (team roster, collection, shop) as portrait thumbn
 | Evolution preview | 96 x 96 px | Full Sprite centered |
 
 ### Portrait Frame
-- Portraits are displayed inside a rounded-rectangle frame with a **2px border** colored by element.
-- Background: Subtle gradient using the element's darkest and lightest palette colors at 30% opacity.
+- Portraits are displayed inside a **hand-drawn wobbly border** frame — the border should appear sketched with slight irregularity, not perfectly geometric. Use a **3px thick** uneven line in the element's primary doodle ink color.
+- Frame corners should be rounded and slightly imperfect, as if drawn freehand.
+- Background: **Colored fill** using the element's lightest palette color at 40% opacity, with visible soft color bleeding at the frame edges to match the doodle aesthetic.
 
 ---
 

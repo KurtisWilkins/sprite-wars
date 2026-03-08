@@ -1,5 +1,6 @@
 ## ChibiSpriteConfig — Core proportions and modular body-part assembly data
-## for chibi / super-deformed character sprites (HippoGames Fantasy Heroes style).
+## for chibi / super-deformed character sprites (Color Doodle Chibi style —
+## hand-drawn, sketchy, colorful doodle art with exaggerated chibi proportions).
 ##
 ## All pixel positions are relative to a 64x64 canvas with origin at center (32, 32).
 ## Positive X = right, Positive Y = down (Godot 2D convention).
@@ -25,8 +26,8 @@ const CANVAS_HEIGHT: int = 64
 ## Canvas center — the origin all offsets are relative to.
 const ORIGIN := Vector2(32, 32)
 
-## Chibi head-to-body ratio.  Head ≈ 40-45 % of total sprite height.
-const HEAD_HEIGHT_RATIO: float = 0.42
+## Chibi head-to-body ratio.  Head ≈ 50 % of total sprite height (doodle chibi).
+const HEAD_HEIGHT_RATIO: float = 0.50
 
 # ════════════════════════════════════════════════════════════════════════════════
 # 2. BODY PROPORTIONS
@@ -40,48 +41,84 @@ const HEAD_HEIGHT_RATIO: float = 0.42
 static func get_body_proportions() -> Dictionary:
 	return {
 		# ── Head ───────────────────────────────────────────────────────────
-		# 27 px tall ≈ 42 % of 64.  Wide to keep the chibi look round.
+		# 30 px tall ≈ 50 % of 64.  Extra big & round for doodle chibi.
 		"head": {
-			"size":   Vector2(30, 27),
-			"offset": Vector2(0, -16),    # top-center of canvas
-			"anchor": Vector2(15, 24),     # base of head (neck attach)
+			"size":   Vector2(34, 30),
+			"offset": Vector2(0, -18),     # top-center of canvas
+			"anchor": Vector2(17, 27),     # base of head (neck attach)
 		},
 
 		# ── Body / Torso ──────────────────────────────────────────────────
-		# Compact torso — roughly half the head height.
+		# Short stubby torso — doodle chibi proportions.
 		"body": {
-			"size":   Vector2(20, 16),
+			"size":   Vector2(18, 12),
 			"offset": Vector2(0, 0),       # centered vertically on origin
-			"anchor": Vector2(10, 0),      # top-center (neck joint)
+			"anchor": Vector2(9, 0),       # top-center (neck joint)
 		},
 
 		# ── Front Arm ─────────────────────────────────────────────────────
 		"arm_front": {
-			"size":   Vector2(8, 14),
+			"size":   Vector2(7, 12),
 			"offset": Vector2(8, -1),      # right of body center
-			"anchor": Vector2(4, 1),       # shoulder pivot
+			"anchor": Vector2(3, 1),       # shoulder pivot
 		},
 
 		# ── Back Arm ──────────────────────────────────────────────────────
 		"arm_back": {
-			"size":   Vector2(8, 14),
+			"size":   Vector2(7, 12),
 			"offset": Vector2(-8, -1),     # left of body center
-			"anchor": Vector2(4, 1),       # shoulder pivot
+			"anchor": Vector2(3, 1),       # shoulder pivot
 		},
 
 		# ── Legs ──────────────────────────────────────────────────────────
-		# Short stubby legs — about 14 px total (2 × 7-px leg sprites).
+		# Short stubby legs — doodle chibi proportions.
 		"legs": {
-			"size":   Vector2(18, 14),
+			"size":   Vector2(16, 10),
 			"offset": Vector2(0, 13),      # below body
-			"anchor": Vector2(9, 0),       # hip joint center
+			"anchor": Vector2(8, 0),       # hip joint center
 		},
 
 		# ── Weapon (default slot — replaced per weapon type) ──────────────
 		"weapon": {
-			"size":   Vector2(16, 24),
+			"size":   Vector2(14, 22),
 			"offset": Vector2(14, -6),     # extending from front arm
-			"anchor": Vector2(3, 20),      # grip point near bottom
+			"anchor": Vector2(3, 18),      # grip point near bottom
+		},
+	}
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# 2b. DOODLE OUTLINE CONFIGURATION
+# ════════════════════════════════════════════════════════════════════════════════
+
+## Doodle art style parameters for hand-drawn outline rendering.
+## "thickness_base" — base outline width in pixels.
+## "thickness_variance" — random per-segment thickness variation (±pixels).
+## "wobble_amplitude" — max pixel offset for hand-drawn wobble effect.
+## "wobble_frequency" — how often wobble direction changes per outline segment.
+## "ink_colors" — available doodle ink/pen line colors.
+## "sketch_marks_enabled" — whether to add decorative sketch marks (motion lines, blush, etc.).
+static func get_doodle_style() -> Dictionary:
+	return {
+		"thickness_base": 2.5,
+		"thickness_variance": 0.8,
+		"wobble_amplitude": 1.2,
+		"wobble_frequency": 0.3,
+		"color_bleed_pixels": 0.5,
+		"hatching_density": 0.4,
+		"sketch_marks_enabled": true,
+		"ink_colors": {
+			"soft_black": Color("2d2d2d"),
+			"warm_brown": Color("5c4033"),
+			"dark_blue": Color("2b3a67"),
+			"soft_gray": Color("7a7a7a"),
+		},
+		"fill_style": "hatched",  # "hatched", "cross_hatched", "scribble", "soft_fill"
+		"expression_style": {
+			"eye_type": "sparkle",  # "dot", "sparkle", "round"
+			"blush_enabled": true,
+			"blush_color": Color("ff9999"),
+			"mouth_style": "simple_curve",
 		},
 	}
 
@@ -398,10 +435,10 @@ static func get_body_motion() -> Dictionary:
 static func get_skin_palettes() -> Dictionary:
 	return {
 		"pale": [
-			Color("8c6d5a"),  # shadow
-			Color("c4a882"),  # mid
-			Color("f0d5b0"),  # base
-			Color("fff4e0"),  # highlight
+			Color("b08a7a"),  # shadow — warm pink-toned
+			Color("dbbfa0"),  # mid
+			Color("f5e0c8"),  # base
+			Color("fff8f0"),  # highlight
 		],
 		"light": [
 			Color("8b6b4a"),

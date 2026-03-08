@@ -133,6 +133,155 @@ export class Renderer {
         }
     }
 
+    // --- Doodle / chibi art style drawing variants ---
+    // These render hand-drawn, wobbly, sketch-like shapes on top of the
+    // pixel-art base.  imageSmoothingEnabled should remain false for the
+    // base sprite layer; doodle overlays intentionally use anti-aliased
+    // strokes for a softer, hand-drawn look.
+
+    /**
+     * Draw a doodle-style rectangle with wobbly edges.
+     */
+    drawDoodleRect(x, y, width, height, fillColor, strokeColor = '#2D2D2D', lineWidth = 2.5) {
+        this.ctx.save();
+        this.ctx.fillStyle = fillColor;
+        this.ctx.strokeStyle = strokeColor;
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
+
+        // Draw wobbly rectangle path
+        this.ctx.beginPath();
+        const wobble = 1.5;
+        const segments = 8;
+
+        // Top edge
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const px = x + width * t + (Math.random() - 0.5) * wobble;
+            const py = y + (Math.random() - 0.5) * wobble;
+            if (i === 0) this.ctx.moveTo(px, py);
+            else this.ctx.lineTo(px, py);
+        }
+        // Right edge
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const px = x + width + (Math.random() - 0.5) * wobble;
+            const py = y + height * t + (Math.random() - 0.5) * wobble;
+            this.ctx.lineTo(px, py);
+        }
+        // Bottom edge
+        for (let i = segments; i >= 0; i--) {
+            const t = i / segments;
+            const px = x + width * t + (Math.random() - 0.5) * wobble;
+            const py = y + height + (Math.random() - 0.5) * wobble;
+            this.ctx.lineTo(px, py);
+        }
+        // Left edge
+        for (let i = segments; i >= 0; i--) {
+            const t = i / segments;
+            const px = x + (Math.random() - 0.5) * wobble;
+            const py = y + height * t + (Math.random() - 0.5) * wobble;
+            this.ctx.lineTo(px, py);
+        }
+
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+        this.ctx.restore();
+    }
+
+    /**
+     * Draw a doodle-style health/stat bar with hatching overlay.
+     */
+    drawDoodleBar(x, y, width, height, fillPercent, fillColor, bgColor = '#FEF3D0', strokeColor = '#2D2D2D') {
+        // Background
+        this.drawDoodleRect(x, y, width, height, bgColor, strokeColor, 2);
+        // Fill
+        if (fillPercent > 0) {
+            const fillWidth = width * Math.min(1, fillPercent);
+            this.ctx.save();
+            this.ctx.fillStyle = fillColor;
+            this.ctx.fillRect(x + 1, y + 1, fillWidth - 2, height - 2);
+            // Add hatching overlay
+            this.ctx.globalAlpha = 0.15;
+            this.ctx.strokeStyle = strokeColor;
+            this.ctx.lineWidth = 1;
+            this.ctx.beginPath();
+            for (let offset = 0; offset < fillWidth + height; offset += 4) {
+                this.ctx.moveTo(x + offset, y);
+                this.ctx.lineTo(x + offset - height, y + height);
+            }
+            this.ctx.stroke();
+            this.ctx.restore();
+        }
+    }
+
+    /**
+     * Draw text with doodle hand-drawn style using a handwriting font.
+     */
+    drawDoodleText(text, x, y, color = '#2D2D2D', size = 16, align = 'left') {
+        this.ctx.save();
+        this.ctx.font = `${size}px 'Patrick Hand', 'Comic Sans MS', cursive`;
+        this.ctx.fillStyle = color;
+        this.ctx.textAlign = align;
+        // Slight rotation for hand-drawn feel
+        this.ctx.translate(x, y);
+        this.ctx.rotate((Math.random() - 0.5) * 0.02);
+        this.ctx.fillText(text, 0, 0);
+        this.ctx.restore();
+    }
+
+    /**
+     * Draw a doodle-style circle with wobbly edges.
+     */
+    drawDoodleCircle(cx, cy, radius, fillColor, strokeColor = '#2D2D2D', lineWidth = 2) {
+        this.ctx.save();
+        this.ctx.fillStyle = fillColor;
+        this.ctx.strokeStyle = strokeColor;
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.lineCap = 'round';
+
+        const wobble = 1.2;
+        const segments = 16;
+        this.ctx.beginPath();
+        for (let i = 0; i <= segments; i++) {
+            const angle = (i / segments) * Math.PI * 2;
+            const r = radius + (Math.random() - 0.5) * wobble;
+            const px = cx + Math.cos(angle) * r;
+            const py = cy + Math.sin(angle) * r;
+            if (i === 0) this.ctx.moveTo(px, py);
+            else this.ctx.lineTo(px, py);
+        }
+        this.ctx.closePath();
+        this.ctx.fill();
+        this.ctx.stroke();
+        this.ctx.restore();
+    }
+
+    /**
+     * Draw a doodle-style line with slight waviness.
+     */
+    drawDoodleLine(x1, y1, x2, y2, color = '#2D2D2D', lineWidth = 2) {
+        this.ctx.save();
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = lineWidth;
+        this.ctx.lineCap = 'round';
+
+        const wobble = 1.0;
+        const segments = 6;
+        this.ctx.beginPath();
+        this.ctx.moveTo(x1 + (Math.random() - 0.5) * wobble, y1 + (Math.random() - 0.5) * wobble);
+        for (let i = 1; i <= segments; i++) {
+            const t = i / segments;
+            const px = x1 + (x2 - x1) * t + (Math.random() - 0.5) * wobble;
+            const py = y1 + (y2 - y1) * t + (Math.random() - 0.5) * wobble;
+            this.ctx.lineTo(px, py);
+        }
+        this.ctx.stroke();
+        this.ctx.restore();
+    }
+
     // --- Tilemap rendering ---
 
     drawTile(tileset, tileIndex, tileSize, x, y, drawSize) {
