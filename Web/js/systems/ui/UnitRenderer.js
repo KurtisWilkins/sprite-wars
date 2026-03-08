@@ -550,29 +550,26 @@ export class UnitRenderer {
 
         const name = inst.nickname || (race ? race.race_name : `Sprite #${raceId}`);
 
-        // Card container — doodle: wobbly border, paper background
-        const cardRotation = (Math.random() - 0.5) * 2;
+        // Card container — clean cel-shaded: solid border, white background
         const card = document.createElement('div');
         card.style.cssText = `
             display:flex;align-items:center;gap:6px;
             padding:4px 6px;cursor:pointer;
-            background:${isSelected ? '#FEF0C7' : '#FEF9E7'};
-            border:2px solid #2D2D2D;
-            border-radius:12px 5px 10px 6px;
+            background:${isSelected ? '#E8F0FF' : '#FFFFFF'};
+            border:2px solid #111111;
+            border-radius:4px;
             width:${cardWidth}px;height:${cardHeight}px;
             transition:background 0.15s, transform 0.15s;
             position:relative;overflow:hidden;
-            transform:rotate(${cardRotation}deg);
-            box-shadow:1px 2px 0 #2D2D2D;
-            font-family:'Patrick Hand','Comic Sans MS',cursive;
+            font-family:sans-serif;
         `;
         card.addEventListener('mouseenter', () => {
-            card.style.background = '#FEF0C7';
-            card.style.transform = `rotate(${cardRotation}deg) scale(1.02)`;
+            card.style.background = '#E8F0FF';
+            card.style.transform = 'scale(1.02)';
         });
         card.addEventListener('mouseleave', () => {
-            card.style.background = isSelected ? '#FEF0C7' : '#FEF9E7';
-            card.style.transform = `rotate(${cardRotation}deg)`;
+            card.style.background = isSelected ? '#E8F0FF' : '#FFFFFF';
+            card.style.transform = '';
         });
         if (opts.onClick) card.addEventListener('click', opts.onClick);
 
@@ -602,17 +599,17 @@ export class UnitRenderer {
         const infoDiv = document.createElement('div');
         infoDiv.style.cssText = 'flex:1;min-width:0;';
 
-        // Name row — doodle: handwriting font, ink color
+        // Name row — clean sans-serif font
         const nameRow = document.createElement('div');
-        nameRow.style.cssText = `font-size:0.8rem;font-weight:600;color:#2D2D2D;
+        nameRow.style.cssText = `font-size:0.8rem;font-weight:700;color:#111111;
             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-            font-family:'Patrick Hand','Comic Sans MS',cursive;`;
+            font-family:sans-serif;`;
         nameRow.textContent = name;
         infoDiv.appendChild(nameRow);
 
-        // Level + elements row — doodle style
+        // Level + elements row — clean style
         const metaRow = document.createElement('div');
-        metaRow.style.cssText = "font-size:0.6rem;color:#5A5A7A;display:flex;align-items:center;gap:3px;font-family:'Patrick Hand','Comic Sans MS',cursive;";
+        metaRow.style.cssText = "font-size:0.6rem;color:#555555;display:flex;align-items:center;gap:3px;font-family:sans-serif;";
         metaRow.textContent = `Lv${level}`;
         for (const elem of elements) {
             const dot = document.createElement('span');
