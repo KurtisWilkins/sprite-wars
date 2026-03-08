@@ -738,16 +738,18 @@ func _anim_attack_smash(sprite_root: Node2D, speed_mult: float) -> void:
 		var t := _create_tween(sprite_root, body)
 		if t == null:
 			return
+		var body_origin: Vector2 = _get_original_position(sprite_root, PART_BODY)
 		t.set_parallel(true)
 		t.tween_property(body, "scale", Vector2(1.0, 1.0), recovery_dur)\
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
-		t.tween_property(body, "position:y", body.position.y, recovery_dur)\
+		t.tween_property(body, "position:y", body_origin.y, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if head:
 		var t := _create_tween(sprite_root, head)
 		if t == null:
 			return
-		t.tween_property(head, "position:y", head.position.y, recovery_dur)\
+		var head_origin: Vector2 = _get_original_position(sprite_root, PART_HEAD)
+		t.tween_property(head, "position:y", head_origin.y, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	if weapon:
 		var t := _create_tween(sprite_root, weapon)
@@ -864,8 +866,9 @@ func _anim_attack_cast(sprite_root: Node2D, speed_mult: float) -> void:
 		var t := _create_tween(sprite_root, body)
 		if t == null:
 			return
+		var body_origin: Vector2 = _get_original_position(sprite_root, PART_BODY)
 		t.set_parallel(true)
-		t.tween_property(body, "position:y", body.position.y + 4.0, recovery_dur)\
+		t.tween_property(body, "position:y", body_origin.y, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 		t.tween_property(body, "scale", Vector2(1.0, 1.0), recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
@@ -873,7 +876,8 @@ func _anim_attack_cast(sprite_root: Node2D, speed_mult: float) -> void:
 		var t := _create_tween(sprite_root, head)
 		if t == null:
 			return
-		t.tween_property(head, "position:y", head.position.y + 5.0, recovery_dur)\
+		var head_origin: Vector2 = _get_original_position(sprite_root, PART_HEAD)
+		t.tween_property(head, "position:y", head_origin.y, recovery_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	await sprite_root.get_tree().create_timer(recovery_dur).timeout
 
