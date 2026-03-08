@@ -881,7 +881,7 @@ export class WeatherSystem {
     }
 
     /**
-     * Render doodle weather annotation marks.
+     * Render clean weather effect marks.
      */
     _renderWeatherMarks(ctx) {
         if (this._weatherMarks.length === 0) return;
@@ -893,9 +893,9 @@ export class WeatherSystem {
         for (const mark of this._weatherMarks) {
             const alpha = Math.min(1, mark.life / (mark.maxLife * 0.3)) * 0.3;
             ctx.globalAlpha = alpha;
-            ctx.strokeStyle = 'rgba(80, 80, 100, 0.5)';
-            ctx.fillStyle = 'rgba(80, 80, 100, 0.2)';
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = '#000000';
+            ctx.fillStyle = 'rgba(80, 80, 100, 0.25)';
+            ctx.lineWidth = 1.5;
 
             ctx.save();
             ctx.translate(mark.x, mark.y);
@@ -903,40 +903,40 @@ export class WeatherSystem {
 
             switch (mark.type) {
                 case 'puddle':
-                    this._drawDoodlePuddle(ctx, mark.size);
+                    this._drawPuddle(ctx, mark.size);
                     break;
                 case 'splash':
-                    this._drawDoodleSplash(ctx, mark.size);
+                    this._drawSplash(ctx, mark.size);
                     break;
                 case 'snowdrift':
-                    this._drawDoodleSnowdrift(ctx, mark.size);
+                    this._drawSnowdrift(ctx, mark.size);
                     break;
                 case 'icecrystal':
-                    this._drawDoodleIceCrystal(ctx, mark.size);
+                    this._drawIceCrystal(ctx, mark.size);
                     break;
                 case 'windswirl':
-                    this._drawDoodleWindSwirl(ctx, mark.size);
+                    this._drawWindSwirl(ctx, mark.size);
                     break;
                 case 'dustpile':
-                    this._drawDoodleDustPile(ctx, mark.size);
+                    this._drawDustPile(ctx, mark.size);
                     break;
                 case 'wavyline':
-                    this._drawDoodleWavyLine(ctx, mark.size);
+                    this._drawWavyLine(ctx, mark.size);
                     break;
                 case 'leafswirl':
-                    this._drawDoodleLeafSwirl(ctx, mark.size);
+                    this._drawLeafSwirl(ctx, mark.size);
                     break;
                 case 'ashpile':
-                    this._drawDoodleAshPile(ctx, mark.size);
+                    this._drawAshPile(ctx, mark.size);
                     break;
                 case 'emberglow':
-                    this._drawDoodleEmberGlow(ctx, mark.size);
+                    this._drawEmberGlow(ctx, mark.size);
                     break;
                 case 'sparklenote':
-                    this._drawDoodleSparkleNote(ctx, mark.size);
+                    this._drawSparkleNote(ctx, mark.size);
                     break;
                 case 'shadowwisp':
-                    this._drawDoodleShadowWisp(ctx, mark.size);
+                    this._drawShadowWisp(ctx, mark.size);
                     break;
             }
 

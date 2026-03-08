@@ -1167,7 +1167,7 @@ export function drawGlovesByConfig(ctx, ax, ay, w, h, side, config) {
     const handY = ay + h - handH;
 
     if (gl) {
-        _eqDrawDoodleScribbleCircle(ctx, ax + w / 2, handY + handH / 2, Math.max(w, handH) * 0.4, gl);
+        _eqDrawCleanGlow(ctx, ax + w / 2, handY + handH / 2, Math.floor(Math.max(w, handH) * 0.4), gl);
     }
 
     switch (style) {
@@ -1242,12 +1242,12 @@ export function drawGlovesByConfig(ctx, ax, ay, w, h, side, config) {
         ctx.fillRect(ax + Math.floor(w / 2), handY, 2, 2);
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
         ctx.fillRect(ax + Math.floor(w / 2), handY, 2, 2);
-        // Doodle art style: tiny star sparkle on gem
-        _eqDrawDoodleStar(ctx, ax + Math.floor(w / 2) + 1, handY + 1, 2, gemC);
+        // Clean sparkle on gem
+        _eqDrawCleanSparkle(ctx, ax + Math.floor(w / 2) + 1, handY + 1, 2, gemC);
     }
 
-    // Doodle art style: wobbly outline on gloves
-    _eqDrawDoodleRectOutline(ctx, ax, handY, w, handH, cc || '#2D2D2D', 1);
+    // Clean cel-shaded: uniform black outline on gloves
+    _eqDrawCleanRectOutline(ctx, ax, handY, w, handH, '#111111', 2);
 }
 
 
@@ -1287,14 +1287,14 @@ export function drawRingByConfig(ctx, rx, ry, config) {
         }
     }
 
-    // Doodle art style: sparkle as tiny star doodle
+    // Clean sparkle highlight
     if (sparkle) {
-        _eqDrawDoodleStar(ctx, rx + 3, ry - 2, 2, '#ffffff');
+        _eqDrawCleanSparkle(ctx, rx + 3, ry - 2, 2, '#ffffff');
     }
 
-    // Doodle art style: glow as scribble circle
+    // Clean glow indicator
     if (gl) {
-        _eqDrawDoodleScribbleCircle(ctx, rx + 3, ry, 4, gl);
+        _eqDrawCleanGlow(ctx, rx + 3, ry, 4, gl);
     }
 }
 
@@ -1381,13 +1381,13 @@ export function drawAmuletByConfig(ctx, cx, neckY, dir, config) {
     if (gemC) {
         ctx.fillStyle = gemC;
         ctx.fillRect(gemX + (dir === DIR_DOWN ? 2 : 0), gemY, 2, 2);
-        // Doodle art style: tiny star sparkle on gem
-        _eqDrawDoodleStar(ctx, gemX + (dir === DIR_DOWN ? 3 : 1), gemY + 1, 2, gemC);
+        // Clean sparkle on gem
+        _eqDrawCleanSparkle(ctx, gemX + (dir === DIR_DOWN ? 3 : 1), gemY + 1, 2, gemC);
     }
 
-    // Doodle art style: glow as scribble circle
+    // Clean glow indicator
     if (gl) {
-        _eqDrawDoodleScribbleCircle(ctx, gemX + 3, gemY + 2, 5, gl);
+        _eqDrawCleanGlow(ctx, gemX + 3, gemY + 2, 5, gl);
     }
 }
 
@@ -1501,13 +1501,13 @@ export function drawCrystalByConfig(ctx, crx, cry, dir, frame, config) {
     ctx.fillStyle = ic;
     ctx.fillRect(crx + Math.round(1 * s), cry + Math.round(0.5 * s), Math.round(1 * s), Math.round(1 * s));
 
-    // Doodle art style: outer glow as scribble circle + star doodle
+    // Clean cel-shaded: outer glow as simple filled rect + sparkle
     if (gl) {
-        ctx.restore(); // restore before calling doodle helpers that manage their own state
+        ctx.restore();
         const glowRadius = Math.round(2.5 * s);
-        _eqDrawDoodleScribbleCircle(ctx, crx + Math.round(1.5 * s), cry + Math.round(1.5 * s), glowRadius, gl);
-        _eqDrawDoodleStar(ctx, crx + Math.round(1.5 * s), cry + Math.round(1.5 * s), Math.round(1.5 * s), gl);
-        return; // already restored
+        _eqDrawCleanGlow(ctx, crx + Math.round(1.5 * s), cry + Math.round(1.5 * s), glowRadius, gl);
+        _eqDrawCleanSparkle(ctx, crx + Math.round(1.5 * s), cry + Math.round(1.5 * s), Math.round(1.5 * s), gl);
+        return;
     }
 
     ctx.restore();

@@ -582,7 +582,7 @@ export class RTSBattleScene extends Scene {
                 itemsHtml += `
                     <div style="display:inline-flex;align-items:center;gap:4px;
                         background:rgba(255,255,255,0.06);border:1px solid ${item.rarityColor}40;
-                        border-radius:4px;padding:3px 8px;margin:2px;font:10px monospace;">
+                        border-radius:4px;padding:3px 8px;margin:2px;font:10px sans-serif;">
                         <span style="color:${item.rarityColor};font-weight:700;">${item.name}</span>
                         <span style="color:${item.rarityColor};font-size:9px;opacity:0.8;">[${item.rarityLabel}]</span>
                         <span style="color:#aaa;font-size:9px;">${item.statSummary}</span>
@@ -621,12 +621,12 @@ export class RTSBattleScene extends Scene {
                 </div>
             </div>
             ${isWin && this._battleRewards ? `
-                <div style="font: 11px monospace; color: #ffcc44; margin-bottom: 12px;">
+                <div style="font: 11px sans-serif; color: #ffcc44; margin-bottom: 12px;">
                     +${this._battleRewards.xp} XP &nbsp; +${this._battleRewards.gold} Gold
                 </div>
             ` : ''}
             ${lootHtml}
-            <div style="font: 11px monospace; color: #888;">
+            <div style="font: 11px sans-serif; color: #888;">
                 Tap or press any key to continue
             </div>
         `;

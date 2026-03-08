@@ -359,7 +359,7 @@ export class BattleAnimationController {
     }
 
     /**
-     * Spawn a doodle-style damage number popup.
+     * Spawn a clean cel-shaded damage number popup.
      * @param {number} x - Screen X position
      * @param {number} y - Screen Y position
      * @param {number} damage - Damage amount to display

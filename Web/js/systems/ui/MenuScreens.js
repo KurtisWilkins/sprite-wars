@@ -498,18 +498,18 @@ export class TeamScreen {
     _buildBottomBar() {
         const bar = document.createElement('div');
         bar.className = 'screen-bottom-bar';
-        // Doodle: paper background, ink border
+        // Clean cel-shaded bottom bar: flat color, black outline border
         Object.assign(bar.style, {
             display: 'flex',
             justifyContent: 'center',
             gap: '20px',
             padding: '12px 16px',
-            background: '#FEF3D0',
-            borderTop: '2.5px solid #2D2D2D',
+            background: '#221A3D',
+            borderTop: '3px solid #1A1A1A',
             minHeight: '60px',
             boxSizing: 'border-box',
             flexShrink: '0',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         this._detailButton = createButton('Details', COLORS.accent, { disabled: true, padding: '10px 28px' });
@@ -630,7 +630,7 @@ export class InventoryScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'inventory-screen';
-        // Doodle: paper background, handwriting font
+        // Clean cel-shaded style
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -638,7 +638,7 @@ export class InventoryScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
         this._screenEl = screen;
 
@@ -697,14 +697,14 @@ export class InventoryScreen {
     _buildTabBar() {
         const bar = document.createElement('div');
         bar.className = 'inventory-tab-bar';
-        // Doodle: paper background with ink border
+        // Clean cel-shaded tab bar
         Object.assign(bar.style, {
             display: 'flex',
             overflow: 'auto',
-            background: '#FEF3D0',
-            borderBottom: '2px solid #2D2D2D',
+            background: '#221A3D',
+            borderBottom: '3px solid #1A1A1A',
             flexShrink: '0',
-            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         for (let i = 0; i < this.TAB_NAMES.length; i++) {
@@ -1043,16 +1043,15 @@ export class InventoryScreen {
         }
 
         for (const item of items) {
-            // Doodle: card-like item cells with uneven borders and slight rotation
-            const cellRotation = (Math.random() - 0.5) * 3;
+            // Clean cel-shaded item cell with uniform outline
             const cell = document.createElement('div');
             cell.className = 'item-cell';
             Object.assign(cell.style, {
                 width: '100%',
                 aspectRatio: '1',
                 background: COLORS.bgCard,
-                borderRadius: '12px 5px 10px 7px',
-                border: `2px solid ${COLORS.border}`,
+                borderRadius: '8px',
+                border: `3px solid ${COLORS.border}`,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -1062,10 +1061,8 @@ export class InventoryScreen {
                 color: COLORS.textSecondary,
                 padding: '4px',
                 boxSizing: 'border-box',
-                transform: `rotate(${cellRotation}deg)`,
-                boxShadow: '1px 1px 0 #2D2D2D',
-                fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
-                transition: 'transform 0.15s',
+                fontFamily: "Arial, Helvetica, sans-serif",
+                transition: 'background 0.15s',
             });
 
             // Item icon with category-specific emoji
