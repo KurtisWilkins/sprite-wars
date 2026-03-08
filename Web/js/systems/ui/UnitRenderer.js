@@ -363,28 +363,52 @@ export class UnitRenderer {
     }
 
     /**
-     * Draw element badge icons.
+     * Draw element badge icons — doodle style with thick wobbly borders.
      */
     static _drawElementBadges(ctx, elements, rightX, topY, unitSize) {
-        const badgeSize = Math.max(8, unitSize * 0.25);
+        const badgeSize = Math.max(9, unitSize * 0.26);
         for (let i = 0; i < elements.length; i++) {
             const elem = elements[i];
             const iconImg = _getCachedImage(assetRegistry.getElementIcon(elem));
-            const bx = rightX - badgeSize * (i + 1) - i * 1;
+            const bx = rightX - badgeSize * (i + 1) - i * 2;
             const by = topY;
 
+            // Doodle: thick wobbly circle border behind the badge
+            ctx.save();
+            ctx.strokeStyle = '#2D2D2D';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            const cx = bx + badgeSize / 2;
+            const cy = by + badgeSize / 2;
+            const r = badgeSize / 2;
+            const wobble = 0.8;
+            const segments = 10;
+            ctx.beginPath();
+            for (let s = 0; s <= segments; s++) {
+                const angle = (s / segments) * Math.PI * 2;
+                const wr = r + (Math.random() - 0.5) * wobble;
+                const px = cx + Math.cos(angle) * wr;
+                const py = cy + Math.sin(angle) * wr;
+                if (s === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+
+            // Paper-colored background fill
+            const c = ELEMENT_COLORS[elem] || '#fff';
+            ctx.fillStyle = c + '44';
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+
             if (iconImg) {
-                ctx.drawImage(iconImg, bx, by, badgeSize, badgeSize);
+                ctx.drawImage(iconImg, bx + 1, by + 1, badgeSize - 2, badgeSize - 2);
             } else {
                 // Colored dot fallback
-                const c = ELEMENT_COLORS[elem] || '#fff';
                 ctx.fillStyle = c;
                 ctx.beginPath();
-                ctx.arc(bx + badgeSize / 2, by + badgeSize / 2, badgeSize / 2 - 1, 0, Math.PI * 2);
+                ctx.arc(cx, cy, r - 2, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 0.5;
-                ctx.stroke();
             }
         }
     }
@@ -411,17 +435,40 @@ export class UnitRenderer {
     }
 
     /**
-     * Draw HP bar below the unit.
+     * Draw HP bar below the unit — doodle style with hatching pattern.
      */
     static _drawHpBar(ctx, x, y, width, fraction) {
-        const barH = Math.max(3, width * 0.08);
+        const barH = Math.max(4, width * 0.09);
         const barW = width;
 
-        // Background
-        ctx.fillStyle = '#1a1a2e';
+        // Doodle: wobbly background bar
+        ctx.save();
+        ctx.fillStyle = '#FEF3D0';
+        ctx.strokeStyle = '#2D2D2D';
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // Draw wobbly bar outline
+        const wobble = 0.8;
+        const segments = 6;
         ctx.beginPath();
-        ctx.roundRect(x, y, barW, barH, 1);
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const px = x + barW * t + (Math.random() - 0.5) * wobble;
+            const py = y + (Math.random() - 0.5) * wobble;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const px = x + barW - barW * t + (Math.random() - 0.5) * wobble;
+            const py = y + barH + (Math.random() - 0.5) * wobble;
+            ctx.lineTo(px, py);
+        }
+        ctx.closePath();
         ctx.fill();
+        ctx.stroke();
 
         // HP fill
         let hpColor;
@@ -432,17 +479,21 @@ export class UnitRenderer {
         const fillW = Math.max(0, barW * Math.min(1, fraction));
         if (fillW > 0) {
             ctx.fillStyle = hpColor;
+            ctx.fillRect(x + 1, y + 1, fillW - 2, barH - 2);
+
+            // Doodle: hatching overlay on HP fill
+            ctx.globalAlpha = 0.15;
+            ctx.strokeStyle = '#2D2D2D';
+            ctx.lineWidth = 0.8;
             ctx.beginPath();
-            ctx.roundRect(x, y, fillW, barH, 1);
-            ctx.fill();
+            for (let offset = 0; offset < fillW + barH; offset += 3) {
+                ctx.moveTo(x + offset, y);
+                ctx.lineTo(x + offset - barH, y + barH);
+            }
+            ctx.stroke();
         }
 
-        // Border
-        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-        ctx.lineWidth = 0.5;
-        ctx.beginPath();
-        ctx.roundRect(x, y, barW, barH, 1);
-        ctx.stroke();
+        ctx.restore();
     }
 
     /**

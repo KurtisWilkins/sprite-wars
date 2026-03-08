@@ -394,21 +394,26 @@ export class BattleUI {
 
     /** @private */
     _addTurnOrderPortrait(unitId, textureUrl, team) {
+        // Doodle: wobbly border, paper background, handwriting font
+        const portraitRotation = (Math.random() - 0.5) * 4;
         const el = document.createElement('div');
         el.className = 'turn-order-portrait';
         Object.assign(el.style, {
             width: '48px',
             height: '48px',
-            borderRadius: '8px',
-            border: `2px solid ${team === 0 ? '#55aaff' : '#ff5555'}`,
-            background: team === 0 ? 'rgba(30,60,120,0.7)' : 'rgba(120,30,30,0.7)',
+            borderRadius: '14px 6px 10px 8px',
+            border: `2.5px solid #2D2D2D`,
+            background: team === 0 ? '#E0ECFF' : '#FFE0E0',
             overflow: 'hidden',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '12px',
-            color: '#fff',
+            color: '#2D2D2D',
+            fontFamily: "'Patrick Hand', 'Comic Sans MS', cursive",
             transition: 'transform 0.2s, box-shadow 0.2s',
+            transform: `rotate(${portraitRotation}deg)`,
+            boxShadow: '1px 1px 0 #2D2D2D',
         });
 
         if (textureUrl) {

@@ -13,6 +13,118 @@ const DIR_LEFT  = 1;
 const DIR_RIGHT = 2;
 const DIR_UP    = 3;
 
+// ── Doodle Art Style Helpers ─────────────────────────────────────────────────
+
+/** Doodle art style: Draw a hand-drawn wobbly line for equipment outlines */
+function _eqDrawDoodleLine(ctx, x1, y1, x2, y2, color = '#2D2D2D', lineWidth = 1.5) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 1) { ctx.restore(); return; }
+    const segments = Math.max(3, Math.floor(dist / 3));
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+
+    for (let i = 1; i <= segments; i++) {
+        const t = i / segments;
+        const px = x1 + dx * t;
+        const py = y1 + dy * t;
+        const nx = -dy / dist;
+        const ny = dx / dist;
+        const wobble = Math.sin(t * Math.PI * 3) * 0.8;
+        ctx.lineWidth = lineWidth + Math.sin(t * Math.PI * 2) * 0.4;
+        ctx.lineTo(px + nx * wobble, py + ny * wobble);
+    }
+
+    ctx.stroke();
+    ctx.restore();
+}
+
+/** Doodle art style: Draw wobbly outline around a rectangle for equipment */
+function _eqDrawDoodleRectOutline(ctx, x, y, w, h, color = '#2D2D2D', lineWidth = 1.5) {
+    const fx = Math.floor(x);
+    const fy = Math.floor(y);
+    _eqDrawDoodleLine(ctx, fx, fy, fx + w, fy, color, lineWidth);
+    _eqDrawDoodleLine(ctx, fx + w, fy, fx + w, fy + h, color, lineWidth);
+    _eqDrawDoodleLine(ctx, fx + w, fy + h, fx, fy + h, color, lineWidth);
+    _eqDrawDoodleLine(ctx, fx, fy + h, fx, fy, color, lineWidth);
+}
+
+/** Doodle art style: Add hatching/crosshatch shading overlay for equipment */
+function _eqDrawDoodleHatching(ctx, x, y, width, height, color = '#2D2D2D', density = 0.35) {
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 0.8;
+    ctx.lineCap = 'round';
+
+    const spacing = Math.floor(4 / density);
+    ctx.beginPath();
+    // Primary hatching lines (top-left to bottom-right)
+    for (let offset = -height; offset < width + height; offset += spacing) {
+        ctx.moveTo(x + offset, y);
+        ctx.lineTo(x + offset - height, y + height);
+    }
+    ctx.stroke();
+    ctx.restore();
+}
+
+/** Doodle art style: Draw a small star doodle (replaces glow sparkle) */
+function _eqDrawDoodleStar(ctx, cx, cy, size, color = '#2D2D2D') {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.lineCap = 'round';
+    ctx.globalAlpha = 0.6;
+
+    const s = size || 3;
+    ctx.beginPath();
+    // Vertical line
+    ctx.moveTo(cx, cy - s);
+    ctx.lineTo(cx, cy + s);
+    // Horizontal line
+    ctx.moveTo(cx - s, cy);
+    ctx.lineTo(cx + s, cy);
+    // Diagonal lines (shorter)
+    const ds = s * 0.7;
+    ctx.moveTo(cx - ds, cy - ds);
+    ctx.lineTo(cx + ds, cy + ds);
+    ctx.moveTo(cx + ds, cy - ds);
+    ctx.lineTo(cx - ds, cy + ds);
+    ctx.stroke();
+    ctx.restore();
+}
+
+/** Doodle art style: Draw a scribble circle (replaces glow effects) */
+function _eqDrawDoodleScribbleCircle(ctx, cx, cy, radius, color = '#2D2D2D') {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.lineCap = 'round';
+    ctx.globalAlpha = 0.4;
+
+    ctx.beginPath();
+    const steps = 12;
+    for (let i = 0; i <= steps; i++) {
+        const angle = (i / steps) * Math.PI * 2;
+        const wobble = Math.sin(angle * 3) * 0.6;
+        const px = cx + (radius + wobble) * Math.cos(angle);
+        const py = cy + (radius + wobble) * Math.sin(angle);
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // WEAPON RENDERER — 20 unique weapon shapes
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -37,13 +149,10 @@ export function drawWeaponByConfig(ctx, wx, wy, dir, config, colors) {
     const bLen = config.bladeLength || 20;
     const bW = config.bladeWidth || 4;
 
-    // Draw glow effect behind weapon
+    // Doodle art style: replace glow rect with scribble circle and star doodles
     if (gl) {
-        ctx.save();
-        ctx.globalAlpha = 0.25;
-        ctx.fillStyle = gl;
-        ctx.fillRect(wx - 6, wy - bLen - 4, bW + 12, bLen + 16);
-        ctx.restore();
+        _eqDrawDoodleScribbleCircle(ctx, wx + bW / 2, wy - bLen / 2, bLen * 0.4, gl);
+        _eqDrawDoodleStar(ctx, wx + bW / 2, wy - bLen + 2, 3, gl);
     }
 
     const flip = dir === DIR_LEFT ? -1 : 1;
@@ -114,16 +223,12 @@ export function drawWeaponByConfig(ctx, wx, wy, dir, config, colors) {
             _drawSword(ctx, wx + ox, wy, bc, bh, hc, gc, bLen, bW);
     }
 
-    // Particles
+    // Doodle art style: particles as tiny star doodles instead of square dots
     if (config.hasParticles && config.particleColor) {
-        ctx.save();
-        ctx.globalAlpha = 0.6;
-        ctx.fillStyle = config.particleColor;
         const seed = (wx * 7 + wy * 13) % 5;
-        ctx.fillRect(wx - 4 + seed, wy - bLen + 4, 2, 2);
-        ctx.fillRect(wx + 6 - seed, wy - bLen + 10, 2, 2);
-        if (bLen > 20) ctx.fillRect(wx + seed - 2, wy - bLen + 16, 2, 2);
-        ctx.restore();
+        _eqDrawDoodleStar(ctx, wx - 4 + seed, wy - bLen + 4, 2, config.particleColor);
+        _eqDrawDoodleStar(ctx, wx + 6 - seed, wy - bLen + 10, 2, config.particleColor);
+        if (bLen > 20) _eqDrawDoodleStar(ctx, wx + seed - 2, wy - bLen + 16, 2, config.particleColor);
     }
 }
 
@@ -512,13 +617,9 @@ export function drawHelmetByConfig(ctx, x, y, w, h, config, colors) {
     const hasPlume = config.hasPlume || false;
     const pc = config.plumeColor || '#cc3333';
 
-    // Glow effect
+    // Doodle art style: replace glow rect with scribble circle
     if (gl) {
-        ctx.save();
-        ctx.globalAlpha = 0.2;
-        ctx.fillStyle = gl;
-        ctx.fillRect(x - 4, y - 4, w + 8, ht + 8);
-        ctx.restore();
+        _eqDrawDoodleScribbleCircle(ctx, x + w / 2, y + ht / 2, Math.max(w, ht) * 0.5, gl);
     }
 
     switch (style) {
@@ -699,6 +800,10 @@ export function drawHelmetByConfig(ctx, x, y, w, h, config, colors) {
         ctx.fillRect(x + w - 2, y - 6, 4, 8);
         ctx.fillRect(x + w, y - 8, 2, 2);
     }
+
+    // Doodle art style: hatching overlay and wobbly outline on helmet
+    _eqDrawDoodleHatching(ctx, x, y, w, ht, tc || '#2D2D2D', 0.3);
+    _eqDrawDoodleRectOutline(ctx, x, y, w, ht, tc || '#2D2D2D', 1.2);
 }
 
 
@@ -722,13 +827,9 @@ export function drawChestByConfig(ctx, x, y, w, h, config, colors) {
     const gl = config.glowColor || null;
     const pattern = config.pattern || 'none';
 
-    // Glow
+    // Doodle art style: replace glow rect with scribble circle
     if (gl) {
-        ctx.save();
-        ctx.globalAlpha = 0.15;
-        ctx.fillStyle = gl;
-        ctx.fillRect(x - 4, y - 2, w + 8, h + 4);
-        ctx.restore();
+        _eqDrawDoodleScribbleCircle(ctx, x + w / 2, y + h / 2, Math.max(w, h) * 0.4, gl);
     }
 
     // Base fill by style
@@ -866,6 +967,10 @@ export function drawChestByConfig(ctx, x, y, w, h, config, colors) {
         ctx.fillStyle = beltC;
         ctx.fillRect(x, y + h - 2, w, 2);
     }
+
+    // Doodle art style: hatching overlay and wobbly outline on chest armor
+    _eqDrawDoodleHatching(ctx, x, y, w, h, tc || '#2D2D2D', 0.3);
+    _eqDrawDoodleRectOutline(ctx, x, y, w, h, tc || '#2D2D2D', 1.2);
 }
 
 function _applyPattern(ctx, x, y, w, h, pattern, color) {
@@ -932,11 +1037,7 @@ export function drawLegsArmorByConfig(ctx, legX, legY, legW, legH, config) {
     const gl = config.glowColor || null;
 
     if (gl) {
-        ctx.save();
-        ctx.globalAlpha = 0.15;
-        ctx.fillStyle = gl;
-        ctx.fillRect(legX - 2, legY - 2, legW + 4, legH + 4);
-        ctx.restore();
+        _eqDrawDoodleScribbleCircle(ctx, legX + legW / 2, legY + legH / 2, Math.max(legW, legH) * 0.4, gl);
     }
 
     switch (style) {

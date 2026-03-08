@@ -455,30 +455,43 @@ func _spawn_smoke_cloud(pos: Vector2, color: Color, radius: float) -> void:
 
 
 ## Small particle burst.
+## Doodle mode: mixes in hand-drawn doodle particle shapes alongside regular particles.
 func _spawn_particles(pos: Vector2, color: Color, count: int, spread: float) -> void:
 	var vfx := _create_vfx_node(pos)
 
 	for i in range(count):
-		var rect := ColorRect.new()
-		rect.color = Color(color, 0.9)
-		var s: float = randf_range(2.0, 4.0)
-		rect.size = Vector2(s, s)
-		rect.position = -rect.size / 2.0
-		rect.pivot_offset = rect.size / 2.0
-		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		vfx.add_child(rect)
-
 		var angle: float = randf_range(0, TAU)
 		var dist: float = randf_range(spread * 0.3, spread)
-		var end_pos: Vector2 = rect.position + Vector2(cos(angle), sin(angle)) * dist
 		var dur: float = randf_range(0.2, 0.35)
 
-		var tween := create_tween()
-		tween.set_parallel(true)
-		tween.tween_property(rect, "position", end_pos, dur)\
-			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		tween.tween_property(rect, "color:a", 0.0, dur)\
-			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		# Doodle mode: replace some particles with hand-drawn shapes.
+		if doodle_enabled and randf() < 0.5:
+			var doodle_shape := _create_doodle_particle(color)
+			doodle_shape.position = Vector2.ZERO
+			vfx.add_child(doodle_shape)
+			var end_pos: Vector2 = Vector2(cos(angle), sin(angle)) * dist
+			var tween := create_tween()
+			tween.set_parallel(true)
+			tween.tween_property(doodle_shape, "position", end_pos, dur)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			tween.tween_property(doodle_shape, "modulate:a", 0.0, dur)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		else:
+			var rect := ColorRect.new()
+			rect.color = Color(color, 0.9)
+			var s: float = randf_range(2.0, 4.0)
+			rect.size = Vector2(s, s)
+			rect.position = -rect.size / 2.0
+			rect.pivot_offset = rect.size / 2.0
+			rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			vfx.add_child(rect)
+			var end_pos: Vector2 = rect.position + Vector2(cos(angle), sin(angle)) * dist
+			var tween := create_tween()
+			tween.set_parallel(true)
+			tween.tween_property(rect, "position", end_pos, dur)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			tween.tween_property(rect, "color:a", 0.0, dur)\
+				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 
 	var cleanup := create_tween()
 	cleanup.tween_interval(0.4)
@@ -501,6 +514,142 @@ func _spawn_motion_trail(from: Vector2, to: Vector2, color: Color) -> void:
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tween.tween_property(vfx, "modulate:a", 0.0, 0.15)
 	tween.tween_callback(vfx.queue_free)
+
+
+## ── Doodle Art Style: Public API ──────────────────────────────────────────────
+
+## Spawn a doodle-style impact effect with hand-drawn visual treatment.
+func spawn_doodle_impact(position: Vector2, impact_type: String, element_color: Color) -> void:
+	var impact_node := Node2D.new()
+	impact_node.position = position
+	impact_node.z_index = 70
+	add_child(impact_node)
+
+	# Doodle impact uses wobbly lines and sketch marks.
+	# Add sketch marks around impact.
+	var mark_count := randi_range(3, 6)
+	for i in range(mark_count):
+		var angle := randf() * TAU
+		var dist := randf_range(8.0, 20.0)
+		var mark_pos := Vector2(cos(angle), sin(angle)) * dist
+		# Create small sketch line.
+		var line := Line2D.new()
+		line.width = randf_range(1.5, 3.0)
+		line.default_color = Color("2d2d2d", 0.7)
+		var line_dir := Vector2(cos(angle), sin(angle)) * randf_range(3.0, 8.0)
+		line.add_point(mark_pos)
+		line.add_point(mark_pos + line_dir)
+		impact_node.add_child(line)
+
+	# Add element-colored doodle particles around the impact.
+	var particle_count := randi_range(2, 4)
+	for i in range(particle_count):
+		var doodle_p := _create_doodle_particle(element_color)
+		doodle_p.position = Vector2(randf_range(-12.0, 12.0), randf_range(-12.0, 12.0))
+		impact_node.add_child(doodle_p)
+
+	# Add hatching overlay if this is a large impact.
+	if impact_type == "big" or impact_type == "critical":
+		_add_sketch_hatching(impact_node, 16.0)
+
+	# Fade out and remove.
+	var tween := create_tween()
+	tween.tween_property(impact_node, "modulate:a", 0.0, 0.4)
+	tween.tween_callback(impact_node.queue_free)
+
+	_active_vfx.append(impact_node)
+
+
+## ── Doodle Art Style: Internal Helpers ──────────────────────────────────────
+
+## Add points along a line with random perpendicular wobble to simulate
+## hand-drawn strokes. Subdivides the segment into [steps] sub-segments.
+func _add_wobbly_line_points(line: Line2D, from: Vector2, to: Vector2, steps: int) -> void:
+	line.add_point(from + Vector2(
+		randf_range(-DOODLE_LINE_WOBBLE * 0.3, DOODLE_LINE_WOBBLE * 0.3),
+		randf_range(-DOODLE_LINE_WOBBLE * 0.3, DOODLE_LINE_WOBBLE * 0.3)))
+	for i in range(1, steps):
+		var t: float = float(i) / float(steps)
+		var mid: Vector2 = from.lerp(to, t)
+		var perp := (to - from).normalized().orthogonal()
+		mid += perp * randf_range(-DOODLE_LINE_WOBBLE, DOODLE_LINE_WOBBLE)
+		line.add_point(mid)
+	line.add_point(to + Vector2(
+		randf_range(-DOODLE_LINE_WOBBLE * 0.3, DOODLE_LINE_WOBBLE * 0.3),
+		randf_range(-DOODLE_LINE_WOBBLE * 0.3, DOODLE_LINE_WOBBLE * 0.3)))
+
+
+## Add a dark sketch outline layer behind colored VFX lines for a pen-on-paper look.
+func _add_sketch_outline_layer(vfx: Node2D, _base_color: Color) -> void:
+	var outline := Line2D.new()
+	outline.width = randf_range(1.0, 2.0)
+	outline.default_color = DOODLE_STROKE_COLOR
+	outline.z_index = -1
+	# Draw a small sketchy circle around the effect center.
+	var r: float = randf_range(10.0, 16.0)
+	var segs: int = 8
+	for i in range(segs + 1):
+		var angle: float = TAU * float(i) / float(segs)
+		var wobble_r: float = r + randf_range(-DOODLE_LINE_WOBBLE, DOODLE_LINE_WOBBLE)
+		outline.add_point(Vector2(cos(angle), sin(angle)) * wobble_r)
+	vfx.add_child(outline)
+
+
+## Draw thin cross-hatching lines over a VFX area to give a sketch overlay look.
+## The lines span the area defined by [radius] around the node origin.
+func _add_sketch_hatching(parent: Node2D, radius: float) -> void:
+	for i in range(DOODLE_HATCH_LINE_COUNT):
+		var hatch := Line2D.new()
+		hatch.width = 1.0
+		hatch.default_color = Color(DOODLE_STROKE_COLOR, 0.3)
+		# Diagonal hatching lines at ~45 degrees with wobble.
+		var y_off: float = randf_range(-radius, radius)
+		var start_pt := Vector2(-radius, y_off)
+		var end_pt := Vector2(radius, y_off + randf_range(-radius * 0.5, radius * 0.5))
+		_add_wobbly_line_points(hatch, start_pt, end_pt, 3)
+		parent.add_child(hatch)
+
+
+## Create a small hand-drawn doodle particle node (star, spiral, heart, or scribble cloud).
+func _create_doodle_particle(color: Color) -> Node2D:
+	var particle := Node2D.new()
+	var shape_type: String = DOODLE_PARTICLE_SHAPES[randi() % DOODLE_PARTICLE_SHAPES.size()]
+	var line := Line2D.new()
+	line.width = randf_range(1.0, 2.0)
+	line.default_color = Color(color, 0.8)
+	var s: float = randf_range(2.0, 5.0)
+
+	match shape_type:
+		"star":
+			# Small 4-pointed star.
+			for i in range(4):
+				var angle: float = TAU * float(i) / 4.0
+				var dir := Vector2(cos(angle), sin(angle))
+				line.add_point(dir * s)
+				line.add_point(Vector2.ZERO)
+		"spiral":
+			# Small spiral with 8 points.
+			for i in range(9):
+				var angle: float = TAU * float(i) / 8.0 * 1.5
+				var r: float = s * float(i) / 8.0
+				line.add_point(Vector2(cos(angle), sin(angle)) * r)
+		"heart":
+			# Simplified heart shape.
+			line.add_point(Vector2(0, s * 0.5))
+			line.add_point(Vector2(-s * 0.5, -s * 0.3))
+			line.add_point(Vector2(0, -s * 0.6))
+			line.add_point(Vector2(s * 0.5, -s * 0.3))
+			line.add_point(Vector2(0, s * 0.5))
+		"scribble_cloud":
+			# Small wobbly cloud scribble.
+			var cloud_pts: int = 6
+			for i in range(cloud_pts + 1):
+				var angle: float = TAU * float(i) / float(cloud_pts)
+				var r: float = s + randf_range(-s * 0.4, s * 0.4)
+				line.add_point(Vector2(cos(angle), sin(angle)) * r)
+
+	particle.add_child(line)
+	return particle
 
 
 ## ── Utility ─────────────────────────────────────────────────────────────────
