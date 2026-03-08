@@ -15,13 +15,13 @@ const NOTIFICATION_PADDING_PX = 16;
 const SLIDE_DURATION_MS = 300;
 const SAFE_AREA_TOP_PX = 48;
 
-/** Type-to-color mapping (matching GDScript TYPE_COLORS) */
+/** Type-to-color mapping — flat cel-shaded colors, no transparency */
 const TYPE_COLORS = {
-    info:    { bg: 'rgba(15,38,69,0.92)',   border: '#3380e6' },
-    success: { bg: 'rgba(15,57,27,0.92)',   border: '#33bf59' },
-    warning: { bg: 'rgba(69,57,11,0.92)',   border: '#e6bf26' },
-    error:   { bg: 'rgba(65,15,15,0.92)',   border: '#d93333' },
-    reward:  { bg: 'rgba(73,57,8,0.92)',    border: '#f2bf1a' },
+    info:    { bg: '#1A2D55',   border: '#1A1A1A' },
+    success: { bg: '#1A3D22',   border: '#1A1A1A' },
+    warning: { bg: '#3D3315',   border: '#1A1A1A' },
+    error:   { bg: '#3D1515',   border: '#1A1A1A' },
+    reward:  { bg: '#3D2F10',   border: '#1A1A1A' },
 };
 
 /** Style prefix mapping for special notification types */
@@ -233,8 +233,8 @@ export class NotificationSystem {
             minHeight: NOTIFICATION_HEIGHT_PX + 'px',
             padding: `${NOTIFICATION_PADDING_PX * 0.5}px ${NOTIFICATION_PADDING_PX}px`,
             background: colors.bg,
-            borderLeft: `4px solid ${colors.border}`,
-            borderRadius: '10px',
+            border: `3px solid ${colors.border}`,
+            borderRadius: '8px',
             boxSizing: 'border-box',
             pointerEvents: 'auto',
             opacity: '0',
@@ -261,8 +261,9 @@ export class NotificationSystem {
         const label = document.createElement('span');
         label.textContent = prefix + (data.message || '');
         Object.assign(label.style, {
-            color: '#ffffff',
+            color: '#FFFFFF',
             fontSize: '16px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
             lineHeight: '1.3',
             flex: '1',
             wordBreak: 'break-word',
