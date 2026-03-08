@@ -298,41 +298,38 @@ export class UnitRenderer {
     }
 
     /**
-     * Draw element aura — pulsing glow + floating particles.
+     * Draw element aura — subtle pulsing flat glow ring + floating particle dots.
+     * NO gradients — uses flat filled regions only.
      */
     static _drawElementAura(ctx, cx, cy, size, elemColor, time, elements) {
         const r = size / 2 + 4;
-        const pulse = 0.3 + Math.sin(time * AURA_SPEED * Math.PI) * 0.15;
+        const pulse = 0.15 + Math.sin(time * AURA_SPEED * Math.PI) * 0.1;
 
-        // Outer glow
+        // Flat outer glow ring (no gradient — just a low-opacity filled ring stroke)
         ctx.save();
         ctx.globalAlpha *= pulse;
-        const gradient = ctx.createRadialGradient(cx, cy, size / 2, cx, cy, r + 6);
-        gradient.addColorStop(0, elemColor + '00');
-        gradient.addColorStop(0.6, elemColor + '22');
-        gradient.addColorStop(1, elemColor + '00');
-        ctx.fillStyle = gradient;
+        ctx.strokeStyle = elemColor;
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.arc(cx, cy, r + 6, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.arc(cx, cy, r + 3, 0, Math.PI * 2);
+        ctx.stroke();
         ctx.restore();
 
-        // Floating particles (3-5 small dots orbiting the unit)
+        // Floating particles (3-5 small flat-filled dots orbiting the unit)
         const numParticles = Math.min(elements.length * 2 + 1, 5);
         for (let i = 0; i < numParticles; i++) {
             ctx.save();
             const angle = (time * 0.8 + (i / numParticles) * Math.PI * 2) % (Math.PI * 2);
             const orbitR = r + 2 + Math.sin(time * 1.5 + i) * 3;
             const px = cx + Math.cos(angle) * orbitR;
-            const py = cy + Math.sin(angle) * orbitR * 0.6; // flattened orbit
-            const pSize = 1.5 + Math.sin(time * 2 + i * 1.3) * 0.8;
+            const py = cy + Math.sin(angle) * orbitR * 0.6;
+            const pSize = 2;
 
             const pColor = ELEMENT_COLORS[elements[i % elements.length]] || elemColor;
             ctx.fillStyle = pColor;
-            ctx.globalAlpha *= (0.5 + Math.sin(time * 3 + i) * 0.3);
-            ctx.beginPath();
-            ctx.arc(px, py, pSize, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.globalAlpha *= 0.6;
+            // Flat filled square dot instead of arc
+            ctx.fillRect(Math.floor(px - pSize / 2), Math.floor(py - pSize / 2), pSize, pSize);
             ctx.restore();
         }
     }
@@ -369,7 +366,7 @@ export class UnitRenderer {
     }
 
     /**
-     * Draw element badge icons — doodle style with thick wobbly borders.
+     * Draw element badge icons — clean cel-shaded style with uniform outlines.
      */
     static _drawElementBadges(ctx, elements, rightX, topY, unitSize) {
         const badgeSize = Math.max(9, unitSize * 0.26);
@@ -379,31 +376,19 @@ export class UnitRenderer {
             const bx = rightX - badgeSize * (i + 1) - i * 2;
             const by = topY;
 
-            // Doodle: thick wobbly circle border behind the badge
-            ctx.save();
-            ctx.strokeStyle = '#2D2D2D';
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
             const cx = bx + badgeSize / 2;
             const cy = by + badgeSize / 2;
             const r = badgeSize / 2;
-            const wobble = 0.8;
-            const segments = 10;
-            ctx.beginPath();
-            for (let s = 0; s <= segments; s++) {
-                const angle = (s / segments) * Math.PI * 2;
-                const wr = r + (Math.random() - 0.5) * wobble;
-                const px = cx + Math.cos(angle) * wr;
-                const py = cy + Math.sin(angle) * wr;
-                if (s === 0) ctx.moveTo(px, py);
-                else ctx.lineTo(px, py);
-            }
-            ctx.closePath();
 
-            // Paper-colored background fill
+            // Clean circle background with uniform outline
+            ctx.save();
             const c = ELEMENT_COLORS[elem] || '#fff';
             ctx.fillStyle = c + '44';
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
             ctx.fill();
+            ctx.strokeStyle = '#111111';
+            ctx.lineWidth = 2;
             ctx.stroke();
             ctx.restore();
 

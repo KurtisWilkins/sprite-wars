@@ -1459,7 +1459,7 @@ export class BattleScene extends Scene {
         title.style.cssText = `
             font-size:2rem;font-weight:900;margin-bottom:16px;
             color:${isVictory ? '#ffcc33' : data.result === 'draw' ? '#aaaacc' : '#ff4444'};
-            text-shadow:0 0 20px ${isVictory ? 'rgba(255,204,51,0.4)' : 'rgba(255,68,68,0.4)'};
+            /* flat cel-shaded — no text-shadow glow */
         `;
         title.textContent = isVictory ? 'VICTORY!' : data.result === 'draw' ? 'DRAW' : 'DEFEAT';
         container.appendChild(title);

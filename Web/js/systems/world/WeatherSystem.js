@@ -946,76 +946,72 @@ export class WeatherSystem {
         ctx.restore();
     }
 
-    // ── Doodle Mark Drawing Methods ─────────────────────────────────────────
+    // ── Clean Mark Drawing Methods ──────────────────────────────────────────
 
-    _drawDoodlePuddle(ctx, size) {
-        // Scribble puddle: wobbly ellipse with internal lines
+    _drawPuddle(ctx, size) {
+        // Clean ellipse puddle with flat fill and outline
+        ctx.fillStyle = 'rgba(120, 150, 200, 0.2)';
+        ctx.strokeStyle = 'rgba(80, 100, 150, 0.4)';
         ctx.beginPath();
-        const points = 10;
-        for (let i = 0; i <= points; i++) {
-            const angle = (Math.PI * 2 * i) / points;
-            const rx = size * 1.2 + (Math.random() - 0.5) * size * 0.3;
-            const ry = size * 0.5 + (Math.random() - 0.5) * size * 0.15;
-            const px = Math.cos(angle) * rx;
-            const py = Math.sin(angle) * ry;
-            if (i === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
-        }
-        ctx.closePath();
+        ctx.ellipse(0, 0, size * 1.2, size * 0.5, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        // Internal ripple line
+        // Internal ripple (clean ellipse)
         ctx.beginPath();
         ctx.ellipse(0, 0, size * 0.5, size * 0.2, 0, 0, Math.PI * 2);
         ctx.stroke();
     }
 
-    _drawDoodleSplash(ctx, size) {
-        // Small splash: radiating wobbly lines
-        const arms = 4 + Math.floor(Math.random() * 3);
+    _drawSplash(ctx, size) {
+        // Clean radiating lines from center
+        ctx.strokeStyle = 'rgba(100, 130, 180, 0.4)';
+        const arms = 5;
         for (let i = 0; i < arms; i++) {
-            const angle = (Math.PI * 2 * i) / arms + (Math.random() - 0.5) * 0.3;
-            const len = size * (0.5 + Math.random() * 0.5);
+            const angle = (Math.PI * 2 * i) / arms;
+            const len = size * 0.7;
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(
-                Math.cos(angle) * len + (Math.random() - 0.5),
-                Math.sin(angle) * len + (Math.random() - 0.5)
-            );
+            ctx.lineTo(Math.cos(angle) * len, Math.sin(angle) * len);
             ctx.stroke();
         }
     }
 
-    _drawDoodleSnowdrift(ctx, size) {
-        // Gentle mound shape
+    _drawSnowdrift(ctx, size) {
+        // Clean smooth mound shape with flat fill
+        ctx.fillStyle = 'rgba(230, 240, 255, 0.3)';
+        ctx.strokeStyle = 'rgba(180, 190, 210, 0.4)';
         ctx.beginPath();
         ctx.moveTo(-size, 0);
-        ctx.quadraticCurveTo(-size * 0.3 + (Math.random() - 0.5), -size * 0.6, 0, -size * 0.4 + (Math.random() - 0.5));
-        ctx.quadraticCurveTo(size * 0.3 + (Math.random() - 0.5), -size * 0.6, size, 0);
+        ctx.quadraticCurveTo(-size * 0.3, -size * 0.6, 0, -size * 0.4);
+        ctx.quadraticCurveTo(size * 0.3, -size * 0.6, size, 0);
+        ctx.closePath();
+        ctx.fill();
         ctx.stroke();
     }
 
-    _drawDoodleIceCrystal(ctx, size) {
-        // Six-armed crystal
+    _drawIceCrystal(ctx, size) {
+        // Clean six-armed crystal with uniform lines
+        ctx.strokeStyle = 'rgba(160, 200, 240, 0.5)';
         for (let i = 0; i < 6; i++) {
             const angle = (Math.PI * 2 * i) / 6;
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(Math.cos(angle) * size + (Math.random() - 0.5), Math.sin(angle) * size + (Math.random() - 0.5));
+            ctx.lineTo(Math.cos(angle) * size, Math.sin(angle) * size);
             ctx.stroke();
         }
     }
 
-    _drawDoodleWindSwirl(ctx, size) {
-        // Spiral wind mark
+    _drawWindSwirl(ctx, size) {
+        // Clean spiral arc
+        ctx.strokeStyle = 'rgba(120, 120, 140, 0.4)';
         ctx.beginPath();
         const turns = 1.5;
-        const steps = 15;
+        const steps = 20;
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
             const angle = t * Math.PI * 2 * turns;
-            const r = t * size + (Math.random() - 0.5) * 0.8;
+            const r = t * size;
             const px = Math.cos(angle) * r;
             const py = Math.sin(angle) * r;
             if (i === 0) ctx.moveTo(px, py);
@@ -1024,34 +1020,42 @@ export class WeatherSystem {
         ctx.stroke();
     }
 
-    _drawDoodleDustPile(ctx, size) {
-        // Small cluster of dots
-        for (let i = 0; i < 5; i++) {
-            const dx = (Math.random() - 0.5) * size;
-            const dy = (Math.random() - 0.5) * size * 0.5;
+    _drawDustPile(ctx, size) {
+        // Clean cluster of uniform dots
+        ctx.fillStyle = 'rgba(160, 140, 100, 0.3)';
+        const positions = [
+            { x: 0, y: 0 },
+            { x: size * 0.3, y: -size * 0.15 },
+            { x: -size * 0.3, y: size * 0.1 },
+            { x: size * 0.15, y: size * 0.2 },
+            { x: -size * 0.15, y: -size * 0.2 },
+        ];
+        for (const pos of positions) {
             ctx.beginPath();
-            ctx.arc(dx, dy, 0.5 + Math.random(), 0, Math.PI * 2);
+            ctx.arc(pos.x, pos.y, 1, 0, Math.PI * 2);
             ctx.fill();
         }
     }
 
-    _drawDoodleWavyLine(ctx, size) {
-        // Horizontal wavy line
+    _drawWavyLine(ctx, size) {
+        // Clean smooth sine wave line
+        ctx.strokeStyle = 'rgba(120, 130, 150, 0.3)';
         ctx.beginPath();
-        const segments = 6;
+        const segments = 8;
         for (let i = 0; i <= segments; i++) {
             const px = (i / segments - 0.5) * size * 3;
-            const py = Math.sin(i * 1.2) * size * 0.4 + (Math.random() - 0.5) * 0.5;
+            const py = Math.sin(i * 1.2) * size * 0.4;
             if (i === 0) ctx.moveTo(px, py);
             else ctx.lineTo(px, py);
         }
         ctx.stroke();
     }
 
-    _drawDoodleLeafSwirl(ctx, size) {
-        // Curved swirl with a leaf shape at the tip
+    _drawLeafSwirl(ctx, size) {
+        // Clean curved arc with leaf shape
+        ctx.strokeStyle = 'rgba(80, 140, 60, 0.4)';
         ctx.beginPath();
-        const steps = 10;
+        const steps = 12;
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
             const angle = t * Math.PI * 1.5;
@@ -1062,30 +1066,37 @@ export class WeatherSystem {
             else ctx.lineTo(px, py);
         }
         ctx.stroke();
-        // Small leaf at end
+        // Clean leaf at end
         const endAngle = Math.PI * 1.5;
         const endR = size;
         const lx = Math.cos(endAngle) * endR;
         const ly = Math.sin(endAngle) * endR;
+        ctx.fillStyle = 'rgba(80, 160, 60, 0.3)';
         ctx.beginPath();
         ctx.ellipse(lx, ly, size * 0.3, size * 0.15, endAngle, 0, Math.PI * 2);
+        ctx.fill();
         ctx.stroke();
     }
 
-    _drawDoodleAshPile(ctx, size) {
-        // Small irregular mound
+    _drawAshPile(ctx, size) {
+        // Clean geometric mound with flat fill
+        ctx.fillStyle = 'rgba(80, 70, 60, 0.2)';
+        ctx.strokeStyle = 'rgba(60, 50, 40, 0.3)';
         ctx.beginPath();
         ctx.moveTo(-size * 0.8, 0);
-        ctx.lineTo(-size * 0.4 + (Math.random() - 0.5), -size * 0.3 + (Math.random() - 0.5));
-        ctx.lineTo(0 + (Math.random() - 0.5), -size * 0.4 + (Math.random() - 0.5));
-        ctx.lineTo(size * 0.4 + (Math.random() - 0.5), -size * 0.2 + (Math.random() - 0.5));
+        ctx.lineTo(-size * 0.4, -size * 0.3);
+        ctx.lineTo(0, -size * 0.4);
+        ctx.lineTo(size * 0.4, -size * 0.2);
         ctx.lineTo(size * 0.8, 0);
+        ctx.closePath();
+        ctx.fill();
         ctx.stroke();
     }
 
-    _drawDoodleEmberGlow(ctx, size) {
-        // Small star shape
-        ctx.strokeStyle = 'rgba(200, 100, 30, 0.4)';
+    _drawEmberGlow(ctx, size) {
+        // Clean four-pointed star with flat fill
+        ctx.strokeStyle = 'rgba(200, 100, 30, 0.5)';
+        ctx.fillStyle = 'rgba(255, 150, 50, 0.3)';
         const arms = 4;
         for (let i = 0; i < arms; i++) {
             const angle = (Math.PI * 2 * i) / arms;
@@ -1095,15 +1106,14 @@ export class WeatherSystem {
             ctx.stroke();
         }
         ctx.beginPath();
-        ctx.arc(0, 0, size * 0.15, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 150, 50, 0.3)';
+        ctx.arc(0, 0, size * 0.18, 0, Math.PI * 2);
         ctx.fill();
+        ctx.stroke();
     }
 
-    _drawDoodleSparkleNote(ctx, size) {
-        // Musical-note-like sparkle
-        ctx.strokeStyle = 'rgba(200, 170, 255, 0.4)';
-        // Four-pointed sparkle
+    _drawSparkleNote(ctx, size) {
+        // Clean four-pointed sparkle
+        ctx.strokeStyle = 'rgba(200, 170, 255, 0.5)';
         for (let i = 0; i < 4; i++) {
             const angle = (Math.PI / 2) * i + Math.PI / 4;
             const len = i % 2 === 0 ? size : size * 0.5;
@@ -1114,16 +1124,16 @@ export class WeatherSystem {
         }
     }
 
-    _drawDoodleShadowWisp(ctx, size) {
-        // Wavy dark wisp
-        ctx.strokeStyle = 'rgba(30, 15, 50, 0.3)';
+    _drawShadowWisp(ctx, size) {
+        // Clean smooth dark arc
+        ctx.strokeStyle = 'rgba(30, 15, 50, 0.35)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        const segments = 8;
+        const segments = 10;
         for (let i = 0; i <= segments; i++) {
             const t = i / segments;
             const px = t * size * 2 - size;
-            const py = Math.sin(t * Math.PI * 2) * size * 0.4 + (Math.random() - 0.5) * 0.5;
+            const py = Math.sin(t * Math.PI * 2) * size * 0.4;
             if (i === 0) ctx.moveTo(px, py);
             else ctx.lineTo(px, py);
         }

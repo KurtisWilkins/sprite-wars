@@ -958,10 +958,11 @@ export class InventoryScreen {
 
         const panel = document.createElement('div');
         panel.style.cssText = `
-            background: ${COLORS.bgPanel}; border-radius: 16px;
-            border: 2px solid rgba(70,70,100,0.6);
+            background: ${COLORS.bgPanel}; border-radius: 8px;
+            border: 3px solid #1A1A1A;
             padding: 20px 24px; min-width: 300px; max-width: 90%;
             max-height: 80%; overflow-y: auto;
+            font-family: Arial, Helvetica, sans-serif;
         `;
 
         const panelTitle = document.createElement('div');
@@ -1777,12 +1778,13 @@ export class SettingsScreen {
         select.selectedIndex = selectedIndex || 0;
         Object.assign(select.style, {
             padding: '8px 12px',
-            background: 'rgba(25,25,40,1)',
+            background: '#2A2050',
             color: COLORS.textSecondary,
-            border: `1px solid ${COLORS.border}`,
+            border: `2px solid ${COLORS.border}`,
             borderRadius: '8px',
             fontSize: '14px',
             minWidth: '120px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
         });
         select.addEventListener('change', () => {
             if (onChange) onChange(select.selectedIndex);

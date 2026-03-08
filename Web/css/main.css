@@ -866,9 +866,9 @@ html, body {
     align-items: center;
     gap: 4px;
     padding: 3px 10px;
-    border-radius: var(--border-radius);
+    border-radius: 4px;
     font-size: 0.7rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     font-family: var(--font-main);
 }
@@ -879,20 +879,20 @@ html, body {
     image-rendering: auto;
 }
 
-.element-fire { background: rgba(255,68,34,0.2); color: var(--el-fire); border: var(--outline-width) solid var(--el-fire); box-shadow: 2px 2px 0px rgba(255,68,34,0.3); }
-.element-water { background: rgba(34,136,255,0.2); color: var(--el-water); border: var(--outline-width) solid var(--el-water); box-shadow: 2px 2px 0px rgba(34,136,255,0.3); }
-.element-nature { background: rgba(34,204,68,0.2); color: var(--el-nature); border: var(--outline-width) solid var(--el-nature); box-shadow: 2px 2px 0px rgba(34,204,68,0.3); }
-.element-ice { background: rgba(136,221,255,0.2); color: var(--el-ice); border: var(--outline-width) solid var(--el-ice); box-shadow: 2px 2px 0px rgba(136,221,255,0.3); }
-.element-air { background: rgba(170,221,238,0.2); color: var(--el-air); border: var(--outline-width) solid var(--el-air); box-shadow: 2px 2px 0px rgba(170,221,238,0.3); }
-.element-earth { background: rgba(170,119,68,0.2); color: var(--el-earth); border: var(--outline-width) solid var(--el-earth); box-shadow: 2px 2px 0px rgba(170,119,68,0.3); }
-.element-electric { background: rgba(255,204,0,0.2); color: var(--el-electric); border: var(--outline-width) solid var(--el-electric); box-shadow: 2px 2px 0px rgba(255,204,0,0.3); }
-.element-dark { background: rgba(102,68,170,0.2); color: var(--el-dark); border: var(--outline-width) solid var(--el-dark); box-shadow: 2px 2px 0px rgba(102,68,170,0.3); }
-.element-light { background: rgba(255,238,170,0.2); color: var(--el-light); border: var(--outline-width) solid var(--el-light); box-shadow: 2px 2px 0px rgba(255,238,170,0.3); }
-.element-psychic { background: rgba(238,102,204,0.2); color: var(--el-psychic); border: var(--outline-width) solid var(--el-psychic); box-shadow: 2px 2px 0px rgba(238,102,204,0.3); }
-.element-spirit { background: rgba(170,238,255,0.2); color: var(--el-spirit); border: var(--outline-width) solid var(--el-spirit); box-shadow: 2px 2px 0px rgba(170,238,255,0.3); }
-.element-chaos { background: rgba(255,34,102,0.2); color: var(--el-chaos); border: var(--outline-width) solid var(--el-chaos); box-shadow: 2px 2px 0px rgba(255,34,102,0.3); }
-.element-metal { background: rgba(136,136,153,0.2); color: var(--el-metal); border: var(--outline-width) solid var(--el-metal); box-shadow: 2px 2px 0px rgba(136,136,153,0.3); }
-.element-poison { background: rgba(170,68,204,0.2); color: var(--el-poison); border: var(--outline-width) solid var(--el-poison); box-shadow: 2px 2px 0px rgba(170,68,204,0.3); }
+.element-fire { background: rgba(255,51,17,0.15); color: var(--el-fire); border: var(--outline-width) solid var(--el-fire); }
+.element-water { background: rgba(0,119,255,0.15); color: var(--el-water); border: var(--outline-width) solid var(--el-water); }
+.element-nature { background: rgba(0,204,68,0.15); color: var(--el-nature); border: var(--outline-width) solid var(--el-nature); }
+.element-ice { background: rgba(68,204,255,0.15); color: var(--el-ice); border: var(--outline-width) solid var(--el-ice); }
+.element-air { background: rgba(136,204,238,0.15); color: var(--el-air); border: var(--outline-width) solid var(--el-air); }
+.element-earth { background: rgba(204,136,51,0.15); color: var(--el-earth); border: var(--outline-width) solid var(--el-earth); }
+.element-electric { background: rgba(255,204,0,0.15); color: var(--el-electric); border: var(--outline-width) solid var(--el-electric); }
+.element-dark { background: rgba(102,51,187,0.15); color: var(--el-dark); border: var(--outline-width) solid var(--el-dark); }
+.element-light { background: rgba(255,221,85,0.15); color: var(--el-light); border: var(--outline-width) solid var(--el-light); }
+.element-psychic { background: rgba(255,68,204,0.15); color: var(--el-psychic); border: var(--outline-width) solid var(--el-psychic); }
+.element-spirit { background: rgba(85,204,255,0.15); color: var(--el-spirit); border: var(--outline-width) solid var(--el-spirit); }
+.element-chaos { background: rgba(255,17,85,0.15); color: var(--el-chaos); border: var(--outline-width) solid var(--el-chaos); }
+.element-metal { background: rgba(119,136,170,0.15); color: var(--el-metal); border: var(--outline-width) solid var(--el-metal); }
+.element-poison { background: rgba(187,51,221,0.15); color: var(--el-poison); border: var(--outline-width) solid var(--el-poison); }
 
 /* === Transition Overlay === */
 #transition-overlay {
