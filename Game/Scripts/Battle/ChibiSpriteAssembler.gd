@@ -58,8 +58,11 @@ const BLADE_COLOR := Color(0.75, 0.78, 0.82)
 func assemble_sprite(config: Dictionary) -> Node2D:
 	var race_id: int = int(config.get("race_id", 0))
 	var stage: int = clampi(int(config.get("evolution_stage", 1)), 1, 3)
-	var skin_color: Color = config.get("skin_color", DEFAULT_SKIN_COLOR) as Color
-	if skin_color == null:
+	var skin_color_val = config.get("skin_color", DEFAULT_SKIN_COLOR)
+	var skin_color: Color
+	if skin_color_val is Color:
+		skin_color = skin_color_val
+	else:
 		skin_color = DEFAULT_SKIN_COLOR
 	var equip_visuals: Dictionary = config.get("equipment_visuals", {}) as Dictionary
 	var weapon_type: String = str(config.get("weapon_type", "sword"))

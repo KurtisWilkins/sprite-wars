@@ -154,6 +154,8 @@ func _animate_slash(
 
 	# Strike: lunge forward and sweep through arc.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin + lunge, strike_time)\
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -163,6 +165,8 @@ func _animate_slash(
 
 	# Recovery: return to origin and neutral rotation.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin, recovery)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
@@ -212,6 +216,8 @@ func _animate_smash(
 ) -> void:
 	# Wind-up: rise upward and stretch vertically.
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin + Vector2(0, -20.0), wind_up)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -221,6 +227,8 @@ func _animate_smash(
 
 	# Strike: slam down toward target with squash.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin + lunge + Vector2(0, 8.0), strike_time)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
@@ -230,6 +238,8 @@ func _animate_smash(
 
 	# Recovery: bounce back to normal.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin, recovery)\
 		.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
@@ -247,6 +257,8 @@ func _animate_draw_release(
 ) -> void:
 	# Wind-up: lean back (draw the bowstring). lean is negative for bows.
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin + lean, wind_up)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -257,6 +269,8 @@ func _animate_draw_release(
 
 	# Release: snap forward slightly.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin - lean * 0.3, strike_time)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
@@ -266,6 +280,8 @@ func _animate_draw_release(
 
 	# Recovery: settle back.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin, recovery)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
@@ -283,6 +299,8 @@ func _animate_throw(
 ) -> void:
 	# Wind-up: pull arm back with slight rotation.
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin - lunge * 0.2, wind_up)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -292,6 +310,8 @@ func _animate_throw(
 
 	# Strike: step forward and release with follow-through rotation.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin + lunge * 0.6, strike_time)\
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -301,6 +321,8 @@ func _animate_throw(
 
 	# Recovery.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin, recovery)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
@@ -319,6 +341,8 @@ func _animate_cast(
 ) -> void:
 	# Wind-up: float upward and scale pulse (channeling).
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin + Vector2(0, -12.0), wind_up)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
@@ -333,6 +357,8 @@ func _animate_cast(
 
 	# Strike: pulse burst.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "scale", Vector2(1.2, 1.2), strike_time * 0.3)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
@@ -340,6 +366,8 @@ func _animate_cast(
 
 	# Release: scale down and flash back to normal.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "scale", Vector2(1.0, 1.0), strike_time * 0.7)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -347,6 +375,8 @@ func _animate_cast(
 
 	# Recovery: drop back down, restore modulate.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin, recovery)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
@@ -364,18 +394,24 @@ func _animate_punch(
 ) -> void:
 	# Minimal wind-up (quick fighters).
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.tween_property(sprite, "position", origin - lunge * 0.1, wind_up)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await tween.finished
 
 	# Rapid strike: snap forward.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.tween_property(sprite, "position", origin + lunge, strike_time)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	await tween.finished
 
 	# Bounce recovery.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.tween_property(sprite, "position", origin, recovery)\
 		.set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	await tween.finished
@@ -390,6 +426,8 @@ func _animate_block_bash(
 ) -> void:
 	# Wind-up: brace stance (widen slightly).
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "scale", Vector2(1.15, 0.95), wind_up)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -399,6 +437,8 @@ func _animate_block_bash(
 
 	# Bash: shove forward.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin + lunge, strike_time)\
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -408,6 +448,8 @@ func _animate_block_bash(
 
 	# Recovery.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin, recovery)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
@@ -425,6 +467,8 @@ func _animate_holy_strike(
 ) -> void:
 	# Wind-up: rise up with holy glow.
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin + Vector2(0, -24.0), wind_up)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -436,6 +480,8 @@ func _animate_holy_strike(
 
 	# Strike: slam down.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin + lunge, strike_time)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
@@ -445,6 +491,8 @@ func _animate_holy_strike(
 
 	# Recovery.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin, recovery)\
 		.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
@@ -464,12 +512,16 @@ func _animate_gunfire(
 ) -> void:
 	# Wind-up: aim (slight lean forward).
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.tween_property(sprite, "position", origin - recoil * 0.15, wind_up)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await tween.finished
 
 	# Fire: muzzle flash (brief bright modulate) and recoil.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(sprite, "position", origin + recoil, strike_time)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
@@ -479,12 +531,16 @@ func _animate_gunfire(
 
 	# Flash restore.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.tween_property(sprite, "modulate", Color.WHITE, strike_time * 0.5)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await tween.finished
 
 	# Recovery: return from recoil.
 	tween = _create_tween(sprite)
+	if tween == null:
+		return
 	tween.tween_property(sprite, "position", origin, recovery)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 	await tween.finished
@@ -515,6 +571,8 @@ func play_hit_reaction(
 
 	# Flash red.
 	var tween := _create_tween(target_sprite)
+	if tween == null:
+		return
 	tween.tween_property(target_sprite, "modulate", flash_color, duration * 0.15)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	tween.tween_property(target_sprite, "modulate", Color.WHITE, duration * 0.35)\
@@ -523,6 +581,8 @@ func play_hit_reaction(
 	# Shake: rapid horizontal oscillation.
 	var origin: Vector2 = target_sprite.position
 	var shake_tween := _create_tween(target_sprite)
+	if shake_tween == null:
+		return
 	var shake_steps: int = 4 if not is_crit else 6
 	var step_time: float = duration / float(shake_steps)
 	for i in range(shake_steps):
@@ -535,6 +595,8 @@ func play_hit_reaction(
 	# Squash-stretch on crit.
 	if is_crit:
 		var squash_tween := _create_tween(target_sprite)
+		if squash_tween == null:
+			return
 		squash_tween.tween_property(target_sprite, "scale", Vector2(1.2, 0.85), duration * 0.3)\
 			.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 		squash_tween.tween_property(target_sprite, "scale", Vector2(1.0, 1.0), duration * 0.7)\
@@ -561,6 +623,8 @@ func play_faint_animation(
 	var duration: float = 0.6 / speed_multiplier
 
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 
 	# Fade out.
@@ -612,6 +676,8 @@ func play_class_special(
 		# Pre-move phase.
 		var pre_dur: float = total_dur * 0.25
 		var tween := _create_tween(attacker_sprite)
+		if tween == null:
+			return
 		tween.tween_property(attacker_sprite, "position", move_target, pre_dur)\
 			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		await tween.finished
@@ -625,6 +691,8 @@ func play_class_special(
 				strike_offset += Vector2(0, randf_range(-6.0, 6.0))
 
 			tween = _create_tween(attacker_sprite)
+			if tween == null:
+				return
 			tween.tween_property(attacker_sprite, "position",
 				move_target + strike_offset, strike_interval * 0.4)\
 				.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
@@ -644,6 +712,8 @@ func play_class_special(
 		# Return phase.
 		var return_dur: float = total_dur * 0.25
 		tween = _create_tween(attacker_sprite)
+		if tween == null:
+			return
 		tween.tween_property(attacker_sprite, "position", origin, return_dur)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 		await tween.finished
@@ -666,6 +736,8 @@ func _animate_teleport_strike(
 	# Phase 1: Vanish (fade out with smoke-like scale).
 	var vanish_dur: float = total_dur * 0.2
 	var tween := _create_tween(attacker)
+	if tween == null:
+		return
 	tween.set_parallel(true)
 	tween.tween_property(attacker, "modulate:a", 0.0, vanish_dur)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
@@ -689,6 +761,8 @@ func _animate_teleport_strike(
 	# Phase 3: Appear (fade in).
 	var appear_dur: float = total_dur * 0.15
 	tween = _create_tween(attacker)
+	if tween == null:
+		return
 	tween.tween_property(attacker, "modulate:a", 1.0, appear_dur)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	await tween.finished
@@ -696,6 +770,8 @@ func _animate_teleport_strike(
 	# Phase 4: Backstab strike.
 	var strike_dur: float = total_dur * 0.2
 	tween = _create_tween(attacker)
+	if tween == null:
+		return
 	tween.tween_property(attacker, "position", target.position, strike_dur)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	await tween.finished
@@ -708,6 +784,8 @@ func _animate_teleport_strike(
 
 	# Brief vanish again.
 	tween = _create_tween(attacker)
+	if tween == null:
+		return
 	tween.tween_property(attacker, "modulate:a", 0.0, return_dur * 0.3)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await tween.finished
@@ -715,6 +793,8 @@ func _animate_teleport_strike(
 	attacker.position = origin
 
 	tween = _create_tween(attacker)
+	if tween == null:
+		return
 	tween.tween_property(attacker, "modulate:a", 1.0, return_dur * 0.7)\
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await tween.finished
@@ -737,6 +817,8 @@ func play_knockback_animation(
 	var duration: float = maxf(0.15, distance / 800.0) / speed_multiplier
 
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.tween_property(sprite, "position", to_screen, duration)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	await tween.finished
@@ -745,6 +827,8 @@ func play_knockback_animation(
 		# Wall slam: bounce back slightly with shake.
 		var bounce_dir: Vector2 = (from_screen - to_screen).normalized() * 6.0
 		tween = _create_tween(sprite)
+		if tween == null:
+			return
 		tween.tween_property(sprite, "position", to_screen + bounce_dir, 0.05 / speed_multiplier)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tween.tween_property(sprite, "position", to_screen, 0.1 / speed_multiplier)\
@@ -782,6 +866,8 @@ func _flash_sprite(sprite: Node2D, color: Color, duration: float) -> void:
 	if sprite == null or not is_instance_valid(sprite):
 		return
 	var tween := _create_tween(sprite)
+	if tween == null:
+		return
 	tween.tween_property(sprite, "modulate", color, duration * 0.3)\
 		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	tween.tween_property(sprite, "modulate", Color.WHITE, duration * 0.7)\
@@ -794,6 +880,8 @@ func _apply_screen_shake(node: Node2D, intensity: float, duration: float) -> voi
 		return
 	var original_pos: Vector2 = node.position
 	var tween := _create_tween(node)
+	if tween == null:
+		return
 	var steps: int = maxi(2, int(duration / 0.03))
 	var step_dur: float = duration / float(steps)
 	for i in range(steps):
@@ -812,6 +900,8 @@ func _ensure_position_reset(sprite: Node2D, origin: Vector2, duration: float) ->
 		return
 	if sprite.position.distance_to(origin) > 1.0:
 		var tween := _create_tween(sprite)
+		if tween == null:
+			return
 		tween.tween_property(sprite, "position", origin, duration * 0.5)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 

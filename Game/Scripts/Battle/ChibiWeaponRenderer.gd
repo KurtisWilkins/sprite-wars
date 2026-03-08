@@ -280,7 +280,7 @@ func _color_or(config: Dictionary, key: String, fallback: Color) -> Color:
 		var val = config[key]
 		if val is Color:
 			return val
-		if val is String:
+		if val is String and val != "":
 			return Color(val)
 	return fallback
 
