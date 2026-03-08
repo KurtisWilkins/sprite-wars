@@ -380,17 +380,17 @@ export class SpriteInspectPanel {
     _tabButtonStyle(isActive) {
         if (isActive) {
             return `
-                padding: 5px 12px; font-size: 0.75rem; border-radius: 4px;
-                cursor: pointer; border: 1px solid #ffcc33;
-                background: rgba(255, 204, 51, 0.1); color: #ffcc33;
-                font-family: sans-serif;
+                padding: 5px 12px; font-size: 0.75rem; border-radius: 6px;
+                cursor: pointer; border: 2px solid #1A1A1A;
+                background: #4A90D9; color: #FFFFFF;
+                font-family: Arial, Helvetica, sans-serif; font-weight: bold;
             `;
         }
         return `
-            padding: 5px 12px; font-size: 0.75rem; border-radius: 4px;
-            cursor: pointer; border: 1px solid #444;
-            background: transparent; color: #888;
-            font-family: sans-serif;
+            padding: 5px 12px; font-size: 0.75rem; border-radius: 6px;
+            cursor: pointer; border: 2px solid #1A1A1A;
+            background: #3D3060; color: #B0B8CC;
+            font-family: Arial, Helvetica, sans-serif; font-weight: bold;
         `;
     }
 
@@ -511,7 +511,7 @@ export class SpriteInspectPanel {
 
             // Bar
             const barBg = document.createElement('div');
-            barBg.style.cssText = 'width: 100%; height: 6px; background: #1a1a2e; border-radius: 3px; overflow: hidden;';
+            barBg.style.cssText = 'width: 100%; height: 6px; background: #1A1A2E; border-radius: 3px; overflow: hidden; border: 1px solid #1A1A1A;';
             const barFill = document.createElement('div');
             barFill.style.cssText = `width: ${barPct}%; height: 100%; background: ${color};`;
             barBg.appendChild(barFill);
@@ -524,7 +524,7 @@ export class SpriteInspectPanel {
         if (this._options.isBattleUnit && this._unitData) {
             const unit = this._unitData;
             const divider = document.createElement('div');
-            divider.style.cssText = 'border-top: 1px solid rgba(255,255,255,0.06); margin: 8px 0 6px;';
+            divider.style.cssText = 'border-top: 2px solid #1A1A1A; margin: 8px 0 6px;';
             container.appendChild(divider);
 
             const rangeType = unit.isRanged ? 'Ranged' : 'Melee';
@@ -586,8 +586,9 @@ export class SpriteInspectPanel {
             const card = document.createElement('div');
             card.style.cssText = `
                 margin-bottom: 6px; padding: 6px 10px;
-                background: rgba(255,255,255,0.04); border-radius: 4px;
-                border-left: 3px solid ${elemColor};
+                background: #2A2050; border-radius: 6px;
+                border: 2px solid #1A1A1A;
+                border-left: 4px solid ${elemColor};
             `;
 
             // Name row
@@ -646,8 +647,8 @@ export class SpriteInspectPanel {
             position: relative;
             width: 100%; max-width: 340px; height: 220px;
             margin: 0 auto 12px; border-radius: 8px;
-            background: rgba(13, 13, 26, 0.6);
-            border: 1px solid rgba(255,255,255,0.06);
+            background: #1A1230;
+            border: 3px solid #1A1A1A;
         `;
 
         // Central sprite preview
@@ -707,8 +708,8 @@ export class SpriteInspectPanel {
                 cursor: ${hasItem ? 'pointer' : 'default'};
                 transition: border-color 0.2s, background 0.2s, transform 0.15s;
                 ${hasItem
-                    ? `background: rgba(30, 30, 46, 0.9); border: 2px solid ${rarityColor}; box-shadow: 0 0 6px ${rarityColor}44;`
-                    : 'background: rgba(20, 20, 30, 0.5); border: 2px dashed #444; opacity: 0.5;'
+                    ? `background: #2A2050; border: 3px solid #1A1A1A;`
+                    : 'background: #1A1230; border: 2px dashed #444; opacity: 0.5;'
                 }
                 ${pos.left !== 'auto' ? `left: ${pos.left};` : ''}
                 ${pos.right ? `right: ${pos.right};` : ''}
@@ -722,11 +723,11 @@ export class SpriteInspectPanel {
             if (hasItem) {
                 slotEl.addEventListener('mouseenter', () => {
                     slotEl.style.transform = `translate(${pos.tx}, ${pos.ty}) scale(1.12)`;
-                    slotEl.style.boxShadow = `0 0 10px ${rarityColor}88`;
+                    slotEl.style.background = '#332855';
                 });
                 slotEl.addEventListener('mouseleave', () => {
                     slotEl.style.transform = `translate(${pos.tx}, ${pos.ty})`;
-                    slotEl.style.boxShadow = `0 0 6px ${rarityColor}44`;
+                    slotEl.style.background = '#2A2050';
                 });
             }
 
@@ -762,12 +763,13 @@ export class SpriteInspectPanel {
             const card = document.createElement('div');
             card.style.cssText = `
                 padding: 8px 10px; margin-bottom: 6px;
-                background: rgba(30, 30, 46, 0.7); border-radius: 6px;
-                border-left: 3px solid ${rarityColor};
+                background: #2A2050; border-radius: 6px;
+                border: 2px solid #1A1A1A;
+                border-left: 4px solid ${rarityColor};
                 transition: background 0.15s;
             `;
-            card.addEventListener('mouseenter', () => { card.style.background = 'rgba(40, 40, 60, 0.8)'; });
-            card.addEventListener('mouseleave', () => { card.style.background = 'rgba(30, 30, 46, 0.7)'; });
+            card.addEventListener('mouseenter', () => { card.style.background = '#332855'; });
+            card.addEventListener('mouseleave', () => { card.style.background = '#2A2050'; });
 
             // Top row: icon + name + unequip button
             const topRow = document.createElement('div');
@@ -793,20 +795,18 @@ export class SpriteInspectPanel {
             unequipBtn.textContent = 'Unequip';
             unequipBtn.style.cssText = `
                 padding: 3px 8px; font-size: 0.6rem;
-                border: 1px solid #aa4444; border-radius: 3px;
-                background: rgba(120, 30, 30, 0.3); color: #ffaaaa;
-                cursor: pointer; font-family: sans-serif;
-                flex-shrink: 0;
+                border: 2px solid #1A1A1A; border-radius: 4px;
+                background: #AA3333; color: #FFFFFF;
+                cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+                font-weight: bold; flex-shrink: 0;
                 min-height: 28px; min-width: 52px;
-                transition: background 0.15s, border-color 0.15s;
+                transition: background 0.15s;
             `;
             unequipBtn.addEventListener('mouseenter', () => {
-                unequipBtn.style.background = 'rgba(160, 40, 40, 0.5)';
-                unequipBtn.style.borderColor = '#cc5555';
+                unequipBtn.style.background = '#CC4444';
             });
             unequipBtn.addEventListener('mouseleave', () => {
-                unequipBtn.style.background = 'rgba(120, 30, 30, 0.3)';
-                unequipBtn.style.borderColor = '#aa4444';
+                unequipBtn.style.background = '#AA3333';
             });
             unequipBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1040,7 +1040,7 @@ export class SpriteInspectPanel {
         // Lore description
         if (raceData.lore_description) {
             const loreDiv = document.createElement('div');
-            loreDiv.style.cssText = 'border-top: 1px solid rgba(255,255,255,0.06); margin-top: 8px; padding-top: 6px;';
+            loreDiv.style.cssText = 'border-top: 2px solid #1A1A1A; margin-top: 8px; padding-top: 6px;';
 
             const loreHeader = document.createElement('div');
             loreHeader.style.cssText = 'font-size: 0.7rem; color: #888; font-weight: 600; margin-bottom: 3px;';
@@ -1063,9 +1063,10 @@ export class SpriteInspectPanel {
         btn.textContent = label;
         btn.style.cssText = `
             padding: 6px 12px; font-size: 0.75rem;
-            border: 1px solid ${borderColor}; border-radius: 4px;
+            border: 2px solid #1A1A1A; border-radius: 6px;
             background: ${bgColor}; color: ${textColor};
-            cursor: pointer; font-family: sans-serif;
+            cursor: pointer; font-family: Arial, Helvetica, sans-serif;
+            font-weight: bold;
         `;
         btn.addEventListener('click', onClick);
         return btn;
