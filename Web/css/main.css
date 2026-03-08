@@ -360,7 +360,7 @@ html, body {
     flex-direction: column;
     z-index: 200;
     font-family: var(--font-main);
-    box-shadow: 0 -2px 0px var(--panel-shadow);
+    box-shadow: 0 -2px 8px var(--panel-shadow);
 }
 
 .admin-log-header {
@@ -558,7 +558,7 @@ html, body {
     justify-content: center;
     background: var(--panel-bg);
     border-bottom: var(--outline-width) solid var(--outline-color);
-    box-shadow: 0 2px 0px var(--panel-shadow);
+    box-shadow: 0 2px 0px var(--outline-color);
 }
 
 .turn-icon {
@@ -576,7 +576,7 @@ html, body {
 
 .turn-icon.active {
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--primary), 2px 2px 0px var(--panel-shadow);
+    box-shadow: 0 0 0 2px var(--primary);
 }
 
 .turn-icon img {
@@ -597,7 +597,7 @@ html, body {
     justify-content: center;
     background: var(--panel-bg);
     border-top: var(--outline-width) solid var(--outline-color);
-    box-shadow: 0 -2px 0px var(--panel-shadow);
+    box-shadow: 0 -2px 8px var(--panel-shadow);
     flex-wrap: wrap;
 }
 
@@ -713,11 +713,10 @@ html, body {
     font-size: 1.2rem;
     font-family: var(--font-main);
     text-shadow:
-        -1px -1px 0 var(--panel-bg),
-        1px -1px 0 var(--panel-bg),
-        -1px 1px 0 var(--panel-bg),
-        1px 1px 0 var(--panel-bg),
-        2px 2px 0 var(--panel-shadow);
+        -1px -1px 0 var(--outline-color),
+        1px -1px 0 var(--outline-color),
+        -1px 1px 0 var(--outline-color),
+        1px 1px 0 var(--outline-color);
     pointer-events: none;
     animation: float-up 1.2s ease-out forwards;
     z-index: 200;
@@ -755,7 +754,7 @@ html, body {
     padding: 16px;
     background: var(--panel-bg);
     border-bottom: var(--outline-width) solid var(--outline-color);
-    box-shadow: 0 2px 0px var(--panel-shadow);
+    box-shadow: 0 2px 0px var(--outline-color);
     position: sticky;
     top: 0;
     z-index: 5;
@@ -810,7 +809,7 @@ html, body {
 
 .grid-item.selected {
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--primary), 2px 2px 0px var(--panel-shadow);
+    box-shadow: 0 0 0 2px var(--primary);
 }
 
 .grid-item img {

@@ -655,14 +655,13 @@ export class UnitRenderer {
      * @returns {HTMLElement}
      */
     static createEquipmentDisplay(equipment, size = 120) {
-        // Doodle: paper background with wobbly border for equipment display
+        // Clean cel-shaded: solid background with uniform border
         const container = document.createElement('div');
         container.style.cssText = `
             position:relative;width:${size}px;height:${size}px;
-            background:#FEF9E7;border-radius:14px 6px 10px 8px;
-            border:2px solid #2D2D2D;
-            box-shadow:2px 2px 0 #2D2D2D;
-            font-family:'Patrick Hand','Comic Sans MS',cursive;
+            background:#FFFFFF;border-radius:4px;
+            border:2px solid #111111;
+            font-family:sans-serif;
         `;
 
         // Slot positions (relative percentages for paper-doll layout)
@@ -685,23 +684,20 @@ export class UnitRenderer {
             const eqData = eqId ? UnitRenderer._getEquipmentData(eqId) : null;
             const rarityColor = eqData ? (RARITY_COLORS[eqData.rarity] || '#555') : '#333';
 
-            // Doodle: uneven border-radius, ink border, paper fill
-            const slotRotation = (Math.random() - 0.5) * 4;
+            // Clean cel-shaded: uniform border, solid fill
             const slotEl = document.createElement('div');
             slotEl.style.cssText = `
                 position:absolute;
                 left:${pos.x * size - slotSize / 2}px;
                 top:${pos.y * size - slotSize / 2}px;
                 width:${slotSize}px;height:${slotSize}px;
-                border-radius:8px 4px 6px 5px;
-                background:${eqData ? '#FEF0C7' : '#F5F0E0'};
-                border:1.5px solid #2D2D2D;
+                border-radius:2px;
+                background:${eqData ? '#E8F0FF' : '#F0F0F0'};
+                border:2px solid #111111;
                 display:flex;align-items:center;justify-content:center;
-                font-size:${slotSize * 0.4}px;color:${eqData ? '#2D2D2D' : '#999'};
+                font-size:${slotSize * 0.4}px;color:${eqData ? '#111111' : '#999'};
                 cursor:pointer;
-                transform:rotate(${slotRotation}deg);
-                box-shadow:1px 1px 0 #2D2D2D;
-                font-family:'Patrick Hand','Comic Sans MS',cursive;
+                font-family:sans-serif;
             `;
             slotEl.title = eqData ? `${eqData.equipment_name} (${eqData.rarity})` : `Empty ${slot} slot`;
             slotEl.textContent = pos.label;

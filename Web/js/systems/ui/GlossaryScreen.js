@@ -17,16 +17,16 @@ import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 // -- Shared Style Constants ------------------------------------------------------
 
 const COLORS = {
-    bgDark:     '#0d0d1a',
-    bgPanel:    '#13131f',
-    bgCard:     '#1e1e2e',
-    border:     'rgba(50,50,75,0.6)',
-    textPrimary:'#ffffff',
-    textSecondary:'rgba(180,180,200,0.9)',
-    textDim:    'rgba(120,120,140,0.6)',
-    accent:     '#3380e6',
-    success:    '#33a64c',
-    gold:       '#f2c94c',
+    bgDark:     '#1A1230',
+    bgPanel:    '#221A3D',
+    bgCard:     '#2A2050',
+    border:     '#1A1A1A',
+    textPrimary:'#FFFFFF',
+    textSecondary:'#B0B8CC',
+    textDim:    'rgba(140,148,170,0.6)',
+    accent:     '#3380E6',
+    success:    '#44CC66',
+    gold:       '#FFAA33',
 };
 
 const ELEMENT_COLORS = {
@@ -111,11 +111,12 @@ function createButton(text, bgColor, opts = {}) {
     Object.assign(btn.style, {
         padding: opts.padding || '10px 20px',
         background: bgColor,
-        color: COLORS.textPrimary,
-        border: 'none',
-        borderRadius: '12px',
+        color: '#FFFFFF',
+        border: '3px solid #1A1A1A',
+        borderRadius: '8px',
         fontSize: opts.fontSize || '16px',
         fontWeight: 'bold',
+        fontFamily: 'Arial, Helvetica, sans-serif',
         cursor: 'pointer',
         minWidth: opts.minWidth || '0',
         minHeight: opts.minHeight || '0',
@@ -132,7 +133,7 @@ function createButton(text, bgColor, opts = {}) {
 
     if (opts.disabled) {
         btn.disabled = true;
-        btn.style.background = 'rgba(50,50,60,0.5)';
+        btn.style.background = '#333344';
         btn.style.color = 'rgba(120,120,120,0.5)';
         btn.style.cursor = 'default';
     }
@@ -245,20 +246,17 @@ function drawSpritePreview(canvas, raceId, elementName) {
         const race = SPRITE_RACES.find(r => r.race_id === raceId);
         const elemColor = ELEMENT_COLORS[elementName] || '#888';
 
-        // Background glow
-        const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-        gradient.addColorStop(0, hexToRgba(elemColor, 0.4));
-        gradient.addColorStop(1, 'transparent');
-        ctx.fillStyle = gradient;
+        // Flat background fill (no gradient)
+        ctx.fillStyle = hexToRgba(elemColor, 0.15);
         ctx.fillRect(0, 0, size, size);
 
-        // Circle
+        // Circle with solid fill and black outline
         ctx.beginPath();
         ctx.arc(size / 2, size / 2, size * 0.35, 0, Math.PI * 2);
         ctx.fillStyle = hexToRgba(elemColor, 0.3);
         ctx.fill();
-        ctx.strokeStyle = elemColor;
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#1A1A1A';
+        ctx.lineWidth = 3;
         ctx.stroke();
 
         // Race initial
