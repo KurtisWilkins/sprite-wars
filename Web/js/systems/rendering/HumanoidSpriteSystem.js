@@ -1,12 +1,20 @@
 /**
- * HumanoidSpriteSystem.js — Chibi-style humanoid sprite renderer
+ * HumanoidSpriteSystem.js — Chibi cel-shaded humanoid sprite renderer
  * with layered equipment overlays and race-specific body shapes.
+ *
+ * Art style: 2D mobile game character sprite art, flat cel-shaded style,
+ * clean black outlines of uniform thickness, slightly chibi proportions
+ * (large head, compact body), vibrant saturated fantasy color palette,
+ * hard-edged shading with one highlight and one shadow per color zone,
+ * no gradients, simple dot eyes, modular armor design with bold readable
+ * silhouettes, medieval fantasy theme, front-facing character view,
+ * clean digital illustration, no pixel art.
  *
  * Generates animated chibi humanoid sprites for all 72 forms by compositing:
  *   1. Race-specific chibi body (24 unique races) — big head, stubby limbs
  *   2. Equipment overlays with per-item unique visuals (144 items)
  *   3. Rarity glow effects for epic/legendary gear
- *   4. Anime-style eyes with iris/pupil/highlight, blush marks
+ *   4. Simple dot eyes (small filled black circles)
  *
  * Output format: 256x256 sprite sheets (4 dirs × 4 walk frames, 64×64 per frame)
  * Direction indices: 0=Down, 1=Left, 2=Right, 3=Up
@@ -38,12 +46,12 @@ const DIR_RIGHT = 2;
 const DIR_UP    = 3;
 
 // ── Chibi Body Proportions (within 64×64 frame) ─────────────────────────────
-// Doodle chibi-style humanoid: oversized head, compact body, stubby limbs (~42px tall)
+// Cel-shaded chibi-style humanoid: oversized head (~40% of height), compact body, stubby limbs
 const BODY = {
-    headW: 32, headH: 25,   // Enlarged head for exaggerated chibi/doodle look
-    torsoW: 18, torsoH: 9,  // Slightly smaller torso to emphasize head ratio
+    headW: 32, headH: 25,   // Large round head for chibi proportions (~40% of total height)
+    torsoW: 18, torsoH: 9,  // Compact torso to emphasize head ratio
     armW: 6,   armH: 10,
-    legW: 7,   legH: 7,     // Slightly shorter/narrower legs for chibi proportions
+    legW: 7,   legH: 7,     // Short stubby legs for chibi proportions
     footW: 10, footH: 3,
     shoulderW: 22,
 };
@@ -198,15 +206,11 @@ export class HumanoidSpriteSystem {
         const sy = direction * FRAME_SIZE;
         const halfSize = size / 2;
 
-        // Doodle art style: subtle position jitter for "sketch redraw" effect
-        // Each frame gets a tiny random offset so the sprite looks hand-drawn
-        const jitterX = (Math.sin(Date.now() * 0.017 + x * 3.7) * 0.5);
-        const jitterY = (Math.cos(Date.now() * 0.013 + y * 2.3) * 0.5);
-
+        // Clean cel-shaded style: crisp positioning, no jitter
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(sheet,
             sx, sy, FRAME_SIZE, FRAME_SIZE,
-            x - halfSize + jitterX, y - size + jitterY, size, size
+            x - halfSize, y - size, size, size
         );
         ctx.imageSmoothingEnabled = true;
     }
@@ -217,11 +221,6 @@ export class HumanoidSpriteSystem {
     static drawWithEquipment(ctx, raceId, stage, direction, frame, x, y, size, opts = {}) {
         const equipment = opts.equipment || null;
         this.drawFrame(ctx, raceId, stage, direction, frame, x, y, size, equipment);
-
-        // Doodle art style: motion lines near moving sprites (only during walk frames 1 & 3)
-        if (frame === 1 || frame === 3) {
-            this._drawDoodleMotionLines(ctx, x, y, size, direction, frame);
-        }
 
         // Rarity glow effect for highest-rarity equipped item
         if (equipment) {
@@ -716,71 +715,4 @@ export class HumanoidSpriteSystem {
         return best;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // Doodle Art Style: Motion Lines
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    /**
-     * Draw small sketch-style motion lines near a moving sprite.
-     * These appear as short dashes trailing behind the movement direction,
-     * giving a hand-drawn "whoosh" feel.
-     */
-    static _drawDoodleMotionLines(ctx, x, y, size, direction, frame) {
-        ctx.save();
-        ctx.globalAlpha = 0.3;
-        ctx.strokeStyle = '#2D2D2D';
-        ctx.lineWidth = 1;
-        ctx.lineCap = 'round';
-
-        // Determine trail position based on movement direction
-        let lineStartX, lineStartY, dx, dy;
-        const halfSize = size * 0.4;
-        const bodyMidY = y - size * 0.5;
-
-        switch (direction) {
-            case DIR_DOWN:
-                lineStartX = x;
-                lineStartY = bodyMidY - halfSize;
-                dx = 0; dy = -1;
-                break;
-            case DIR_UP:
-                lineStartX = x;
-                lineStartY = bodyMidY + halfSize;
-                dx = 0; dy = 1;
-                break;
-            case DIR_LEFT:
-                lineStartX = x + halfSize;
-                lineStartY = bodyMidY;
-                dx = 1; dy = 0;
-                break;
-            case DIR_RIGHT:
-                lineStartX = x - halfSize;
-                lineStartY = bodyMidY;
-                dx = -1; dy = 0;
-                break;
-            default:
-                ctx.restore();
-                return;
-        }
-
-        // Draw 3 small sketch lines with slight wobble
-        const seed = (frame * 17 + Math.floor(x * 3)) % 7;
-        for (let i = 0; i < 3; i++) {
-            const offset = (i - 1) * 4;
-            const perpX = dy !== 0 ? offset : 0;
-            const perpY = dx !== 0 ? offset : 0;
-            const len = 3 + (seed + i) % 4;
-            const wobble = Math.sin((i + seed) * 1.7) * 0.8;
-
-            ctx.beginPath();
-            ctx.moveTo(lineStartX + perpX, lineStartY + perpY);
-            ctx.lineTo(
-                lineStartX + perpX + dx * len + wobble,
-                lineStartY + perpY + dy * len + wobble
-            );
-            ctx.stroke();
-        }
-
-        ctx.restore();
-    }
 }

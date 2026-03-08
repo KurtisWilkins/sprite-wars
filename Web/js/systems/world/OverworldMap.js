@@ -5,8 +5,8 @@
  *
  * Ported from Game/Scripts/World/OverworldMap.gd
  *
- * Doodle Art Style: paper texture overlay, wobbly grid lines, chibi-style
- * player/NPC rendering helpers, and decorative ambient doodle elements.
+ * Cel-Shaded Art Style: clean black outlines, flat fills, chibi-proportioned
+ * player/NPC rendering helpers, and geometric ambient decorations.
  */
 import { eventBus, GameEvents } from '../../core/EventBus.js';
 
@@ -21,13 +21,10 @@ const DEFAULT_ENCOUNTER_LAYER = 2;
 /** Grid cell size in pixels (must match TileMap tile_size). */
 const DEFAULT_GRID_SIZE = 16;
 
-// ── Doodle Art Style Constants ──────────────────────────────────────────────
+// ── Cel-Shaded Art Style Constants ──────────────────────────────────────────
 
-/** Grain noise intensity for paper texture effect. */
-const PAPER_GRAIN_ALPHA = 0.03;
-
-/** Wobbly grid line alpha. */
-const DOODLE_GRID_ALPHA = 0.06;
+/** Clean grid line alpha. */
+const GRID_LINE_ALPHA = 0.06;
 
 /** Ambient decoration spawn chance per tile during render. */
 const DECO_SPAWN_CHANCE = 0.005;
@@ -86,17 +83,17 @@ export class OverworldMap {
          */
         this.currentMapId = '';
 
-        // ── Doodle Art State ────────────────────────────────────────────
+        // ── Decoration State ──────────────────────────────────────────
 
         /**
-         * Cached ambient doodle decorations for the current map.
+         * Cached ambient decorations for the current map.
          * Each: { x, y, type, size, rotation }
          * @type {Array<object>}
          */
-        this._doodleDecorations = [];
+        this._decorations = [];
 
         /**
-         * Whether doodle decorations have been generated for the current map.
+         * Whether decorations have been generated for the current map.
          * @type {boolean}
          */
         this._decoGenerated = false;
@@ -171,8 +168,8 @@ export class OverworldMap {
 
         this.currentMapId = mapData.mapId ?? mapData.map_id ?? 'unknown';
 
-        // Generate doodle decorations for this map
-        this._generateDoodleDecorations();
+        // Generate decorations for this map
+        this._generateDecorations();
 
         eventBus.emit('map_loaded', this.currentMapId);
     }
