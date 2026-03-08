@@ -465,7 +465,8 @@ export class GlossaryScreen {
             const card = document.createElement('div');
             Object.assign(card.style, {
                 background: COLORS.bgCard,
-                borderRadius: '12px',
+                borderRadius: '8px',
+                border: '3px solid #1A1A1A',
                 padding: '16px',
                 marginBottom: '10px',
             });
@@ -733,8 +734,9 @@ export class GlossaryScreen {
             if (classInfo) {
                 const infoCard = document.createElement('div');
                 Object.assign(infoCard.style, {
-                    background: 'rgba(30,30,50,0.5)',
-                    borderRadius: '10px',
+                    background: '#2A2050',
+                    borderRadius: '8px',
+                    border: '2px solid #1A1A1A',
                     padding: '10px 12px',
                     marginBottom: '8px',
                 });
@@ -837,7 +839,8 @@ export class GlossaryScreen {
                 const card = document.createElement('div');
                 Object.assign(card.style, {
                     background: COLORS.bgCard,
-                    borderRadius: '10px',
+                    borderRadius: '8px',
+                    border: '2px solid #1A1A1A',
                     padding: '12px',
                     marginBottom: '8px',
                 });
@@ -958,12 +961,13 @@ export class GlossaryScreen {
             btn.textContent = filterName === 'all' ? 'All' : `${icon} ${capitalizeWords(filterName)}`;
             Object.assign(btn.style, {
                 padding: '8px 14px',
-                border: 'none',
-                borderRadius: '12px',
+                border: '3px solid #1A1A1A',
+                borderRadius: '8px',
                 fontSize: '13px',
                 fontWeight: 'bold',
+                fontFamily: 'Arial, Helvetica, sans-serif',
                 cursor: 'pointer',
-                color: COLORS.textPrimary,
+                color: '#FFFFFF',
                 transition: 'background 0.15s, transform 0.1s',
                 userSelect: 'none',
                 WebkitTapHighlightColor: 'transparent',
@@ -1001,7 +1005,7 @@ export class GlossaryScreen {
             if (key === this._equipmentFilter) {
                 btn.style.background = COLORS.accent;
             } else {
-                btn.style.background = 'rgba(35,35,55,1)';
+                btn.style.background = '#3D3060';
             }
         }
     }
@@ -1031,7 +1035,8 @@ export class GlossaryScreen {
             const card = document.createElement('div');
             Object.assign(card.style, {
                 background: COLORS.bgCard,
-                borderRadius: '10px',
+                borderRadius: '8px',
+                border: '2px solid #1A1A1A',
                 padding: '12px',
                 marginBottom: '8px',
                 display: 'flex',
