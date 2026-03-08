@@ -502,7 +502,7 @@ export class RTSBattleRenderer {
             ctx.strokeRect(badgeX, barY - 1, badgeW, badgeH + 1);
             // Level text
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 7px monospace';
+            ctx.font = 'bold 7px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(`${level}`, badgeX + badgeW / 2, barY + 6);
 
@@ -555,7 +555,7 @@ export class RTSBattleRenderer {
         const screen = this._field.worldToScreen(worldX, worldY);
         this._floatingTexts.push({
             text,
-            x: screen.x + (Math.random() - 0.5) * 10,
+            x: screen.x,
             y: screen.y - UNIT_DRAW_SIZE,
             color,
             age: 0,
@@ -580,7 +580,7 @@ export class RTSBattleRenderer {
                 : 1;
 
             ctx.globalAlpha = alpha;
-            ctx.font = `bold ${ft.size}px monospace`;
+            ctx.font = `bold ${ft.size}px sans-serif`;
             ctx.textAlign = 'center';
 
             // Clean black outline text (stroke then fill for clean cel-shaded look)

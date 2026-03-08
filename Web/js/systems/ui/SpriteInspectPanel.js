@@ -962,9 +962,9 @@ export class SpriteInspectPanel {
             stageRow.style.cssText = `
                 display: flex; align-items: center; gap: 8px;
                 padding: 4px 6px; margin-bottom: 2px;
-                background: ${isCurrent ? 'rgba(255, 204, 51, 0.1)' : 'rgba(255,255,255,0.02)'};
-                border: 1px solid ${isCurrent ? 'rgba(255, 204, 51, 0.3)' : 'rgba(255,255,255,0.05)'};
-                border-radius: 4px;
+                background: ${isCurrent ? '#2A2050' : '#1E1533'};
+                border: 2px solid ${isCurrent ? '#FFCC33' : '#1A1A1A'};
+                border-radius: 6px;
                 opacity: ${isLocked ? '0.5' : '1'};
             `;
 
