@@ -414,7 +414,7 @@ export class UnitRenderer {
     }
 
     /**
-     * Draw level badge (bottom-left corner).
+     * Draw level badge (bottom-left corner) — doodle chibi style.
      */
     static _drawLevelBadge(ctx, level, leftX, topY, unitSize) {
         const badgeW = Math.max(14, unitSize * 0.35);
@@ -422,16 +422,30 @@ export class UnitRenderer {
         const bx = leftX;
         const by = topY;
 
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.beginPath();
-        ctx.roundRect(bx, by, badgeW, badgeH, 3);
-        ctx.fill();
+        // Doodle: wobbly rectangle with paper fill
+        ctx.save();
+        ctx.fillStyle = '#FEF9E7';
+        ctx.strokeStyle = '#2D2D2D';
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
 
-        ctx.fillStyle = '#ffffff';
-        ctx.font = `bold ${Math.max(7, unitSize * 0.18)}px sans-serif`;
+        const wobble = 0.6;
+        ctx.beginPath();
+        ctx.moveTo(bx + (Math.random() - 0.5) * wobble, by + (Math.random() - 0.5) * wobble);
+        ctx.lineTo(bx + badgeW + (Math.random() - 0.5) * wobble, by + (Math.random() - 0.5) * wobble);
+        ctx.lineTo(bx + badgeW + (Math.random() - 0.5) * wobble, by + badgeH + (Math.random() - 0.5) * wobble);
+        ctx.lineTo(bx + (Math.random() - 0.5) * wobble, by + badgeH + (Math.random() - 0.5) * wobble);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#2D2D2D';
+        ctx.font = `bold ${Math.max(7, unitSize * 0.18)}px 'Patrick Hand', 'Comic Sans MS', cursive`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(`${level}`, bx + badgeW / 2, by + badgeH / 2);
+        ctx.restore();
     }
 
     /**
@@ -582,21 +596,29 @@ export class UnitRenderer {
 
         const name = inst.nickname || (race ? race.race_name : `Sprite #${raceId}`);
 
-        // Card container
+        // Card container — doodle: wobbly border, paper background
+        const cardRotation = (Math.random() - 0.5) * 2;
         const card = document.createElement('div');
         card.style.cssText = `
             display:flex;align-items:center;gap:6px;
-            padding:4px 6px;border-radius:6px;cursor:pointer;
-            background:${isSelected ? elemColor + '30' : 'rgba(255,255,255,0.05)'};
-            border:1px solid ${isSelected ? elemColor + '88' : 'rgba(255,255,255,0.08)'};
+            padding:4px 6px;cursor:pointer;
+            background:${isSelected ? '#FEF0C7' : '#FEF9E7'};
+            border:2px solid #2D2D2D;
+            border-radius:12px 5px 10px 6px;
             width:${cardWidth}px;height:${cardHeight}px;
-            transition:background 0.15s;position:relative;overflow:hidden;
+            transition:background 0.15s, transform 0.15s;
+            position:relative;overflow:hidden;
+            transform:rotate(${cardRotation}deg);
+            box-shadow:1px 2px 0 #2D2D2D;
+            font-family:'Patrick Hand','Comic Sans MS',cursive;
         `;
         card.addEventListener('mouseenter', () => {
-            card.style.background = elemColor + '25';
+            card.style.background = '#FEF0C7';
+            card.style.transform = `rotate(${cardRotation}deg) scale(1.02)`;
         });
         card.addEventListener('mouseleave', () => {
-            card.style.background = isSelected ? elemColor + '30' : 'rgba(255,255,255,0.05)';
+            card.style.background = isSelected ? '#FEF0C7' : '#FEF9E7';
+            card.style.transform = `rotate(${cardRotation}deg)`;
         });
         if (opts.onClick) card.addEventListener('click', opts.onClick);
 
@@ -626,16 +648,17 @@ export class UnitRenderer {
         const infoDiv = document.createElement('div');
         infoDiv.style.cssText = 'flex:1;min-width:0;';
 
-        // Name row
+        // Name row — doodle: handwriting font, ink color
         const nameRow = document.createElement('div');
-        nameRow.style.cssText = `font-size:0.75rem;font-weight:600;color:#ddddee;
-            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
+        nameRow.style.cssText = `font-size:0.8rem;font-weight:600;color:#2D2D2D;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+            font-family:'Patrick Hand','Comic Sans MS',cursive;`;
         nameRow.textContent = name;
         infoDiv.appendChild(nameRow);
 
-        // Level + elements row
+        // Level + elements row — doodle style
         const metaRow = document.createElement('div');
-        metaRow.style.cssText = 'font-size:0.6rem;color:#888;display:flex;align-items:center;gap:3px;';
+        metaRow.style.cssText = "font-size:0.6rem;color:#5A5A7A;display:flex;align-items:center;gap:3px;font-family:'Patrick Hand','Comic Sans MS',cursive;";
         metaRow.textContent = `Lv${level}`;
         for (const elem of elements) {
             const dot = document.createElement('span');

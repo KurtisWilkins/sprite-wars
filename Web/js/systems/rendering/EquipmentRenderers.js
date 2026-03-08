@@ -1112,6 +1112,10 @@ export function drawLegsArmorByConfig(ctx, legX, legY, legW, legH, config) {
         ctx.fillStyle = 'rgba(255,255,255,0.2)';
         ctx.fillRect(legX, legY + 2, Math.floor(legW * 0.5), 2);
     }
+
+    // Doodle art style: hatching overlay and wobbly outline on leg armor
+    _eqDrawDoodleHatching(ctx, legX, legY, legW, legH, tc || '#2D2D2D', 0.3);
+    _eqDrawDoodleRectOutline(ctx, legX, legY, legW, legH, tc || '#2D2D2D', 1);
 }
 
 
@@ -1132,11 +1136,7 @@ export function drawBootsByConfig(ctx, x, y, w, h, config) {
     const gl = config.glowColor || null;
 
     if (gl) {
-        ctx.save();
-        ctx.globalAlpha = 0.15;
-        ctx.fillStyle = gl;
-        ctx.fillRect(x - 2, y - 2, w + 4, h + 4);
-        ctx.restore();
+        _eqDrawDoodleScribbleCircle(ctx, x + w / 2, y + h / 2, Math.max(w, h) * 0.4, gl);
     }
 
     switch (style) {
@@ -1218,6 +1218,10 @@ export function drawBootsByConfig(ctx, x, y, w, h, config) {
         ctx.fillStyle = bkC;
         ctx.fillRect(x + Math.floor(w / 2) - 2, y + 2, 4, 2);
     }
+
+    // Doodle art style: hatching overlay and wobbly outline on boots
+    _eqDrawDoodleHatching(ctx, x, y, w, h, sole || '#2D2D2D', 0.3);
+    _eqDrawDoodleRectOutline(ctx, x, y, w, h, sole || '#2D2D2D', 1);
 }
 
 
@@ -1242,11 +1246,7 @@ export function drawGlovesByConfig(ctx, ax, ay, w, h, side, config) {
     const handY = ay + h - handH;
 
     if (gl) {
-        ctx.save();
-        ctx.globalAlpha = 0.15;
-        ctx.fillStyle = gl;
-        ctx.fillRect(ax - 2, handY - 2, w + 4, handH + 4);
-        ctx.restore();
+        _eqDrawDoodleScribbleCircle(ctx, ax + w / 2, handY + handH / 2, Math.max(w, handH) * 0.4, gl);
     }
 
     switch (style) {
@@ -1321,7 +1321,12 @@ export function drawGlovesByConfig(ctx, ax, ay, w, h, side, config) {
         ctx.fillRect(ax + Math.floor(w / 2), handY, 2, 2);
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
         ctx.fillRect(ax + Math.floor(w / 2), handY, 2, 2);
+        // Doodle art style: tiny star sparkle on gem
+        _eqDrawDoodleStar(ctx, ax + Math.floor(w / 2) + 1, handY + 1, 2, gemC);
     }
+
+    // Doodle art style: wobbly outline on gloves
+    _eqDrawDoodleRectOutline(ctx, ax, handY, w, handH, cc || '#2D2D2D', 1);
 }
 
 
