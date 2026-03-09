@@ -1352,12 +1352,13 @@ export class OverworldScene extends Scene {
             }
         }
 
-        // Draw area transitions (subtle glow markers)
+        // Draw area transitions (subtle glow markers) — inside scaled context, use raw coords
         for (const t of this._transitions) {
-            renderer.save();
-            renderer.setAlpha(0.3 + 0.15 * Math.sin(performance.now() / 400));
-            renderer.drawRect(t.x, t.y, t.w, t.h, 'rgba(100, 200, 255, 0.4)');
-            renderer.restore();
+            ctx.save();
+            ctx.globalAlpha = 0.3 + 0.15 * Math.sin(performance.now() / 400);
+            ctx.fillStyle = 'rgba(100, 200, 255, 0.4)';
+            ctx.fillRect(t.x - camX, t.y - camY, t.w, t.h);
+            ctx.restore();
         }
 
         // Draw NPCs
@@ -2211,8 +2212,10 @@ export class OverworldScene extends Scene {
     // ── Rendering Helpers ──────────────────────────────────────────────────
 
     _renderPlayer(renderer) {
-        const px = this._player.x;
-        const py = this._player.y;
+        const wx = this._player.x;
+        const wy = this._player.y;
+        const camX = Math.round(this._camera.x);
+        const camY = Math.round(this._camera.y);
         const halfSize = PLAYER_SIZE / 2;
 
         // Use chibi HumanoidSpriteSystem for the player character
@@ -2226,6 +2229,9 @@ export class OverworldScene extends Scene {
         try {
             const ctx = renderer.ctx || renderer._ctx;
             if (ctx) {
+                // Direct ctx calls need manual camera offset
+                const px = wx - camX;
+                const py = wy - camY;
                 ctx.imageSmoothingEnabled = true;
                 HumanoidSpriteSystem.drawWithEquipment(
                     ctx, raceId, stage, dir, animFrame,
@@ -2237,7 +2243,7 @@ export class OverworldScene extends Scene {
             }
         } catch (_) { /* fall through to legacy rendering */ }
 
-        // Legacy fallback: sprite sheet rendering
+        // Legacy fallback uses renderer methods which subtract camera internally
         if (this._player.spriteImg && this._player.spriteImg.complete) {
             const dirRow = { down: 0, left: 1, right: 2, up: 3 };
             const row = dirRow[this._player.facing] || 0;
@@ -2249,15 +2255,15 @@ export class OverworldScene extends Scene {
             renderer.drawSprite(
                 this._player.spriteImg,
                 col * sw, row * sh, sw, sh,
-                px - halfSize, py - halfSize, PLAYER_SIZE, PLAYER_SIZE
+                wx - halfSize, wy - halfSize, PLAYER_SIZE, PLAYER_SIZE
             );
         } else {
             // Fallback: colored circle
-            renderer.drawCircle(px, py, halfSize, '#44aaff');
+            renderer.drawCircle(wx, wy, halfSize, '#44aaff');
             const d = DIR[this._player.facing] || DIR.down;
             renderer.drawCircle(
-                px + d.x * halfSize * 0.6,
-                py + d.y * halfSize * 0.6,
+                wx + d.x * halfSize * 0.6,
+                wy + d.y * halfSize * 0.6,
                 3, '#ffffff'
             );
         }
@@ -2269,6 +2275,9 @@ export class OverworldScene extends Scene {
             try {
                 const ctx = renderer.ctx || renderer._ctx;
                 if (ctx) {
+                    // Direct ctx calls need manual camera offset
+                    const camX = Math.round(this._camera.x);
+                    const camY = Math.round(this._camera.y);
                     const dirMap = { down: 0, left: 1, right: 2, up: 3 };
                     const dir = dirMap[npc.facing] || 0;
                     const animFrame = npc.moving ? ((npc.animFrame || 0) % 4) : 0;
@@ -2276,7 +2285,7 @@ export class OverworldScene extends Scene {
                     ctx.imageSmoothingEnabled = true;
                     HumanoidSpriteSystem.drawWithEquipment(
                         ctx, npc.raceId, npc.stage || 1, dir, animFrame,
-                        npc.x, npc.y + NPC_DRAW_HALFSIZE * 0.3, npcSize,
+                        npc.x - camX, npc.y - camY + NPC_DRAW_HALFSIZE * 0.3, npcSize,
                         { equipment: npc.equipment || {} }
                     );
                     ctx.imageSmoothingEnabled = true;

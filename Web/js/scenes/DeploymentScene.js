@@ -1,8 +1,8 @@
 /**
  * DeploymentScene -- Pre-battle team deployment screen for Sprite Wars.
- * Allows the player to select 7 sprites from their party and position them
- * on the player's side (left 3 columns) of the 7x9 grid before entering
- * battle. Player occupies rows 0-4 (5 rows), enemy rows 5-8 (4 rows).
+ * Allows the player to select up to 7 sprites from their party and position
+ * them on a 9x9 player grid. The enemy 9x9 grid is displayed side-by-side
+ * to the right. Player occupies rows 0-8, enemy rows 9-17.
  *
  * Uses Canvas for the grid preview and DOM panels for the roster/detail UI.
  *
@@ -26,14 +26,15 @@ function _getSpriteName(inst) {
 }
 
 // ── Layout Constants ────────────────────────────────────────────────────────
-const GRID_CELL_SIZE = 48;
-const GRID_GAP = 3;
-const GRID_ORIGIN_X = 20;
+const GRID_CELL_SIZE = 32;
+const GRID_GAP = 2;
+const GRID_ORIGIN_X = 12;
 const GRID_ORIGIN_Y = 76;
+const GRID_SPACING = 16;      // horizontal gap between player and enemy grids
 const ROSTER_PANEL_WIDTH = 180;
 const DETAIL_PANEL_HEIGHT = 160;
 const MAX_DEPLOY_UNITS = 7;
-const PLAYER_DEPLOY_COLS = 3; // columns 0-2 on the player side (rows 0-4)
+const PLAYER_DEPLOY_COLS = 9; // all 9 columns are deployable
 
 // ── Colors ──────────────────────────────────────────────────────────────────
 const COLOR_BG = '#1a2a3a';  // Medieval fantasy flat dark blue
@@ -46,10 +47,10 @@ const COLOR_GRID_INVALID = 'rgba(255, 80, 80, 0.20)';
 const COLOR_GRID_LINES = '#222222';  // Clean black outlines
 
 const ELEMENT_COLORS = {
-    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
-    Electric: '#ffcc00', Ice: '#99ddff', Plant: '#33aa33', Poison: '#aa33aa',
-    Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Fairy: '#ff66aa',
-    Lunar: '#ff8833', Solar: '#ccccff',
+    Fire: '#ff5533', Water: '#3399ff', Plant: '#33aa33', Ice: '#99ddff',
+    Wind: '#88ccaa', Earth: '#996633', Electric: '#ffcc00', Dark: '#8844aa',
+    Light: '#ffee99', Fairy: '#ff66aa', Solar: '#ffaa33', Lunar: '#8899cc',
+    Metal: '#aaaacc', Poison: '#aa33aa',
 };
 
 export class DeploymentScene extends Scene {
@@ -198,10 +199,10 @@ export class DeploymentScene extends Scene {
             baseline: 'top',
         });
 
-        // Draw the full battle grid (player rows 0-4 + enemy rows 5-8)
+        // Draw player grid (left, 9x9) and enemy grid (right, 9x9)
         this._renderDeploymentGrid(ctx, renderer);
 
-        // Draw enemy units on their grid positions (rows 5-8)
+        // Draw enemy units on the enemy grid (right side)
         this._renderEnemyPreview(ctx, renderer);
 
         // Draw dragged sprite
@@ -216,8 +217,9 @@ export class DeploymentScene extends Scene {
         const gx = GRID_ORIGIN_X;
         const gy = GRID_ORIGIN_Y;
         const cellStep = GRID_CELL_SIZE + GRID_GAP;
+        const gridPixelW = BattleGrid.GRID_WIDTH * cellStep - GRID_GAP;
 
-        // Label
+        // ── Player Grid (left) ──────────────────────────────────────────
         renderer.drawText('Your Formation', gx, gy - 14, {
             color: '#6688cc',
             font: 'bold 10px sans-serif',
@@ -225,53 +227,36 @@ export class DeploymentScene extends Scene {
             baseline: 'bottom',
         });
 
-        // Draw the FULL battle grid (rows 0-8, all 7 columns)
-        for (let y = 0; y < BattleGrid.TOTAL_HEIGHT; y++) {
+        for (let y = 0; y < BattleGrid.GRID_HEIGHT_PER_SIDE; y++) {
             for (let x = 0; x < BattleGrid.GRID_WIDTH; x++) {
                 const cellX = gx + x * cellStep;
                 const cellY = gy + y * cellStep;
 
-                const isPlayerSide = y <= BattleGrid.PLAYER_ROW_MAX;
-                const isEnemySide = y >= BattleGrid.ENEMY_ROW_MIN;
-                const isDeployable = isPlayerSide && x < PLAYER_DEPLOY_COLS;
-
-                // Cell background
-                if (isEnemySide) {
-                    ctx.fillStyle = COLOR_GRID_ENEMY;
-                } else if (isDeployable) {
-                    ctx.fillStyle = COLOR_GRID_DEPLOY;
-                } else {
-                    ctx.fillStyle = COLOR_GRID_EMPTY;
-                }
+                // All player cells are deployable
+                ctx.fillStyle = COLOR_GRID_DEPLOY;
                 ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
 
-                // Check if a deployed unit is at this position (player side only)
-                if (isPlayerSide) {
-                    const deployedIdx = this._getDeployedAtPosition(x, y);
-                    if (deployedIdx >= 0) {
-                        ctx.fillStyle = COLOR_GRID_PLACED;
-                        ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
-                        this._renderUnitInCell(ctx, renderer, this._deployedUnits[deployedIdx].spriteData, cellX, cellY, deployedIdx);
-                    }
+                // Check if a deployed unit is at this position
+                const deployedIdx = this._getDeployedAtPosition(x, y);
+                if (deployedIdx >= 0) {
+                    ctx.fillStyle = COLOR_GRID_PLACED;
+                    ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
+                    this._renderUnitInCell(ctx, renderer, this._deployedUnits[deployedIdx].spriteData, cellX, cellY, deployedIdx);
                 }
 
-                // Hover highlight (player side only)
-                if (isPlayerSide && this._hoveredCell && this._hoveredCell.x === x && this._hoveredCell.y === y) {
-                    if (isDeployable) {
-                        ctx.fillStyle = COLOR_GRID_HOVER;
-                    } else {
-                        ctx.fillStyle = COLOR_GRID_INVALID;
-                    }
+                // Hover highlight
+                if (this._hoveredCell && this._hoveredCell.x === x && this._hoveredCell.y === y) {
+                    ctx.fillStyle = COLOR_GRID_HOVER;
                     ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
                 }
 
-                // Cell border — clean black outlines, uniform 2px
+                // Cell border
                 ctx.strokeStyle = COLOR_GRID_LINES;
                 ctx.lineWidth = 2;
                 ctx.strokeRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
 
-                // Deployment zone label (player deployable cells only)
-                if (isDeployable && this._getDeployedAtPosition(x, y) < 0) {
+                // Empty cell marker
+                if (deployedIdx < 0) {
                     ctx.fillStyle = 'rgba(255,255,255,0.1)';
                     ctx.font = '8px sans-serif';
                     ctx.textAlign = 'center';
@@ -281,52 +266,60 @@ export class DeploymentScene extends Scene {
             }
         }
 
-        // Gold divider line between player rows (0-4) and enemy rows (5-8)
-        const dividerY = gy + BattleGrid.GRID_HEIGHT_PER_SIDE * cellStep - GRID_GAP / 2;
-        const dividerX1 = gx;
-        const dividerX2 = gx + BattleGrid.GRID_WIDTH * cellStep - GRID_GAP;
-        ctx.strokeStyle = '#222222';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(dividerX1, dividerY);
-        ctx.lineTo(dividerX2, dividerY);
-        ctx.stroke();
+        // ── Enemy Grid (right, directly beside player grid) ─────────────
+        const enemyGridX = gx + gridPixelW + GRID_SPACING;
 
-        // Enemy section label
-        const enemyLabelY = gy + BattleGrid.ENEMY_ROW_MIN * cellStep - 4;
-        renderer.drawText('Enemy Territory', gx, enemyLabelY, {
+        renderer.drawText('Enemy Territory', enemyGridX, gy - 14, {
             color: '#cc5555',
-            font: 'bold 9px sans-serif',
+            font: 'bold 10px sans-serif',
             align: 'left',
             baseline: 'bottom',
         });
+
+        for (let y = 0; y < BattleGrid.GRID_HEIGHT_PER_SIDE; y++) {
+            for (let x = 0; x < BattleGrid.GRID_WIDTH; x++) {
+                const cellX = enemyGridX + x * cellStep;
+                const cellY = gy + y * cellStep;
+
+                ctx.fillStyle = COLOR_GRID_ENEMY;
+                ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
+
+                // Cell border
+                ctx.strokeStyle = COLOR_GRID_LINES;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
+            }
+        }
     }
 
     _renderEnemyPreview(ctx, renderer) {
         const gx = GRID_ORIGIN_X;
         const gy = GRID_ORIGIN_Y;
         const cellStep = GRID_CELL_SIZE + GRID_GAP;
+        const gridPixelW = BattleGrid.GRID_WIDTH * cellStep - GRID_GAP;
+        const enemyGridX = gx + gridPixelW + GRID_SPACING;
 
-        // Place each enemy at its natural battle grid position (rows 5-8)
+        // Place each enemy on the enemy grid (right side)
         for (let i = 0; i < this._enemyTeamData.length; i++) {
             const enemy = this._enemyTeamData[i];
-            const inst = enemy.instance || enemy;
 
-            // Use the enemy's existing position or assign a default on the enemy side
+            // Use the enemy's position mapped to 0-based enemy grid coords
             let ex, ey;
             if (enemy.position) {
                 ex = enemy.position.x;
-                ey = enemy.position.y;
+                ey = enemy.position.y >= BattleGrid.ENEMY_ROW_MIN
+                    ? enemy.position.y - BattleGrid.ENEMY_ROW_MIN
+                    : enemy.position.y;
             } else {
                 ex = i % BattleGrid.GRID_WIDTH;
-                ey = BattleGrid.ENEMY_ROW_MIN + Math.floor(i / BattleGrid.GRID_WIDTH);
+                ey = Math.floor(i / BattleGrid.GRID_WIDTH);
             }
 
-            // Clamp to enemy rows
-            if (ey < BattleGrid.ENEMY_ROW_MIN || ey > BattleGrid.ENEMY_ROW_MAX) continue;
+            // Clamp to enemy grid bounds
+            if (ey < 0 || ey >= BattleGrid.GRID_HEIGHT_PER_SIDE) continue;
             if (ex < 0 || ex >= BattleGrid.GRID_WIDTH) continue;
 
-            const cellX = gx + ex * cellStep;
+            const cellX = enemyGridX + ex * cellStep;
             const cellY = gy + ey * cellStep;
 
             this._renderEnemyInCell(ctx, renderer, enemy, cellX, cellY);
@@ -471,10 +464,10 @@ export class DeploymentScene extends Scene {
                 return;
             }
 
-            // Check if tap is on the enemy side of the full grid
-            const fullCell = this._screenToFullGrid(px, py);
-            if (fullCell && fullCell.y >= BattleGrid.ENEMY_ROW_MIN) {
-                const enemy = this._getEnemyAtPosition(fullCell.x, fullCell.y);
+            // Check if tap is on the enemy grid (right side)
+            const enemyCell = this._screenToEnemyGrid(px, py);
+            if (enemyCell) {
+                const enemy = this._getEnemyAtPosition(enemyCell.x, enemyCell.y);
                 if (enemy) {
                     this._detailSprite = enemy;
                     this._selectedDeployedIndex = -1;
@@ -517,14 +510,14 @@ export class DeploymentScene extends Scene {
         this._deployedUnits = [];
         const count = Math.min(MAX_DEPLOY_UNITS, this._availableSprites.length);
 
-        // Default positions: fill columns 0-2 from top to bottom
+        // Default positions: center units in the 9x9 grid
         const defaultPositions = [];
-        for (let x = 0; x < PLAYER_DEPLOY_COLS; x++) {
-            for (let y = 0; y < BattleGrid.GRID_HEIGHT_PER_SIDE; y++) {
-                defaultPositions.push({ x, y });
-                if (defaultPositions.length >= count) break;
-            }
-            if (defaultPositions.length >= count) break;
+        const startCol = Math.floor((BattleGrid.GRID_WIDTH - Math.min(count, 3)) / 2);
+        const startRow = Math.floor((BattleGrid.GRID_HEIGHT_PER_SIDE - Math.ceil(count / 3)) / 2);
+        for (let i = 0; i < count; i++) {
+            const col = startCol + (i % 3);
+            const row = startRow + Math.floor(i / 3);
+            defaultPositions.push({ x: col, y: row });
         }
 
         for (let i = 0; i < count; i++) {
@@ -536,7 +529,7 @@ export class DeploymentScene extends Scene {
     }
 
     _isDeployablePosition(x, y) {
-        return x >= 0 && x < PLAYER_DEPLOY_COLS &&
+        return x >= 0 && x < BattleGrid.GRID_WIDTH &&
                y >= 0 && y < BattleGrid.GRID_HEIGHT_PER_SIDE;
     }
 
@@ -699,14 +692,18 @@ export class DeploymentScene extends Scene {
             position: { x: d.position.x, y: d.position.y },
         }));
 
-        // Assign enemy positions to enemy side of the grid
+        // Assign enemy positions to enemy side of the grid (rows 9-17)
         const enemyTeam = this._enemyTeamData.map((e, i) => {
             if (!e.position) {
                 const defaultX = i % BattleGrid.GRID_WIDTH;
                 const defaultY = BattleGrid.ENEMY_ROW_MIN + Math.floor(i / BattleGrid.GRID_WIDTH);
                 return { ...e, position: { x: defaultX, y: defaultY } };
             }
-            return e;
+            // Ensure existing positions are mapped to enemy row range
+            const ey = e.position.y < BattleGrid.ENEMY_ROW_MIN
+                ? e.position.y + BattleGrid.ENEMY_ROW_MIN
+                : e.position.y;
+            return { ...e, position: { x: e.position.x, y: ey } };
         });
 
         this.engine.audio.stopMusic(300);
@@ -886,10 +883,8 @@ export class DeploymentScene extends Scene {
     // ═══════════════════════════════════════════════════════════════════
 
     /**
-     * Maps screen coordinates to a cell on the player side (all 7 cols, rows 0-4).
-     * Returns null if the position is outside the player rows.
-     * Drag-drop and placement logic further restrict to deployable cols 0-2
-     * via _isDeployablePosition().
+     * Maps screen coordinates to a cell on the player grid (left side, 9x9).
+     * Returns null if the position is outside the player grid.
      */
     _screenToDeployGrid(px, py) {
         const gx = GRID_ORIGIN_X;
@@ -899,7 +894,6 @@ export class DeploymentScene extends Scene {
         const gridX = Math.floor((px - gx) / cellStep);
         const gridY = Math.floor((py - gy) / cellStep);
 
-        // Player side only: all 7 columns, rows 0-4
         if (gridX < 0 || gridX >= BattleGrid.GRID_WIDTH) return null;
         if (gridY < 0 || gridY >= BattleGrid.GRID_HEIGHT_PER_SIDE) return null;
 
@@ -912,22 +906,22 @@ export class DeploymentScene extends Scene {
     }
 
     /**
-     * Maps screen coordinates to ANY cell on the full 9-row battle grid.
-     * Returns { x, y } for any valid cell (rows 0-8, cols 0-6), or null if outside.
+     * Maps screen coordinates to a cell on the enemy grid (right side, 9x9).
+     * Returns { x, y } in enemy-local coordinates (0-8), or null if outside.
      */
-    _screenToFullGrid(px, py) {
-        const gx = GRID_ORIGIN_X;
-        const gy = GRID_ORIGIN_Y;
+    _screenToEnemyGrid(px, py) {
         const cellStep = GRID_CELL_SIZE + GRID_GAP;
+        const gridPixelW = BattleGrid.GRID_WIDTH * cellStep - GRID_GAP;
+        const enemyGridX = GRID_ORIGIN_X + gridPixelW + GRID_SPACING;
+        const gy = GRID_ORIGIN_Y;
 
-        const gridX = Math.floor((px - gx) / cellStep);
+        const gridX = Math.floor((px - enemyGridX) / cellStep);
         const gridY = Math.floor((py - gy) / cellStep);
 
         if (gridX < 0 || gridX >= BattleGrid.GRID_WIDTH) return null;
-        if (gridY < 0 || gridY >= BattleGrid.TOTAL_HEIGHT) return null;
+        if (gridY < 0 || gridY >= BattleGrid.GRID_HEIGHT_PER_SIDE) return null;
 
-        // Check we're inside the cell, not in the gap
-        const localX = px - gx - gridX * cellStep;
+        const localX = px - enemyGridX - gridX * cellStep;
         const localY = py - gy - gridY * cellStep;
         if (localX > GRID_CELL_SIZE || localY > GRID_CELL_SIZE) return null;
 
@@ -935,7 +929,7 @@ export class DeploymentScene extends Scene {
     }
 
     /**
-     * Find the enemy data at a given full-grid position (enemy rows 5-8).
+     * Find the enemy data at a given enemy-grid-local position (0-8, 0-8).
      * Returns the enemy object or null.
      */
     _getEnemyAtPosition(x, y) {
@@ -944,10 +938,12 @@ export class DeploymentScene extends Scene {
             let ex, ey;
             if (enemy.position) {
                 ex = enemy.position.x;
-                ey = enemy.position.y;
+                ey = enemy.position.y >= BattleGrid.ENEMY_ROW_MIN
+                    ? enemy.position.y - BattleGrid.ENEMY_ROW_MIN
+                    : enemy.position.y;
             } else {
                 ex = i % BattleGrid.GRID_WIDTH;
-                ey = BattleGrid.ENEMY_ROW_MIN + Math.floor(i / BattleGrid.GRID_WIDTH);
+                ey = Math.floor(i / BattleGrid.GRID_WIDTH);
             }
             if (ex === x && ey === y) return enemy;
         }

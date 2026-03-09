@@ -1,6 +1,6 @@
 /**
  * BattleScene -- Core 5v5 grid-based battle scene for Sprite Wars.
- * Renders a 6x8 BattleGrid on Canvas with units, health bars, status icons,
+ * Renders a 9x18 BattleGrid on Canvas with units, health bars, status icons,
  * floating damage numbers, turn order bar, ability selection, and battle log.
  *
  * Uses Canvas for the battlefield + DOM overlays for ability bar, turn order,

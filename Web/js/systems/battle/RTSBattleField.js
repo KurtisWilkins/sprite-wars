@@ -5,7 +5,7 @@
  * The battlefield provides world-space coordinates and spatial queries.
  * Rendering (flat cel-shaded terrain, clean outlines) is handled by RTSBattleRenderer.
  *
- * Unlike BattleGrid (7x9 discrete cells), RTSBattleField operates on continuous
+ * Unlike BattleGrid (9x18 discrete cells), RTSBattleField operates on continuous
  * pixel coordinates. Units move freely within the battlefield bounds.
  *
  * Features:
@@ -16,6 +16,7 @@
  */
 
 import { RTSUnit } from './RTSUnit.js';
+import { BattleGrid } from './BattleGrid.js';
 
 // ── Battlefield Dimensions (matches 960x540 design resolution) ──────────────
 const FIELD_WIDTH = 860;       // Battle area width (pixels)
@@ -325,21 +326,28 @@ export class RTSBattleField {
     /**
      * Convert deployment grid position (from DeploymentScene) to world position.
      * Player units start on the left, enemy on the right.
-     * @param {number} gridX - Grid column (0-6)
+     * @param {number} gridX - Grid column (0-8)
      * @param {number} gridY - Grid row (0-8)
      * @param {number} team - 0=player, 1=enemy
      * @returns {{x: number, y: number}}
      */
     gridToWorld(gridX, gridY, team) {
+        const cols = BattleGrid.GRID_WIDTH;
+        const rows = BattleGrid.GRID_HEIGHT_PER_SIDE;
         if (team === 0) {
             // Player: left side of field
-            const x = 60 + gridX * 40;
-            const y = 40 + gridY * (this.height / 9);
+            const spacingX = (this.width / 2 - 80) / Math.max(cols - 1, 1);
+            const spacingY = (this.height - 80) / Math.max(rows - 1, 1);
+            const x = 40 + gridX * spacingX;
+            const y = 40 + gridY * spacingY;
             return { x, y };
         } else {
             // Enemy: right side of field
-            const x = this.width - 60 - (6 - gridX) * 40;
-            const y = 40 + (gridY - 5) * (this.height / 5);
+            const enemyRow = gridY >= BattleGrid.ENEMY_ROW_MIN ? gridY - BattleGrid.ENEMY_ROW_MIN : gridY;
+            const spacingX = (this.width / 2 - 80) / Math.max(cols - 1, 1);
+            const spacingY = (this.height - 80) / Math.max(rows - 1, 1);
+            const x = this.width / 2 + 40 + gridX * spacingX;
+            const y = 40 + enemyRow * spacingY;
             return { x: Math.min(x, this.width - 30), y };
         }
     }
