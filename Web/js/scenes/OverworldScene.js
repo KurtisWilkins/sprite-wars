@@ -527,6 +527,8 @@ export class OverworldScene extends Scene {
             npc.spriteFrameH = 64;
             npc.spriteCols = 4;
             npc.spriteRows = 4;
+            // Skip sprite sheet loading for NPCs with raceId — they use HumanoidSpriteSystem
+            if (npc.raceId) continue;
             if (npc.spritePath) {
                 try {
                     npc.spriteSheet = await this.engine.assets.loadImage(npc.spritePath);

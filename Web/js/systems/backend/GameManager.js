@@ -97,8 +97,8 @@ function createStarterSprite() {
         maxHp: 50,
         elementTypes: ['Fire'],
         abilities: [
-            { abilityId: 1, name: 'Ember Shot', element: 'Fire', power: 40, targetingType: 'single' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+            { abilityId: 1, name: 'Ember Shot', element: 'Fire', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 12,
@@ -123,8 +123,8 @@ function _createWaterStarter() {
         maxHp: 55,
         elementTypes: ['Water'],
         abilities: [
-            { abilityId: 12, name: 'Aqua Jet', element: 'Water', power: 40, targetingType: 'single' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+            { abilityId: 12, name: 'Aqua Jet', element: 'Water', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 9,
@@ -149,8 +149,8 @@ function _createNatureStarter() {
         maxHp: 52,
         elementTypes: ['Plant'],
         abilities: [
-            { abilityId: 23, name: 'Vine Whip', element: 'Plant', power: 40, targetingType: 'single' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+            { abilityId: 23, name: 'Vine Whip', element: 'Plant', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 10,
@@ -175,8 +175,8 @@ function _createIceStarter() {
         maxHp: 48,
         elementTypes: ['Ice'],
         abilities: [
-            { abilityId: 34, name: 'Frost Shard', element: 'Ice', power: 40, targetingType: 'single' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+            { abilityId: 34, name: 'Frost Shard', element: 'Ice', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 13,
@@ -201,8 +201,8 @@ function _createAirStarter() {
         maxHp: 45,
         elementTypes: ['Wind'],
         abilities: [
-            { abilityId: 45, name: 'Gust Slash', element: 'Wind', power: 40, targetingType: 'single' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+            { abilityId: 45, name: 'Gust Slash', element: 'Wind', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 11,
@@ -227,8 +227,8 @@ function _createEarthStarter() {
         maxHp: 60,
         elementTypes: ['Earth'],
         abilities: [
-            { abilityId: 56, name: 'Rock Throw', element: 'Earth', power: 40, targetingType: 'single' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+            { abilityId: 56, name: 'Rock Throw', element: 'Earth', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 12,
@@ -253,8 +253,8 @@ function _createElectricStarter() {
         maxHp: 45,
         elementTypes: ['Electric'],
         abilities: [
-            { abilityId: 67, name: 'Spark Bolt', element: 'Electric', power: 40, targetingType: 'single' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+            { abilityId: 67, name: 'Spark Bolt', element: 'Electric', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 7,
@@ -279,8 +279,8 @@ function _createDarkStarter() {
         maxHp: 48,
         elementTypes: ['Dark'],
         abilities: [
-            { abilityId: 78, name: 'Shadow Strike', element: 'Dark', power: 40, targetingType: 'single' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+            { abilityId: 78, name: 'Shadow Strike', element: 'Dark', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 13,
@@ -305,8 +305,8 @@ function _createLightStarter() {
         maxHp: 55,
         elementTypes: ['Light'],
         abilities: [
-            { abilityId: 89, name: 'Holy Beam', element: 'Light', power: 40, targetingType: 'single' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+            { abilityId: 89, name: 'Holy Beam', element: 'Light', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 7,
@@ -331,8 +331,8 @@ function _createPoisonStarter() {
         maxHp: 50,
         elementTypes: ['Poison'],
         abilities: [
-            { abilityId: 144, name: 'Toxic Spit', element: 'Poison', power: 35, targetingType: 'single' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single' },
+            { abilityId: 144, name: 'Toxic Spit', element: 'Poison', power: 35, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 10,
