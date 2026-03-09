@@ -450,7 +450,7 @@ function _createHandgunnerStarter() {
             { abilityId: 78, name: 'Shadow Strike', element: 'Dark', power: 40, targetingType: 'single_enemy' },
             { abilityId: 79, name: 'Dark Pulse', element: 'Dark', power: 60, targetingType: 'row' },
             { abilityId: 83, name: 'Abyssal Blast', element: 'Dark', power: 90, targetingType: 'aoe_circle' },
-            { abilityId: 81, name: 'Void Fang', element: 'Dark', power: 100, targetingType: 'single_enemy' },
+            { abilityId: 81, name: 'Void Fang', element: 'Dark', power: 80, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 20,
