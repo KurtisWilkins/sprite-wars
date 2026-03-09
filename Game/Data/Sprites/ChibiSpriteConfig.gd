@@ -89,36 +89,28 @@ static func get_body_proportions() -> Dictionary:
 
 
 # ════════════════════════════════════════════════════════════════════════════════
-# 2b. DOODLE OUTLINE CONFIGURATION
+# 2b. CEL-SHADED OUTLINE & STYLE CONFIGURATION
 # ════════════════════════════════════════════════════════════════════════════════
 
-## Doodle art style parameters for hand-drawn outline rendering.
-## "thickness_base" — base outline width in pixels.
-## "thickness_variance" — random per-segment thickness variation (±pixels).
-## "wobble_amplitude" — max pixel offset for hand-drawn wobble effect.
-## "wobble_frequency" — how often wobble direction changes per outline segment.
-## "ink_colors" — available doodle ink/pen line colors.
-## "sketch_marks_enabled" — whether to add decorative sketch marks (motion lines, blush, etc.).
-static func get_doodle_style() -> Dictionary:
+## Cel-shaded art style parameters for clean digital rendering.
+## "outline_thickness" — uniform outline width in pixels (no variance).
+## "outline_color" — single color for all outlines (pure black).
+## "shadow_intensity" — how much darker the shadow zone is vs base (0.0–1.0).
+## "highlight_intensity" — how much lighter the highlight zone is vs base (0.0–1.0).
+## "shading_style" — shading method: "cel" for flat zones with hard edges.
+## "eye_type" — character eye style: "dot" for small filled black circles.
+## "blush_enabled" — whether to draw blush marks on cheeks.
+static func get_cel_style() -> Dictionary:
 	return {
-		"thickness_base": 2.5,
-		"thickness_variance": 0.8,
-		"wobble_amplitude": 1.2,
-		"wobble_frequency": 0.3,
-		"color_bleed_pixels": 0.5,
-		"hatching_density": 0.4,
-		"sketch_marks_enabled": true,
-		"ink_colors": {
-			"soft_black": Color("2d2d2d"),
-			"warm_brown": Color("5c4033"),
-			"dark_blue": Color("2b3a67"),
-			"soft_gray": Color("7a7a7a"),
-		},
-		"fill_style": "hatched",  # "hatched", "cross_hatched", "scribble", "soft_fill"
+		"outline_thickness": 2,
+		"outline_color": Color(0, 0, 0, 1),
+		"shadow_intensity": 0.25,
+		"highlight_intensity": 0.2,
+		"shading_style": "cel",  # "cel" — flat zones, hard edges, no gradients
+		"fill_style": "flat",  # "flat" — solid color fills, no hatching or texture
 		"expression_style": {
-			"eye_type": "sparkle",  # "dot", "sparkle", "round"
-			"blush_enabled": true,
-			"blush_color": Color("ff9999"),
+			"eye_type": "dot",  # "dot" — small filled black circle
+			"blush_enabled": false,
 			"mouth_style": "simple_curve",
 		},
 	}
@@ -471,15 +463,15 @@ static func get_skin_palettes() -> Dictionary:
 			Color("6a4830"),
 			Color("886040"),
 		],
-		# Fantasy / non-human tones — pastel doodle palette
+		# Fantasy / non-human tones — cel-shaded palette
 		"green": [
-			Color("5a8a60"),  # shadow — pastel mint
+			Color("5a8a60"),  # shadow — vibrant mint
 			Color("80b888"),  # mid
 			Color("a8ddb0"),  # base
 			Color("d0f0d8"),  # highlight
 		],
 		"blue": [
-			Color("5070a0"),  # shadow — pastel sky blue
+			Color("5070a0"),  # shadow — vibrant sky blue
 			Color("78a0c8"),  # mid
 			Color("a0c8e8"),  # base
 			Color("c8e4f8"),  # highlight
@@ -491,12 +483,12 @@ static func get_skin_palettes() -> Dictionary:
 			Color("b8b8b8"),
 		],
 		"red": [
-			Color("a05858"),  # shadow — pastel rosy
+			Color("a05858"),  # shadow — vibrant rosy
 			Color("c88080"),  # mid
 			Color("e8a8a8"),  # base
 			Color("f8d0d0"),  # highlight
 		],
-		# Additional doodle fantasy palettes
+		# Additional fantasy palettes
 		"lavender": [
 			Color("7868a0"),  # shadow
 			Color("a090c8"),  # mid
