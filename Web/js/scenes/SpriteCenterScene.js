@@ -333,7 +333,7 @@ export class SpriteCenterScene extends Scene {
 
                 const canvas = this._equipPreviewCanvas;
                 const ctx = canvas.getContext('2d');
-                ctx.imageSmoothingEnabled = false;
+                ctx.imageSmoothingEnabled = true;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 const inst = this._equipPreviewInst;
@@ -1083,7 +1083,7 @@ export class SpriteCenterScene extends Scene {
         const detailCanvas = document.createElement('canvas');
         detailCanvas.width = 128;
         detailCanvas.height = 144;
-        detailCanvas.style.cssText = 'width:128px;height:144px;flex-shrink:0;image-rendering:pixelated;';
+        detailCanvas.style.cssText = 'width:128px;height:144px;flex-shrink:0;';
         const dCtx = detailCanvas.getContext('2d');
         UnitRenderer.draw(dCtx, inst, 64, 64, 112, {
             time: this._time,
@@ -1723,7 +1723,7 @@ export class SpriteCenterScene extends Scene {
         previewCanvas.width = 256;
         previewCanvas.height = 256;
         previewCanvas.style.cssText = `
-            width:192px;height:192px;image-rendering:pixelated;
+            width:192px;height:192px;
             border:1px solid rgba(255,255,255,0.12);border-radius:8px;
             background:rgba(0,0,0,0.4);
         `;
@@ -1737,7 +1737,7 @@ export class SpriteCenterScene extends Scene {
 
         // Initial draw
         const pCtx = previewCanvas.getContext('2d');
-        pCtx.imageSmoothingEnabled = false;
+        pCtx.imageSmoothingEnabled = true;
         const raceId = inst.raceId || inst.race_id || 1;
         const stage = inst.evolutionStage || inst.evolution_stage || 1;
         HumanoidSpriteSystem.drawWithEquipment(
@@ -2329,9 +2329,9 @@ export class SpriteCenterScene extends Scene {
             const curMiniCanvas = document.createElement('canvas');
             curMiniCanvas.width = 48;
             curMiniCanvas.height = 48;
-            curMiniCanvas.style.cssText = 'width:48px;height:48px;image-rendering:pixelated;border-radius:4px;background:rgba(0,0,0,0.3);flex-shrink:0;';
+            curMiniCanvas.style.cssText = 'width:48px;height:48px;border-radius:4px;background:rgba(0,0,0,0.3);flex-shrink:0;';
             const cmCtx = curMiniCanvas.getContext('2d');
-            cmCtx.imageSmoothingEnabled = false;
+            cmCtx.imageSmoothingEnabled = true;
             const raceId = inst.raceId || inst.race_id || 1;
             const stg = inst.evolutionStage || inst.evolution_stage || 1;
             HumanoidSpriteSystem.drawWithEquipment(
@@ -2450,9 +2450,9 @@ export class SpriteCenterScene extends Scene {
                 const miniCanvas = document.createElement('canvas');
                 miniCanvas.width = 40;
                 miniCanvas.height = 40;
-                miniCanvas.style.cssText = 'width:40px;height:40px;image-rendering:pixelated;border-radius:4px;background:rgba(0,0,0,0.3);flex-shrink:0;';
+                miniCanvas.style.cssText = 'width:40px;height:40px;border-radius:4px;background:rgba(0,0,0,0.3);flex-shrink:0;';
                 const mCtx = miniCanvas.getContext('2d');
-                mCtx.imageSmoothingEnabled = false;
+                mCtx.imageSmoothingEnabled = true;
 
                 // Build hypothetical equipment with this item
                 const hypotheticalEquip = { ...(inst.equipment || {}) };

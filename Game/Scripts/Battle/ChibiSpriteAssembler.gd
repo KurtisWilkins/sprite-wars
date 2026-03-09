@@ -2,17 +2,18 @@
 ## individual body parts at runtime. Each part is a separate Sprite2D node
 ## so it can be independently animated (arm swings, head bobs, etc.).
 ##
-## Art style: "Color Doodle Chibi" — hand-drawn, sketchy, colorful doodle art
-## with exaggerated chibi proportions. Outlines are wobbly/hand-drawn, shading
-## uses hatching, and eyes are large sparkle-style. Doodle parameters are
-## sourced from ChibiSpriteConfig.get_doodle_style(). All pixel art is generated
-## procedurally via Image + ImageTexture (no external texture files required).
+## Art style: "Flat Cel-Shaded Chibi" — clean digital illustration with uniform
+## 2px black outlines, vibrant saturated colors, and hard-edged shading (one
+## highlight zone and one shadow zone per color area, no gradients). Eyes are
+## simple filled black circles (dot eyes). No wobble, no hatching, no sketch
+## marks. All art is generated procedurally via Image + ImageTexture (no
+## external texture files required).
 ##
-## Doodle rendering features:
-##   - Wobbly/sketchy outlines via _draw_doodle_line() and _draw_doodle_rect_outline()
-##   - Hatching/scribble shading via _apply_doodle_hatching()
-##   - Sparkle or dot eyes via _draw_doodle_eyes()
-##   - Wobbly ellipse outlines via _draw_doodle_ellipse_outline()
+## Cel-shaded rendering features:
+##   - Clean uniform outlines via _draw_clean_line() and _draw_clean_rect_outline()
+##   - Hard-edged cel shading via _apply_cel_shading()
+##   - Simple dot eyes via _draw_cel_eyes()
+##   - Clean ellipse outlines via _draw_clean_ellipse_outline()
 ##   - Filled circle helper via _draw_filled_circle()
 ##
 ## Layer order (back to front):
@@ -50,6 +51,12 @@ const HANDLE_COLOR := Color(0.45, 0.30, 0.15)
 ## Weapon blade/metal color.
 const BLADE_COLOR := Color(0.75, 0.78, 0.82)
 
+## Cel-shading constants.
+const OUTLINE_THICKNESS := 2
+const OUTLINE_COLOR := Color(0, 0, 0, 1)  # Pure black
+const SHADOW_FACTOR := 0.75  # Shadow zone is 75% brightness of base
+const HIGHLIGHT_FACTOR := 1.25  # Highlight zone is 125% brightness of base
+
 
 # ── Public API ──────────────────────────────────────────────────────────────
 
@@ -65,11 +72,9 @@ const BLADE_COLOR := Color(0.75, 0.78, 0.82)
 ##   "weapon_type"       : String — sword, axe, mace, bow, staff, dagger, etc.
 ##   "facing"            : String — "left" or "right" (default "right")
 func assemble_sprite(config: Dictionary) -> Node2D:
-	# Doodle art style: all outlines use wobbly/sketchy lines, shading uses
-	# hatching, and eyes are drawn in the chibi doodle style (sparkle or dot).
-	# Style parameters come from ChibiSpriteConfig.get_doodle_style().
-	# The doodle config controls wobble amplitude/frequency, hatching density,
-	# eye type (sparkle/dot), blush marks, and ink color variations.
+	# Cel-shaded art style: all outlines use clean uniform 2px black lines,
+	# shading uses flat hard-edged shadow/highlight zones, and eyes are drawn
+	# as simple filled black circles (dot eyes). No wobble, no hatching.
 	var race_id: int = int(config.get("race_id", 0))
 	var stage: int = clampi(int(config.get("evolution_stage", 1)), 1, 3)
 	var skin_color_val = config.get("skin_color", DEFAULT_SKIN_COLOR)
@@ -158,7 +163,7 @@ func assemble_sprite(config: Dictionary) -> Node2D:
 
 ## Create the oversized chibi head (~26x24 px on a 64x64 canvas).
 ## Race ID controls shape variation; stage adds detail (horns, crest, etc.).
-## Eyes are rendered in doodle style (sparkle or dot) via _draw_doodle_eyes().
+## Eyes are rendered as simple dot eyes via _draw_cel_eyes().
 func _create_head(race_id: int, stage: int, skin_color: Color) -> Sprite2D:
 	var img := Image.create(CANVAS_SIZE, CANVAS_SIZE, false, Image.FORMAT_RGBA8)
 
@@ -176,29 +181,28 @@ func _create_head(race_id: int, stage: int, skin_color: Color) -> Sprite2D:
 	# Draw rounded head shape: an ellipse filled with skin color.
 	_draw_filled_ellipse(img, cx, cy, half_w, half_h, skin_color)
 
-	# Doodle hatching on the head fill for sketchy shading.
+	# Cel shading on the head fill — shadow zone on bottom-right, highlight on top-left.
 	var head_rect := Rect2i(left, top, half_w * 2, half_h * 2)
-	_apply_doodle_hatching(img, head_rect, skin_color, skin_color.darkened(0.20))
+	_apply_cel_shading(img, head_rect, skin_color)
 
-	# Outline — wobbly doodle ellipse instead of clean ellipse.
-	var outline_color := skin_color.darkened(0.35)
-	_draw_doodle_ellipse_outline(img, cx, cy, half_w, half_h, outline_color)
+	# Outline — clean uniform 2px black ellipse.
+	_draw_clean_ellipse_outline(img, cx, cy, half_w, half_h, OUTLINE_COLOR)
 
-	# ── Eyes — doodle style (sparkle / dot) ──────────────────────────────
+	# ── Eyes — simple filled black dot eyes ──────────────────────────────
 	var eye_color: Color = EYE_COLORS[race_id % EYE_COLORS.size()]
 	var head_rect_f := Rect2(
 		Vector2(float(left), float(top)),
 		Vector2(float(half_w * 2), float(half_h * 2))
 	)
-	_draw_doodle_eyes(img, head_rect_f, eye_color)
+	_draw_cel_eyes(img, head_rect_f, eye_color)
 
 	# ── Mouth ────────────────────────────────────────────────────────────
 	var mouth_y: int = cy + 5
 	var mouth_color := skin_color.darkened(0.25)
-	# Doodle-style wobbly mouth line instead of straight pixels.
+	# Clean straight mouth line.
 	var mouth_from := Vector2(float(cx - 2), float(mouth_y))
 	var mouth_to := Vector2(float(cx + 2), float(mouth_y))
-	_draw_doodle_line(img, mouth_from, mouth_to, mouth_color, 1.0)
+	_draw_clean_line(img, mouth_from, mouth_to, mouth_color)
 
 	# ── Race-based features ──────────────────────────────────────────────
 	# Odd races get pointed ears; even races get round cheeks.
@@ -212,8 +216,7 @@ func _create_head(race_id: int, stage: int, skin_color: Color) -> Sprite2D:
 				img.set_pixel(cx - ear_x_offset, ear_y_pos, ear_color)
 			if cx + ear_x_offset < CANVAS_SIZE and ear_y_pos >= 0:
 				img.set_pixel(cx + ear_x_offset - 1, ear_y_pos, ear_color)
-	# Note: blush for even races is now handled by _draw_doodle_eyes() when
-	# blush_enabled is true in ChibiSpriteConfig.get_doodle_style().
+	# Note: even races have round cheeks (no blush marks in cel-shaded style).
 
 	# ── Stage detail (evolution) ─────────────────────────────────────────
 	if stage >= 2:
@@ -236,7 +239,7 @@ func _create_head(race_id: int, stage: int, skin_color: Color) -> Sprite2D:
 # ── Body ────────────────────────────────────────────────────────────────────
 
 ## Create the small torso (~16x14 px). Chest equipment overlays armor color.
-## Doodle hatching is applied to the armor area and outlines are wobbly.
+## Cel shading is applied to the armor area; outlines are clean uniform 2px black.
 func _create_body(race_id: int, stage: int, equipment: Dictionary) -> Sprite2D:
 	var img := Image.create(CANVAS_SIZE, CANVAS_SIZE, false, Image.FORMAT_RGBA8)
 
@@ -263,9 +266,9 @@ func _create_body(race_id: int, stage: int, equipment: Dictionary) -> Sprite2D:
 	# Armor covers the top 10 rows of the body (chest plate area).
 	_draw_rect_filled(img, bx + 1, by + 1, body_w - 2, 10, armor_color)
 
-	# Doodle hatching on the armor area for sketchy shading.
+	# Cel shading on the armor area — shadow on bottom-right, highlight on top-left.
 	var armor_rect := Rect2i(bx + 1, by + 1, body_w - 2, 10)
-	_apply_doodle_hatching(img, armor_rect, armor_color, armor_color.darkened(0.25))
+	_apply_cel_shading(img, armor_rect, armor_color)
 
 	# Armor highlight strip across the chest.
 	var highlight := armor_color.lightened(0.25)
@@ -278,9 +281,8 @@ func _create_body(race_id: int, stage: int, equipment: Dictionary) -> Sprite2D:
 	var buckle_color := Color(0.80, 0.70, 0.30)
 	_draw_rect_filled(img, cx - 1, by + body_h - 3, 2, 2, buckle_color)
 
-	# Outline — wobbly doodle outline instead of clean rectangle.
-	var outline := base_color.darkened(0.35)
-	_draw_doodle_rect_outline(img, bx, by, body_w, body_h, outline)
+	# Outline — clean uniform 2px black rectangle.
+	_draw_clean_rect_outline(img, bx, by, body_w, body_h, OUTLINE_COLOR)
 
 	# Stage 3 shoulder pads.
 	if stage >= 3:
@@ -297,7 +299,7 @@ func _create_body(race_id: int, stage: int, equipment: Dictionary) -> Sprite2D:
 
 ## Create an arm sprite (~4x10 px). The pivot is at the shoulder (top of the
 ## arm) so rotation animates naturally. We achieve this via Sprite2D.offset.
-## Outlines use doodle-style wobbly lines.
+## Outlines use clean uniform 2px black lines.
 func _create_arm(is_front: bool, skin_color: Color, glove_visuals: Dictionary) -> Sprite2D:
 	var img := Image.create(CANVAS_SIZE, CANVAS_SIZE, false, Image.FORMAT_RGBA8)
 
@@ -318,9 +320,8 @@ func _create_arm(is_front: bool, skin_color: Color, glove_visuals: Dictionary) -
 		glove_color = skin_color.darkened(0.10)
 	_draw_rect_filled(img, ax, ay + arm_h - 3, arm_w, 3, glove_color)
 
-	# Outline — wobbly doodle outline.
-	var outline := skin_color.darkened(0.30)
-	_draw_doodle_rect_outline(img, ax, ay, arm_w, arm_h, outline)
+	# Outline — clean uniform 2px black outline.
+	_draw_clean_rect_outline(img, ax, ay, arm_w, arm_h, OUTLINE_COLOR)
 
 	# Shoulder joint dot (1 px highlight at top-center).
 	var shoulder_highlight := skin_color.lightened(0.20)
@@ -339,7 +340,7 @@ func _create_arm(is_front: bool, skin_color: Color, glove_visuals: Dictionary) -
 # ── Legs ────────────────────────────────────────────────────────────────────
 
 ## Create leg sprites (~12x10 px). Two stubby legs side by side.
-## Outlines use doodle-style wobbly lines; pant areas get hatching.
+## Outlines use clean uniform 2px black lines; pant areas get cel shading.
 func _create_legs(race_id: int, stage: int, leg_visuals: Dictionary, boot_visuals: Dictionary) -> Sprite2D:
 	var img := Image.create(CANVAS_SIZE, CANVAS_SIZE, false, Image.FORMAT_RGBA8)
 
@@ -369,15 +370,15 @@ func _create_legs(race_id: int, stage: int, leg_visuals: Dictionary, boot_visual
 	var ly: int = cy - leg_h / 2
 	_draw_rect_filled(img, lx, ly, leg_w, leg_h - 3, pant_color)
 	_draw_rect_filled(img, lx, ly + leg_h - 3, leg_w, 3, boot_color)
-	_apply_doodle_hatching(img, Rect2i(lx, ly, leg_w, leg_h - 3), pant_color, pant_color.darkened(0.20))
-	_draw_doodle_rect_outline(img, lx, ly, leg_w, leg_h, pant_color.darkened(0.30))
+	_apply_cel_shading(img, Rect2i(lx, ly, leg_w, leg_h - 3), pant_color)
+	_draw_clean_rect_outline(img, lx, ly, leg_w, leg_h, OUTLINE_COLOR)
 
 	# Right leg.
 	var rx: int = cx + gap / 2
 	_draw_rect_filled(img, rx, ly, leg_w, leg_h - 3, pant_color)
 	_draw_rect_filled(img, rx, ly + leg_h - 3, leg_w, 3, boot_color)
-	_apply_doodle_hatching(img, Rect2i(rx, ly, leg_w, leg_h - 3), pant_color, pant_color.darkened(0.20))
-	_draw_doodle_rect_outline(img, rx, ly, leg_w, leg_h, pant_color.darkened(0.30))
+	_apply_cel_shading(img, Rect2i(rx, ly, leg_w, leg_h - 3), pant_color)
+	_draw_clean_rect_outline(img, rx, ly, leg_w, leg_h, OUTLINE_COLOR)
 
 	# Stage 2+ boot detail — add a strap.
 	if stage >= 2:

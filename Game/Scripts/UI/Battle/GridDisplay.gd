@@ -2,6 +2,9 @@
 ## Draws grid lines, terrain highlights, and manages per-cell sprite visuals.
 ## Positions itself within the parent BattleUI, using cell_size to map between
 ## grid coordinates and screen space.
+##
+## Art style: flat cel-shaded -- clean straight lines, uniform 2px black outlines,
+## flat solid colors, no gradients, no wobble.
 extends Node2D
 
 ## -- Configuration ------------------------------------------------------------
@@ -29,10 +32,13 @@ var _move_tweens: Dictionary = {}
 
 ## -- Color Palette ------------------------------------------------------------
 
-const COLOR_GRID_LINE := Color(0.35, 0.4, 0.5, 0.6)
-const COLOR_PLAYER_CELL := Color(0.2, 0.35, 0.55, 0.15)
-const COLOR_ENEMY_CELL := Color(0.55, 0.2, 0.2, 0.15)
-const COLOR_DIVIDER := Color(0.9, 0.85, 0.6, 0.45)
+## Flat cel-shaded palette -- solid colors, no gradients.
+const COLOR_GRID_LINE := Color(0.0, 0.0, 0.0, 0.7)        # Clean black grid lines
+const COLOR_PLAYER_CELL := Color(0.2, 0.45, 0.7, 0.18)     # Flat blue tint
+const COLOR_ENEMY_CELL := Color(0.7, 0.2, 0.2, 0.18)       # Flat red tint
+const COLOR_DIVIDER := Color(1.0, 0.85, 0.15, 0.9)         # Vibrant gold divider
+const GRID_LINE_WIDTH: float = 2.0                          # Uniform 2px outlines
+const DIVIDER_LINE_WIDTH: float = 2.0                       # Uniform 2px outlines
 
 ## -- Initialization -----------------------------------------------------------
 
@@ -83,13 +89,13 @@ func _draw_grid_lines() -> void:
 	for y in range(grid_height + 1):
 		var start := Vector2(grid_origin.x, grid_origin.y + float(y) * cell_size.y)
 		var end := Vector2(grid_origin.x + total_w, start.y)
-		draw_line(start, end, COLOR_GRID_LINE, 1.0)
+		draw_line(start, end, COLOR_GRID_LINE, GRID_LINE_WIDTH)
 
 	# Vertical lines.
 	for x in range(grid_width + 1):
 		var start := Vector2(grid_origin.x + float(x) * cell_size.x, grid_origin.y)
 		var end := Vector2(start.x, grid_origin.y + total_h)
-		draw_line(start, end, COLOR_GRID_LINE, 1.0)
+		draw_line(start, end, COLOR_GRID_LINE, GRID_LINE_WIDTH)
 
 
 ## Draw the center divider between teams.
@@ -97,7 +103,7 @@ func _draw_divider() -> void:
 	var y_pos: float = grid_origin.y + 4.0 * cell_size.y
 	var start := Vector2(grid_origin.x, y_pos)
 	var end := Vector2(grid_origin.x + float(grid_width) * cell_size.x, y_pos)
-	draw_line(start, end, COLOR_DIVIDER, 3.0)
+	draw_line(start, end, COLOR_DIVIDER, DIVIDER_LINE_WIDTH)
 
 
 ## Draw all active cell highlights.

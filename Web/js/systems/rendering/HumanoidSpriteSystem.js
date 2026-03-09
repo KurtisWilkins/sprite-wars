@@ -207,7 +207,7 @@ export class HumanoidSpriteSystem {
         const halfSize = size / 2;
 
         // Clean cel-shaded style: crisp positioning, no jitter
-        ctx.imageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = true;
         ctx.drawImage(sheet,
             sx, sy, FRAME_SIZE, FRAME_SIZE,
             x - halfSize, y - size, size, size
@@ -257,7 +257,7 @@ export class HumanoidSpriteSystem {
         sheet.width  = FRAME_SIZE * SHEET_COLS;
         sheet.height = FRAME_SIZE * SHEET_ROWS;
         const ctx = sheet.getContext('2d');
-        ctx.imageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = true;
 
         const race = SPRITE_RACES.find(r => r.race_id === raceId);
         const elemType = (race && race.element_types && race.element_types[0]) || 'Fire';
@@ -406,7 +406,7 @@ export class HumanoidSpriteSystem {
         }
 
         // ── Weapon overlay ─────────────────────────────────────
-        this._drawWeaponPixel(ctx, cx, shoulderY, armH, dir, frame, weaponType,
+        this._drawWeaponOverlay(ctx, cx, shoulderY, armH, dir, frame, weaponType,
             colors, themeImg, raceTheme, eqData.weapon, armorTier);
 
         // ── Ring overlay ───────────────────────────────────────
@@ -432,9 +432,9 @@ export class HumanoidSpriteSystem {
     // ═══════════════════════════════════════════════════════════════════════════
 
     /**
-     * Draw weapon as pixel art (procedural or from theme sheet).
+     * Draw weapon overlay (procedural or from theme sheet).
      */
-    static _drawWeaponPixel(ctx, cx, shoulderY, armH, dir, frame, weaponType,
+    static _drawWeaponOverlay(ctx, cx, shoulderY, armH, dir, frame, weaponType,
                              colors, themeImg, raceTheme, weaponData, armorTier) {
         // Position weapon relative to character's hand (scaled for 64x64)
         let wx, wy;
@@ -459,7 +459,7 @@ export class HumanoidSpriteSystem {
                 break;
         }
 
-        // Priority 1: Per-item visual config (procedural pixel-art weapon)
+        // Priority 1: Per-item visual config (procedural cel-shaded weapon)
         // Matches the rendering priority used by helmet and chest overlays
         const eqId = weaponData ? (weaponData.equipment_id || 0) : 0;
         const visualConfig = eqId ? getVisualConfig(eqId) : null;
@@ -480,7 +480,7 @@ export class HumanoidSpriteSystem {
                 if (srcX + equipRow.cellW <= themeImg.width &&
                     srcY + equipRow.cellH <= themeImg.height) {
                     ctx.save();
-                    ctx.imageSmoothingEnabled = false;
+                    ctx.imageSmoothingEnabled = true;
                     const drawW = Math.floor(equipRow.cellW * 0.6);
                     const drawH = Math.floor(equipRow.cellH * 0.6);
 
@@ -537,7 +537,7 @@ export class HumanoidSpriteSystem {
             srcY + equipRow.cellH > themeImg.height) return;
 
         ctx.save();
-        ctx.imageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = true;
         ctx.globalAlpha = 0.85;
         ctx.drawImage(themeImg,
             srcX, srcY, equipRow.cellW, equipRow.cellH,

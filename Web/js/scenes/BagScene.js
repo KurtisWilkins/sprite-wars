@@ -813,7 +813,7 @@ export class BagScene extends Scene {
         const previewCanvas = document.createElement('canvas');
         previewCanvas.width = 28;
         previewCanvas.height = 36;
-        previewCanvas.style.cssText = 'flex-shrink:0;image-rendering:pixelated;';
+        previewCanvas.style.cssText = 'flex-shrink:0;';
         const pCtx = previewCanvas.getContext('2d');
         // Build equipment object with just this one piece
         const previewEquip = {};
@@ -934,7 +934,7 @@ export class BagScene extends Scene {
         const detailPreviewCanvas = document.createElement('canvas');
         detailPreviewCanvas.width = 56;
         detailPreviewCanvas.height = 56;
-        detailPreviewCanvas.style.cssText = 'display:block;margin:0 auto 8px auto;image-rendering:pixelated;';
+        detailPreviewCanvas.style.cssText = 'display:block;margin:0 auto 8px auto;';
         const dpCtx = detailPreviewCanvas.getContext('2d');
         const detailPreviewEquip = {};
         detailPreviewEquip[def.slot_type] = def.equipment_id;

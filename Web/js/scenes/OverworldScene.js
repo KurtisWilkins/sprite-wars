@@ -1,10 +1,12 @@
 /**
- * OverworldScene - Exploration scene with tilemap, player, NPCs, encounters.
- * Renders all world visuals on Canvas. Handles player movement, NPC
- * interaction, random/scripted encounters, and area transitions.
+ * OverworldScene - Procedural cel-shaded overworld with player, NPCs, encounters.
+ * Renders all world visuals procedurally on Canvas using flat cel-shaded tiles
+ * with clean outlines, hard-edged highlights/shadows, and simple decorations.
+ * Handles player movement, NPC interaction, random/scripted encounters, and
+ * area transitions.
  *
- * Ported from Game/Scripts/UI/Battle/... overworld concepts.
- * Grid uses the engine's tile renderer with camera follow.
+ * Art style: flat cel-shaded, clean black outlines, vibrant saturated fantasy
+ * color palette, hard-edged shading, no gradients, clean digital illustration.
  */
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
@@ -93,6 +95,50 @@ const DIR = {
     right: { x: 1, y: 0 },
 };
 
+// ── Cel-shaded tile color palette ─────────────────────────────────────────
+// Each tile type maps to a base color, shadow, highlight, and name for
+// procedural cel-shaded rendering. No external tileset images are used.
+const TILE_COLORS = {
+    0:  { base: '#5cb85c', shadow: '#4a9a4a', highlight: '#6ed46e', name: 'grass' },
+    1:  { base: '#c4a96a', shadow: '#a89058', highlight: '#d8be80', name: 'path' },
+    2:  { base: '#c4a96a', shadow: '#a89058', highlight: '#d8be80', name: 'path_v' },
+    3:  { base: '#d0b878', shadow: '#b8a060', highlight: '#e0cc90', name: 'crossroad' },
+    4:  { base: '#4a90d9', shadow: '#3a78c0', highlight: '#5ca8f0', name: 'water' },
+    5:  { base: '#5a9ae0', shadow: '#4882c8', highlight: '#6cb0f4', name: 'water_edge' },
+    6:  { base: '#2a6a2a', shadow: '#1e5620', highlight: '#388038', name: 'tree_dark' },
+    7:  { base: '#3a7a3a', shadow: '#2d6630', highlight: '#4a9a4a', name: 'tree_light' },
+    8:  { base: '#5cb85c', shadow: '#4a9a4a', highlight: '#6ed46e', name: 'flowers' },
+    9:  { base: '#8a8a8a', shadow: '#707070', highlight: '#a0a0a0', name: 'stone' },
+    10: { base: '#6a5040', shadow: '#584030', highlight: '#7c6252', name: 'wall' },
+    11: { base: '#b84040', shadow: '#a03030', highlight: '#d05050', name: 'roof' },
+    12: { base: '#6a4028', shadow: '#583020', highlight: '#7c5038', name: 'door' },
+    13: { base: '#8a7a5a', shadow: '#746648', highlight: '#a09070', name: 'fence' },
+    14: { base: '#8a7050', shadow: '#745c3c', highlight: '#a08464', name: 'bridge' },
+    15: { base: '#a0a060', shadow: '#88884a', highlight: '#b8b878', name: 'sign' },
+    16: { base: '#c09030', shadow: '#a07828', highlight: '#d8a840', name: 'chest' },
+    17: { base: '#e0b840', shadow: '#c8a030', highlight: '#f0d058', name: 'lamp' },
+    18: { base: '#70b0d0', shadow: '#5898b8', highlight: '#88c8e8', name: 'fountain' },
+    19: { base: '#505050', shadow: '#3c3c3c', highlight: '#646464', name: 'stairs' },
+    20: { base: '#b84040', shadow: '#a03030', highlight: '#d05050', name: 'roof_peak' },
+    21: { base: '#6a5040', shadow: '#584030', highlight: '#7c6252', name: 'wall_wood' },
+    22: { base: '#6a4428', shadow: '#583420', highlight: '#7c5438', name: 'barrel' },
+    23: { base: '#4a9a3a', shadow: '#3a822e', highlight: '#5ab24a', name: 'tall_grass' },
+    24: { base: '#c04040', shadow: '#a83030', highlight: '#d85858', name: 'mushroom' },
+    25: { base: '#6a5438', shadow: '#584428', highlight: '#7c6448', name: 'stump' },
+    26: { base: '#1e5a1e', shadow: '#144a14', highlight: '#2a6e2a', name: 'big_tree_tl' },
+    27: { base: '#1e5a1e', shadow: '#144a14', highlight: '#2a6e2a', name: 'big_tree_tr' },
+    28: { base: '#4a3420', shadow: '#3a2818', highlight: '#5c4430', name: 'big_tree_bl' },
+    29: { base: '#4a3420', shadow: '#3a2818', highlight: '#5c4430', name: 'big_tree_br' },
+    30: { base: '#7a5838', shadow: '#644828', highlight: '#906848', name: 'crate' },
+    31: { base: '#b84040', shadow: '#a03030', highlight: '#d05050', name: 'roof_left' },
+    32: { base: '#b84040', shadow: '#a03030', highlight: '#d05050', name: 'roof_right' },
+    33: { base: '#6a5040', shadow: '#584030', highlight: '#7c6252', name: 'wall_window' },
+    34: { base: '#8a8a8a', shadow: '#707070', highlight: '#a0a0a0', name: 'stone_path' },
+};
+
+// Default fallback for unknown tile indices
+const DEFAULT_TILE_COLOR = { base: '#5cb85c', shadow: '#4a9a4a', highlight: '#6ed46e', name: 'unknown' };
+
 // ── Default region map data (used when no external map loaded) ─────────────
 const DEFAULT_MAP_WIDTH = 24;
 const DEFAULT_MAP_HEIGHT = 24;
@@ -104,7 +150,6 @@ export class OverworldScene extends Scene {
         // Region / map state
         this._currentRegion = 'starter_town';
         this._mapData = null;      // { width, height, layers[], collisionMap[], npcs[], transitions[], encounterZones[] }
-        this._tilesetImg = null;
 
         // Player
         this._player = {
@@ -436,14 +481,6 @@ export class OverworldScene extends Scene {
         this._mapData = regionData;
         this._mapPixelWidth = (this._mapData.width || DEFAULT_MAP_WIDTH) * TILE_SIZE;
         this._mapPixelHeight = (this._mapData.height || DEFAULT_MAP_HEIGHT) * TILE_SIZE;
-
-        // Load tileset for this region
-        const tilesetPath = this._mapData.tileset || 'Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png';
-        try {
-            this._tilesetImg = await this.engine.assets.loadImage(tilesetPath);
-        } catch (_) {
-            this._tilesetImg = null;
-        }
 
         // Set up NPCs
         this._npcs = (this._mapData.npcs || []).map((npcDef, idx) => ({
@@ -1364,28 +1401,13 @@ export class OverworldScene extends Scene {
 
         const mapWidth = this._mapData ? this._mapData.width : DEFAULT_MAP_WIDTH;
 
-        // Tileset config: source tile size (16 for Rogue Adventure) and tile index mapping
-        const tsTileSize = (this._mapData && this._mapData.tilesetTileSize) || TILE_SIZE;
-        const tileMap = this._mapData && this._mapData.tileIndexMap;
-
         // ── PASS 1: Draw floor tile (tile 0) at every visible position ──
         // This ensures no black gaps between decorative tiles
-        const floorMapped = tileMap ? tileMap[0] : 0;
         for (let y = startRow; y <= endRow; y++) {
             for (let x = startCol; x <= endCol; x++) {
                 const worldX = x * TILE_SIZE;
                 const worldY = y * TILE_SIZE;
-
-                if (this._tilesetImg && floorMapped !== undefined && floorMapped >= 0) {
-                    renderer.drawTile(
-                        this._tilesetImg, floorMapped, tsTileSize,
-                        worldX, worldY, TILE_DRAW_SIZE
-                    );
-                } else {
-                    // Fallback: grass/stone floor color (tile 0)
-                    const floorColor = this._getTileFallbackColor(0);
-                    renderer.drawRect(worldX, worldY, TILE_DRAW_SIZE, TILE_DRAW_SIZE, floorColor);
-                }
+                this._drawCelShadedTile(ctx, 0, worldX - camX, worldY - camY, TILE_DRAW_SIZE, x, y);
             }
         }
 
@@ -1399,18 +1421,7 @@ export class OverworldScene extends Scene {
 
                         const worldX = x * TILE_SIZE;
                         const worldY = y * TILE_SIZE;
-
-                        const mappedIndex = tileMap ? tileMap[tileIndex] : tileIndex;
-                        if (this._tilesetImg && mappedIndex !== undefined && mappedIndex >= 0) {
-                            renderer.drawTile(
-                                this._tilesetImg, mappedIndex, tsTileSize,
-                                worldX, worldY, TILE_DRAW_SIZE
-                            );
-                        } else {
-                            // Fallback: color-coded tiles
-                            const color = this._getTileFallbackColor(tileIndex);
-                            renderer.drawRect(worldX, worldY, TILE_DRAW_SIZE, TILE_DRAW_SIZE, color);
-                        }
+                        this._drawCelShadedTile(ctx, tileIndex, worldX - camX, worldY - camY, TILE_DRAW_SIZE, x, y);
                     }
                 }
             }
@@ -2290,7 +2301,7 @@ export class OverworldScene extends Scene {
         try {
             const ctx = renderer.ctx || renderer._ctx;
             if (ctx) {
-                ctx.imageSmoothingEnabled = false;
+                ctx.imageSmoothingEnabled = true;
                 HumanoidSpriteSystem.drawWithEquipment(
                     ctx, raceId, stage, dir, animFrame,
                     px, py + halfSize * 0.3, PLAYER_SIZE,
@@ -2337,7 +2348,7 @@ export class OverworldScene extends Scene {
                     const dir = dirMap[npc.facing] || 0;
                     const animFrame = npc.moving ? ((npc.animFrame || 0) % 4) : 0;
                     const npcSize = NPC_DRAW_HALFSIZE * 2;
-                    ctx.imageSmoothingEnabled = false;
+                    ctx.imageSmoothingEnabled = true;
                     HumanoidSpriteSystem.drawWithEquipment(
                         ctx, npc.raceId, npc.stage || 1, dir, animFrame,
                         npc.x, npc.y + NPC_DRAW_HALFSIZE * 0.3, npcSize,

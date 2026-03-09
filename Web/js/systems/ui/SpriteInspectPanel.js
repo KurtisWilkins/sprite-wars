@@ -288,7 +288,7 @@ export class SpriteInspectPanel {
         const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 288;
-        canvas.style.cssText = 'width: 160px; height: 180px; flex-shrink: 0; image-rendering: pixelated;';
+        canvas.style.cssText = 'width: 160px; height: 180px; flex-shrink: 0;';
         const ctx = canvas.getContext('2d');
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, d.raceId, d.evolutionStage, d.facing, 0,
@@ -659,7 +659,6 @@ export class SpriteInspectPanel {
             position: absolute; left: 50%; top: 50%;
             transform: translate(-50%, -50%);
             width: 72px; height: 84px;
-            image-rendering: pixelated;
         `;
         const dollCtx = dollCanvas.getContext('2d');
         HumanoidSpriteSystem.drawWithEquipment(
@@ -972,7 +971,7 @@ export class SpriteInspectPanel {
             const miniCanvas = document.createElement('canvas');
             miniCanvas.width = 48;
             miniCanvas.height = 54;
-            miniCanvas.style.cssText = 'width: 48px; height: 54px; image-rendering: pixelated;';
+            miniCanvas.style.cssText = 'width: 48px; height: 54px;';
             const mCtx = miniCanvas.getContext('2d');
             HumanoidSpriteSystem.drawWithEquipment(
                 mCtx, d.raceId, stageNum, 0, 0,

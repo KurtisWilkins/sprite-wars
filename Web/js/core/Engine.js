@@ -63,7 +63,7 @@ export class Engine {
         this.canvas.style.width = `${this.designWidth * this.scale}px`;
         this.canvas.style.height = `${this.designHeight * this.scale}px`;
 
-        this.ctx.imageSmoothingEnabled = false;
+        this.ctx.imageSmoothingEnabled = true;
     }
 
     start() {

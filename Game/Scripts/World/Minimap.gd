@@ -1,6 +1,10 @@
 ## Minimap — Renders a miniature overhead view of the current area with a
 ## player position marker, fog-of-war, and discovered area tracking.
 ## [P5-018] Displayed as a corner overlay in the overworld HUD.
+##
+## Art Style: Flat cel-shaded. Minimap renders with flat solid colors, clean
+## hard edges, and no sketch or doodle effects. Fog-of-war uses a flat opaque
+## fill. Player marker and borders use clean geometric shapes with uniform lines.
 extends Control
 
 ## ── Node References ─────────────────────────────────────────────────────────
@@ -204,10 +208,10 @@ func _update_rendered_texture() -> void:
 
 
 func _draw_minimap() -> void:
-	# Draw background
+	# Draw background — flat solid fill, cel-shaded style
 	draw_rect(Rect2(Vector2.ZERO, minimap_size), Color(0.05, 0.05, 0.1, 0.8))
 
-	# Draw border
+	# Draw border — clean uniform-thickness black outline
 	draw_rect(Rect2(Vector2.ZERO, minimap_size), Color(0.5, 0.5, 0.6, 0.8), false, 2.0)
 
 	# If no map loaded, just show the background
@@ -224,11 +228,11 @@ func _draw_minimap() -> void:
 	var offset: Vector2 = (minimap_size - scaled_size) * 0.5
 	draw_texture_rect(_rendered_texture, Rect2(offset, scaled_size), false)
 
-	# Draw player marker
+	# Draw player marker — clean filled circle, flat color
 	var marker_pos: Vector2 = _world_to_minimap(_player_world_pos)
 	draw_circle(marker_pos, 3.0, player_marker_color)
 
-	# Draw a small direction indicator
+	# Draw a small direction indicator — clean straight line
 	var dir: Vector2 = Vector2.DOWN  # Default; would use player facing_direction
 	draw_line(marker_pos, marker_pos + dir * 4.0, player_marker_color, 1.5)
 

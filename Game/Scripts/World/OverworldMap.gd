@@ -1,6 +1,11 @@
 ## OverworldMap — Manages the tile-based overworld map, collision, encounter zones,
 ## area transitions, and placed objects.
 ## [P5-001] Core map system for all overworld navigation.
+##
+## Art Style: Flat cel-shaded. All tile art uses flat saturated colors with clean
+## black outlines of uniform thickness. No gradients or pixel-art tilemap textures.
+## Shading is hard-edged (two-tone light/shadow per surface). Tiles use clean
+## geometric shapes — no hand-drawn or sketchy edges.
 extends Node2D
 
 ## ── Node References ─────────────────────────────────────────────────────────
@@ -44,7 +49,8 @@ signal object_placed(object: Node, grid_pos: Vector2i)
 
 ## Loads tileset, map layers, transitions, and placed objects from a data dict.
 ## Expected keys:
-##   tileset_path: String - res:// path to the TileSet resource
+##   tileset_path: String - res:// path to the TileSet resource (cel-shaded tiles:
+##       flat colors, clean black outlines, hard-edged shading, no gradients)
 ##   layers: Array[Dictionary] - per-layer tile data {layer_index, cells: [{pos: Vector2i, source_id, atlas_coords, alternative}]}
 ##   transitions: Dictionary {area_id: {x, y, w, h}}
 ##   objects: Array[Dictionary] - see place_objects()
@@ -53,7 +59,8 @@ signal object_placed(object: Node, grid_pos: Vector2i)
 func load_map(map_data: Dictionary) -> void:
 	_clear_map()
 
-	# Load tileset
+	# Load tileset — expects cel-shaded tile art: flat colors with clean uniform
+	# black outlines, hard-edged shading, no gradients or pixel-art textures.
 	var tileset_path: String = map_data.get("tileset_path", "")
 	if not tileset_path.is_empty():
 		var tileset := load(tileset_path) as TileSet
