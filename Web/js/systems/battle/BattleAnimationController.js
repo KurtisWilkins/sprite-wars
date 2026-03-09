@@ -252,6 +252,9 @@ export class BattleAnimationController {
         const strikeInterval = specialData.strike_interval;
         const hasTeleport = specialData.has_teleport;
         const shake = specialData.shake_intensity;
+        const vfxStyle = specialData.vfx_style || null;
+        const flashColor = specialData.flash_color || null;
+        const element = attacker.element || attacker.elementType || '';
 
         let dirX = 1, dirY = 0;
         if (target) {
@@ -341,6 +344,18 @@ export class BattleAnimationController {
         state._totalDuration = totalDur;
         state._attackDir = { x: dirX, y: dirY };
         state._isAttacking = true;
+
+        // Schedule class-special VFX at impact time
+        if (vfxStyle && vfxSystem && field && target) {
+            const vfxTime = totalDur * 0.5;
+            state._pendingVfx.push({
+                time: vfxTime,
+                fn: () => {
+                    const scr = field.worldToScreen(target.worldPos.x, target.worldPos.y);
+                    vfxSystem.spawnClassSpecialVFX(scr.x, scr.y - 24, vfxStyle, element, flashColor);
+                },
+            });
+        }
 
         // Screen shake on final impact
         if (shake > 0) {
@@ -789,7 +804,7 @@ export class BattleAnimationController {
             { prop: 'offsetX', from: 0, to: -lx * 0.15, start: 0, dur: windUp, ease: easeOutQuad },
             { prop: 'offsetX', from: -lx * 0.15, to: lx, start: windUp, dur: strike, ease: easeOutExpo },
             { prop: 'flashAlpha', from: 0, to: 0.6, start: windUp, dur: strike * 0.5, ease: easeOutExpo,
-              extra: () => { } },
+              extra: (state) => { state.flashColor = 'rgba(255, 153, 26, 0.6)'; } },
             { prop: 'flashAlpha', from: 0.6, to: 0, start: windUp + strike * 0.5, dur: strike * 0.5, ease: easeInQuad },
             { prop: 'offsetX', from: lx, to: 0, start: windUp + strike, dur: recovery, ease: easeOutQuad },
         ];

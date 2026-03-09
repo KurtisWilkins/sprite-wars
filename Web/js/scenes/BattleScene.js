@@ -25,6 +25,7 @@ import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
 import { ABILITIES } from '../data/AbilityData.js';
 import { rollBattleLoot, formatLootForDisplay } from '../systems/battle/BattleLootSystem.js';
+import { getClassSpecial } from '../data/ClassSpecialAnimations.js';
 
 // ── Layout Constants ────────────────────────────────────────────────────────
 const GRID_PADDING_X = 24;
@@ -627,11 +628,12 @@ export class BattleScene extends Scene {
         const progress = Math.min(1, this._animTimer / anim.duration);
         const ability = anim.ability;
         const elemColor = ELEMENT_COLORS[ability.elementType] || '#ffffff';
+        const flashColor = anim.flashColor || elemColor;
 
-        // Phase 1 (0-0.3): Screen flash with element color
+        // Phase 1 (0-0.3): Screen flash with class-specific or element color
         if (progress < 0.3) {
             const flashAlpha = (1 - progress / 0.3) * 0.2;
-            ctx.fillStyle = elemColor;
+            ctx.fillStyle = flashColor;
             ctx.globalAlpha = flashAlpha;
             ctx.fillRect(0, 0, this.engine.designWidth, this.engine.designHeight);
             ctx.globalAlpha = 1;
@@ -661,8 +663,131 @@ export class BattleScene extends Scene {
             }
         }
 
+        // Phase 2b (0.2-0.7): Class-specific VFX overlay at target
+        if (anim.vfxStyle && progress >= 0.2 && progress < 0.7) {
+            const targetPos = anim.targetPos;
+            if (targetPos) {
+                const cellStep = CELL_SIZE + CELL_GAP;
+                const tx = this._gridOriginX + targetPos.x * cellStep + CELL_SIZE / 2;
+                const ty = this._gridOriginY + targetPos.y * cellStep + CELL_SIZE / 2;
+                const vfxProgress = (progress - 0.2) / 0.5;
+                this._drawGridVFX(ctx, anim.vfxStyle, tx, ty, vfxProgress, elemColor, flashColor, anim.strikeCount || 1);
+            }
+        }
+
         // Phase 3 (0.1-0.35): Shake the target unit slightly
         // This is handled in _renderUnits via _currentAnim reference
+    }
+
+    /**
+     * Draw class-specific VFX overlay on the grid battlefield.
+     * Cel-shaded style: flat colors, black outlines, geometric shapes.
+     */
+    _drawGridVFX(ctx, vfxStyle, x, y, progress, elemColor, flashColor, strikeCount) {
+        ctx.save();
+        switch (vfxStyle) {
+            case 'arrow_rain': {
+                // Multiple arrows falling from above
+                const count = strikeCount || 5;
+                for (let i = 0; i < count; i++) {
+                    const t = (progress * 3 + i * 0.2) % 1;
+                    const ax = x + (i - count / 2) * 8;
+                    const ay = y - 40 + t * 50;
+                    const alpha = t < 0.8 ? 0.7 : (1 - t) * 3.5;
+                    ctx.globalAlpha = alpha;
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(ax, ay - 8);
+                    ctx.lineTo(ax, ay + 8);
+                    ctx.stroke();
+                    // Arrowhead
+                    ctx.fillStyle = flashColor;
+                    ctx.beginPath();
+                    ctx.moveTo(ax, ay + 8);
+                    ctx.lineTo(ax - 3, ay + 4);
+                    ctx.lineTo(ax + 3, ay + 4);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                }
+                break;
+            }
+            case 'arcane_explosion': {
+                // Expanding magic circle with runes
+                const radius = 10 + progress * 30;
+                const alpha = (1 - progress) * 0.6;
+                ctx.globalAlpha = alpha;
+                ctx.strokeStyle = flashColor;
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.stroke();
+                // Inner ring
+                ctx.beginPath();
+                ctx.arc(x, y, radius * 0.6, 0, Math.PI * 2);
+                ctx.stroke();
+                // Outline
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(x, y, radius + 1, 0, Math.PI * 2);
+                ctx.stroke();
+                // Radiating lines
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2 + progress * Math.PI;
+                    ctx.strokeStyle = flashColor;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x + Math.cos(angle) * radius * 0.3, y + Math.sin(angle) * radius * 0.3);
+                    ctx.lineTo(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
+                    ctx.stroke();
+                }
+                break;
+            }
+            case 'bolt_volley': {
+                // Crossbow bolts streaking across
+                const count = strikeCount || 4;
+                for (let i = 0; i < count; i++) {
+                    const t = (progress * 2.5 + i * 0.25) % 1;
+                    const bx = x - 50 + t * 60;
+                    const by = y - 6 + i * 4;
+                    const alpha = t > 0.2 && t < 0.9 ? 0.8 : 0.2;
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = flashColor;
+                    ctx.fillRect(bx - 6, by - 1, 12, 2);
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(bx - 6, by - 1, 12, 2);
+                }
+                break;
+            }
+            case 'muzzle_blast': {
+                // Big circular blast with smoke ring
+                const blastRadius = 8 + progress * 25;
+                const alpha = (1 - progress) * 0.7;
+                ctx.globalAlpha = alpha;
+                // Muzzle flash burst
+                ctx.fillStyle = flashColor;
+                ctx.beginPath();
+                ctx.arc(x, y, blastRadius * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                // Smoke ring
+                ctx.globalAlpha = alpha * 0.5;
+                ctx.strokeStyle = 'rgba(128, 128, 128, 0.6)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(x, y, blastRadius, 0, Math.PI * 2);
+                ctx.stroke();
+                break;
+            }
+            default:
+                break;
+        }
+        ctx.restore();
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -1200,14 +1325,22 @@ export class BattleScene extends Scene {
             this.engine.assets.resolvePath('Audio/Sounds/attack_hit.ogg'), 0.5
         );
 
+        // Look up class-specific animation data for richer visuals
+        const spriteClass = caster.classType || caster.spriteClass || caster.class_type || '';
+        const classSpec = getClassSpecial(spriteClass) || {};
+
         this._animQueue.push({
             type: 'ability_use',
             caster,
             ability,
             targetPos,
-            duration: 0.5,
+            duration: classSpec.total_duration || 0.5,
             startTime: this._time,
             onComplete: null,
+            flashColor: classSpec.flash_color || null,
+            vfxStyle: classSpec.vfx_style || null,
+            shakeIntensity: classSpec.shake_intensity || 0.3,
+            strikeCount: classSpec.strike_count || 1,
         });
     }
 

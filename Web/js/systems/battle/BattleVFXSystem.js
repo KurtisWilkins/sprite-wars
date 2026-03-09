@@ -228,6 +228,52 @@ export class BattleVFXSystem {
     }
 
     /**
+     * Spawn a class-special VFX effect at the target position.
+     * @param {number} x - Target screen X
+     * @param {number} y - Target screen Y
+     * @param {string} vfxStyle - The vfx_style from ClassSpecialAnimations
+     * @param {string} element - Element type for color
+     * @param {string} flashColor - Class-specific flash color
+     */
+    spawnClassSpecialVFX(x, y, vfxStyle, element, flashColor) {
+        this._enforce();
+        const color = elemColor(element);
+        const flash = flashColor || color;
+
+        switch (vfxStyle) {
+            case 'arrow_rain':
+                this._addEffect('arrow_rain', x, y, 0.60, { color: flash, elemColor: color, count: 6 });
+                this.spawnCleanParticles(x, y, 5, color);
+                break;
+            case 'arcane_explosion':
+                this._addEffect('arcane_explosion', x, y, 0.70, { color: flash, elemColor: color });
+                this.spawnCleanParticles(x, y, 6, color);
+                break;
+            case 'bolt_volley':
+                this._addEffect('bolt_volley', x, y, 0.55, { color: flash, elemColor: color, count: 4 });
+                this.spawnCleanParticles(x, y, 4, color);
+                break;
+            case 'muzzle_blast':
+                this._addEffect('muzzle_blast', x, y, 0.55, { color: flash, elemColor: color });
+                this.spawnCleanParticles(x, y, 5, color);
+                break;
+            case 'projectile_volley':
+                this._addEffect('bolt_volley', x, y, 0.55, { color: flash, elemColor: color, count: 3 });
+                this.spawnCleanParticles(x, y, 4, color);
+                break;
+            case 'divine_beam':
+                this._addEffect('arcane_explosion', x, y, 0.70, { color: '#ffffcc', elemColor: '#fffff0' });
+                this.spawnCleanParticles(x, y, 6, '#ffffcc');
+                break;
+            default:
+                // Fallback: generic impact with element color
+                this._addEffect('shockwave', x, y, 0.35, { color });
+                this.spawnCleanParticles(x, y, 3, color);
+                break;
+        }
+    }
+
+    /**
      * Spawn knockback trail between two positions.
      */
     spawnKnockbackTrail(fromX, fromY, toX, toY) {
@@ -317,6 +363,10 @@ export class BattleVFXSystem {
                 case 'comic_text':    this._drawComicText(ctx, e, progress); break;
                 case 'smoke_cloud':   this._drawSmokeCloud(ctx, e, progress, alpha); break;
                 case 'motion_trail':  this._drawMotionTrail(ctx, e, progress, alpha); break;
+                case 'arrow_rain':    this._drawArrowRain(ctx, e, progress, alpha); break;
+                case 'arcane_explosion': this._drawArcaneExplosion(ctx, e, progress, alpha); break;
+                case 'bolt_volley':   this._drawBoltVolley(ctx, e, progress, alpha); break;
+                case 'muzzle_blast':  this._drawMuzzleBlast(ctx, e, progress, alpha); break;
             }
         }
 
@@ -711,6 +761,149 @@ export class BattleVFXSystem {
         ctx.lineTo(e.data.toX, e.data.toY);
         ctx.stroke();
 
+        ctx.restore();
+    }
+
+    // ── Class-Special VFX Drawing (Cel-Shaded) ─────────────────────────────
+
+    _drawArrowRain(ctx, e, progress, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.85;
+        const count = e.data.count || 6;
+        const color = e.data.elemColor || e.data.color;
+        for (let i = 0; i < count; i++) {
+            const seed = i * 137.5;
+            const xOff = Math.sin(seed) * 20;
+            const fallProgress = Math.min(1, (progress - i * 0.06) * 2.5);
+            if (fallProgress <= 0) continue;
+            const ax = e.x + xOff;
+            const ay = e.y - 40 + fallProgress * 50;
+            // Arrow shaft
+            ctx.strokeStyle = '#1a1414';
+            ctx.lineWidth = OUTLINE_WIDTH;
+            ctx.beginPath();
+            ctx.moveTo(ax, ay - 10);
+            ctx.lineTo(ax, ay + 6);
+            ctx.stroke();
+            // Arrow shaft fill
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(ax, ay - 9);
+            ctx.lineTo(ax, ay + 5);
+            ctx.stroke();
+            // Arrowhead
+            ctx.beginPath();
+            ctx.moveTo(ax, ay + 8);
+            ctx.lineTo(ax - 3, ay + 3);
+            ctx.lineTo(ax + 3, ay + 3);
+            ctx.closePath();
+            this._celFillAndStroke(ctx, color, 1.5);
+        }
+        ctx.restore();
+    }
+
+    _drawArcaneExplosion(ctx, e, progress, alpha) {
+        ctx.save();
+        const color = e.data.elemColor || e.data.color;
+        const dark = darkenColor(color, 0.3);
+        if (progress < 0.5) {
+            // Phase 1: orbiting particles
+            ctx.globalAlpha = alpha * 0.8;
+            const count = 6;
+            const orbitR = 15 + progress * 20;
+            for (let i = 0; i < count; i++) {
+                const angle = (i / count) * Math.PI * 2 + progress * 12;
+                const px = e.x + Math.cos(angle) * orbitR;
+                const py = e.y + Math.sin(angle) * orbitR;
+                this._drawCleanCircle(ctx, px, py, 3);
+                this._celFillAndStroke(ctx, color, 1.5);
+            }
+        } else {
+            // Phase 2: expanding ring burst
+            const burstP = (progress - 0.5) / 0.5;
+            ctx.globalAlpha = alpha * (1 - burstP) * 0.7;
+            const radius = 8 + burstP * 35;
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4 - burstP * 2;
+            ctx.stroke();
+            // Inner ring
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, radius * 0.6, 0, Math.PI * 2);
+            ctx.strokeStyle = dark;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    _drawBoltVolley(ctx, e, progress, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.85;
+        const count = e.data.count || 4;
+        const color = e.data.elemColor || e.data.color;
+        for (let i = 0; i < count; i++) {
+            const boltP = Math.min(1, (progress - i * 0.08) * 3);
+            if (boltP <= 0) continue;
+            const yOff = (i - count / 2) * 8;
+            const startX = e.x - 30;
+            const endX = e.x;
+            const bx = startX + (endX - startX) * boltP;
+            // Bolt streak
+            ctx.strokeStyle = '#1a1414';
+            ctx.lineWidth = OUTLINE_WIDTH;
+            ctx.beginPath();
+            ctx.moveTo(bx - 12, e.y + yOff);
+            ctx.lineTo(bx, e.y + yOff);
+            ctx.stroke();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(bx - 11, e.y + yOff);
+            ctx.lineTo(bx, e.y + yOff);
+            ctx.stroke();
+            // Bolt tip
+            if (boltP >= 0.9) {
+                this._drawCleanDiamond(ctx, bx + 2, e.y + yOff, 3);
+                this._celFillAndStroke(ctx, color, 1.5);
+            }
+        }
+        ctx.restore();
+    }
+
+    _drawMuzzleBlast(ctx, e, progress, alpha) {
+        ctx.save();
+        const color = e.data.elemColor || e.data.color;
+        if (progress < 0.4) {
+            // Muzzle flash: bright burst at origin
+            const flashP = progress / 0.4;
+            ctx.globalAlpha = (1 - flashP) * 0.8;
+            const fSize = 10 + flashP * 15;
+            // Flash star shape
+            this._drawCleanStar(ctx, e.x - 25, e.y, fSize, fSize * 0.4, 6);
+            this._celFillAndStroke(ctx, '#ffe680', 2);
+        }
+        // Smoke cloud expanding
+        if (progress > 0.15) {
+            const smokeP = Math.min(1, (progress - 0.15) / 0.6);
+            ctx.globalAlpha = alpha * (1 - smokeP) * 0.5;
+            const radius = 6 + smokeP * 18;
+            this._drawCleanCircle(ctx, e.x - 20 - smokeP * 8, e.y, radius);
+            this._celFillAndStroke(ctx, '#8c8c8c', 2);
+        }
+        // Impact circle at target
+        if (progress > 0.2 && progress < 0.8) {
+            const impP = (progress - 0.2) / 0.6;
+            ctx.globalAlpha = alpha * (1 - impP) * 0.7;
+            const r = 5 + impP * 20;
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, r, 0, Math.PI * 2);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3 - impP * 2;
+            ctx.stroke();
+        }
         ctx.restore();
     }
 
