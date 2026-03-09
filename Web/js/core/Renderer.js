@@ -164,7 +164,7 @@ export class Renderer {
     // --- Cel-shaded art style drawing utilities ---
     // Flat cel-shaded style: clean uniform-thickness black outlines,
     // hard-edged shadow/highlight per color zone, no gradients, vibrant
-    // saturated colors.  These replace the previous doodle/wobbly methods.
+    // saturated colors.
 
     // ---- Static colour helpers (usable without a Renderer instance) ----
 

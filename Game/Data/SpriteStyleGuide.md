@@ -75,7 +75,7 @@ All Sprite outlines use a single uniform color:
 
 ### Element Color Palettes
 
-Each of the 14 elements has a defined color family. Sprites of that element must draw their primary and accent colors from this palette. Colors below are more saturated than the previous doodle palette to match the vibrant cel-shaded style.
+Each of the 14 elements has a defined color family. Sprites of that element must draw their primary and accent colors from this palette. Colors below use vibrant saturation to match the cel-shaded style.
 
 #### Fire
 | Swatch | Hex | Usage |

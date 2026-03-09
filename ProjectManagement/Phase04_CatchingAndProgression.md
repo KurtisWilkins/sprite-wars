@@ -28,7 +28,7 @@
 - **Dependencies:** P4-002
 
 ### [P4-004] Design Crystal Catching Animation Assets
-- **Description:** Create the visual assets for the crystal catching sequence: crystal throw arc, crystal impact flash, crystal encapsulation effect, shake animation (with wobble), break-free shatter effect, and success glow/lock effect. Must work at mobile resolution.
+- **Description:** Create the visual assets for the crystal catching sequence: crystal throw arc, crystal impact flash, crystal encapsulation effect, shake animation (clean cel-shaded bounce), break-free shatter effect, and success glow/lock effect. Must work at mobile resolution.
 - **Assigned:** 2D Animator
 - **Priority:** P0
 - **Complexity:** M

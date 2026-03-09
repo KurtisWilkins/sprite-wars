@@ -2,7 +2,7 @@
 ## Each equipment item has distinct visual parameters so players can immediately
 ## tell different equipment apart when equipped on a Sprite.
 ##
-## Visual configs are used by the sprite compositor to draw unique pixel-art
+## Visual configs are used by the sprite compositor to draw unique cel-shaded
 ## representations of each piece of equipment.
 class_name EquipmentVisualDatabase
 extends RefCounted

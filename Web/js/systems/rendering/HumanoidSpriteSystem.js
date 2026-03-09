@@ -507,7 +507,7 @@ export class HumanoidSpriteSystem {
     }
 
     /**
-     * Draw a procedural pixel-art weapon using default visual config.
+     * Draw a procedural cel-shaded weapon using default visual config.
      * Called as a last resort when no per-item config or theme sheet is available.
      */
     static _drawProceduralWeapon(ctx, wx, wy, dir, weaponType, weaponData, colors) {
