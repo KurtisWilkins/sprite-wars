@@ -51,10 +51,10 @@ const DIR_UP    = 3;
 // ── Chibi Body Proportions (within 64×64 frame) ─────────────────────────────
 // Cel-shaded chibi-style humanoid: oversized head (~40% of height), compact body, stubby limbs
 const BODY = {
-    headW: 32, headH: 25,   // Large round head for chibi proportions (~40% of total height)
-    torsoW: 18, torsoH: 9,  // Compact torso to emphasize head ratio
+    headW: 28, headH: 22,   // Must match RaceBodyRenderer dims for anchor alignment
+    torsoW: 20, torsoH: 10,
     armW: 6,   armH: 10,
-    legW: 7,   legH: 7,     // Short stubby legs for chibi proportions
+    legW: 8,   legH: 8,     // Must match RaceBodyRenderer dims
     footW: 10, footH: 3,
     shoulderW: 22,
 };
@@ -138,8 +138,8 @@ const ELEMENT_SKIN = {
     Dark:     { skin: '#8868a8', mid: '#684888', outline: '#4a3a6a', hair: '#332244', eye: '#aa44ff' },
     Light:    { skin: '#f0e8c0', mid: '#d0c8a0', outline: '#a09060', hair: '#eedd88', eye: '#ffee88' },
     Fairy:    { skin: '#d088c8', mid: '#b068a8', outline: '#7a4a7a', hair: '#cc44aa', eye: '#ff66cc' },
-    Solar:    { skin: '#b0c8d8', mid: '#90a8b8', outline: '#6a7a8a', hair: '#7799bb', eye: '#99ccee' },
-    Lunar:    { skin: '#d86060', mid: '#b84040', outline: '#7a3030', hair: '#aa2211', eye: '#ff3322' },
+    Solar:    { skin: '#e8c888', mid: '#c8a868', outline: '#8a7a5a', hair: '#ccaa44', eye: '#ddbb33' },
+    Lunar:    { skin: '#b8c0d8', mid: '#98a0b8', outline: '#6a7088', hair: '#8899bb', eye: '#aabbdd' },
     Metal:    { skin: '#b8b8c0', mid: '#9898a0', outline: '#6a6a7a', hair: '#888899', eye: '#aaaacc' },
     Poison:   { skin: '#a088c0', mid: '#8068a0', outline: '#5a4a6a', hair: '#773399', eye: '#aa55dd' },
 };

@@ -125,14 +125,14 @@ export class SpriteSheetGenerator {
 
         // Base fill
         ctx.beginPath();
-        ctx.roundRect(x, y, w, h, radius);
+        if (ctx.roundRect) { ctx.roundRect(x, y, w, h, radius); } else { ctx.rect(x, y, w, h); }
         ctx.fillStyle = base;
         ctx.fill();
 
         // Shadow strip on lower portion
         ctx.save();
         ctx.beginPath();
-        ctx.roundRect(x, y, w, h, radius);
+        if (ctx.roundRect) { ctx.roundRect(x, y, w, h, radius); } else { ctx.rect(x, y, w, h); }
         ctx.clip();
         const shadowH = Math.max(1, Math.floor(h * 0.35));
         ctx.fillStyle = shadow;
@@ -142,7 +142,7 @@ export class SpriteSheetGenerator {
         // Highlight on upper portion
         ctx.save();
         ctx.beginPath();
-        ctx.roundRect(x, y, w, h, radius);
+        if (ctx.roundRect) { ctx.roundRect(x, y, w, h, radius); } else { ctx.rect(x, y, w, h); }
         ctx.clip();
         ctx.fillStyle = highlight;
         ctx.fillRect(x, y, w, Math.max(1, Math.floor(h * 0.25)));
@@ -150,7 +150,7 @@ export class SpriteSheetGenerator {
 
         // Clean outline
         ctx.beginPath();
-        ctx.roundRect(x, y, w, h, radius);
+        if (ctx.roundRect) { ctx.roundRect(x, y, w, h, radius); } else { ctx.rect(x, y, w, h); }
         ctx.strokeStyle = outlineColor;
         ctx.lineWidth = 2;
         ctx.lineJoin = 'round';
@@ -213,10 +213,10 @@ export class SpriteSheetGenerator {
 
         // Animation offsets per frame [idle, step1, idle2, step2]
         const walkCycle = [
-            { armL: 0, armR: 0, legL: 0, legR: 0, bob: 0 },
-            { armL: -3, armR: 3, legL: 4, legR: -2, bob: -1 },
-            { armL: 0, armR: 0, legL: 0, legR: 0, bob: 0 },
-            { armL: 3, armR: -3, legL: -2, legR: 4, bob: -1 },
+            { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
+            { armL: -4, armR: 4,  legL: 4,  legR: -2, bob: -2 },
+            { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
+            { armL: 4,  armR: -4, legL: -2, legR: 4,  bob: -2 },
         ];
 
         // Direction rows: down=0, left=1, right=2, up=3

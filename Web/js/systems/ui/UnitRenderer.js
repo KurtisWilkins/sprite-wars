@@ -28,7 +28,7 @@ import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 export const ELEMENT_COLORS = {
     Fire: '#ff5533', Water: '#3399ff', Plant: '#33aa33', Ice: '#99ddff',
     Wind: '#88ccaa', Earth: '#996633', Electric: '#ffcc00', Dark: '#8844aa',
-    Light: '#ffee99', Fairy: '#ff66aa', Solar: '#9988dd', Lunar: '#ff8833',
+    Light: '#ffee99', Fairy: '#ff66aa', Solar: '#ffaa33', Lunar: '#8899cc',
     Metal: '#aaaacc', Poison: '#aa33aa',
 };
 
@@ -630,7 +630,8 @@ export class UnitRenderer {
                 const eqData = UnitRenderer._getEquipmentData(eqId);
                 if (eqData) {
                     const rarityColor = RARITY_COLORS[eqData.rarity] || '#888';
-                    eqNames.push(`<span style="color:${rarityColor}">${eqData.equipment_name}</span>`);
+                    const safeName = (eqData.equipment_name || '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'})[c]);
+                    eqNames.push(`<span style="color:${rarityColor}">${safeName}</span>`);
                 }
             }
             if (eqNames.length > 0) {
