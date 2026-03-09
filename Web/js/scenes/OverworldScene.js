@@ -1061,7 +1061,7 @@ export class OverworldScene extends Scene {
         const w = 24;
         const h = 24;
 
-        // Cave tileset indices (repurposed for dungeon):
+        // Cave tile type indices (procedural cel-shaded dungeon tiles):
         //  0  = stone floor       1  = path (horiz)     2  = path (vert)
         //  3  = path intersection  4  = lava pool       5  = lava edge
         //  6  = stalagmite (tall) 7  = stalagmite (sm)  8  = moss/rubble
