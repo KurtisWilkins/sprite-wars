@@ -3,9 +3,8 @@
 ## BackArm, Weapon, Legs). Animates each part independently via Godot Tweens,
 ## producing sword swings, spell casts, hit recoils, idle breathing, and more.
 ##
-## Style reference: HippoGames Fantasy Heroes / Character Editor Megapack —
-## modular upper-body and lower-body animation with weapon swing arcs driven
-## by arm rotation.
+## Style reference: Flat cel-shaded style with clean smooth motion — no wobble,
+## no jitter, no sketchy redraw effects. All animation is crisp and consistent.
 ##
 ## The sprite_root Node2D is expected to have these child nodes:
 ##   "Head", "Body", "FrontArm", "BackArm", "Weapon", "Legs"
@@ -58,33 +57,6 @@ const READY_CYCLE        := 1.0
 const WALK_CYCLE         := 0.5
 
 
-## ── Doodle Art Style Settings ────────────────────────────────────────────────
-
-## Enable/disable the doodle hand-drawn look globally.
-var doodle_enabled: bool = true
-
-## Wobble effect: subtle random position jitter that makes sprites look hand-drawn.
-const WOBBLE_AMOUNT_MIN: float = 0.5
-const WOBBLE_AMOUNT_MAX: float = 1.0
-const WOBBLE_INTERVAL: float = 0.08  ## Seconds between wobble updates.
-
-## Sketch redraw: how often (in seconds) the outline shifts to simulate redrawing.
-const SKETCH_REDRAW_INTERVAL: float = 0.12
-const SKETCH_REDRAW_OFFSET: float = 0.7  ## Max pixel shift for sketch redraw.
-
-## Doodle squash-stretch multiplier applied on top of existing attack/hit squash.
-const DOODLE_SQUISH_ATTACK_SCALE := Vector2(1.18, 0.82)
-const DOODLE_SQUISH_HIT_SCALE := Vector2(0.80, 1.20)
-const DOODLE_SQUISH_DURATION: float = 0.06
-
-## Sketch mark spawn chance per animation cycle (0.0 – 1.0).
-const SKETCH_MARK_CHANCE: float = 0.4
-## Types of decorative sketch marks.
-const SKETCH_MARK_TYPES: PackedStringArray = PackedStringArray([
-	"motion_lines", "small_star", "sweat_drop",
-])
-
-
 ## ── State ─────────────────────────────────────────────────────────────────────
 
 ## Active tweens tracked per sprite root (keyed by sprite_root instance ID).
@@ -98,12 +70,6 @@ var _idle_loops: Dictionary = {}
 ## Keyed by "instance_id:part_name" -> Vector2.
 ## Used by _reset_pose to restore positions after animations modify them.
 var _original_positions: Dictionary = {}
-
-## Tracks active doodle wobble tweens per sprite root instance ID.
-var _doodle_wobble_tweens: Dictionary = {}
-
-## Tracks spawned sketch mark nodes per sprite root instance ID for cleanup.
-var _sketch_mark_nodes: Dictionary = {}
 
 
 ## ── Main Entry Point ──────────────────────────────────────────────────────────
@@ -124,27 +90,6 @@ func play_animation(sprite_root: Node2D, state: int, speed_mult: float = 1.0) ->
 
 	# Reset to neutral before starting new animation to prevent drift.
 	_reset_pose(sprite_root)
-
-	# ── Doodle Art Style: Start wobble and sketch redraw on every animation ──
-	_start_doodle_wobble(sprite_root)
-	_apply_sketch_redraw(sprite_root)
-
-	# Determine if this is an attack or hit for doodle squish and sketch marks.
-	var _is_attack_state: bool = state in [
-		AnimState.ATTACK_SLASH, AnimState.ATTACK_THRUST, AnimState.ATTACK_SMASH,
-		AnimState.ATTACK_CAST, AnimState.ATTACK_SHOOT,
-	]
-	var _is_hit_state: bool = state == AnimState.HIT
-
-	# Apply doodle bounce/squish emphasis for attacks and hits.
-	if _is_attack_state:
-		_apply_doodle_squish(sprite_root, true)
-		_maybe_spawn_sketch_marks(sprite_root, "attack")
-	elif _is_hit_state:
-		_apply_doodle_squish(sprite_root, false)
-		_maybe_spawn_sketch_marks(sprite_root, "hit")
-	elif state == AnimState.IDLE:
-		_maybe_spawn_sketch_marks(sprite_root, "idle")
 
 	match state:
 		AnimState.IDLE:
@@ -167,11 +112,6 @@ func play_animation(sprite_root: Node2D, state: int, speed_mult: float = 1.0) ->
 			await _anim_hit(sprite_root, speed_mult)
 		AnimState.FAINT:
 			await _anim_faint(sprite_root, speed_mult)
-
-	# Stop wobble after animation completes (unless it's a looping anim).
-	if state != AnimState.IDLE and state != AnimState.READY:
-		_stop_doodle_wobble(sprite_root)
-		_cleanup_sketch_marks(sprite_root)
 
 
 ## Start a looping idle animation that repeats until stopped.
@@ -201,6 +141,7 @@ func stop_animation(sprite_root: Node2D) -> void:
 ## ── Idle Animation ────────────────────────────────────────────────────────────
 ## Gentle breathing bob: head and body drift up/down 1-2 px with a slow sine
 ## wave. Arms sway faintly. Body pulses scale slightly for a breathing feel.
+## Clean smooth motion — cel-shaded style with no jitter or wobble.
 
 func _anim_idle(sprite_root: Node2D, speed_mult: float) -> void:
 	var dur: float = IDLE_CYCLE / speed_mult
@@ -266,6 +207,7 @@ func _anim_idle(sprite_root: Node2D, speed_mult: float) -> void:
 
 ## ── Ready Animation ───────────────────────────────────────────────────────────
 ## Battle stance with a bouncy bob — arms slightly raised, faster rhythm.
+## Clean cel-shaded motion with smooth transitions.
 
 func _anim_ready(sprite_root: Node2D, speed_mult: float) -> void:
 	var dur: float = READY_CYCLE / speed_mult
@@ -321,6 +263,7 @@ func _anim_ready(sprite_root: Node2D, speed_mult: float) -> void:
 
 ## ── Walk Animation ────────────────────────────────────────────────────────────
 ## Legs alternate back and forth; arms swing opposite to legs; body bobs.
+## Clean smooth cel-shaded motion.
 
 func _anim_walk(sprite_root: Node2D, speed_mult: float) -> void:
 	var dur: float = WALK_CYCLE / speed_mult
@@ -402,6 +345,7 @@ func _anim_walk(sprite_root: Node2D, speed_mult: float) -> void:
 ## ── ATTACK_SLASH Animation ────────────────────────────────────────────────────
 ## The signature sword/axe swing. Six frames driving front arm rotation through
 ## a full arc, with back arm counter-motion, head bob on impact, and body tilt.
+## Clean cel-shaded motion with crisp keyframes.
 ##
 ## Frame 1 — Wind-up:        Front arm -60 deg, weapon raised
 ## Frame 2 — Peak:           Front arm -90 deg (overhead), body leans back
@@ -1030,6 +974,7 @@ func _anim_attack_shoot(sprite_root: Node2D, speed_mult: float) -> void:
 
 ## ── HIT Animation ─────────────────────────────────────────────────────────────
 ## Quick jerk backward, flash white, arms flinch up briefly.
+## Clean cel-shaded hit reaction with crisp motion.
 
 func _anim_hit(sprite_root: Node2D, speed_mult: float) -> void:
 	var dur: float = HIT_DURATION / speed_mult
@@ -1350,221 +1295,6 @@ func _run_idle_loop(sprite_root: Node2D, sid: int) -> void:
 		_reset_pose(sprite_root)
 
 
-## ── Doodle Art Style: Wobble Effect ──────────────────────────────────────────
-## Applies a subtle random position jitter to all body parts, making the sprite
-## look like a hand-drawn sketch that is slightly moving. Called once per
-## animation start; runs via a looping tween until stopped.
-
-func _start_doodle_wobble(sprite_root: Node2D) -> void:
-	if not doodle_enabled:
-		return
-	if sprite_root == null or not is_instance_valid(sprite_root):
-		return
-	var sid: int = sprite_root.get_instance_id()
-	# Don't double-start.
-	if _doodle_wobble_tweens.has(sid):
-		return
-
-	_doodle_wobble_tweens[sid] = true
-	_run_wobble_loop(sprite_root, sid)
-
-
-func _stop_doodle_wobble(sprite_root: Node2D) -> void:
-	if sprite_root == null or not is_instance_valid(sprite_root):
-		return
-	var sid: int = sprite_root.get_instance_id()
-	_doodle_wobble_tweens.erase(sid)
-
-
-## Internal coroutine that keeps applying tiny random offsets to each body part.
-func _run_wobble_loop(sprite_root: Node2D, sid: int) -> void:
-	var parts: Array[String] = [
-		PART_HEAD, PART_BODY, PART_FRONT_ARM, PART_BACK_ARM, PART_WEAPON, PART_LEGS,
-	]
-	while _doodle_wobble_tweens.has(sid):
-		if sprite_root == null or not is_instance_valid(sprite_root):
-			_doodle_wobble_tweens.erase(sid)
-			return
-		if not sprite_root.is_inside_tree():
-			_doodle_wobble_tweens.erase(sid)
-			return
-
-		for part_name in parts:
-			var part := _get_part(sprite_root, part_name)
-			if part:
-				var jitter_x: float = randf_range(-WOBBLE_AMOUNT_MAX, WOBBLE_AMOUNT_MAX)
-				var jitter_y: float = randf_range(-WOBBLE_AMOUNT_MAX, WOBBLE_AMOUNT_MAX)
-				# Clamp so the minimum displacement is at least WOBBLE_AMOUNT_MIN.
-				if absf(jitter_x) < WOBBLE_AMOUNT_MIN:
-					jitter_x = WOBBLE_AMOUNT_MIN * signf(jitter_x) if jitter_x != 0.0 else WOBBLE_AMOUNT_MIN
-				if absf(jitter_y) < WOBBLE_AMOUNT_MIN:
-					jitter_y = WOBBLE_AMOUNT_MIN * signf(jitter_y) if jitter_y != 0.0 else WOBBLE_AMOUNT_MIN
-				# Apply jitter relative to original position so it doesn't drift.
-				var origin: Vector2 = _get_original_position(sprite_root, part_name)
-				var t := _create_tween(sprite_root, part)
-				if t:
-					t.tween_property(part, "position",
-						origin + Vector2(jitter_x, jitter_y), WOBBLE_INTERVAL * 0.8)\
-						.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-
-		await sprite_root.get_tree().create_timer(WOBBLE_INTERVAL).timeout
-
-
-## ── Doodle Art Style: Sketch Redraw Effect ──────────────────────────────────
-## Every few frames, shifts the sprite_root position by a tiny random amount to
-## simulate the look of a rapidly redrawn sketch outline.
-
-func _apply_sketch_redraw(sprite_root: Node2D) -> void:
-	if not doodle_enabled:
-		return
-	if sprite_root == null or not is_instance_valid(sprite_root):
-		return
-
-	var offset := Vector2(
-		randf_range(-SKETCH_REDRAW_OFFSET, SKETCH_REDRAW_OFFSET),
-		randf_range(-SKETCH_REDRAW_OFFSET, SKETCH_REDRAW_OFFSET)
-	)
-	# Briefly shift the root, then snap back — gives a flicker/redraw look.
-	var t := _create_tween(sprite_root, sprite_root)
-	if t:
-		t.tween_property(sprite_root, "position",
-			sprite_root.position + offset, SKETCH_REDRAW_INTERVAL * 0.3)\
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		t.tween_property(sprite_root, "position",
-			sprite_root.position, SKETCH_REDRAW_INTERVAL * 0.3)\
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-
-
-## ── Doodle Art Style: Bounce / Squish Emphasis ──────────────────────────────
-## Adds an extra squash-stretch pop on top of existing attack and hit animations
-## for a more cartoony doodle feel.
-
-func _apply_doodle_squish(sprite_root: Node2D, is_attack: bool) -> void:
-	if not doodle_enabled:
-		return
-	var body := _get_part(sprite_root, PART_BODY)
-	if body == null:
-		return
-
-	var target_scale: Vector2 = DOODLE_SQUISH_ATTACK_SCALE if is_attack else DOODLE_SQUISH_HIT_SCALE
-	var t := _create_tween(sprite_root, body)
-	if t:
-		# Quick squish then bounce back.
-		t.tween_property(body, "scale", target_scale, DOODLE_SQUISH_DURATION)\
-			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		t.tween_property(body, "scale", Vector2(1.0, 1.0), DOODLE_SQUISH_DURATION * 1.5)\
-			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
-
-
-## ── Doodle Art Style: Sketch Marks ──────────────────────────────────────────
-## Periodically spawns small decorative "sketch marks" (motion lines, small
-## stars, sweat drops) near the sprite during animations.
-
-func _maybe_spawn_sketch_marks(sprite_root: Node2D, anim_type: String) -> void:
-	if not doodle_enabled:
-		return
-	if sprite_root == null or not is_instance_valid(sprite_root):
-		return
-	if not sprite_root.is_inside_tree():
-		return
-	if randf() > SKETCH_MARK_CHANCE:
-		return
-
-	var sid: int = sprite_root.get_instance_id()
-	var mark_type: String
-	# Choose mark type based on animation context.
-	match anim_type:
-		"attack":
-			mark_type = "motion_lines"
-		"hit":
-			mark_type = "sweat_drop" if randf() < 0.5 else "small_star"
-		"idle":
-			mark_type = "small_star"
-		_:
-			mark_type = SKETCH_MARK_TYPES[randi() % SKETCH_MARK_TYPES.size()]
-
-	var mark_node := Node2D.new()
-	mark_node.z_index = 10
-	sprite_root.add_child(mark_node)
-
-	match mark_type:
-		"motion_lines":
-			_draw_motion_lines(mark_node)
-		"small_star":
-			_draw_small_star(mark_node)
-		"sweat_drop":
-			_draw_sweat_drop(mark_node)
-
-	# Track for cleanup.
-	if not _sketch_mark_nodes.has(sid):
-		_sketch_mark_nodes[sid] = []
-	_sketch_mark_nodes[sid].append(mark_node)
-
-	# Auto-fade and remove after a short time.
-	if sprite_root.is_inside_tree():
-		var fade_tween := sprite_root.create_tween()
-		fade_tween.tween_interval(0.3)
-		fade_tween.tween_property(mark_node, "modulate:a", 0.0, 0.2)\
-			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-		fade_tween.tween_callback(mark_node.queue_free)
-
-
-## Draw 2-3 short motion lines trailing behind the sprite.
-func _draw_motion_lines(parent: Node2D) -> void:
-	var line_count: int = randi_range(2, 3)
-	for i in range(line_count):
-		var line := Line2D.new()
-		line.width = randf_range(1.0, 2.0)
-		line.default_color = Color("2d2d2d", 0.5)
-		var y_off: float = randf_range(-12.0, 12.0)
-		var x_start: float = randf_range(-18.0, -12.0)
-		line.add_point(Vector2(x_start, y_off))
-		line.add_point(Vector2(x_start - randf_range(6.0, 14.0), y_off + randf_range(-2.0, 2.0)))
-		parent.add_child(line)
-
-
-## Draw a small 4-pointed star sketch mark.
-func _draw_small_star(parent: Node2D) -> void:
-	var offset := Vector2(randf_range(-16.0, 16.0), randf_range(-20.0, -8.0))
-	var star_size: float = randf_range(2.5, 5.0)
-	for j in range(4):
-		var line := Line2D.new()
-		line.width = 1.5
-		line.default_color = Color("2d2d2d", 0.6)
-		var angle: float = TAU * float(j) / 4.0 + deg_to_rad(45.0)
-		var dir := Vector2(cos(angle), sin(angle))
-		line.add_point(offset)
-		line.add_point(offset + dir * star_size)
-		parent.add_child(line)
-
-
-## Draw a small sweat drop near the sprite's head area.
-func _draw_sweat_drop(parent: Node2D) -> void:
-	var offset := Vector2(randf_range(6.0, 14.0), randf_range(-18.0, -10.0))
-	var line := Line2D.new()
-	line.width = 2.0
-	line.default_color = Color("4a90d9", 0.6)
-	# Teardrop shape: short curved path.
-	line.add_point(offset)
-	line.add_point(offset + Vector2(-1.0, 3.0))
-	line.add_point(offset + Vector2(0.0, 6.0))
-	line.add_point(offset + Vector2(1.5, 3.0))
-	line.add_point(offset + Vector2(0.5, 0.5))
-	parent.add_child(line)
-
-
-## Remove all sketch mark nodes for a given sprite root.
-func _cleanup_sketch_marks(sprite_root: Node2D) -> void:
-	if sprite_root == null:
-		return
-	var sid: int = sprite_root.get_instance_id()
-	if _sketch_mark_nodes.has(sid):
-		for node in _sketch_mark_nodes[sid]:
-			if node != null and is_instance_valid(node):
-				node.queue_free()
-		_sketch_mark_nodes.erase(sid)
-
-
 ## ── Cleanup ───────────────────────────────────────────────────────────────────
 ## Kill every tracked tween across all sprites. Call on battle end or scene exit.
 
@@ -1577,5 +1307,3 @@ func cleanup() -> void:
 	_active_tweens.clear()
 	_idle_loops.clear()
 	_original_positions.clear()
-	_doodle_wobble_tweens.clear()
-	_sketch_mark_nodes.clear()
