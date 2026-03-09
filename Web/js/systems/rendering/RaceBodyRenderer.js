@@ -96,6 +96,7 @@ function _drawShading(ctx, x, y, w, h, midColor) {
     const sy = Math.floor(y) + 1;
     const sw = Math.ceil(w * 0.45) - 1;
     const sh = h - 2;
+    if (sw <= 0 || sh <= 0) return;
     const r = Math.min(2, sw / 4, sh / 4);
     ctx.fillStyle = midColor;
     ctx.globalAlpha = 0.85;
@@ -111,6 +112,7 @@ function _drawSoftShading(ctx, x, y, w, h, midColor) {
     const sy = Math.floor(y) + 1;
     const sw = Math.ceil(w * 0.45) - 1;
     const sh = h - 2;
+    if (sw <= 0 || sh <= 0) return;
     const r = Math.min(2, sw / 4, sh / 4);
     ctx.fillStyle = midColor;
     ctx.globalAlpha = 0.85;

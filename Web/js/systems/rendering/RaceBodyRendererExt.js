@@ -87,30 +87,36 @@ function _drawRoundedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     ctx.stroke();
 }
 
-/** Hard-edged shadow zone on the right side (flat fill, no gradient) */
+/** Hard-edged shadow zone on the right side (flat fill, no gradient, rounded edges) */
 function _drawShading(ctx, x, y, w, h, midColor) {
     const sx = Math.floor(x) + Math.floor(w * 0.55);
     const sy = Math.floor(y) + 1;
     const sw = Math.ceil(w * 0.45) - 1;
     const sh = h - 2;
+    if (sw <= 0 || sh <= 0) return;
     const r = Math.min(2, sw / 4, sh / 4);
     ctx.fillStyle = midColor;
+    ctx.globalAlpha = 0.85;
     ctx.beginPath();
     ctx.roundRect(sx, sy, sw, sh, r);
     ctx.fill();
+    ctx.globalAlpha = 1.0;
 }
 
-/** Hard-edged cel-shade shadow on right half (flat fill, no gradient) */
+/** Hard-edged cel-shade shadow on right half (flat fill, no gradient, rounded edges) */
 function _drawSoftShading(ctx, x, y, w, h, midColor) {
     const sx = Math.floor(x) + Math.floor(w * 0.55);
     const sy = Math.floor(y) + 1;
     const sw = Math.ceil(w * 0.45) - 1;
     const sh = h - 2;
+    if (sw <= 0 || sh <= 0) return;
     const r = Math.min(2, sw / 4, sh / 4);
     ctx.fillStyle = midColor;
+    ctx.globalAlpha = 0.85;
     ctx.beginPath();
     ctx.roundRect(sx, sy, sw, sh, r);
     ctx.fill();
+    ctx.globalAlpha = 1.0;
 }
 
 // ── Simple dot eyes (small filled black circles) ──────────────────────────

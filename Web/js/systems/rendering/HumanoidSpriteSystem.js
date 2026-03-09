@@ -334,9 +334,6 @@ export class HumanoidSpriteSystem {
             ctx.translate(drawX, drawY);
             ctx.scale(size / LOGICAL_FRAME, size / LOGICAL_FRAME);
 
-            const frameX = (frame % SHEET_COLS) * FRAME_SIZE;
-            const frameY = direction * FRAME_SIZE;
-
             // Build approximate anchors for outfit rendering at frame origin
             const scale = 0.9 + (stage - 1) * 0.05;
             const fcx = LOGICAL_FRAME / 2;
