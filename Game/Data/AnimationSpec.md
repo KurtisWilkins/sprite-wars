@@ -467,21 +467,21 @@ The following cel-shaded style modifications apply to all procedural weapon anim
 
 ---
 
-## 15. Doodle Animation Style Rules
+## 15. Cel-Shaded Animation Style Rules
 
-This section consolidates all doodle-specific animation rules that apply globally across the Color Doodle Chibi art style.
+This section consolidates all cel-shaded style animation rules that apply globally across the Flat Cel-Shaded Chibi art style.
 
-### Wobble Effect
-All sprites have a subtle **0.5-1px random position jitter** applied each frame. This is handled procedurally by the animation controller and gives every sprite the appearance of being continuously hand-drawn. The wobble uses a per-sprite random seed to avoid synchronized movement across multiple sprites on screen.
+### Clean Outlines
+All sprites have a **uniform 1-2px black outline** rendered around their silhouette. This is handled procedurally by the animation controller and gives every sprite crisp visual separation from the background. Outline thickness remains consistent across all sprites on screen.
 
-### Sketch Redraw
-Every **3-4 frames**, sprite outlines slightly shift position (1-2px) to simulate the effect of an artist redrawing the character. This is distinct from the per-frame wobble -- it is a less frequent, slightly larger shift that creates a "boiling line" effect common in hand-drawn animation.
+### Flat Color Shading
+Sprite surfaces use **hard-edged two-tone shading** -- a base color and a single shadow tone per surface. There are no gradients or smooth transitions between light and shadow. Shadow edges are sharp and clean, reinforcing the cel-shaded look.
 
 ### Squash-Stretch
-Squash-and-stretch values are **20% more exaggerated** than standard animation proportions. This amplification reinforces the cartoony doodle feel. For example, a standard 10% squash on landing becomes 12%, and a standard 15% stretch on jump becomes 18%.
+Squash-and-stretch values are **20% more exaggerated** than standard animation proportions. This amplification reinforces the cartoony chibi feel. For example, a standard 10% squash on landing becomes 12%, and a standard 15% stretch on jump becomes 18%.
 
 ### Motion Lines
-Short parallel sketch marks (3-5 small lines) appear near fast-moving body parts during attacks, dashes, and ability casts. These motion lines are drawn with a slight wobble and fade out within 2-3 frames. They should match the sprite's outline color.
+Short parallel clean lines (3-5 small lines) appear near fast-moving body parts during attacks, dashes, and ability casts. These motion lines are drawn with uniform thickness and sharp edges, fading out within 2-3 frames. They should use the sprite's outline color.
 
 ### Expression Pops
 Chibi expression marks appear during key gameplay moments:
@@ -495,13 +495,13 @@ Chibi expression marks appear during key gameplay moments:
 These marks appear as floating overlays near the sprite's head and persist for 0.3-0.5 seconds before fading.
 
 ### Decorative Particles
-Small hand-drawn particles spawn during hits, ability activations, and evolution sequences:
-- **Stars** (4-6 point, wobbly) -- general impact and celebration
+Clean flat-colored particles spawn during hits, ability activations, and evolution sequences:
+- **Stars** (4-6 point, sharp-edged) -- general impact and celebration
 - **Hearts** -- healing and support abilities
 - **Spirals** -- confusion, psychic, and wind effects
-- **Scribble clouds** -- dust, smoke, and earth impacts
+- **Solid puff clouds** -- dust, smoke, and earth impacts
 
-Particles use the doodle wobble effect and have slightly uneven shapes to maintain the hand-drawn look.
+Particles use flat color fills with uniform outlines and clean geometric shapes.
 
 ### Bouncy Landing
 Characters have an **extra bounce frame** when landing from jumps, knockback recovery, or attack lunges. After the initial landing squash, the sprite overshoots upward by 2-3px before settling into its resting position. This adds a playful, springy quality consistent with the chibi proportions.
@@ -514,4 +514,4 @@ Characters have an **extra bounce frame** when landing from jumps, knockback rec
 |---------|------|--------|---------|
 | 1.0 | 2026-02-16 | 2D Animator / Art Lead | Initial specification |
 | 1.1 | 2026-03-04 | Gameplay Programmer (Battle) | Added weapon animation system, class specials, VFX, teleport, knockback visuals |
-| 2.0 | 2026-03-08 | Art Lead / 2D Animator | Animation spec updated for Color Doodle Chibi art style |
+| 2.0 | 2026-03-08 | Art Lead / 2D Animator | Animation spec updated for Flat Cel-Shaded Chibi art style |

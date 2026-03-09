@@ -64,9 +64,9 @@ static func get_helmet_visuals() -> Dictionary:
 ## ── Chest Visual Configs ─────────────────────────────────────────────────────
 ## style, mainColor, trimColor, accentColor, hasShoulders, shoulderColor,
 ## hasBelt, beltColor, glowColor, pattern
-## Valid patterns: none, chains, runes, scales, crystal, stripes, doodle_sketch
-## "doodle_sketch" — small hand-drawn decorative marks (dots, tiny stars, squiggles)
-## used for the Color Doodle Chibi art style.
+## Valid patterns: none, chains, runes, scales, crystal, stripes, cel_accent
+## "cel_accent" — small clean decorative marks (dots, tiny stars, flat shapes)
+## used for the Flat Cel-Shaded Chibi art style.
 
 static func get_chest_visuals() -> Dictionary:
 	return {
@@ -219,11 +219,11 @@ static func get_amulet_visuals() -> Dictionary:
 ## ── Crystal Visual Configs ───────────────────────────────────────────────────
 ## crystalColor, innerColor, outlineColor, size, shape, pulseSpeed, glowColor, hasTrail
 ## Valid shapes: diamond, prism, hexagon, orb, star, shard
-## Doodle style note: In Color Doodle Chibi rendering mode, all crystal and gem
-## shapes are drawn as simple colorful filled shapes with sketchy hand-drawn
-## outlines (1-2px wobble). Complex facets are replaced with a single bright
-## inner highlight dot and hatching lines for depth. This keeps gems readable
-## at chibi sprite scale while matching the illustrated doodle aesthetic.
+## Cel-shaded style note: In Flat Cel-Shaded Chibi rendering mode, all crystal and gem
+## shapes are drawn as simple colorful filled shapes with clean uniform black
+## outlines (1-2px consistent thickness). Complex facets are replaced with a single bright
+## inner highlight dot and flat shadow tones for depth. This keeps gems readable
+## at chibi sprite scale while matching the flat cel-shaded aesthetic.
 
 static func get_crystal_visuals() -> Dictionary:
 	return {
@@ -310,18 +310,18 @@ static func get_slot_defaults(slot_type: String) -> Dictionary:
 			return {}
 
 
-## Doodle art style rendering overrides for equipment visuals.
-## Equipment drawn on chibi sprites uses sketchy outlines and soft fills.
-static func get_doodle_equipment_style() -> Dictionary:
+## Flat cel-shaded art style rendering overrides for equipment visuals.
+## Equipment drawn on chibi sprites uses clean uniform outlines and flat color fills.
+static func get_cel_shaded_equipment_style() -> Dictionary:
 	return {
-		"outline_wobble": 1.0,           # Pixel wobble for hand-drawn outlines
-		"outline_thickness": 2.0,        # Thicker outlines for doodle look
-		"outline_color": Color("2d2d2d"),# Soft black ink
-		"fill_hatching": true,           # Add hatching to metal/armor surfaces
-		"glow_style": "scribble",        # "scribble" circles instead of smooth glow
-		"sparkle_style": "star_doodle",  # Hand-drawn stars instead of clean sparkles
+		"outline_wobble": 0.0,           # No wobble — clean uniform outlines
+		"outline_thickness": 2.0,        # Consistent outline thickness for cel-shaded look
+		"outline_color": Color("1a1a1a"),# Crisp black outline
+		"fill_hatching": false,          # No hatching — flat color fills only
+		"glow_style": "solid",           # Solid flat glow instead of gradient
+		"sparkle_style": "star_clean",   # Clean sharp-edged stars for sparkles
 		"gem_style": "colored_circle",   # Simple colored circles for gems
-		"pastel_shift": 0.15,            # How much to shift colors toward pastel
+		"pastel_shift": 0.0,             # No pastel shift — vibrant saturated colors
 	}
 
 
