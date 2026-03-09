@@ -362,8 +362,8 @@ function _createArcherStarter() {
         abilities: [
             { abilityId: 45, name: 'Gust Slash', element: 'Wind', power: 40, targetingType: 'single_enemy' },
             { abilityId: 46, name: 'Cyclone Cutter', element: 'Wind', power: 70, targetingType: 'single_enemy' },
-            { abilityId: 48, name: 'Gale Sweep', element: 'Wind', power: 60, targetingType: 'row' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single_enemy' },
+            { abilityId: 48, name: 'Gale Sweep', element: 'Wind', power: 50, targetingType: 'row' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 18,
@@ -372,7 +372,7 @@ function _createArcherStarter() {
             specialAttack: 14,
             specialDefense: 10,
         },
-        equipment: { weapon: 1101 },  // Bone Dagger
+        equipment: { weapon: 1101 },  // Wraithcleaver
     };
 }
 
@@ -392,7 +392,7 @@ function _createWizardStarter() {
             { abilityId: 1, name: 'Ember Shot', element: 'Fire', power: 40, targetingType: 'single_enemy' },
             { abilityId: 2, name: 'Flame Lance', element: 'Fire', power: 70, targetingType: 'single_enemy' },
             { abilityId: 3, name: 'Inferno Blast', element: 'Fire', power: 100, targetingType: 'single_enemy' },
-            { abilityId: 4, name: 'Heat Wave', element: 'Fire', power: 60, targetingType: 'row' },
+            { abilityId: 4, name: 'Heat Wave', element: 'Fire', power: 50, targetingType: 'row' },
         ],
         stats: {
             attack: 10,
@@ -401,7 +401,7 @@ function _createWizardStarter() {
             specialAttack: 24,
             specialDefense: 12,
         },
-        equipment: { weapon: 1102 },  // Crystal Wand
+        equipment: { weapon: 1003 },  // Flame Sword (sp_atk synergy for caster)
     };
 }
 
@@ -420,8 +420,8 @@ function _createCrossbowStarter() {
         abilities: [
             { abilityId: 67, name: 'Spark Bolt', element: 'Electric', power: 40, targetingType: 'single_enemy' },
             { abilityId: 68, name: 'Thunder Strike', element: 'Electric', power: 70, targetingType: 'single_enemy' },
-            { abilityId: 70, name: 'Chain Lightning', element: 'Electric', power: 60, targetingType: 'row' },
-            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single_enemy' },
+            { abilityId: 70, name: 'Chain Lightning', element: 'Electric', power: 50, targetingType: 'row' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 17,
@@ -448,7 +448,7 @@ function _createHandgunnerStarter() {
         elementTypes: ['Dark'],
         abilities: [
             { abilityId: 78, name: 'Shadow Strike', element: 'Dark', power: 40, targetingType: 'single_enemy' },
-            { abilityId: 79, name: 'Dark Pulse', element: 'Dark', power: 60, targetingType: 'row' },
+            { abilityId: 79, name: 'Dark Pulse', element: 'Dark', power: 65, targetingType: 'row' },
             { abilityId: 83, name: 'Abyssal Blast', element: 'Dark', power: 90, targetingType: 'aoe_circle' },
             { abilityId: 81, name: 'Void Fang', element: 'Dark', power: 80, targetingType: 'single_enemy' },
         ],

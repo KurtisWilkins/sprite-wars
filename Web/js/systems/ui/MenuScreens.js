@@ -336,7 +336,7 @@ export class TeamScreen {
         this._gameManager = deps.gameManager || null;
         this._screenManager = deps.screenManager || null;
 
-        this.MAX_TEAM_SIZE = 10;
+        this.MAX_TEAM_SIZE = 14;
         this._selectedIndex = -1;
         this._detailButton = null;
     }
