@@ -36,8 +36,8 @@ export const TRAINERS = {
 		name: "Bug Catcher Tim",
 		title: "Bug Catcher",
 		team: [
-			{ raceId: 3, level: 3, stage: 0 },  // Bird Man (Plant)
-			{ raceId: 14, level: 4, stage: 0 },  // Minotaur (Poison)
+			{ raceId: 1, level: 3, stage: 0 },  // Bug Man
+			{ raceId: 1, level: 4, stage: 0 },  // Bug Man (higher level)
 		],
 		preDialogue: [
 			"Hey! You look like a new trainer!",
