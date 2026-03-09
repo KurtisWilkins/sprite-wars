@@ -1,9 +1,9 @@
 /**
  * RaceBodyRendererExt.js — Cel-shaded race-specific humanoid body rendering (Races 13-24).
  * Each race has a unique chibi body shape with big head, stubby limbs, simple dot eyes,
- * and distinguishing characteristics drawn at 64×64 pixel resolution.
+ * and distinguishing characteristics drawn in 64×64 logical space, rendered at 256×256 via 4× supersampling.
  *
- * Art style: Flat cel-shaded, clean black outlines of uniform thickness (2-3px),
+ * Art style: Flat cel-shaded, clean black outlines of uniform thickness, smooth rounded edges,
  * chibi proportions, vibrant saturated colors, hard-edged shading (flat fills),
  * NO gradients, simple dot eyes, no pixel art.
  *
@@ -44,46 +44,73 @@ const WALK_CYCLES = [
 
 // ── Clean Cel-Shaded Helpers ─────────────────────────────────────────────
 
-/** Clean uniform-thickness outline around a rectangle (2px black) */
-function _drawCleanRectOutline(ctx, x, y, w, h, color = '#111111', lineWidth = 2) {
+/** Clean uniform-thickness outline around a rounded rectangle */
+function _drawCleanRectOutline(ctx, x, y, w, h, color = '#111111', lineWidth = 1.5) {
     const fx = Math.floor(x);
     const fy = Math.floor(y);
+    const r = Math.min(2, w / 4, h / 4);
     ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
-    ctx.lineJoin = 'miter';
-    ctx.strokeRect(fx, fy, w, h);
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.roundRect(fx, fy, w, h, r);
+    ctx.stroke();
     ctx.restore();
 }
 
 function _drawOutlinedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     const fx = Math.floor(x);
     const fy = Math.floor(y);
-    // Clean cel-shaded: solid fill + uniform black outline
+    const r = Math.min(2, w / 4, h / 4);
     ctx.fillStyle = fillColor;
-    ctx.fillRect(fx, fy, w, h);
-    _drawCleanRectOutline(ctx, fx, fy, w, h, '#111111', 2);
+    ctx.beginPath();
+    ctx.roundRect(fx, fy, w, h, r);
+    ctx.fill();
+    ctx.strokeStyle = '#111111';
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
 }
 
 function _drawRoundedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     const fx = Math.floor(x);
     const fy = Math.floor(y);
-    // Clean cel-shaded: solid fill + uniform black outline
+    const r = Math.min(3, w / 3, h / 3);
     ctx.fillStyle = fillColor;
-    ctx.fillRect(fx, fy, w, h);
-    _drawCleanRectOutline(ctx, fx, fy, w, h, '#111111', 2);
+    ctx.beginPath();
+    ctx.roundRect(fx, fy, w, h, r);
+    ctx.fill();
+    ctx.strokeStyle = '#111111';
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
 }
 
 /** Hard-edged shadow zone on the right side (flat fill, no gradient) */
 function _drawShading(ctx, x, y, w, h, midColor) {
+    const sx = Math.floor(x) + Math.floor(w * 0.55);
+    const sy = Math.floor(y) + 1;
+    const sw = Math.ceil(w * 0.45) - 1;
+    const sh = h - 2;
+    const r = Math.min(2, sw / 4, sh / 4);
     ctx.fillStyle = midColor;
-    ctx.fillRect(Math.floor(x) + Math.floor(w * 0.55), Math.floor(y) + 1, Math.ceil(w * 0.45) - 1, h - 2);
+    ctx.beginPath();
+    ctx.roundRect(sx, sy, sw, sh, r);
+    ctx.fill();
 }
 
 /** Hard-edged cel-shade shadow on right half (flat fill, no gradient) */
 function _drawSoftShading(ctx, x, y, w, h, midColor) {
+    const sx = Math.floor(x) + Math.floor(w * 0.55);
+    const sy = Math.floor(y) + 1;
+    const sw = Math.ceil(w * 0.45) - 1;
+    const sh = h - 2;
+    const r = Math.min(2, sw / 4, sh / 4);
     ctx.fillStyle = midColor;
-    ctx.fillRect(Math.floor(x) + Math.floor(w * 0.55), Math.floor(y) + 1, Math.ceil(w * 0.45) - 1, h - 2);
+    ctx.beginPath();
+    ctx.roundRect(sx, sy, sw, sh, r);
+    ctx.fill();
 }
 
 // ── Simple dot eyes (small filled black circles) ──────────────────────────

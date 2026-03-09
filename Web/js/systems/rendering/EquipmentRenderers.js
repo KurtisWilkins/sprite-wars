@@ -1,10 +1,10 @@
 /**
  * EquipmentRenderers.js — Per-item unique cel-shaded rendering functions for all
  * equipment slot types. Called by HumanoidSpriteSystem to draw visually distinct
- * equipment overlays on 64×64 sprites.
+ * equipment overlays on 64×64 sprites (4x resolution: 256×256 effective).
  *
- * Art style: Clean black outlines of uniform thickness, flat cel-shaded fills,
- * bold readable silhouettes, no gradients, no wobbly/sketchy lines.
+ * Art style: Smooth cel-shaded shapes with 1.5px outlines, rounded corners,
+ * round line joins, flat fills, bold readable silhouettes, no gradients.
  *
  * Each renderer accepts a visual config object from EquipmentVisualConfig.js and
  * draws unique equipment based on the item's shape, colors, and effects.
@@ -19,14 +19,17 @@ const DIR_UP    = 3;
 // ── Clean Cel-Shaded Style Helpers ──────────────────────────────────────────
 
 /** Clean uniform-thickness outline around a rectangle for equipment */
-function _eqDrawCleanRectOutline(ctx, x, y, w, h, color = '#111111', lineWidth = 2) {
+function _eqDrawCleanRectOutline(ctx, x, y, w, h, color = '#111111', lineWidth = 1.5) {
     const fx = Math.floor(x);
     const fy = Math.floor(y);
+    const r = Math.min(2, w / 4, h / 4);
     ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
-    ctx.lineJoin = 'miter';
-    ctx.strokeRect(fx, fy, w, h);
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.roundRect(fx, fy, w, h, r);
+    ctx.stroke();
     ctx.restore();
 }
 
@@ -727,7 +730,7 @@ export function drawHelmetByConfig(ctx, x, y, w, h, config, colors) {
     }
 
     // Clean cel-shaded: uniform black outline on helmet
-    _eqDrawCleanRectOutline(ctx, x, y, w, ht, '#111111', 2);
+    _eqDrawCleanRectOutline(ctx, x, y, w, ht, '#111111', 1.5);
 }
 
 
@@ -893,7 +896,7 @@ export function drawChestByConfig(ctx, x, y, w, h, config, colors) {
     }
 
     // Clean cel-shaded: uniform black outline on chest armor
-    _eqDrawCleanRectOutline(ctx, x, y, w, h, '#111111', 2);
+    _eqDrawCleanRectOutline(ctx, x, y, w, h, '#111111', 1.5);
 }
 
 function _applyPattern(ctx, x, y, w, h, pattern, color) {
@@ -1037,7 +1040,7 @@ export function drawLegsArmorByConfig(ctx, legX, legY, legW, legH, config) {
     }
 
     // Clean cel-shaded: uniform black outline on leg armor
-    _eqDrawCleanRectOutline(ctx, legX, legY, legW, legH, '#111111', 2);
+    _eqDrawCleanRectOutline(ctx, legX, legY, legW, legH, '#111111', 1.5);
 }
 
 
@@ -1142,7 +1145,7 @@ export function drawBootsByConfig(ctx, x, y, w, h, config) {
     }
 
     // Clean cel-shaded: uniform black outline on boots
-    _eqDrawCleanRectOutline(ctx, x, y, w, h, '#111111', 2);
+    _eqDrawCleanRectOutline(ctx, x, y, w, h, '#111111', 1.5);
 }
 
 
@@ -1247,7 +1250,7 @@ export function drawGlovesByConfig(ctx, ax, ay, w, h, side, config) {
     }
 
     // Clean cel-shaded: uniform black outline on gloves
-    _eqDrawCleanRectOutline(ctx, ax, handY, w, handH, '#111111', 2);
+    _eqDrawCleanRectOutline(ctx, ax, handY, w, handH, '#111111', 1.5);
 }
 
 

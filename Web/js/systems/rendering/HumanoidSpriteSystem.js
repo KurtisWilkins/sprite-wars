@@ -16,7 +16,9 @@
  *   3. Rarity glow effects for epic/legendary gear
  *   4. Simple dot eyes (small filled black circles)
  *
- * Output format: 256x256 sprite sheets (4 dirs × 4 walk frames, 64×64 per frame)
+ * Output format: 1024x1024 sprite sheets (4 dirs × 4 walk frames, 256×256 per frame)
+ * Internal rendering uses 4× supersampling (logical 64×64 drawn at 256×256)
+ * for smooth anti-aliased outlines and high-detail cel-shaded art.
  * Direction indices: 0=Down, 1=Left, 2=Right, 3=Up
  *
  * Equipment changes invalidate the cache, causing re-compositing on next draw.
@@ -38,7 +40,9 @@ import { drawEvolutionEffects, drawEvolutionAura } from './EvolutionStageRendere
 import { getTrainerAppearance, getPlayerAppearance, getNPCAppearance } from '../../data/CharacterAppearanceData.js';
 
 // ── Frame Constants ──────────────────────────────────────────────────────────
-const FRAME_SIZE = 64;
+const RENDER_SCALE = 4;         // 4× supersampling for high-detail rendering
+const LOGICAL_FRAME = 64;      // Logical coordinate space for drawing (unchanged)
+const FRAME_SIZE = LOGICAL_FRAME * RENDER_SCALE;  // 256px actual frame size on sheet
 const SHEET_COLS = 4;  // 4 walk frames
 const SHEET_ROWS = 4;  // 4 directions (down, left, right, up)
 
@@ -122,7 +126,7 @@ function _drawRaceSpecificBody(ctx, raceId, cx, groundY, dir, frame, scale, colo
 }
 
 // ── Caches ────────────────────────────────────────────────────────────────────
-const _compositeCache = new Map();  // cacheKey → HTMLCanvasElement (256×256)
+const _compositeCache = new Map();  // cacheKey → HTMLCanvasElement (1024×1024)
 const _themeImageCache = new Map(); // themePath → HTMLImageElement
 const _bodySheetImage = { img: null };
 
@@ -226,7 +230,7 @@ export class HumanoidSpriteSystem {
     }
 
     /**
-     * Get or generate a composite 256×256 walk cycle sprite sheet.
+     * Get or generate a composite 1024×1024 walk cycle sprite sheet.
      * Equipment-aware: different equipment = different cached sheet.
      */
     static getCompositeSheet(raceId, stage = 1, equipment = null) {
@@ -256,13 +260,13 @@ export class HumanoidSpriteSystem {
         const sy = direction * FRAME_SIZE;
         const halfSize = size / 2;
 
-        // Clean cel-shaded style: crisp positioning, no jitter
+        // High-quality downscale from 256×256 source for smooth cel-shaded look
         ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(sheet,
             sx, sy, FRAME_SIZE, FRAME_SIZE,
             x - halfSize, y - size, size, size
         );
-        ctx.imageSmoothingEnabled = true;
     }
 
     /**
@@ -325,18 +329,18 @@ export class HumanoidSpriteSystem {
             const drawX = x - halfSize;
             const drawY = y - size;
 
-            // Scale outfit drawing to match sprite size
+            // Scale outfit drawing to match sprite size (use logical frame for coordinate space)
             ctx.save();
             ctx.translate(drawX, drawY);
-            ctx.scale(size / FRAME_SIZE, size / FRAME_SIZE);
+            ctx.scale(size / LOGICAL_FRAME, size / LOGICAL_FRAME);
 
             const frameX = (frame % SHEET_COLS) * FRAME_SIZE;
             const frameY = direction * FRAME_SIZE;
 
             // Build approximate anchors for outfit rendering at frame origin
             const scale = 0.9 + (stage - 1) * 0.05;
-            const fcx = FRAME_SIZE / 2;
-            const fgroundY = FRAME_SIZE - 3;
+            const fcx = LOGICAL_FRAME / 2;
+            const fgroundY = LOGICAL_FRAME - 3;
             const fAnchors = _buildCharacterAnchors(fcx, fgroundY, scale, frame);
 
             drawCharacterOutfit(ctx, fAnchors, direction, appearance);
@@ -361,6 +365,7 @@ export class HumanoidSpriteSystem {
         sheet.height = FRAME_SIZE * SHEET_ROWS;
         const ctx = sheet.getContext('2d');
         ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
 
         const race = SPRITE_RACES.find(r => r.race_id === raceId);
         const elemType = (race && race.element_types && race.element_types[0]) || 'Fire';
@@ -385,14 +390,17 @@ export class HumanoidSpriteSystem {
             weaponType = _guessWeaponType(eqData.weapon.equipment_name);
         }
 
-        // Generate all 4 directions × 4 walk frames
+        // Generate all 4 directions × 4 walk frames at 4× resolution
         for (let dir = 0; dir < 4; dir++) {
             for (let frame = 0; frame < 4; frame++) {
-                const fx = frame * FRAME_SIZE;
-                const fy = dir * FRAME_SIZE;
-
-                this._drawHumanoidFrame(ctx, fx, fy, dir, frame, stage, colors, armorTier,
+                ctx.save();
+                // Translate to frame position on sheet, then scale up for high-res rendering
+                ctx.translate(frame * FRAME_SIZE, dir * FRAME_SIZE);
+                ctx.scale(RENDER_SCALE, RENDER_SCALE);
+                // Draw in logical 64×64 coordinate space (auto-scaled to 256×256 pixels)
+                this._drawHumanoidFrame(ctx, 0, 0, dir, frame, stage, colors, armorTier,
                     themeImg, raceTheme, weaponType, eqData, raceId);
+                ctx.restore();
             }
         }
 
@@ -408,9 +416,9 @@ export class HumanoidSpriteSystem {
         // Scale factor based on evolution stage (stage 3 = slightly larger)
         const scale = 0.9 + (stage - 1) * 0.05;
 
-        // Body reference point (center-bottom of character in frame)
-        const cx = fx + FRAME_SIZE / 2;
-        const groundY = fy + FRAME_SIZE - 3;
+        // Body reference point (center-bottom of character in logical frame)
+        const cx = fx + LOGICAL_FRAME / 2;
+        const groundY = fy + LOGICAL_FRAME - 3;
 
         // ────────────────────────────────────────────────────────
         // Draw race-specific body and get anchor points for equipment

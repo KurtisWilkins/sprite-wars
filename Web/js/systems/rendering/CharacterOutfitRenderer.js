@@ -81,8 +81,8 @@ function _drawCleanRect(ctx, x, y, w, h, fillColor) {
     ctx.fillRect(fx, fy, w, h);
     ctx.save();
     ctx.strokeStyle = '#111111';
-    ctx.lineWidth = 2;
-    ctx.lineJoin = 'miter';
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
     ctx.strokeRect(fx, fy, w, h);
     ctx.restore();
 }
@@ -117,8 +117,8 @@ function _drawPoly(ctx, points, fillColor) {
     ctx.fillStyle = fillColor;
     ctx.fill();
     ctx.strokeStyle = '#111111';
-    ctx.lineWidth = 2;
-    ctx.lineJoin = 'miter';
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
     ctx.stroke();
 }
 
@@ -131,7 +131,7 @@ function _drawCleanCircle(ctx, cx, cy, r, fillColor) {
     ctx.fillStyle = fillColor;
     ctx.fill();
     ctx.strokeStyle = '#111111';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 }
 
@@ -612,7 +612,7 @@ function _drawAccessory(ctx, anchors, dir, appearance) {
                 ctx.beginPath();
                 ctx.arc(hoopCX, hoopCY, 5, 0, Math.PI * 2);
                 ctx.strokeStyle = '#111111';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
                 // Net mesh (lighter fill)
                 ctx.beginPath();
