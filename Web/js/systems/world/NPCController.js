@@ -348,12 +348,14 @@ export class NPCController {
         this._setFacing(direction);
         this._playWalkAnimation();
 
-        const moveStep = () => {
+        let lastTime = null;
+        const moveStep = (timestamp) => {
+            const delta = lastTime != null ? (timestamp - lastTime) / 1000 : 1 / 60;
+            lastTime = timestamp;
+
             const dx = this._moveTarget.x - this.position.x;
             const dy = this._moveTarget.y - this.position.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            // Approximate delta at 60fps
-            const delta = 1 / 60;
             const step = this.patrolSpeed * delta;
 
             if (dist <= step) {

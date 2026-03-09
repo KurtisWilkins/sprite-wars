@@ -275,10 +275,10 @@ export class BattleAnimationController {
             anims.push({ prop: 'opacity', from: 1, to: 0, start: 0, dur: vanishDur, ease: easeInExpo });
             anims.push({ prop: 'scaleY', from: 1, to: 1.3 * SQUASH_STRETCH_BOOST, start: 0, dur: vanishDur, ease: easeInQuad });
 
-            // Teleport smoke at vanish point
+            // Teleport smoke at vanish point (game-time scheduled)
             if (vfxSystem && field) {
                 const scrA = field.worldToScreen(attacker.worldPos.x, attacker.worldPos.y);
-                setTimeout(() => vfxSystem.spawnTeleportSmoke(scrA.x, scrA.y), vanishDur * 1000);
+                state._pendingVfx.push({ time: vanishDur, fn: () => vfxSystem.spawnTeleportSmoke(scrA.x, scrA.y) });
             }
 
             // Jump behind target (offset)
@@ -292,10 +292,10 @@ export class BattleAnimationController {
             anims.push({ prop: 'scaleX', from: 1, to: 1, start: vanishDur, dur: 0.01, ease: easeOutQuad });
             anims.push({ prop: 'scaleY', from: 1.3 * SQUASH_STRETCH_BOOST, to: 1, start: vanishDur, dur: appearDur, ease: easeOutQuad });
 
-            // Teleport smoke at appear point
+            // Teleport smoke at appear point (game-time scheduled)
             if (vfxSystem && field && target) {
                 const scrT = field.worldToScreen(target.worldPos.x + behindX, target.worldPos.y + behindY);
-                setTimeout(() => vfxSystem.spawnTeleportSmoke(scrT.x, scrT.y), vanishDur * 1000);
+                state._pendingVfx.push({ time: vanishDur, fn: () => vfxSystem.spawnTeleportSmoke(scrT.x, scrT.y) });
             }
 
             // Strike lunge
@@ -438,6 +438,16 @@ export class BattleAnimationController {
                 state._vfxAt = null;
             }
 
+            // Trigger pending VFX callbacks (game-time aware)
+            if (state._pendingVfx && state._pendingVfx.length > 0) {
+                for (let i = state._pendingVfx.length - 1; i >= 0; i--) {
+                    if (t >= state._pendingVfx[i].time) {
+                        state._pendingVfx[i].fn();
+                        state._pendingVfx.splice(i, 1);
+                    }
+                }
+            }
+
             // Clean up finished animations
             if (t >= state._totalDuration) {
                 state.offsetX = 0;
@@ -449,6 +459,7 @@ export class BattleAnimationController {
                 state.flashAlpha = 0;
                 state._isAttacking = false;
                 state._attackDir = null;
+                state._pendingVfx = [];
                 // Reset opacity for non-faint animations (faint ends at opacity 0)
                 if (state.opacity > 0) {
                     state.opacity = 1;
@@ -809,6 +820,7 @@ export class BattleAnimationController {
                 _animTime: 0, _totalDuration: 0,
                 _shakeAt: null, _shakeIntensity: 0,
                 _vfxAt: null,
+                _pendingVfx: [],
                 _isAttacking: false,
                 _attackDir: null,
             });
