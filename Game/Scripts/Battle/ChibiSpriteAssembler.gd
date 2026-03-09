@@ -492,10 +492,10 @@ func _draw_bow(img: Image, cx: int, cy: int, wood: Color, string_color: Color) -
 	_draw_rect_filled(img, cx - 3, cy + 2, 2, 3, wood)
 	# Grip.
 	_draw_rect_filled(img, cx - 3, cy - 1, 2, 3, wood.darkened(0.15))
-	# Bowstring — doodle wobbly line instead of straight.
+	# Bowstring — clean straight line.
 	var string_from := Vector2(float(cx - 1), float(cy - 7))
 	var string_to := Vector2(float(cx - 1), float(cy + 8))
-	_draw_doodle_line(img, string_from, string_to, string_color, 1.0)
+	_draw_clean_line(img, string_from, string_to, string_color)
 
 
 func _draw_staff(img: Image, cx: int, cy: int, orb_color: Color, shaft_color: Color) -> void:
@@ -529,124 +529,99 @@ func _draw_spear(img: Image, cx: int, cy: int, tip_color: Color, shaft_color: Co
 	_draw_rect_filled(img, cx, cy - 7, 1, 1, tip_color.lightened(0.10))
 
 
-# ── Doodle Art Style Helpers ───────────────────────────────────────────────
+# ── Cel-Shaded Art Style Helpers ───────────────────────────────────────────
 
-## Draw a doodle-style wobbly line between two points
-func _draw_doodle_line(image: Image, from: Vector2, to: Vector2, color: Color, thickness: float = 2.5) -> void:
-	var doodle = ChibiSpriteConfig.get_doodle_style()
-	var segments := int(from.distance_to(to) / 3.0) + 1
-	var prev_point := from
-	for i in range(1, segments + 1):
-		var t := float(i) / float(segments)
+## Draw a clean straight line between two points with uniform OUTLINE_THICKNESS.
+## No wobble, no thickness variation — perfectly straight.
+func _draw_clean_line(image: Image, from: Vector2, to: Vector2, color: Color) -> void:
+	var length := from.distance_to(to)
+	var steps := int(length) + 1
+	for i in range(steps + 1):
+		var t := float(i) / float(steps) if steps > 0 else 0.0
 		var point := from.lerp(to, t)
-		# Add wobble perpendicular to line direction
-		var normal := (to - from).normalized().rotated(PI / 2.0)
-		var wobble := sin(t * PI * doodle["wobble_frequency"] * 10.0) * doodle["wobble_amplitude"]
-		point += normal * wobble
-		# Vary thickness
-		var local_thick := thickness + sin(t * PI * 3.0) * doodle["thickness_variance"]
-		# Draw thick line segment
-		for offset_x in range(-int(local_thick / 2.0), int(local_thick / 2.0) + 1):
-			for offset_y in range(-int(local_thick / 2.0), int(local_thick / 2.0) + 1):
-				var px := Vector2i(int(point.x) + offset_x, int(point.y) + offset_y)
+		var half_t := OUTLINE_THICKNESS / 2
+		for ox in range(-half_t, half_t + 1):
+			for oy in range(-half_t, half_t + 1):
+				var px := Vector2i(int(point.x) + ox, int(point.y) + oy)
 				if px.x >= 0 and px.x < image.get_width() and px.y >= 0 and px.y < image.get_height():
 					image.set_pixelv(px, color)
-		prev_point = point
 
 
-## Draw a doodle-style wobbly rectangle outline using _draw_doodle_line for
-## each edge. Replaces _draw_rect_outline for body-part outlines.
-func _draw_doodle_rect_outline(image: Image, x: int, y: int, w: int, h: int, color: Color) -> void:
-	var doodle = ChibiSpriteConfig.get_doodle_style()
-	var thick := doodle["thickness_base"]
+## Draw a clean rectangle outline with uniform OUTLINE_THICKNESS using
+## _draw_clean_line for each edge. No wobble, perfectly straight edges.
+func _draw_clean_rect_outline(image: Image, x: int, y: int, w: int, h: int, color: Color) -> void:
 	var tl := Vector2(float(x), float(y))
 	var tr := Vector2(float(x + w - 1), float(y))
 	var bl := Vector2(float(x), float(y + h - 1))
 	var br := Vector2(float(x + w - 1), float(y + h - 1))
-	_draw_doodle_line(image, tl, tr, color, thick)  # Top edge
-	_draw_doodle_line(image, bl, br, color, thick)  # Bottom edge
-	_draw_doodle_line(image, tl, bl, color, thick)  # Left edge
-	_draw_doodle_line(image, tr, br, color, thick)  # Right edge
+	_draw_clean_line(image, tl, tr, color)  # Top edge
+	_draw_clean_line(image, bl, br, color)  # Bottom edge
+	_draw_clean_line(image, tl, bl, color)  # Left edge
+	_draw_clean_line(image, tr, br, color)  # Right edge
 
 
-## Add doodle-style hatching shading to a rectangular region
-func _apply_doodle_hatching(image: Image, rect: Rect2i, base_color: Color, shadow_color: Color) -> void:
-	var doodle = ChibiSpriteConfig.get_doodle_style()
-	if doodle["hatching_density"] <= 0.0:
-		return
-	# Draw diagonal hatching lines for shadow areas
-	var spacing := int(4.0 / doodle["hatching_density"])
-	for offset in range(0, rect.size.x + rect.size.y, spacing):
-		# Diagonal line from top-left to bottom-right
-		for i in range(0, mini(rect.size.x, rect.size.y)):
-			var x := rect.position.x + offset - i
-			var y := rect.position.y + i
-			if x >= rect.position.x and x < rect.position.x + rect.size.x:
-				if y >= rect.position.y and y < rect.position.y + rect.size.y:
-					var px := Vector2i(x, y)
-					if image.get_pixelv(px).a > 0.1:  # Only hatch non-transparent areas
-						var hatch_color := shadow_color
-						hatch_color.a = 0.3
-						image.set_pixelv(px, image.get_pixelv(px).blend(hatch_color))
+## Apply flat cel shading to a rectangular region. The bottom-right portion
+## receives a shadow zone (base color darkened by SHADOW_FACTOR) and the
+## top-left portion receives a highlight zone (base color lightened by
+## HIGHLIGHT_FACTOR). Hard edges, no gradients.
+func _apply_cel_shading(image: Image, rect: Rect2i, base_color: Color) -> void:
+	var shadow_color := Color(
+		base_color.r * SHADOW_FACTOR,
+		base_color.g * SHADOW_FACTOR,
+		base_color.b * SHADOW_FACTOR,
+		base_color.a
+	)
+	var highlight_color := Color(
+		minf(base_color.r * HIGHLIGHT_FACTOR, 1.0),
+		minf(base_color.g * HIGHLIGHT_FACTOR, 1.0),
+		minf(base_color.b * HIGHLIGHT_FACTOR, 1.0),
+		base_color.a
+	)
+	# Divide the rect diagonally: top-left triangle = highlight, bottom-right = shadow.
+	# The diagonal runs from top-right corner to bottom-left corner.
+	var rx := rect.position.x
+	var ry := rect.position.y
+	var rw := rect.size.x
+	var rh := rect.size.y
+	for py in range(maxi(ry, 0), mini(ry + rh, CANVAS_SIZE)):
+		for px in range(maxi(rx, 0), mini(rx + rw, CANVAS_SIZE)):
+			if image.get_pixel(px, py).a < 0.1:
+				continue  # Skip transparent pixels
+			# Normalized position within rect (0..1)
+			var nx := float(px - rx) / float(maxi(rw, 1))
+			var ny := float(py - ry) / float(maxi(rh, 1))
+			if nx + ny < 0.8:
+				# Top-left zone — highlight
+				image.set_pixel(px, py, highlight_color)
+			elif nx + ny > 1.2:
+				# Bottom-right zone — shadow
+				image.set_pixel(px, py, shadow_color)
+			# Middle zone keeps base color (already filled)
 
 
-## Draw chibi doodle-style eyes
-func _draw_doodle_eyes(image: Image, head_rect: Rect2, eye_color: Color) -> void:
-	var doodle = ChibiSpriteConfig.get_doodle_style()
-	var style = doodle["expression_style"]
-	var center := Vector2(head_rect.position.x + head_rect.size.x / 2.0, head_rect.position.y + head_rect.size.y * 0.45)
+## Draw simple filled black circle dot eyes. No sparkle, no blush marks.
+## Each eye is a small filled black circle positioned on the head.
+func _draw_cel_eyes(image: Image, head_rect: Rect2, _eye_color: Color) -> void:
+	var center := Vector2(
+		head_rect.position.x + head_rect.size.x / 2.0,
+		head_rect.position.y + head_rect.size.y * 0.45
+	)
 	var eye_spacing := 4.0
-
-	if style["eye_type"] == "sparkle":
-		# Large sparkle eyes
-		for side in [-1.0, 1.0]:
-			var eye_center := center + Vector2(side * eye_spacing, 0)
-			# Eye white
-			_draw_filled_circle(image, eye_center, 3.5, Color.WHITE)
-			# Iris
-			_draw_filled_circle(image, eye_center + Vector2(0, 0.5), 2.5, eye_color)
-			# Pupil
-			_draw_filled_circle(image, eye_center + Vector2(0, 0.5), 1.2, Color("1a1a1a"))
-			# Sparkle highlight
-			_draw_filled_circle(image, eye_center + Vector2(-1, -1), 1.0, Color.WHITE)
-	elif style["eye_type"] == "dot":
-		# Simple dot eyes
-		for side in [-1.0, 1.0]:
-			var eye_center := center + Vector2(side * eye_spacing, 0)
-			_draw_filled_circle(image, eye_center, 1.5, Color("1a1a1a"))
-			_draw_filled_circle(image, eye_center + Vector2(-0.5, -0.5), 0.5, Color.WHITE)
-
-	# Blush marks
-	if style["blush_enabled"]:
-		var blush_y := center.y + 3.0
-		for side in [-1.0, 1.0]:
-			var blush_center := Vector2(center.x + side * (eye_spacing + 2.0), blush_y)
-			var blush_color := style["blush_color"]
-			blush_color.a = 0.4
-			_draw_filled_circle(image, blush_center, 2.0, blush_color)
+	# Simple filled black dot eyes — small circles
+	for side in [-1.0, 1.0]:
+		var eye_center := center + Vector2(side * eye_spacing, 0)
+		_draw_filled_circle(image, eye_center, 1.5, Color(0, 0, 0, 1))
 
 
-## Draw a doodle-style wobbly ellipse outline. Instead of a clean mathematical
-## ellipse, each sample point is offset by a wobble amount for a hand-drawn look.
-func _draw_doodle_ellipse_outline(img: Image, cx: int, cy: int, rx: int, ry: int, color: Color) -> void:
-	var doodle = ChibiSpriteConfig.get_doodle_style()
+## Draw a clean ellipse outline with uniform OUTLINE_THICKNESS. No wobble,
+## mathematically precise ellipse sampling.
+func _draw_clean_ellipse_outline(img: Image, cx: int, cy: int, rx: int, ry: int, color: Color) -> void:
 	var steps: int = maxi(rx, ry) * 8
-	var wobble_amp: float = doodle["wobble_amplitude"]
-	var wobble_freq: float = doodle["wobble_frequency"]
-	var thick_base: float = doodle["thickness_base"]
-	var thick_var: float = doodle["thickness_variance"]
+	var half_t := OUTLINE_THICKNESS / 2
 	for i in range(steps):
-		var t := float(i) / float(steps)
-		var angle: float = TAU * t
-		# Wobble the radius for a sketchy look
-		var wobble := sin(t * PI * wobble_freq * 20.0) * wobble_amp
-		var r_wobble_x := float(rx) + wobble
-		var r_wobble_y := float(ry) + wobble * 0.8
-		var base_x := float(cx) + r_wobble_x * cos(angle)
-		var base_y := float(cy) + r_wobble_y * sin(angle)
-		# Vary thickness along the outline
-		var local_thick := thick_base + sin(t * PI * 6.0) * thick_var
-		var half_t := int(local_thick / 2.0)
+		var angle: float = TAU * float(i) / float(steps)
+		var base_x := float(cx) + float(rx) * cos(angle)
+		var base_y := float(cy) + float(ry) * sin(angle)
 		for ox in range(-half_t, half_t + 1):
 			for oy in range(-half_t, half_t + 1):
 				var px: int = int(base_x) + ox
@@ -665,7 +640,7 @@ func _draw_rect_filled(img: Image, x: int, y: int, w: int, h: int, color: Color)
 
 
 ## Draw a 1-pixel outline rectangle. Used internally for weapon details and
-## other small elements where doodle wobble would be too heavy.
+## other small elements where a 2px outline would be too heavy.
 func _draw_rect_outline(img: Image, x: int, y: int, w: int, h: int, color: Color) -> void:
 	# Top and bottom edges.
 	for px in range(maxi(x, 0), mini(x + w, CANVAS_SIZE)):

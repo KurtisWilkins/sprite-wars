@@ -606,14 +606,6 @@ export class OverworldScene extends Scene {
             id: regionId,
             width: w,
             height: h,
-            tileset: 'Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png',
-            tilesetTileSize: 16,
-            tileIndexMap: {
-                0: 171, 1: 173, 2: 174, 3: 175, 4: 199, 5: 198,
-                6: 103, 7: 104, 8: 136, 9: 36, 10: 117, 11: 85,
-                12: 149, 13: 78, 14: 206, 15: 178, 16: 242, 17: 179,
-                18: 143, 19: 7,
-            },
             layers: [ground],
             collisionMap: collision,
             defaultSpawn: { x: 12, y: 12 },
@@ -634,7 +626,7 @@ export class OverworldScene extends Scene {
         const w = 48;
         const h = 48;
 
-        // Tile legend (Village_Forest combined tileset):
+        // Tile legend (procedural cel-shaded tile types):
         // 0=grass 1=path 2=pathV 3=cross 4=pond 5=pondEdge
         // 6=treeDark 7=treeLight 8=flowers 9=rock 10=wall 11=roof
         // 12=door 13=fence 14=bridge 15=sign 16=chest 17=lamp
@@ -960,45 +952,6 @@ export class OverworldScene extends Scene {
 
         return {
             id: 'starter_town', width: w, height: h,
-            tileset: 'Sprites/Tiles/Village_Forest.png',
-            tilesetTileSize: 16,
-            tileIndexMap: {
-                0: 1602,   // grass (forest ground tile)
-                1: 49,     // path horizontal (village wooden floor)
-                2: 49,     // path vertical (same path tile)
-                3: 49,     // crossroad (same path tile)
-                4: 1571,   // pond water (forest light green ground)
-                5: 1603,   // pond edge (forest grass edge)
-                6: 1152,   // dark tree (forest small tree)
-                7: 1184,   // light tree (forest small tree variant)
-                8: 1033,   // flowers (forest plant)
-                9: 1618,   // rock (forest stone)
-                10: 708,   // wall (village stone wall)
-                11: 272,   // roof (village red planks)
-                12: 876,   // door (village door tile)
-                13: 1729,  // fence (forest wooden fence)
-                14: 130,   // bridge (village wooden plank)
-                15: 1714,  // sign (forest sign post)
-                16: 1038,  // chest (forest red chest)
-                17: 103,   // lamp/well (village well piece)
-                18: 1035,  // fountain/specimen (forest yellow flower)
-                19: 1620,  // stairs/exit marker (forest rock pile)
-                20: 240,   // roof peak (village roof peak)
-                21: 176,   // wood panel wall (village wood wall)
-                22: 856,   // barrel (village barrel)
-                23: 1024,  // tall grass (forest grass tuft)
-                24: 1105,  // mushroom (forest mushroom)
-                25: 1042,  // stump (forest tree stump)
-                26: 1286,  // big tree top-left (forest large tree)
-                27: 1287,  // big tree top-right
-                28: 1318,  // big tree bottom-left
-                29: 1319,  // big tree bottom-right
-                30: 820,   // crate (village crate)
-                31: 273,   // roof left edge (village roof left)
-                32: 275,   // roof right edge (village roof right)
-                33: 848,   // wall with window (village windowed wall)
-                34: 711,   // stone path/foundation (village stone)
-            },
             layers: [ground],
             collisionMap: collision,
             defaultSpawn: { x: 24, y: 24 },
@@ -1078,9 +1031,6 @@ export class OverworldScene extends Scene {
 
         return {
             id: 'starter_route', width: w, height: h,
-            tileset: 'Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png',
-            tilesetTileSize: 16,
-            tileIndexMap: { 0:171,1:173,2:174,3:175,4:199,5:198,6:103,7:104,8:136,9:36,10:117,11:85,12:149,13:78,14:206,15:178,16:242,17:179,18:143,19:7 },
             layers: [ground],
             collisionMap: collision,
             defaultSpawn: { x: 16, y: 1 },
@@ -1196,31 +1146,6 @@ export class OverworldScene extends Scene {
             id: 'fire_temple',
             width: w,
             height: h,
-            tileset: 'Sprites/Tiles/RogueAdventure/Cavern/RA_Cavern.png',
-            tilesetTileSize: 16,
-            // Map logical tile indices (0-19) to positions in RA_Cavern.png (32 cols)
-            tileIndexMap: {
-                0: 165,  // stone floor
-                1: 165,  // path (horiz) - same as floor in cave
-                2: 165,  // path (vert)
-                3: 165,  // path intersection
-                4: 74,   // lava pool
-                5: 73,   // lava edge
-                6: 32,   // stalagmite (tall)
-                7: 33,   // stalagmite (small)
-                8: 101,  // moss/rubble
-                9: 38,   // rock/boulder
-                10: 0,   // cave wall
-                11: 1,   // cave wall (top)
-                12: 99,  // archway/door
-                13: 64,  // pillar
-                14: 166, // bridge (over lava)
-                15: 133, // rune stone
-                16: 199, // chest/crate
-                17: 103, // torch/brazier
-                18: 131, // altar/shrine
-                19: 67,  // stairs/exit
-            },
             layers: [ground],
             collisionMap: collision,
             defaultSpawn: { x: 3, y: 11 },  // Just inside the west entrance
@@ -2389,44 +2314,218 @@ export class OverworldScene extends Scene {
         }
     }
 
-    _getTileFallbackColor(tileIndex) {
-        switch (tileIndex) {
-            case 0:  return '#2d5a1e'; // grass / stone floor
-            case 1:  return '#8a7a5a'; // path horizontal
-            case 2:  return '#8a7a5a'; // path vertical
-            case 3:  return '#9a8a6a'; // path intersection
-            case 4:  return '#2244aa'; // water / lava
-            case 5:  return '#3366bb'; // water edge / lava edge
-            case 6:  return '#1a3a0e'; // tree (dark)
-            case 7:  return '#2a5a1e'; // tree (light)
-            case 8:  return '#44882e'; // flowers/bush
-            case 9:  return '#5a5a5a'; // rock/boulder
-            case 10: return '#6a5040'; // house wall / cave wall
-            case 11: return '#8a3030'; // house roof / cave wall top
-            case 12: return '#5a3020'; // house door / archway
-            case 13: return '#7a6a50'; // fence / pillar
-            case 14: return '#6a5a3a'; // bridge
-            case 15: return '#8a8a50'; // sign post / rune
-            case 16: return '#aa8030'; // chest/crate
-            case 17: return '#ccaa30'; // lamp post / torch
-            case 18: return '#60a0c0'; // well/fountain / altar
-            case 19: return '#3a3a3a'; // stairs/cave entrance
-            case 20: return '#8a3030'; // roof peak
-            case 21: return '#6a5040'; // wood panel wall
-            case 22: return '#5a3a20'; // barrel
-            case 23: return '#3a7a2e'; // tall grass
-            case 24: return '#aa3030'; // mushroom
-            case 25: return '#5a4a30'; // stump
-            case 26: return '#1a4a0e'; // big tree top-left
-            case 27: return '#1a4a0e'; // big tree top-right
-            case 28: return '#3a2a1a'; // big tree bottom-left
-            case 29: return '#3a2a1a'; // big tree bottom-right
-            case 30: return '#6a5030'; // crate
-            case 31: return '#8a3030'; // roof left edge
-            case 32: return '#8a3030'; // roof right edge
-            case 33: return '#6a5040'; // wall with window
-            case 34: return '#7a7a7a'; // stone path/foundation
-            default: return '#2d5a1e';
+    /**
+     * Draw a single tile procedurally with cel-shaded style:
+     * flat base color, 2px highlight on top/left, 2px shadow on bottom/right,
+     * subtle 1px black outline, and small procedural decorations per tile type.
+     * All rendering is flat with no gradients — hard-edged shading only.
+     */
+    _drawCelShadedTile(ctx, tileIndex, dx, dy, size, gridX, gridY) {
+        const colors = TILE_COLORS[tileIndex] || DEFAULT_TILE_COLOR;
+
+        // 1. Base fill
+        ctx.fillStyle = colors.base;
+        ctx.fillRect(dx, dy, size, size);
+
+        // 2. Highlight strip (top 2px and left 2px) — hard edge, no gradient
+        ctx.fillStyle = colors.highlight;
+        ctx.fillRect(dx, dy, size, 2);       // top highlight
+        ctx.fillRect(dx, dy, 2, size);       // left highlight
+
+        // 3. Shadow strip (bottom 2px and right 2px) — hard edge, no gradient
+        ctx.fillStyle = colors.shadow;
+        ctx.fillRect(dx, dy + size - 2, size, 2);  // bottom shadow
+        ctx.fillRect(dx + size - 2, dy, 2, size);  // right shadow
+
+        // 4. Subtle 1px black outline on tile edges
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(dx + 0.5, dy + 0.5, size - 1, size - 1);
+
+        // 5. Procedural decorations based on tile type (flat colors, no gradients)
+        const name = colors.name;
+        // Use grid position as seed for deterministic pseudo-random placement
+        const hash = ((gridX * 7919 + gridY * 6271) & 0xFFFF) / 0xFFFF;
+
+        if (name === 'grass' || name === 'deep_grass') {
+            // Small darker blades/spots
+            ctx.fillStyle = colors.shadow;
+            if (hash > 0.5) {
+                ctx.fillRect(dx + 6 + (hash * 10 | 0), dy + 8 + (hash * 6 | 0), 2, 3);
+                ctx.fillRect(dx + 18 + (hash * 4 | 0), dy + 20 + (hash * 4 | 0), 2, 3);
+            }
+            if (hash > 0.7) {
+                ctx.fillRect(dx + 12, dy + 14, 1, 4);
+            }
+        } else if (name === 'water' || name === 'deep_water' || name === 'water_edge') {
+            // Small lighter horizontal streaks (ripples)
+            ctx.fillStyle = colors.highlight;
+            const ry = 8 + (hash * 14 | 0);
+            ctx.fillRect(dx + 4, dy + ry, 8, 1);
+            if (hash > 0.4) {
+                ctx.fillRect(dx + 16, dy + ry + 6, 10, 1);
+            }
+        } else if (name === 'stone' || name === 'dark_stone' || name === 'stone_path') {
+            // Small crack lines
+            ctx.fillStyle = colors.shadow;
+            const cx = 6 + (hash * 16 | 0);
+            const cy = 6 + (hash * 12 | 0);
+            ctx.fillRect(dx + cx, dy + cy, 6, 1);
+            ctx.fillRect(dx + cx + 4, dy + cy, 1, 5);
+        } else if (name === 'sand') {
+            // Small speckles
+            ctx.fillStyle = colors.shadow;
+            if (hash > 0.3) {
+                ctx.fillRect(dx + 8 + (hash * 10 | 0), dy + 10 + (hash * 8 | 0), 1, 1);
+                ctx.fillRect(dx + 20 + (hash * 4 | 0), dy + 6, 1, 1);
+            }
+        } else if (name === 'path' || name === 'path_v' || name === 'crossroad') {
+            // Subtle dirt speckles
+            ctx.fillStyle = colors.shadow;
+            if (hash > 0.5) {
+                ctx.fillRect(dx + 10 + (hash * 8 | 0), dy + 14, 2, 1);
+            }
+        } else if (name === 'flowers') {
+            // Small colorful dots (flat flower petals)
+            const flowerColors = ['#e05050', '#e0e050', '#e050e0', '#50b0e0'];
+            const fci = (gridX + gridY) % flowerColors.length;
+            ctx.fillStyle = flowerColors[fci];
+            ctx.fillRect(dx + 8 + (hash * 10 | 0), dy + 8 + (hash * 8 | 0), 3, 3);
+            ctx.fillRect(dx + 18 + (hash * 6 | 0), dy + 18 + (hash * 4 | 0), 3, 3);
+        } else if (name === 'tree_dark' || name === 'tree_light') {
+            // Leaf cluster dots
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 6, dy + 6, 4, 4);
+            ctx.fillRect(dx + 18, dy + 14, 5, 4);
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 12, dy + 20, 6, 4);
+        } else if (name === 'big_tree_tl' || name === 'big_tree_tr') {
+            // Dense canopy highlight patches
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 4, dy + 4, 8, 6);
+            ctx.fillRect(dx + 16, dy + 10, 10, 5);
+        } else if (name === 'big_tree_bl' || name === 'big_tree_br') {
+            // Trunk bark texture — vertical streaks
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 10, dy + 2, 2, 12);
+            ctx.fillRect(dx + 18, dy + 6, 2, 10);
+        } else if (name === 'wall' || name === 'wall_wood' || name === 'wall_window') {
+            // Mortar lines / window detail
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx, dy + 10, size, 1);
+            ctx.fillRect(dx, dy + 22, size, 1);
+            if (name === 'wall_window') {
+                // Window pane
+                ctx.fillStyle = '#88bbdd';
+                ctx.fillRect(dx + 10, dy + 6, 12, 10);
+                ctx.fillStyle = colors.shadow;
+                ctx.fillRect(dx + 15, dy + 6, 2, 10); // mullion
+                ctx.fillRect(dx + 10, dy + 10, 12, 2);
+            }
+        } else if (name === 'roof' || name === 'roof_peak' || name === 'roof_left' || name === 'roof_right') {
+            // Roof tile lines
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx, dy + 8, size, 1);
+            ctx.fillRect(dx, dy + 18, size, 1);
+            ctx.fillRect(dx, dy + 28, size, 1);
+        } else if (name === 'door') {
+            // Door planks and handle
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 10, dy + 2, 2, size - 4);
+            ctx.fillRect(dx + 20, dy + 2, 2, size - 4);
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 22, dy + 14, 3, 3); // door handle
+        } else if (name === 'fence') {
+            // Fence posts
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 4, dy + 4, 3, size - 8);
+            ctx.fillRect(dx + size - 7, dy + 4, 3, size - 8);
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 2, dy + 12, size - 4, 2); // horizontal rail
+            ctx.fillRect(dx + 2, dy + 22, size - 4, 2);
+        } else if (name === 'bridge') {
+            // Plank lines
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 6, dy, 1, size);
+            ctx.fillRect(dx + 14, dy, 1, size);
+            ctx.fillRect(dx + 22, dy, 1, size);
+        } else if (name === 'lava') {
+            // Bright hot streaks
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 4, dy + 8 + (hash * 10 | 0), 10, 2);
+            ctx.fillStyle = '#ff8844';
+            ctx.fillRect(dx + 16, dy + 14, 8, 2);
+        } else if (name === 'fountain') {
+            // Water splash dots
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 12, dy + 8, 4, 4);
+            ctx.fillRect(dx + 8, dy + 14, 3, 3);
+            ctx.fillRect(dx + 18, dy + 12, 3, 3);
+        } else if (name === 'chest' || name === 'crate') {
+            // Lid line and clasp
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 4, dy + 14, size - 8, 2);
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 13, dy + 10, 6, 4); // clasp/latch
+        } else if (name === 'lamp') {
+            // Glow effect and post
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 14, dy + 12, 4, size - 12); // post
+            ctx.fillStyle = '#fff8cc';
+            ctx.fillRect(dx + 10, dy + 4, 12, 8); // lamp head glow
+        } else if (name === 'mushroom') {
+            // Cap and stem
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 8, dy + 6, 16, 10); // cap
+            ctx.fillStyle = '#e8dcc0';
+            ctx.fillRect(dx + 13, dy + 16, 6, 10); // stem
+            // spots on cap
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(dx + 11, dy + 8, 3, 3);
+            ctx.fillRect(dx + 18, dy + 10, 2, 2);
+        } else if (name === 'stump') {
+            // Rings on top
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 8, dy + 8, 16, 12);
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 12, dy + 12, 8, 4); // inner ring
+        } else if (name === 'barrel') {
+            // Hoop bands
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 4, dy + 8, size - 8, 2);
+            ctx.fillRect(dx + 4, dy + 20, size - 8, 2);
+        } else if (name === 'sign') {
+            // Post and board
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 14, dy + 16, 4, size - 16); // post
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 6, dy + 4, 20, 12); // sign board
+        } else if (name === 'stairs') {
+            // Step lines
+            ctx.fillStyle = colors.highlight;
+            for (let sy = 4; sy < size - 4; sy += 6) {
+                ctx.fillRect(dx + 4, dy + sy, size - 8, 2);
+            }
+        } else if (name === 'tall_grass') {
+            // Taller blade marks
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 6, dy + 4, 2, 8);
+            ctx.fillRect(dx + 14, dy + 2, 2, 10);
+            ctx.fillRect(dx + 22, dy + 6, 2, 8);
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 10, dy + 8, 2, 10);
+            ctx.fillRect(dx + 18, dy + 4, 2, 12);
+        } else if (name === 'marble') {
+            // Subtle veining
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 4, dy + 8, 12, 1);
+            ctx.fillRect(dx + 14, dy + 8, 1, 10);
+        } else if (name === 'wood') {
+            // Wood grain lines
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 2, dy + 6, size - 4, 1);
+            ctx.fillRect(dx + 2, dy + 16, size - 4, 1);
+            ctx.fillRect(dx + 2, dy + 26, size - 4, 1);
         }
     }
 
