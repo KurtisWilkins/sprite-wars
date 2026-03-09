@@ -77,15 +77,24 @@ func assemble_sprite(config: Dictionary) -> Node2D:
 	# as simple filled black circles (dot eyes). No wobble, no hatching.
 	var race_id: int = int(config.get("race_id", 0))
 	var stage: int = clampi(int(config.get("evolution_stage", 1)), 1, 3)
-	var skin_color_val = config.get("skin_color", DEFAULT_SKIN_COLOR)
-	var skin_color: Color
-	if skin_color_val is Color:
-		skin_color = skin_color_val
-	else:
-		skin_color = DEFAULT_SKIN_COLOR
+	var element: String = str(config.get("element", "Fire"))
 	var equip_visuals: Dictionary = config.get("equipment_visuals", {}) as Dictionary
 	var weapon_type: String = str(config.get("weapon_type", "sword"))
 	var facing: String = str(config.get("facing", "right"))
+
+	# Resolve skin color from race palette (element-aware)
+	var palette: Dictionary = ChibiSpriteConfig.get_race_palette(race_id, element)
+	var skin_color_val = config.get("skin_color", null)
+	var skin_color: Color
+	if skin_color_val is Color:
+		skin_color = skin_color_val
+	elif palette.has("skin"):
+		skin_color = palette["skin"]
+	else:
+		skin_color = DEFAULT_SKIN_COLOR
+
+	# Evolution modifiers
+	var evo_mods: Dictionary = ChibiSpriteConfig.get_evolution_modifiers(stage - 1)
 
 	# Root node for the assembled sprite.
 	var root := Node2D.new()
@@ -189,7 +198,12 @@ func _create_head(race_id: int, stage: int, skin_color: Color) -> Sprite2D:
 	_draw_clean_ellipse_outline(img, cx, cy, half_w, half_h, OUTLINE_COLOR)
 
 	# ── Eyes — simple filled black dot eyes ──────────────────────────────
-	var eye_color: Color = EYE_COLORS[race_id % EYE_COLORS.size()]
+	var eye_palette = ChibiSpriteConfig.get_race_palette(race_id, "Fire")
+	var eye_color: Color
+	if eye_palette.has("eye"):
+		eye_color = eye_palette["eye"]
+	else:
+		eye_color = EYE_COLORS[race_id % EYE_COLORS.size()]
 	var head_rect_f := Rect2(
 		Vector2(float(left), float(top)),
 		Vector2(float(half_w * 2), float(half_h * 2))
@@ -689,3 +703,102 @@ func _draw_filled_circle(image: Image, center: Vector2, radius: float, color: Co
 				var dist_sq := (Vector2(x, y) - center).length_squared()
 				if dist_sq <= r_sq:
 					image.set_pixelv(Vector2i(x, y), color)
+
+
+# ── Evolution Stage Visual Effects ─────────────────────────────────────────
+
+## Element color lookup for evolution marks and auras.
+const ELEMENT_EFFECT_COLORS: Dictionary = {
+	"Fire": Color(1.0, 0.4, 0.2),
+	"Water": Color(0.2, 0.6, 1.0),
+	"Plant": Color(0.27, 0.73, 0.27),
+	"Ice": Color(0.53, 0.87, 1.0),
+	"Wind": Color(0.67, 0.87, 0.67),
+	"Earth": Color(0.73, 0.53, 0.27),
+	"Electric": Color(1.0, 0.87, 0.27),
+	"Dark": Color(0.53, 0.33, 0.67),
+	"Light": Color(1.0, 0.93, 0.67),
+	"Fairy": Color(1.0, 0.53, 0.8),
+	"Solar": Color(1.0, 0.8, 0.27),
+	"Lunar": Color(0.67, 0.73, 0.87),
+	"Metal": Color(0.6, 0.67, 0.73),
+	"Poison": Color(0.67, 0.4, 0.8),
+}
+
+## Draw evolution stage effects on a head image. Called after base head is drawn.
+func _draw_evolution_effects(img: Image, stage: int, element: String, cx: int, head_top: int, head_h: int) -> void:
+	var evo_color: Color = ELEMENT_EFFECT_COLORS.get(element, Color(0.8, 0.8, 0.8))
+
+	if stage >= 2:
+		# Stage 2: Small element-colored marks on cheeks
+		var mark_y: int = cx - head_h / 4 + 2
+		var mark_left_x: int = cx - 8
+		var mark_right_x: int = cx + 6
+		_draw_rect_filled(img, mark_left_x, head_top + head_h - 6, 2, 2, evo_color)
+		_draw_rect_filled(img, mark_right_x, head_top + head_h - 6, 2, 2, evo_color)
+
+	if stage >= 3:
+		# Stage 3: Element-themed crown/crest on head
+		var crown_color: Color = evo_color.lightened(0.2)
+		_draw_rect_filled(img, cx - 3, head_top - 5, 2, 4, crown_color)
+		_draw_rect_filled(img, cx + 1, head_top - 5, 2, 4, crown_color)
+		_draw_rect_filled(img, cx - 1, head_top - 7, 2, 6, crown_color)
+		# Crown tips
+		img.set_pixel(cx - 3, head_top - 6, crown_color.lightened(0.15))
+		img.set_pixel(cx + 2, head_top - 6, crown_color.lightened(0.15))
+		img.set_pixel(cx, head_top - 8, crown_color.lightened(0.25))
+
+
+# ── Character Outfit Drawing ───────────────────────────────────────────────
+
+## Draw character outfit overlays (vest, hat, accessory) on a body image.
+## appearance_config comes from ChibiSpriteConfig.get_trainer_appearance() or
+## ChibiSpriteConfig.get_player_appearance().
+func _draw_character_outfit(body_img: Image, head_img: Image, appearance: Dictionary) -> void:
+	var cx: int = CANVAS_SIZE / 2
+	var cy: int = CANVAS_SIZE / 2
+
+	# Outfit vest overlay on body
+	if appearance.has("outfit_color"):
+		var outfit_color: Color = appearance["outfit_color"]
+		var body_w: int = 16
+		var bx: int = cx - body_w / 2
+		var by: int = cy - 7
+		_draw_rect_filled(body_img, bx + 1, by + 1, body_w - 2, 8, outfit_color)
+		# Accent trim
+		if appearance.has("accent_color"):
+			var accent: Color = appearance["accent_color"]
+			_draw_rect_filled(body_img, bx + 1, by + 8, body_w - 2, 2, accent)
+
+	# Hat overlay on head
+	var hat_style: String = str(appearance.get("hat_style", "none"))
+	if hat_style != "none" and appearance.has("hat_color"):
+		var hat_color: Color = appearance["hat_color"]
+		var head_cx: int = CANVAS_SIZE / 2
+		var head_top: int = CANVAS_SIZE / 2 - 13
+		match hat_style:
+			"cap":
+				_draw_rect_filled(head_img, head_cx - 14, head_top - 2, 28, 5, hat_color)
+				_draw_rect_filled(head_img, head_cx - 10, head_top - 4, 20, 3, hat_color)
+				# Brim
+				_draw_rect_filled(head_img, head_cx - 16, head_top + 2, 14, 3, hat_color.darkened(0.15))
+			"straw":
+				_draw_rect_filled(head_img, head_cx - 16, head_top - 1, 32, 4, hat_color)
+				_draw_rect_filled(head_img, head_cx - 12, head_top - 4, 24, 4, hat_color)
+				# Wide brim
+				_draw_rect_filled(head_img, head_cx - 18, head_top + 2, 36, 3, hat_color.darkened(0.1))
+			"bandana":
+				_draw_rect_filled(head_img, head_cx - 13, head_top - 1, 26, 4, hat_color)
+				# Knot at back
+				_draw_rect_filled(head_img, head_cx + 12, head_top, 4, 6, hat_color.darkened(0.1))
+			"hood":
+				_draw_rect_filled(head_img, head_cx - 15, head_top - 3, 30, 8, hat_color)
+				_draw_rect_filled(head_img, head_cx - 16, head_top + 4, 6, 10, hat_color)
+				_draw_rect_filled(head_img, head_cx + 10, head_top + 4, 6, 10, hat_color)
+
+	# Accessory (simplified)
+	var accessory: String = str(appearance.get("accessory", "none"))
+	if accessory == "backpack":
+		var bp_color: Color = appearance.get("hat_color", Color("886644"))
+		_draw_rect_filled(body_img, cx + 7, cy - 5, 5, 8, bp_color)
+		_draw_rect_filled(body_img, cx + 8, cy - 6, 3, 1, bp_color.darkened(0.15))

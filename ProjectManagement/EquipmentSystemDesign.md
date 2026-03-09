@@ -147,7 +147,7 @@ All 9 equipment slots render visually on the sprite via `HumanoidSpriteSystem.js
 ### Per-Slot Rendering Details
 
 **Helmet**: Theme sheet extraction → procedural fallback (visor with rarity coloring)
-**Weapon**: Theme sheet extraction → procedural fallback (sword/axe/staff/spear/crossbow pixel art)
+**Weapon**: Theme sheet extraction → procedural fallback (sword/axe/staff/spear/crossbow cel-shaded art)
 **Chest**: Theme sheet extraction → procedural fallback (armor plates with shine)
 **Gloves**: Procedural 3px overlay on hand area, rarity-colored
 **Legs**: Procedural 6px upper leg overlay, rarity-colored

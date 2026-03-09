@@ -33,6 +33,9 @@ import {
 } from './EquipmentRenderers.js';
 import { drawRaceBody } from './RaceBodyRenderer.js';
 import { drawRaceBodyExt } from './RaceBodyRendererExt.js';
+import { drawCharacterOutfit } from './CharacterOutfitRenderer.js';
+import { drawEvolutionEffects, drawEvolutionAura } from './EvolutionStageRenderer.js';
+import { getTrainerAppearance, getPlayerAppearance, getNPCAppearance } from '../../data/CharacterAppearanceData.js';
 
 // ── Frame Constants ──────────────────────────────────────────────────────────
 const FRAME_SIZE = 64;
@@ -55,6 +58,53 @@ const BODY = {
     footW: 10, footH: 3,
     shoulderW: 22,
 };
+
+// Walk animation cycles (must match RaceBodyRenderer)
+const WALK_CYCLES = [
+    { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
+    { armL: -4, armR: 4,  legL: 4,  legR: -2, bob: -2 },
+    { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
+    { armL: 4,  armR: -4, legL: -2, legR: 4,  bob: -2 },
+];
+
+/**
+ * Build approximate anchor points for character outfit rendering.
+ */
+function _buildCharacterAnchors(cx, groundY, scale, frame) {
+    const walk = WALK_CYCLES[frame % 4];
+    const dims = BODY;
+    const headW = Math.round(dims.headW * scale);
+    const headH = Math.round(dims.headH * scale);
+    const torsoW = Math.round(dims.torsoW * scale);
+    const torsoH = Math.round(dims.torsoH * scale);
+    const armW = Math.round(dims.armW * scale);
+    const armH = Math.round(dims.armH * scale);
+    const legW = Math.round(dims.legW * scale);
+    const legH = Math.round(dims.legH * scale);
+
+    const feetY = groundY;
+    const legsTopY = feetY - legH;
+    const torsoTopY = legsTopY - torsoH + 1;
+    const headTopY = torsoTopY - headH + 4 + walk.bob;
+    const shoulderY = torsoTopY + 2 + walk.bob;
+
+    const gap = 2;
+    const leftLegX = Math.floor(cx - legW - gap / 2);
+    const rightLegX = Math.floor(cx + gap / 2);
+    const leftArmX = Math.floor(cx - torsoW / 2 - armW);
+    const rightArmX = Math.floor(cx + torsoW / 2);
+    const headX = Math.floor(cx - headW / 2);
+    const torsoX = Math.floor(cx - torsoW / 2);
+
+    return {
+        headX, headY: headTopY, headW, headH,
+        torsoX, torsoY: torsoTopY, torsoW, torsoH,
+        shoulderY,
+        leftArmX, rightArmX, armW, armH,
+        leftLegX, rightLegX, legW, legH,
+        legsTopY, feetY, walk,
+    };
+}
 
 /**
  * Dispatch race body rendering to the appropriate race-specific renderer.
@@ -242,6 +292,59 @@ export class HumanoidSpriteSystem {
     }
 
     /**
+     * Draw a trainer/player/NPC with outfit overlays based on character appearance.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {number} raceId
+     * @param {number} stage
+     * @param {number} direction
+     * @param {number} frame
+     * @param {number} x
+     * @param {number} y
+     * @param {number} size
+     * @param {object} opts - Options: { equipment, trainerTitle, isPlayer, npcType }
+     */
+    static drawCharacter(ctx, raceId, stage, direction, frame, x, y, size, opts = {}) {
+        // First draw the base sprite with equipment
+        this.drawWithEquipment(ctx, raceId, stage, direction, frame, x, y, size, opts);
+
+        // Determine appearance config
+        let appearance = null;
+        if (opts.isPlayer) {
+            appearance = getPlayerAppearance();
+        } else if (opts.trainerTitle) {
+            appearance = getTrainerAppearance(opts.trainerTitle);
+        } else if (opts.npcType) {
+            appearance = getNPCAppearance(opts.npcType);
+        }
+
+        // Draw outfit overlay if appearance config exists
+        if (appearance) {
+            const sheet = this.getCompositeSheet(raceId, stage, opts.equipment || null);
+            // Generate anchors for the current frame position
+            const halfSize = size / 2;
+            const drawX = x - halfSize;
+            const drawY = y - size;
+
+            // Scale outfit drawing to match sprite size
+            ctx.save();
+            ctx.translate(drawX, drawY);
+            ctx.scale(size / FRAME_SIZE, size / FRAME_SIZE);
+
+            const frameX = (frame % SHEET_COLS) * FRAME_SIZE;
+            const frameY = direction * FRAME_SIZE;
+
+            // Build approximate anchors for outfit rendering at frame origin
+            const scale = 0.9 + (stage - 1) * 0.05;
+            const fcx = FRAME_SIZE / 2;
+            const fgroundY = FRAME_SIZE - 3;
+            const fAnchors = _buildCharacterAnchors(fcx, fgroundY, scale, frame);
+
+            drawCharacterOutfit(ctx, fAnchors, direction, appearance);
+            ctx.restore();
+        }
+    }
+
+    /**
      * Clear all cached composite sheets.
      */
     static clearCache() {
@@ -321,6 +424,14 @@ export class HumanoidSpriteSystem {
 
         const headTopY = headY;
         const torsoTopY = torsoY;
+
+        // ────────────────────────────────────────────────────────
+        // EVOLUTION STAGE EFFECTS (drawn on top of body, before equipment)
+        // ────────────────────────────────────────────────────────
+        const race = SPRITE_RACES.find(r => r.race_id === raceId);
+        const elemType = (race && race.element_types && race.element_types[0]) || 'Fire';
+        const elemLower = elemType.toLowerCase();
+        drawEvolutionEffects(ctx, anchors, dir, stage - 1, elemLower, frame);
 
         // ────────────────────────────────────────────────────────
         // EQUIPMENT OVERLAYS (drawn on top of race body)

@@ -510,5 +510,5 @@ Battle backgrounds use the **same flat cel-shaded treatment** with clean outline
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-02-16 | Art Lead | Initial style guide |
-| 2.0 | 2026-03-08 | Art Lead | Art direction changed to Color Doodle Chibi style |
+| 2.0 | 2026-03-08 | Art Lead | Art direction changed to Flat Cel-Shaded Chibi style (interim) |
 | 3.0 | 2026-03-09 | Art Lead | Art direction changed to Flat Cel-Shaded Chibi style |

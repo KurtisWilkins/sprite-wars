@@ -619,3 +619,244 @@ static func get_pivots_for_body_type(body_type: String) -> Dictionary:
 	if pivots.has(body_type):
 		return pivots[body_type]
 	return pivots["default"]
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# 11. RACE COLOR PALETTES
+# ════════════════════════════════════════════════════════════════════════════════
+
+## Element-based skin tone base colors (14 elements).
+const ELEMENT_SKIN_TONES: Dictionary = {
+	"Fire":     Color("e8a060"),
+	"Water":    Color("88b8d8"),
+	"Plant":    Color("8bc878"),
+	"Ice":      Color("c0d8e8"),
+	"Wind":     Color("d0d8c0"),
+	"Earth":    Color("c8a878"),
+	"Electric": Color("e8d860"),
+	"Dark":     Color("8868a8"),
+	"Light":    Color("f0e8c0"),
+	"Fairy":    Color("d088c8"),
+	"Solar":    Color("e8c888"),
+	"Lunar":    Color("b8c0d8"),
+	"Metal":    Color("b8b8c0"),
+	"Poison":   Color("a088c0"),
+}
+
+## Race IDs that override element-based skin tones with fixed colors.
+## Key = race_id, Value = Dictionary with override fields.
+const RACE_SKIN_OVERRIDES: Dictionary = {
+	# Ent (race 8) — bark brown tree creature
+	8: {
+		"skin": Color("8b6840"),
+		"skin_shadow": Color("5c4428"),
+		"skin_highlight": Color("b89060"),
+		"accent": Color("5a8848"),
+	},
+	# Ghost (race 10) — pale translucent regardless of element
+	10: {
+		"skin": Color("c8c8e8"),
+		"skin_shadow": Color("9898b8"),
+		"skin_highlight": Color("e8e8ff"),
+		"accent": Color("8888cc"),
+	},
+	# Golem (race 11) — stone grey
+	11: {
+		"skin": Color("989088"),
+		"skin_shadow": Color("686058"),
+		"skin_highlight": Color("c0b8b0"),
+		"accent": Color("b8a878"),
+	},
+	# Robot (race 19) — metallic grey-blue
+	19: {
+		"skin": Color("a0a8b8"),
+		"skin_shadow": Color("707888"),
+		"skin_highlight": Color("c8d0e0"),
+		"accent": Color("60d0e0"),
+	},
+	# Skeleton (race 21) — bone white
+	21: {
+		"skin": Color("e8e0d0"),
+		"skin_shadow": Color("c8c0b0"),
+		"skin_highlight": Color("f8f0e8"),
+		"accent": Color("d8d0c0"),
+	},
+}
+
+## Default race accent, hair, and eye colors keyed by race_id.
+## Default race accent, hair, and eye colors keyed by race_id (1-24).
+## 1=Bug Man, 2=Bear Man, 3=Bird Man, 4=Demon, 5=Devil, 6=Cat Man,
+## 7=Elf, 8=Ent, 9=Fish Man, 10=Ghost, 11=Golem, 12=Human,
+## 13=Lizard Man, 14=Minotaur, 15=Monkey Man, 16=Mummy, 17=Ork,
+## 18=Rat Man, 19=Robot, 20=Shark Man, 21=Skeleton, 22=Turtle Man,
+## 23=Wolf Man, 24=Zombie
+const RACE_FEATURE_COLORS: Dictionary = {
+	1:  { "hair": Color("483828"), "eye": Color("282828"), "accent": Color("c89858") },  # Bug Man
+	2:  { "hair": Color("e8c848"), "eye": Color("3868b0"), "accent": Color("e8a830") },  # Bear Man
+	3:  { "hair": Color("c83030"), "eye": Color("c82020"), "accent": Color("e85040") },  # Bird Man
+	4:  { "hair": Color("2898d8"), "eye": Color("2070b0"), "accent": Color("50b0e8") },  # Demon
+	5:  { "hair": Color("40a858"), "eye": Color("308838"), "accent": Color("68c870") },  # Devil
+	6:  { "hair": Color("b0b0d8"), "eye": Color("c060c0"), "accent": Color("8888cc") },  # Cat Man
+	7:  { "hair": Color("f0d070"), "eye": Color("e8a020"), "accent": Color("f0c030") },  # Elf
+	8:  { "hair": Color("584068"), "eye": Color("a040a0"), "accent": Color("9060a8") },  # Ent
+	9:  { "hair": Color("808890"), "eye": Color("40d0f0"), "accent": Color("60d0e0") },  # Fish Man
+	10: { "hair": Color("f8a8c0"), "eye": Color("e060a0"), "accent": Color("f088b8") },  # Ghost
+	11: { "hair": Color("d8a050"), "eye": Color("d89030"), "accent": Color("e8b840") },  # Golem
+	12: { "hair": Color("c0c8d8"), "eye": Color("6888b0"), "accent": Color("a0b0c8") },  # Human
+	13: { "hair": Color("5a8848"), "eye": Color("a0c040"), "accent": Color("5a8848") },  # Lizard Man
+	14: { "hair": Color("e87830"), "eye": Color("f06020"), "accent": Color("f09040") },  # Minotaur
+	15: { "hair": Color("686058"), "eye": Color("e8c040"), "accent": Color("b8a878") },  # Monkey Man
+	16: { "hair": Color("282838"), "eye": Color("e03030"), "accent": Color("a02020") },  # Mummy
+	17: { "hair": Color("f0e0a0"), "eye": Color("50a0f0"), "accent": Color("f0d860") },  # Ork
+	18: { "hair": Color("98d0f0"), "eye": Color("3888c8"), "accent": Color("70b8e8") },  # Rat Man
+	19: { "hair": Color("60b880"), "eye": Color("f0f0f0"), "accent": Color("40b880") },  # Robot
+	20: { "hair": Color("d0a870"), "eye": Color("885020"), "accent": Color("c89050") },  # Shark Man
+	21: { "hair": Color("e8d888"), "eye": Color("d8a830"), "accent": Color("f0c848") },  # Skeleton
+	22: { "hair": Color("88a0b8"), "eye": Color("5078a0"), "accent": Color("7090b0") },  # Turtle Man
+	23: { "hair": Color("a868c0"), "eye": Color("8040a0"), "accent": Color("b878d0") },  # Wolf Man
+	24: { "hair": Color("38a0a0"), "eye": Color("20b0a0"), "accent": Color("50c8b8") },  # Zombie
+}
+
+## Returns a race-specific color palette based on race_id and element.
+static func get_race_palette(race_id: int, element: String) -> Dictionary:
+	var base_skin: Color
+	if ELEMENT_SKIN_TONES.has(element):
+		base_skin = ELEMENT_SKIN_TONES[element]
+	else:
+		base_skin = Color("c8a878")
+
+	var skin := base_skin
+	var skin_shadow := base_skin.darkened(0.25)
+	var skin_highlight := base_skin.lightened(0.20)
+
+	var features: Dictionary
+	if RACE_FEATURE_COLORS.has(race_id):
+		features = RACE_FEATURE_COLORS[race_id]
+	else:
+		features = { "hair": Color("483828"), "eye": Color("282828"), "accent": Color("c89858") }
+
+	var accent: Color = features["accent"]
+
+	if RACE_SKIN_OVERRIDES.has(race_id):
+		var overrides: Dictionary = RACE_SKIN_OVERRIDES[race_id]
+		skin = overrides["skin"]
+		skin_shadow = overrides["skin_shadow"]
+		skin_highlight = overrides["skin_highlight"]
+		accent = overrides["accent"]
+
+	return {
+		"skin": skin,
+		"skin_shadow": skin_shadow,
+		"skin_highlight": skin_highlight,
+		"hair": features["hair"],
+		"eye": features["eye"],
+		"accent": accent,
+		"outline": Color("111111"),
+	}
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# 12. EVOLUTION VISUAL MODIFIERS
+# ════════════════════════════════════════════════════════════════════════════════
+
+## Returns visual modifiers for a given evolution stage (0, 1, or 2).
+static func get_evolution_modifiers(stage: int) -> Dictionary:
+	var clamped := clampi(stage, 0, 2)
+	var scale_values := [1.0, 1.05, 1.1]
+	var particle_values := [0, 2, 4]
+	return {
+		"scale_multiplier": scale_values[clamped],
+		"outline_thickness": 2,
+		"has_element_marks": clamped >= 1,
+		"has_aura": clamped >= 2,
+		"has_crown": clamped >= 2,
+		"particle_count": particle_values[clamped],
+	}
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# 13. TRAINER APPEARANCE DATA
+# ════════════════════════════════════════════════════════════════════════════════
+
+## Returns outfit colors and accessory data for a trainer class.
+static func get_trainer_appearance(trainer_class: String) -> Dictionary:
+	var trainers := {
+		"bug_catcher": {
+			"outfit_color": Color("68a850"),
+			"accent_color": Color("c8d048"),
+			"hat_style": "cap",
+			"hat_color": Color("e8e0a0"),
+			"hair_color": Color("885830"),
+			"shoe_color": Color("604828"),
+			"accessory": "net",
+		},
+		"javelin": {
+			"outfit_color": Color("c85040"),
+			"accent_color": Color("e8c840"),
+			"hat_style": "headband",
+			"hat_color": Color("c83030"),
+			"hair_color": Color("282828"),
+			"shoe_color": Color("503828"),
+			"accessory": "javelin",
+		},
+		"youngster": {
+			"outfit_color": Color("5080c0"),
+			"accent_color": Color("e8e8e8"),
+			"hat_style": "cap_backwards",
+			"hat_color": Color("3868a8"),
+			"hair_color": Color("b08840"),
+			"shoe_color": Color("e04030"),
+			"accessory": "none",
+		},
+		"lass": {
+			"outfit_color": Color("e888a8"),
+			"accent_color": Color("f0c8d0"),
+			"hat_style": "none",
+			"hat_color": Color("000000"),
+			"hair_color": Color("d8a040"),
+			"shoe_color": Color("d06888"),
+			"accessory": "bow_ribbon",
+		},
+		"hiker": {
+			"outfit_color": Color("8b6840"),
+			"accent_color": Color("d8c090"),
+			"hat_style": "wide_brim",
+			"hat_color": Color("705028"),
+			"hair_color": Color("483020"),
+			"shoe_color": Color("584028"),
+			"accessory": "backpack",
+		},
+		"mystic": {
+			"outfit_color": Color("6848a8"),
+			"accent_color": Color("c8a8f0"),
+			"hat_style": "hood",
+			"hat_color": Color("503888"),
+			"hair_color": Color("c0b8d0"),
+			"shoe_color": Color("403060"),
+			"accessory": "crystal_pendant",
+		},
+	}
+	if trainers.has(trainer_class):
+		return trainers[trainer_class]
+	return trainers["youngster"]
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# 14. PLAYER APPEARANCE
+# ════════════════════════════════════════════════════════════════════════════════
+
+## Returns the player character's visual config (young adventurer).
+static func get_player_appearance() -> Dictionary:
+	return {
+		"outfit_color": Color("d03030"),
+		"accent_color": Color("e8e8e8"),
+		"hat_style": "none",
+		"hat_color": Color("000000"),
+		"hair_color": Color("302828"),
+		"shoe_color": Color("404040"),
+		"accessory": "backpack",
+		"pants_color": Color("3858a0"),
+		"jacket_color": Color("d03030"),
+		"backpack_color": Color("c87830"),
+		"skin_color": Color("f0c898"),
+	}
