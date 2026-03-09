@@ -483,17 +483,39 @@ export class OverworldScene extends Scene {
         this._mapPixelHeight = (this._mapData.height || DEFAULT_MAP_HEIGHT) * TILE_SIZE;
 
         // Set up NPCs
-        this._npcs = (this._mapData.npcs || []).map((npcDef, idx) => ({
-            id: npcDef.id || `npc_${idx}`,
-            name: npcDef.name || 'NPC',
-            x: (npcDef.gridX || 5) * TILE_SIZE + TILE_SIZE / 2,
-            y: (npcDef.gridY || 5) * TILE_SIZE + TILE_SIZE / 2,
-            spriteImg: null,
-            spritePath: npcDef.spritePath || null,
-            dialogue: npcDef.dialogue || ['...'],
-            facing: npcDef.facing || 'down',
-            type: npcDef.type || 'talk', // talk, shop, quest, heal
-        }));
+        // Deterministic race assignments for NPC types so they render via
+        // HumanoidSpriteSystem (cel-shaded) instead of pixel-art sprite sheets.
+        const NPC_RACE_BY_TYPE = {
+            talk:    [12, 6, 10, 15, 18, 20, 22],  // Human, Cat Man, Gnome, Lizard Man, Orc, Rat Man, Skeleton
+            heal:    [9, 17, 24],                    // Fish Man, Naga, Wolf Man
+            shop:    [8, 14, 11],                    // Ent, Minotaur, Golem
+            quest:   [3, 5, 7],                      // Bird Man, Devil, Elf
+            trainer: [1, 2, 4, 13, 16, 19, 21, 23], // Bug Man, Bear Man, Demon, Lion Man, Mushroom Man, Robot Man, Slime Man, Treant
+        };
+        const npcTypeCounters = {};
+        this._npcs = (this._mapData.npcs || []).map((npcDef, idx) => {
+            const npcType = npcDef.type || 'talk';
+            npcTypeCounters[npcType] = (npcTypeCounters[npcType] || 0);
+            const racePool = NPC_RACE_BY_TYPE[npcType] || NPC_RACE_BY_TYPE.talk;
+            const raceId = npcDef.raceId || racePool[npcTypeCounters[npcType] % racePool.length];
+            npcTypeCounters[npcType]++;
+            return {
+                id: npcDef.id || `npc_${idx}`,
+                name: npcDef.name || 'NPC',
+                x: (npcDef.gridX || 5) * TILE_SIZE + TILE_SIZE / 2,
+                y: (npcDef.gridY || 5) * TILE_SIZE + TILE_SIZE / 2,
+                spriteImg: null,
+                spritePath: npcDef.spritePath || null,
+                dialogue: npcDef.dialogue || ['...'],
+                facing: npcDef.facing || 'down',
+                type: npcType,
+                raceId: raceId,
+                stage: npcDef.stage || (npcType === 'trainer' ? 2 : 1),
+                equipment: npcDef.equipment || {},
+                visionRange: npcDef.visionRange || 0,
+                visionDirection: npcDef.visionDirection || null,
+            };
+        });
 
         // Load individual NPC sprites and auto-detect frame dimensions.
         // Sprite sheets use 4 rows (down/left/right/up) with square frames.

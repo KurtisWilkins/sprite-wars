@@ -345,6 +345,124 @@ function _createPoisonStarter() {
     };
 }
 
+// -- Long-Range Attacker Starters -----------------------------------------------
+
+function _createArcherStarter() {
+    return {
+        instanceId: 11,
+        raceId: 13,     // Lizard Man — agile hunter
+        formId: 37,     // 13*3-2 = 37
+        nickname: 'Swift Arrow',
+        level: 8,
+        xp: 0,
+        currentHp: 52,
+        maxHp: 52,
+        classType: 'Archer',
+        elementTypes: ['Wind'],
+        abilities: [
+            { abilityId: 45, name: 'Gust Slash', element: 'Wind', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 46, name: 'Cyclone Cutter', element: 'Wind', power: 70, targetingType: 'single_enemy' },
+            { abilityId: 48, name: 'Gale Sweep', element: 'Wind', power: 60, targetingType: 'row' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 18,
+            defense: 9,
+            speed: 20,
+            specialAttack: 14,
+            specialDefense: 10,
+        },
+        equipment: { weapon: 1101 },  // Bone Dagger
+    };
+}
+
+function _createWizardStarter() {
+    return {
+        instanceId: 12,
+        raceId: 17,     // Ork — mystical brute
+        formId: 49,     // 17*3-2 = 49
+        nickname: 'Arcane Fury',
+        level: 8,
+        xp: 0,
+        currentHp: 48,
+        maxHp: 48,
+        classType: 'Wizard',
+        elementTypes: ['Fire'],
+        abilities: [
+            { abilityId: 1, name: 'Ember Shot', element: 'Fire', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 2, name: 'Flame Lance', element: 'Fire', power: 70, targetingType: 'single_enemy' },
+            { abilityId: 3, name: 'Inferno Blast', element: 'Fire', power: 100, targetingType: 'single_enemy' },
+            { abilityId: 4, name: 'Heat Wave', element: 'Fire', power: 60, targetingType: 'row' },
+        ],
+        stats: {
+            attack: 10,
+            defense: 8,
+            speed: 14,
+            specialAttack: 24,
+            specialDefense: 12,
+        },
+        equipment: { weapon: 1102 },  // Crystal Wand
+    };
+}
+
+function _createCrossbowStarter() {
+    return {
+        instanceId: 13,
+        raceId: 19,     // Robot — mechanical precision
+        formId: 55,     // 19*3-2 = 55
+        nickname: 'Bolt Storm',
+        level: 8,
+        xp: 0,
+        currentHp: 46,
+        maxHp: 46,
+        classType: 'Crossbow',
+        elementTypes: ['Electric'],
+        abilities: [
+            { abilityId: 67, name: 'Spark Bolt', element: 'Electric', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 68, name: 'Thunder Strike', element: 'Electric', power: 70, targetingType: 'single_enemy' },
+            { abilityId: 70, name: 'Chain Lightning', element: 'Electric', power: 60, targetingType: 'row' },
+            { abilityId: 155, name: 'Tackle', element: 'None', power: 30, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 17,
+            defense: 10,
+            speed: 18,
+            specialAttack: 15,
+            specialDefense: 9,
+        },
+        equipment: {},
+    };
+}
+
+function _createHandgunnerStarter() {
+    return {
+        instanceId: 14,
+        raceId: 22,     // Turtle Man — armored gunslinger
+        formId: 64,     // 22*3-2 = 64
+        nickname: 'Black Powder',
+        level: 8,
+        xp: 0,
+        currentHp: 44,
+        maxHp: 44,
+        classType: 'Handgunner',
+        elementTypes: ['Dark'],
+        abilities: [
+            { abilityId: 78, name: 'Shadow Strike', element: 'Dark', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 79, name: 'Dark Pulse', element: 'Dark', power: 60, targetingType: 'row' },
+            { abilityId: 83, name: 'Abyssal Blast', element: 'Dark', power: 90, targetingType: 'aoe_circle' },
+            { abilityId: 81, name: 'Void Fang', element: 'Dark', power: 100, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 20,
+            defense: 7,
+            speed: 16,
+            specialAttack: 18,
+            specialDefense: 8,
+        },
+        equipment: {},
+    };
+}
+
 // -- GameManager -----------------------------------------------------------------
 
 export class GameManager {
@@ -437,6 +555,10 @@ export class GameManager {
             _createDarkStarter(),       // 8. Ent (Dark)
             _createLightStarter(),      // 9. Fish Man (Light)
             _createPoisonStarter(),     // 10. Minotaur (Poison)
+            _createArcherStarter(),     // 11. Lizard Man Archer (Wind) — long-range
+            _createWizardStarter(),     // 12. Ork Wizard (Fire) — long-range
+            _createCrossbowStarter(),   // 13. Robot Crossbow (Electric) — long-range
+            _createHandgunnerStarter(), // 14. Turtle Man Handgunner (Dark) — long-range
         ];
         this.currentAreaId = 'starter_town';
         this.gameTimeSeconds = 0;
