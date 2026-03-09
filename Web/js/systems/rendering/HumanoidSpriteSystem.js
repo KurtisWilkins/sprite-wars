@@ -1,20 +1,18 @@
 /**
- * HumanoidSpriteSystem.js — Chibi cel-shaded humanoid sprite renderer
+ * HumanoidSpriteSystem.js — Adventure Quest-style cartoon humanoid sprite renderer
  * with layered equipment overlays and race-specific body shapes.
  *
- * Art style: 2D mobile game character sprite art, flat cel-shaded style,
- * clean black outlines of uniform thickness, slightly chibi proportions
- * (large head, compact body), vibrant saturated fantasy color palette,
- * hard-edged shading with one highlight and one shadow per color zone,
- * no gradients, simple dot eyes, modular armor design with bold readable
- * silhouettes, medieval fantasy theme, front-facing character view,
- * clean digital illustration, no pixel art.
+ * Art style: Adventure Quest / Flash-RPG cartoon style — bold black outlines,
+ * semi-proportional heroic builds (head ~30% of height), expressive anime-cartoon
+ * eyes with iris/pupil/highlight, vibrant saturated fantasy palette, cel-shaded
+ * with hard-edged two-tone shading, detailed race features, visible necks,
+ * longer limbs, dynamic poses. Clean digital cartoon illustration, no pixel art.
  *
- * Generates animated chibi humanoid sprites for all 72 forms by compositing:
- *   1. Race-specific chibi body (24 unique races) — big head, stubby limbs
+ * Generates animated humanoid sprites for all 72 forms by compositing:
+ *   1. Race-specific body (24 unique races) — AQ-style proportional cartoon builds
  *   2. Equipment overlays with per-item unique visuals (144 items)
  *   3. Rarity glow effects for epic/legendary gear
- *   4. Simple dot eyes (small filled black circles)
+ *   4. Expressive cartoon eyes with colored iris and highlights
  *
  * Output format: 1024x1024 sprite sheets (4 dirs × 4 walk frames, 256×256 per frame)
  * Internal rendering uses 4× supersampling (logical 64×64 drawn at 256×256)
@@ -52,27 +50,29 @@ const DIR_LEFT  = 1;
 const DIR_RIGHT = 2;
 const DIR_UP    = 3;
 
-// ── Chibi Body Proportions (within 64×64 frame) ─────────────────────────────
-// Cel-shaded chibi-style humanoid: oversized head (~40% of height), compact body, stubby limbs
+// ── AQ-Style Body Proportions (within 64×64 frame) ──────────────────────────
+// Adventure Quest cartoon-style humanoid: proportional head (~30% of height),
+// visible neck, heroic torso, longer limbs, more detailed features
 const BODY = {
-    headW: 28, headH: 22,   // Must match RaceBodyRenderer dims for anchor alignment
-    torsoW: 20, torsoH: 10,
-    armW: 6,   armH: 10,
-    legW: 8,   legH: 8,     // Must match RaceBodyRenderer dims
-    footW: 10, footH: 3,
-    shoulderW: 22,
+    headW: 22, headH: 18,   // Must match RaceBodyRenderer dims for anchor alignment
+    torsoW: 18, torsoH: 14,
+    armW: 5,   armH: 13,
+    legW: 7,   legH: 11,    // Must match RaceBodyRenderer dims
+    footW: 9,  footH: 4,
+    shoulderW: 20,
 };
 
-// Walk animation cycles (must match RaceBodyRenderer)
+// Walk animation cycles (must match RaceBodyRenderer) — AQ-style smooth stride
 const WALK_CYCLES = [
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: -4, armR: 4,  legL: 4,  legR: -2, bob: -2 },
+    { armL: -3, armR: 3,  legL: 3,  legR: -2, bob: -1 },
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: 4,  armR: -4, legL: -2, legR: 4,  bob: -2 },
+    { armL: 3,  armR: -3, legL: -2, legR: 3,  bob: -1 },
 ];
 
 /**
  * Build approximate anchor points for character outfit rendering.
+ * AQ-style: proportional body with visible neck gap between head and torso.
  */
 function _buildCharacterAnchors(cx, groundY, scale, frame) {
     const walk = WALK_CYCLES[frame % 4];
@@ -89,7 +89,8 @@ function _buildCharacterAnchors(cx, groundY, scale, frame) {
     const feetY = groundY;
     const legsTopY = feetY - legH;
     const torsoTopY = legsTopY - torsoH + 1;
-    const headTopY = torsoTopY - headH + 4 + walk.bob;
+    const neckGap = 2; // Visible neck between head and torso
+    const headTopY = torsoTopY - headH - neckGap + walk.bob;
     const shoulderY = torsoTopY + 2 + walk.bob;
 
     const gap = 2;
