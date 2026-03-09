@@ -633,26 +633,35 @@ function _drawBearman(ctx, a, dir, colors) {
     _drawRoundedRect(ctx, bearHeadX, a.headY, bearHeadW, bearHeadH, colors.skin, colors.outline);
     _drawSoftShading(ctx, bearHeadX, a.headY, bearHeadW, bearHeadH, colors.mid);
 
-    // --- Large rounded ears (very round, prominent) ---
-    ctx.fillStyle = colors.skin;
-    // Left ear
-    ctx.fillRect(bearHeadX - 5, a.headY - 6, 11, 11);
-    ctx.fillRect(bearHeadX - 4, a.headY - 7, 9, 1);
-    ctx.fillRect(bearHeadX - 4, a.headY + 5, 9, 1);
-    // Right ear
-    ctx.fillRect(bearHeadX + bearHeadW - 6, a.headY - 6, 11, 11);
-    ctx.fillRect(bearHeadX + bearHeadW - 5, a.headY - 7, 9, 1);
-    ctx.fillRect(bearHeadX + bearHeadW - 5, a.headY + 5, 9, 1);
-    // Ear outlines
-    ctx.fillStyle = colors.outline;
-    ctx.fillRect(bearHeadX - 5, a.headY - 7, 11, 1);
-    ctx.fillRect(bearHeadX - 6, a.headY - 5, 1, 9);
-    ctx.fillRect(bearHeadX + bearHeadW - 6, a.headY - 7, 11, 1);
-    ctx.fillRect(bearHeadX + bearHeadW + 5, a.headY - 5, 1, 9);
-    // Inner ear (pink)
-    ctx.fillStyle = '#dd8899';
-    ctx.fillRect(bearHeadX - 2, a.headY - 4, 7, 7);
-    ctx.fillRect(bearHeadX + bearHeadW - 5, a.headY - 4, 7, 7);
+    // --- Large rounded ears (direction-aware visibility) ---
+    // Left ear (hidden when facing RIGHT, no pink when facing UP)
+    if (dir !== DIR_RIGHT) {
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(bearHeadX - 5, a.headY - 6, 11, 11);
+        ctx.fillRect(bearHeadX - 4, a.headY - 7, 9, 1);
+        ctx.fillRect(bearHeadX - 4, a.headY + 5, 9, 1);
+        ctx.fillStyle = colors.outline;
+        ctx.fillRect(bearHeadX - 5, a.headY - 7, 11, 1);
+        ctx.fillRect(bearHeadX - 6, a.headY - 5, 1, 9);
+        if (dir !== DIR_UP) {
+            ctx.fillStyle = '#dd8899';
+            ctx.fillRect(bearHeadX - 2, a.headY - 4, 7, 7);
+        }
+    }
+    // Right ear (hidden when facing LEFT, no pink when facing UP)
+    if (dir !== DIR_LEFT) {
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(bearHeadX + bearHeadW - 6, a.headY - 6, 11, 11);
+        ctx.fillRect(bearHeadX + bearHeadW - 5, a.headY - 7, 9, 1);
+        ctx.fillRect(bearHeadX + bearHeadW - 5, a.headY + 5, 9, 1);
+        ctx.fillStyle = colors.outline;
+        ctx.fillRect(bearHeadX + bearHeadW - 6, a.headY - 7, 11, 1);
+        ctx.fillRect(bearHeadX + bearHeadW + 5, a.headY - 5, 1, 9);
+        if (dir !== DIR_UP) {
+            ctx.fillStyle = '#dd8899';
+            ctx.fillRect(bearHeadX + bearHeadW - 5, a.headY - 4, 7, 7);
+        }
+    }
 
     // --- Face ---
     if (dir !== DIR_UP) {
@@ -710,26 +719,6 @@ function _drawBearman(ctx, a, dir, colors) {
         }
     }
 
-    // --- Big paw hands at arm ends (with pad details) ---
-    if (dir !== DIR_UP) {
-        const pawHandW = bearArmW + 2;
-        const lArmX = cx - Math.floor(bearTorsoW / 2) - bearArmW;
-        const rArmX = cx + Math.floor(bearTorsoW / 2);
-        // Left paw
-        ctx.fillStyle = '#332211';
-        ctx.fillRect(lArmX - 1, a.shoulderY + a.walk.armL + bearArmH - 1, pawHandW, 4);
-        // Paw pad
-        ctx.fillStyle = '#cc8899';
-        ctx.fillRect(lArmX, a.shoulderY + a.walk.armL + bearArmH + 1, 3, 2);
-        ctx.fillRect(lArmX + 4, a.shoulderY + a.walk.armL + bearArmH + 1, 3, 2);
-        // Right paw
-        ctx.fillStyle = '#332211';
-        ctx.fillRect(rArmX - 1, a.shoulderY + a.walk.armR + bearArmH - 1, pawHandW, 4);
-        ctx.fillStyle = '#cc8899';
-        ctx.fillRect(rArmX, a.shoulderY + a.walk.armR + bearArmH + 1, 3, 2);
-        ctx.fillRect(rArmX + 4, a.shoulderY + a.walk.armR + bearArmH + 1, 3, 2);
-    }
-
     // --- Front arms (thick, with fur fringe) ---
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
         _drawRoundedRect(ctx, cx + Math.floor(bearTorsoW / 2), a.shoulderY + a.walk.armR, bearArmW, bearArmH, colors.skin, colors.outline);
@@ -742,6 +731,25 @@ function _drawBearman(ctx, a, dir, colors) {
         _drawSoftShading(ctx, cx - Math.floor(bearTorsoW / 2) - bearArmW, a.shoulderY + a.walk.armL, bearArmW, bearArmH, colors.mid);
         ctx.fillStyle = colors.skin;
         ctx.fillRect(cx - Math.floor(bearTorsoW / 2) - bearArmW - 2, a.shoulderY + a.walk.armL + 2, 2, 3);
+    }
+
+    // --- Big paw hands at arm ends (drawn AFTER arms so they're visible) ---
+    if (dir !== DIR_UP) {
+        const pawHandW = bearArmW + 2;
+        const lArmX = cx - Math.floor(bearTorsoW / 2) - bearArmW;
+        const rArmX = cx + Math.floor(bearTorsoW / 2);
+        // Left paw
+        ctx.fillStyle = '#332211';
+        ctx.fillRect(lArmX - 1, a.shoulderY + a.walk.armL + bearArmH - 1, pawHandW, 4);
+        ctx.fillStyle = '#cc8899';
+        ctx.fillRect(lArmX, a.shoulderY + a.walk.armL + bearArmH + 1, 3, 2);
+        ctx.fillRect(lArmX + 4, a.shoulderY + a.walk.armL + bearArmH + 1, 3, 2);
+        // Right paw
+        ctx.fillStyle = '#332211';
+        ctx.fillRect(rArmX - 1, a.shoulderY + a.walk.armR + bearArmH - 1, pawHandW, 4);
+        ctx.fillStyle = '#cc8899';
+        ctx.fillRect(rArmX, a.shoulderY + a.walk.armR + bearArmH + 1, 3, 2);
+        ctx.fillRect(rArmX + 4, a.shoulderY + a.walk.armR + bearArmH + 1, 3, 2);
     }
 }
 
@@ -1613,39 +1621,49 @@ function _drawCatman(ctx, a, dir, colors) {
         ctx.fillRect(cx - 1, a.headY + 4, 2, 2);
     }
 
-    // --- Large triangular ears (bigger, more prominent) ---
-    ctx.fillStyle = colors.skin;
-    // Left ear — tall triangle
-    ctx.fillRect(a.headX - 2, a.headY - 6, 8, 6);
-    ctx.fillRect(a.headX - 1, a.headY - 10, 6, 5);
-    ctx.fillRect(a.headX, a.headY - 14, 4, 5);
-    ctx.fillRect(a.headX + 1, a.headY - 16, 2, 3);
-    // Right ear
-    ctx.fillRect(a.headX + a.headW - 6, a.headY - 6, 8, 6);
-    ctx.fillRect(a.headX + a.headW - 5, a.headY - 10, 6, 5);
-    ctx.fillRect(a.headX + a.headW - 4, a.headY - 14, 4, 5);
-    ctx.fillRect(a.headX + a.headW - 3, a.headY - 16, 2, 3);
-    // Ear outlines (left edge)
-    ctx.fillStyle = colors.outline;
-    ctx.fillRect(a.headX - 3, a.headY - 5, 1, 5);
-    ctx.fillRect(a.headX - 2, a.headY - 9, 1, 4);
-    ctx.fillRect(a.headX - 1, a.headY - 13, 1, 4);
-    ctx.fillRect(a.headX, a.headY - 15, 1, 3);
-    ctx.fillRect(a.headX + 1, a.headY - 17, 1, 2);
-    // Right ear outline
-    ctx.fillRect(a.headX + a.headW + 2, a.headY - 5, 1, 5);
-    ctx.fillRect(a.headX + a.headW + 1, a.headY - 9, 1, 4);
-    ctx.fillRect(a.headX + a.headW, a.headY - 13, 1, 4);
-    ctx.fillRect(a.headX + a.headW - 1, a.headY - 15, 1, 3);
-    ctx.fillRect(a.headX + a.headW - 2, a.headY - 17, 1, 2);
-    // Inner ear (pink)
-    ctx.fillStyle = '#ee88aa';
-    ctx.fillRect(a.headX + 1, a.headY - 7, 4, 5);
-    ctx.fillRect(a.headX + 2, a.headY - 11, 3, 5);
-    ctx.fillRect(a.headX + 2, a.headY - 13, 2, 3);
-    ctx.fillRect(a.headX + a.headW - 5, a.headY - 7, 4, 5);
-    ctx.fillRect(a.headX + a.headW - 5, a.headY - 11, 3, 5);
-    ctx.fillRect(a.headX + a.headW - 4, a.headY - 13, 2, 3);
+    // --- Large triangular ears (direction-aware visibility) ---
+    // Left ear (hidden when facing RIGHT, no pink when facing UP)
+    if (dir !== DIR_RIGHT) {
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(a.headX - 2, a.headY - 6, 8, 6);
+        ctx.fillRect(a.headX - 1, a.headY - 10, 6, 5);
+        ctx.fillRect(a.headX, a.headY - 14, 4, 5);
+        ctx.fillRect(a.headX + 1, a.headY - 16, 2, 3);
+        // Left ear outline
+        ctx.fillStyle = colors.outline;
+        ctx.fillRect(a.headX - 3, a.headY - 5, 1, 5);
+        ctx.fillRect(a.headX - 2, a.headY - 9, 1, 4);
+        ctx.fillRect(a.headX - 1, a.headY - 13, 1, 4);
+        ctx.fillRect(a.headX, a.headY - 15, 1, 3);
+        ctx.fillRect(a.headX + 1, a.headY - 17, 1, 2);
+        if (dir !== DIR_UP) {
+            ctx.fillStyle = '#ee88aa';
+            ctx.fillRect(a.headX + 1, a.headY - 7, 4, 5);
+            ctx.fillRect(a.headX + 2, a.headY - 11, 3, 5);
+            ctx.fillRect(a.headX + 2, a.headY - 13, 2, 3);
+        }
+    }
+    // Right ear (hidden when facing LEFT, no pink when facing UP)
+    if (dir !== DIR_LEFT) {
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(a.headX + a.headW - 6, a.headY - 6, 8, 6);
+        ctx.fillRect(a.headX + a.headW - 5, a.headY - 10, 6, 5);
+        ctx.fillRect(a.headX + a.headW - 4, a.headY - 14, 4, 5);
+        ctx.fillRect(a.headX + a.headW - 3, a.headY - 16, 2, 3);
+        // Right ear outline
+        ctx.fillStyle = colors.outline;
+        ctx.fillRect(a.headX + a.headW + 2, a.headY - 5, 1, 5);
+        ctx.fillRect(a.headX + a.headW + 1, a.headY - 9, 1, 4);
+        ctx.fillRect(a.headX + a.headW, a.headY - 13, 1, 4);
+        ctx.fillRect(a.headX + a.headW - 1, a.headY - 15, 1, 3);
+        ctx.fillRect(a.headX + a.headW - 2, a.headY - 17, 1, 2);
+        if (dir !== DIR_UP) {
+            ctx.fillStyle = '#ee88aa';
+            ctx.fillRect(a.headX + a.headW - 5, a.headY - 7, 4, 5);
+            ctx.fillRect(a.headX + a.headW - 5, a.headY - 11, 3, 5);
+            ctx.fillRect(a.headX + a.headW - 4, a.headY - 13, 2, 3);
+        }
+    }
 
     // --- Cat face features ---
     if (dir !== DIR_UP) {
@@ -2796,7 +2814,214 @@ function _drawGolem(ctx, a, dir, colors) {
 
 // ── Race 12: Human ──────────────────────────────────────────────────────────
 function _drawHuman(ctx, a, dir, colors) {
-    _drawGenericBody(ctx, a, dir, colors, true);
+    const cx = Math.floor(a.torsoX + a.torsoW / 2);
+    const tunicColor = '#4466aa';
+    const tunicDark = '#335599';
+    const tunicLight = '#5577bb';
+    const beltColor = '#8b6914';
+    const beltBuckle = '#ccaa33';
+    const capeColor = '#993333';
+    const capeDark = '#772222';
+    const bootColor = '#554422';
+    const bootLight = '#665533';
+
+    // --- Cape/cloak from shoulders (back layer, all angles) ---
+    if (dir === DIR_UP) {
+        // Full cape visible from back
+        ctx.fillStyle = capeColor;
+        ctx.fillRect(a.torsoX - 3, a.shoulderY + a.walk.bob, a.torsoW + 6, a.torsoH + a.legH + 4);
+        ctx.fillRect(a.torsoX - 2, a.shoulderY + a.walk.bob + a.torsoH + a.legH + 4, a.torsoW + 4, 2);
+        // Cape shading
+        ctx.fillStyle = capeDark;
+        ctx.fillRect(a.torsoX - 1, a.shoulderY + a.walk.bob + 3, 4, a.torsoH + a.legH);
+        ctx.fillRect(a.torsoX + a.torsoW - 3, a.shoulderY + a.walk.bob + 3, 4, a.torsoH + a.legH);
+        // Cape clasp at neck
+        ctx.fillStyle = beltBuckle;
+        ctx.fillRect(cx - 2, a.shoulderY + a.walk.bob, 4, 2);
+    } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
+        // Cape trailing behind
+        const capeX = dir === DIR_LEFT ? cx + Math.floor(a.torsoW / 2) - 1 : cx - Math.floor(a.torsoW / 2) - 5;
+        ctx.fillStyle = capeColor;
+        ctx.fillRect(capeX, a.shoulderY + a.walk.bob, 6, a.torsoH + 6);
+        ctx.fillRect(capeX + 1, a.shoulderY + a.walk.bob + a.torsoH + 6, 4, 3);
+        ctx.fillStyle = capeDark;
+        ctx.fillRect(capeX + 1, a.shoulderY + a.walk.bob + 2, 2, a.torsoH + 3);
+    } else {
+        // Cape peeking from behind shoulders (front view)
+        ctx.fillStyle = capeColor;
+        ctx.fillRect(a.torsoX - 3, a.shoulderY + a.walk.bob, 3, a.torsoH + 4);
+        ctx.fillRect(a.torsoX + a.torsoW, a.shoulderY + a.walk.bob, 3, a.torsoH + 4);
+        ctx.fillStyle = capeDark;
+        ctx.fillRect(a.torsoX - 2, a.shoulderY + a.walk.bob + a.torsoH + 2, 2, 3);
+        ctx.fillRect(a.torsoX + a.torsoW + 1, a.shoulderY + a.walk.bob + a.torsoH + 2, 2, 3);
+    }
+
+    // --- Legs ---
+    _drawRoundedRect(ctx, a.leftLegX, a.legsTopY + a.walk.legL, a.legW, a.legH, colors.skin, colors.outline);
+    _drawRoundedRect(ctx, a.rightLegX, a.legsTopY + a.walk.legR, a.legW, a.legH, colors.skin, colors.outline);
+    // Detailed boots (taller, with cuff and sole detail)
+    ctx.fillStyle = bootColor;
+    const bLY = a.legsTopY + a.walk.legL + Math.floor(a.legH * 0.4);
+    const bRY = a.legsTopY + a.walk.legR + Math.floor(a.legH * 0.4);
+    ctx.fillRect(a.leftLegX - 1, bLY, a.legW + 2, a.legH - Math.floor(a.legH * 0.4) + 2);
+    ctx.fillRect(a.rightLegX - 1, bRY, a.legW + 2, a.legH - Math.floor(a.legH * 0.4) + 2);
+    // Boot cuff trim
+    ctx.fillStyle = bootLight;
+    ctx.fillRect(a.leftLegX - 1, bLY, a.legW + 2, 1);
+    ctx.fillRect(a.rightLegX - 1, bRY, a.legW + 2, 1);
+    // Boot sole
+    ctx.fillStyle = '#332211';
+    ctx.fillRect(a.leftLegX - 2, a.legsTopY + a.walk.legL + a.legH, a.legW + 3, 2);
+    ctx.fillRect(a.rightLegX - 1, a.legsTopY + a.walk.legR + a.legH, a.legW + 3, 2);
+
+    // --- Back arms ---
+    if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        _drawRoundedRect(ctx, a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH, colors.skin, colors.outline);
+        // Wristguard on back arm
+        ctx.fillStyle = bootColor;
+        ctx.fillRect(a.rightArmX - 1, a.shoulderY + a.walk.armR + a.armH - 4, a.armW + 2, 3);
+        ctx.fillStyle = bootLight;
+        ctx.fillRect(a.rightArmX, a.shoulderY + a.walk.armR + a.armH - 4, a.armW, 1);
+    }
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        _drawRoundedRect(ctx, a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH, colors.skin, colors.outline);
+        ctx.fillStyle = bootColor;
+        ctx.fillRect(a.leftArmX - 1, a.shoulderY + a.walk.armL + a.armH - 4, a.armW + 2, 3);
+        ctx.fillStyle = bootLight;
+        ctx.fillRect(a.leftArmX, a.shoulderY + a.walk.armL + a.armH - 4, a.armW, 1);
+    }
+
+    // --- Tunic torso with belt, collar, and cuffs ---
+    _drawRoundedRect(ctx, a.torsoX, a.torsoY + a.walk.bob, a.torsoW, a.torsoH, tunicColor, colors.outline);
+    _drawSoftShading(ctx, a.torsoX, a.torsoY + a.walk.bob, a.torsoW, a.torsoH, tunicDark);
+    // Collar detail (V-shape or round)
+    if (dir !== DIR_UP) {
+        ctx.fillStyle = tunicLight;
+        ctx.fillRect(a.torsoX + 2, a.torsoY + a.walk.bob, a.torsoW - 4, 2);
+        // V-neck line
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(cx - 1, a.torsoY + a.walk.bob, 2, 3);
+    }
+    // Tunic hem trim
+    ctx.fillStyle = tunicLight;
+    ctx.fillRect(a.torsoX + 1, a.torsoY + a.walk.bob + a.torsoH - 1, a.torsoW - 2, 1);
+    // Belt with buckle
+    ctx.fillStyle = beltColor;
+    ctx.fillRect(a.torsoX + 1, a.torsoY + a.walk.bob + Math.floor(a.torsoH * 0.6), a.torsoW - 2, 2);
+    // Belt buckle (shiny center)
+    if (dir !== DIR_UP) {
+        ctx.fillStyle = beltBuckle;
+        ctx.fillRect(cx - 2, a.torsoY + a.walk.bob + Math.floor(a.torsoH * 0.6), 4, 2);
+        ctx.fillStyle = '#eedd55';
+        ctx.fillRect(cx - 1, a.torsoY + a.walk.bob + Math.floor(a.torsoH * 0.6), 2, 1);
+    }
+    // Shoulder cuffs
+    ctx.fillStyle = tunicLight;
+    ctx.fillRect(a.torsoX - 1, a.shoulderY + a.walk.bob, 3, 2);
+    ctx.fillRect(a.torsoX + a.torsoW - 2, a.shoulderY + a.walk.bob, 3, 2);
+
+    // --- Head ---
+    _drawRoundedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, colors.outline);
+    _drawSoftShading(ctx, a.headX, a.headY, a.headW, a.headH, colors.mid);
+
+    // --- Styled hair with bangs ---
+    ctx.fillStyle = colors.hair;
+    if (dir !== DIR_UP) {
+        // Top hair
+        ctx.fillRect(a.headX - 2, a.headY - 3, a.headW + 4, 6);
+        ctx.fillRect(a.headX - 1, a.headY - 5, a.headW + 2, 3);
+        // Side framing hair
+        ctx.fillRect(a.headX - 2, a.headY + 3, 3, 6);
+        ctx.fillRect(a.headX + a.headW - 1, a.headY + 3, 3, 6);
+        // Bangs (asymmetric, heroic style)
+        ctx.fillRect(a.headX + 2, a.headY - 1, 5, 4);
+        ctx.fillRect(a.headX + a.headW - 8, a.headY, 4, 3);
+        // Hair highlight
+        ctx.fillStyle = colors.mid || colors.hair;
+        ctx.globalAlpha = 0.3;
+        ctx.fillRect(a.headX + 4, a.headY - 3, 3, 4);
+        ctx.globalAlpha = 1.0;
+    } else {
+        // Back hair
+        ctx.fillStyle = colors.hair;
+        ctx.fillRect(a.headX - 2, a.headY - 1, a.headW + 4, a.headH + 3);
+        ctx.fillRect(a.headX - 1, a.headY - 4, a.headW + 2, 4);
+    }
+
+    // --- Anime-style oval eyes with highlights (NOT dots) ---
+    if (dir !== DIR_UP) {
+        const eyeY = a.headY + Math.floor(a.headH * 0.3);
+        if (dir === DIR_DOWN) {
+            // Large oval eye whites
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(cx - 9, eyeY, 7, 6);
+            ctx.fillRect(cx - 10, eyeY + 1, 1, 4);
+            ctx.fillRect(cx + 3, eyeY, 7, 6);
+            ctx.fillRect(cx + 10, eyeY + 1, 1, 4);
+            // Colored iris (large)
+            ctx.fillStyle = colors.eye;
+            ctx.fillRect(cx - 7, eyeY + 1, 4, 4);
+            ctx.fillRect(cx + 4, eyeY + 1, 4, 4);
+            // Dark pupil
+            ctx.fillStyle = '#111';
+            ctx.fillRect(cx - 6, eyeY + 2, 2, 3);
+            ctx.fillRect(cx + 5, eyeY + 2, 2, 3);
+            // Big highlight sparkle (anime style)
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(cx - 8, eyeY + 1, 2, 2);
+            ctx.fillRect(cx + 3, eyeY + 1, 2, 2);
+            // Small secondary highlight
+            ctx.fillRect(cx - 5, eyeY + 4, 1, 1);
+            ctx.fillRect(cx + 7, eyeY + 4, 1, 1);
+            // Thin upper lash line
+            ctx.fillStyle = colors.outline;
+            ctx.fillRect(cx - 9, eyeY - 1, 7, 1);
+            ctx.fillRect(cx + 3, eyeY - 1, 7, 1);
+        } else {
+            const ex = dir === DIR_RIGHT ? cx + 2 : cx - 8;
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(ex, eyeY, 7, 6);
+            ctx.fillRect(ex - 1, eyeY + 1, 1, 4);
+            ctx.fillStyle = colors.eye;
+            ctx.fillRect(ex + 2, eyeY + 1, 4, 4);
+            ctx.fillStyle = '#111';
+            ctx.fillRect(ex + 3, eyeY + 2, 2, 3);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(ex + 1, eyeY + 1, 2, 2);
+            ctx.fillStyle = colors.outline;
+            ctx.fillRect(ex, eyeY - 1, 7, 1);
+        }
+        // Small determined mouth
+        if (dir === DIR_DOWN) {
+            ctx.fillStyle = colors.outline;
+            ctx.fillRect(cx - 2, a.headY + a.headH - 5, 4, 1);
+            ctx.fillStyle = '#cc8888';
+            ctx.fillRect(cx - 1, a.headY + a.headH - 4, 2, 1);
+        }
+    }
+
+    // --- Cape clasp at collar (front view) ---
+    if (dir === DIR_DOWN) {
+        ctx.fillStyle = beltBuckle;
+        ctx.fillRect(a.torsoX - 1, a.shoulderY + a.walk.bob, 2, 2);
+        ctx.fillRect(a.torsoX + a.torsoW - 1, a.shoulderY + a.walk.bob, 2, 2);
+    }
+
+    // --- Front arms with wristguards ---
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        _drawRoundedRect(ctx, a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH, colors.skin, colors.outline);
+        ctx.fillStyle = bootColor;
+        ctx.fillRect(a.rightArmX - 1, a.shoulderY + a.walk.armR + a.armH - 4, a.armW + 2, 3);
+        ctx.fillStyle = bootLight;
+        ctx.fillRect(a.rightArmX, a.shoulderY + a.walk.armR + a.armH - 4, a.armW, 1);
+    }
+    if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        _drawRoundedRect(ctx, a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH, colors.skin, colors.outline);
+        ctx.fillStyle = bootColor;
+        ctx.fillRect(a.leftArmX - 1, a.shoulderY + a.walk.armL + a.armH - 4, a.armW + 2, 3);
+        ctx.fillStyle = bootLight;
+        ctx.fillRect(a.leftArmX, a.shoulderY + a.walk.armL + a.armH - 4, a.armW, 1);
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
