@@ -127,6 +127,8 @@ function _drawRaceSpecificBody(ctx, raceId, cx, groundY, dir, frame, scale, colo
 
 // ── Caches ────────────────────────────────────────────────────────────────────
 const _compositeCache = new Map();  // cacheKey → HTMLCanvasElement (1024×1024)
+const _compositeLRU = [];           // LRU order: most recent at end
+const MAX_CACHE_ENTRIES = 30;       // Cap at ~120MB (30 × 4MB per 1024×1024 sheet)
 const _themeImageCache = new Map(); // themePath → HTMLImageElement
 const _bodySheetImage = { img: null };
 
@@ -236,10 +238,20 @@ export class HumanoidSpriteSystem {
     static getCompositeSheet(raceId, stage = 1, equipment = null) {
         const cacheKey = _buildCacheKey(raceId, stage, equipment);
         if (_compositeCache.has(cacheKey)) {
+            // Move to end of LRU list (most recently used)
+            const idx = _compositeLRU.indexOf(cacheKey);
+            if (idx !== -1) _compositeLRU.splice(idx, 1);
+            _compositeLRU.push(cacheKey);
             return _compositeCache.get(cacheKey);
         }
         const sheet = this._generateCompositeSheet(raceId, stage, equipment);
         _compositeCache.set(cacheKey, sheet);
+        _compositeLRU.push(cacheKey);
+        // Evict oldest entries if over limit
+        while (_compositeLRU.length > MAX_CACHE_ENTRIES) {
+            const evictKey = _compositeLRU.shift();
+            _compositeCache.delete(evictKey);
+        }
         return sheet;
     }
 
@@ -323,7 +335,6 @@ export class HumanoidSpriteSystem {
 
         // Draw outfit overlay if appearance config exists
         if (appearance) {
-            const sheet = this.getCompositeSheet(raceId, stage, opts.equipment || null);
             // Generate anchors for the current frame position
             const halfSize = size / 2;
             const drawX = x - halfSize;
@@ -350,6 +361,7 @@ export class HumanoidSpriteSystem {
      */
     static clearCache() {
         _compositeCache.clear();
+        _compositeLRU.length = 0;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

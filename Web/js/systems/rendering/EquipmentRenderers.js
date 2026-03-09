@@ -16,6 +16,25 @@ const DIR_LEFT  = 1;
 const DIR_RIGHT = 2;
 const DIR_UP    = 3;
 
+// ── roundRect polyfill for older mobile WebViews ────────────────────────────
+if (typeof CanvasRenderingContext2D !== 'undefined' &&
+    !CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+        const r = typeof radii === 'number' ? radii : (Array.isArray(radii) ? radii[0] : 0);
+        const cr = Math.min(Math.max(0, r), Math.min(w, h) / 2);
+        this.moveTo(x + cr, y);
+        this.lineTo(x + w - cr, y);
+        this.arcTo(x + w, y, x + w, y + cr, cr);
+        this.lineTo(x + w, y + h - cr);
+        this.arcTo(x + w, y + h, x + w - cr, y + h, cr);
+        this.lineTo(x + cr, y + h);
+        this.arcTo(x, y + h, x, y + h - cr, cr);
+        this.lineTo(x, y + cr);
+        this.arcTo(x, y, x + cr, y, cr);
+        this.closePath();
+    };
+}
+
 // ── Clean Cel-Shaded Style Helpers ──────────────────────────────────────────
 
 /** Clean uniform-thickness outline around a rectangle for equipment */
