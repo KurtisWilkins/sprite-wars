@@ -2581,112 +2581,216 @@ function _drawGolem(ctx, a, dir, colors) {
     const stoneColor = colors.skin;
     const stoneDark = colors.outline;
     const stoneMid = colors.mid;
+    const runeColor = colors.eye;
+    const crystalColor = '#77aadd';
+    const crystalBright = '#aaddff';
 
-    // Shorter blocky pillar legs (stubby chibi)
-    const golemLegW = a.legW + 4;
-    _drawRoundedRect(ctx, Math.floor(cx - golemLegW - 2), a.legsTopY + a.walk.legL, golemLegW, a.legH, stoneColor, stoneDark);
-    _drawSoftShading(ctx, Math.floor(cx - golemLegW - 2), a.legsTopY + a.walk.legL, golemLegW, a.legH, stoneMid);
-    _drawRoundedRect(ctx, Math.floor(cx + 2), a.legsTopY + a.walk.legR, golemLegW, a.legH, stoneColor, stoneDark);
-    _drawSoftShading(ctx, Math.floor(cx + 2), a.legsTopY + a.walk.legR, golemLegW, a.legH, stoneMid);
-    // Flat stone feet
+    // --- Dust particles at feet ---
+    ctx.fillStyle = stoneMid;
+    ctx.globalAlpha = 0.25;
+    ctx.fillRect(cx - 10, a.feetY + 1, 2, 1);
+    ctx.fillRect(cx + 8, a.feetY + 2, 2, 1);
+    ctx.fillRect(cx - 6, a.feetY + 3, 1, 1);
+    ctx.fillRect(cx + 5, a.feetY + 1, 1, 1);
+    ctx.globalAlpha = 1.0;
+
+    // --- Massive pillar legs (widest, no knee) ---
+    const golemLegW = a.legW + 5;
+    const legLX = Math.floor(cx - golemLegW - 2);
+    const legRX = Math.floor(cx + 2);
+    _drawRoundedRect(ctx, legLX, a.legsTopY + a.walk.legL, golemLegW, a.legH + 1, stoneColor, stoneDark);
+    _drawSoftShading(ctx, legLX, a.legsTopY + a.walk.legL, golemLegW, a.legH + 1, stoneMid);
+    _drawRoundedRect(ctx, legRX, a.legsTopY + a.walk.legR, golemLegW, a.legH + 1, stoneColor, stoneDark);
+    _drawSoftShading(ctx, legRX, a.legsTopY + a.walk.legR, golemLegW, a.legH + 1, stoneMid);
+    // Construction seams at leg joints
     ctx.fillStyle = stoneDark;
-    ctx.fillRect(Math.floor(cx - golemLegW - 3), a.legsTopY + a.walk.legL + a.legH - 1, golemLegW + 2, 2);
-    ctx.fillRect(Math.floor(cx + 1), a.legsTopY + a.walk.legR + a.legH - 1, golemLegW + 2, 2);
+    ctx.fillRect(legLX + 1, a.legsTopY + a.walk.legL, golemLegW - 2, 1);
+    ctx.fillRect(legRX + 1, a.legsTopY + a.walk.legR, golemLegW - 2, 1);
+    // Flat heavy stone feet
+    ctx.fillRect(legLX - 2, a.legsTopY + a.walk.legL + a.legH, golemLegW + 4, 2);
+    ctx.fillRect(legRX - 2, a.legsTopY + a.walk.legR + a.legH, golemLegW + 4, 2);
+    // Rune on left leg
+    ctx.fillStyle = runeColor;
+    ctx.globalAlpha = 0.5;
+    ctx.fillRect(legLX + 2, a.legsTopY + a.walk.legL + 3, 3, 3);
+    ctx.globalAlpha = 1.0;
 
-    // Huge blocky arms (wider, shorter)
-    const golemArmW = a.armW + 4;
+    // --- Back massive arms ---
+    const golemArmW = a.armW + 5;
+    const golemArmH = a.armH + 2;
+    const armLX = Math.floor(cx - a.torsoW / 2 - golemArmW - 2);
+    const armRX = Math.floor(cx + a.torsoW / 2 + 2);
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        _drawRoundedRect(ctx, cx + a.torsoW / 2 + 1, a.shoulderY + a.walk.armR, golemArmW, a.armH, stoneColor, stoneDark);
-        _drawSoftShading(ctx, cx + a.torsoW / 2 + 1, a.shoulderY + a.walk.armR, golemArmW, a.armH, stoneMid);
+        _drawRoundedRect(ctx, armRX, a.shoulderY + a.walk.armR, golemArmW, golemArmH, stoneColor, stoneDark);
+        _drawSoftShading(ctx, armRX, a.shoulderY + a.walk.armR, golemArmW, golemArmH, stoneMid);
+        // Seam at shoulder joint
+        ctx.fillStyle = stoneDark;
+        ctx.fillRect(armRX + 1, a.shoulderY + a.walk.armR, golemArmW - 2, 1);
     }
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        _drawRoundedRect(ctx, cx - a.torsoW / 2 - golemArmW - 1, a.shoulderY + a.walk.armL, golemArmW, a.armH, stoneColor, stoneDark);
-        _drawSoftShading(ctx, cx - a.torsoW / 2 - golemArmW - 1, a.shoulderY + a.walk.armL, golemArmW, a.armH, stoneMid);
+        _drawRoundedRect(ctx, armLX, a.shoulderY + a.walk.armL, golemArmW, golemArmH, stoneColor, stoneDark);
+        _drawSoftShading(ctx, armLX, a.shoulderY + a.walk.armL, golemArmW, golemArmH, stoneMid);
+        ctx.fillStyle = stoneDark;
+        ctx.fillRect(armLX + 1, a.shoulderY + a.walk.armL, golemArmW - 2, 1);
     }
 
-    // Massive blocky torso (wider for golem, adjusted for shorter chibi height)
-    const golemTorsoW = a.torsoW + 10;
+    // --- Massive blocky torso (widest race) ---
+    const golemTorsoW = a.torsoW + 12;
     const golemTorsoX = Math.floor(cx - golemTorsoW / 2);
     _drawRoundedRect(ctx, golemTorsoX, a.torsoY + a.walk.bob, golemTorsoW, a.torsoH + 2, stoneColor, stoneDark);
     _drawSoftShading(ctx, golemTorsoX, a.torsoY + a.walk.bob, golemTorsoW, a.torsoH + 2, stoneMid);
+    // Stone color variations (lighter and darker patches)
+    ctx.fillStyle = stoneMid;
+    ctx.globalAlpha = 0.3;
+    ctx.fillRect(golemTorsoX + 2, a.torsoY + a.walk.bob + 1, 5, 4);
+    ctx.fillRect(golemTorsoX + golemTorsoW - 7, a.torsoY + a.walk.bob + 5, 4, 3);
+    ctx.globalAlpha = 1.0;
 
-    // Bigger glowing rune in chest center
+    // Crack pattern network on torso
+    ctx.fillStyle = stoneDark;
+    ctx.fillRect(golemTorsoX + 3, a.torsoY + a.walk.bob + 3, 6, 1);
+    ctx.fillRect(golemTorsoX + 7, a.torsoY + a.walk.bob + 3, 1, 4);
+    ctx.fillRect(golemTorsoX + 7, a.torsoY + a.walk.bob + 6, 4, 1);
+    ctx.fillRect(golemTorsoX + golemTorsoW - 9, a.torsoY + a.walk.bob + 2, 1, 5);
+    ctx.fillRect(golemTorsoX + golemTorsoW - 9, a.torsoY + a.walk.bob + 2, 4, 1);
+    ctx.fillRect(golemTorsoX + golemTorsoW - 6, a.torsoY + a.walk.bob + a.torsoH - 2, 5, 1);
+
+    // Glowing chest rune (large, with cross pattern)
     if (dir !== DIR_UP) {
-        ctx.fillStyle = colors.eye;
-        ctx.fillRect(cx - 3, a.torsoY + a.walk.bob + Math.floor(a.torsoH / 2) - 2, 6, 5);
-        // Rune glow halo
-        ctx.fillStyle = colors.eye;
-        ctx.globalAlpha = 0.25;
-        ctx.fillRect(cx - 4, a.torsoY + a.walk.bob + Math.floor(a.torsoH / 2) - 3, 8, 7);
-        ctx.globalAlpha = 1.0;
-        // Rune highlight center
+        ctx.fillStyle = runeColor;
+        ctx.fillRect(cx - 3, a.torsoY + a.walk.bob + 2, 6, 6);
+        // Cross shape inside rune
         ctx.fillStyle = '#fff';
-        ctx.fillRect(cx - 1, a.torsoY + a.walk.bob + Math.floor(a.torsoH / 2) - 1, 3, 3);
+        ctx.fillRect(cx - 1, a.torsoY + a.walk.bob + 2, 2, 6);
+        ctx.fillRect(cx - 3, a.torsoY + a.walk.bob + 4, 6, 2);
+        // Glow halo
+        ctx.fillStyle = runeColor;
+        ctx.globalAlpha = 0.25;
+        ctx.fillRect(cx - 5, a.torsoY + a.walk.bob + 1, 10, 8);
+        ctx.globalAlpha = 1.0;
+    }
+    // Construction seam at waist
+    ctx.fillStyle = stoneDark;
+    ctx.fillRect(golemTorsoX + 2, a.torsoY + a.walk.bob + a.torsoH, golemTorsoW - 4, 1);
+
+    // --- Crystal growths on shoulders ---
+    if (dir !== DIR_UP) {
+        // Left shoulder crystals
+        ctx.fillStyle = crystalColor;
+        ctx.fillRect(golemTorsoX - 1, a.shoulderY + a.walk.bob - 5, 3, 6);
+        ctx.fillRect(golemTorsoX + 1, a.shoulderY + a.walk.bob - 8, 2, 4);
+        ctx.fillStyle = crystalBright;
+        ctx.fillRect(golemTorsoX, a.shoulderY + a.walk.bob - 4, 1, 3);
+        // Right shoulder crystals
+        ctx.fillStyle = crystalColor;
+        ctx.fillRect(golemTorsoX + golemTorsoW - 2, a.shoulderY + a.walk.bob - 4, 3, 5);
+        ctx.fillRect(golemTorsoX + golemTorsoW - 3, a.shoulderY + a.walk.bob - 7, 2, 4);
+        ctx.fillStyle = crystalBright;
+        ctx.fillRect(golemTorsoX + golemTorsoW - 1, a.shoulderY + a.walk.bob - 3, 1, 3);
     }
 
-    // Crack lines (fewer for shorter torso)
-    ctx.fillStyle = stoneDark;
-    ctx.fillRect(golemTorsoX + 3, a.torsoY + a.walk.bob + 3, 5, 1);
-    ctx.fillRect(golemTorsoX + 6, a.torsoY + a.walk.bob + 4, 1, 3);
-    ctx.fillRect(golemTorsoX + golemTorsoW - 8, a.torsoY + a.walk.bob + a.torsoH - 3, 5, 1);
-
-    // Bigger square chibi head (no neck, sits right on torso)
-    const golemHeadW = a.headW + 6;
+    // --- Square head (no neck, directly on torso) ---
+    const golemHeadW = a.headW + 8;
     const golemHeadX = Math.floor(cx - golemHeadW / 2);
     _drawRoundedRect(ctx, golemHeadX, a.headY + 2, golemHeadW, a.headH - 2, stoneColor, stoneDark);
     _drawSoftShading(ctx, golemHeadX, a.headY + 2, golemHeadW, a.headH - 2, stoneMid);
+    // Forehead rune
+    if (dir !== DIR_UP) {
+        ctx.fillStyle = runeColor;
+        ctx.fillRect(cx - 2, a.headY + 3, 4, 3);
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(cx - 1, a.headY + 4, 2, 1);
+        // Rune glow
+        ctx.fillStyle = runeColor;
+        ctx.globalAlpha = 0.2;
+        ctx.fillRect(cx - 3, a.headY + 2, 6, 5);
+        ctx.globalAlpha = 1.0;
+    }
+    // Head crack network
+    ctx.fillStyle = stoneDark;
+    ctx.fillRect(golemHeadX + golemHeadW - 6, a.headY + 4, 1, 8);
+    ctx.fillRect(golemHeadX + golemHeadW - 7, a.headY + 6, 1, 5);
+    ctx.fillRect(golemHeadX + golemHeadW - 8, a.headY + 8, 1, 3);
+    ctx.fillRect(golemHeadX + 4, a.headY + a.headH - 4, 4, 1);
+    ctx.fillRect(golemHeadX + 4, a.headY + a.headH - 5, 1, 2);
 
-    // Bigger glowing rune eyes
+    // --- Rectangular glowing eyes ---
     if (dir !== DIR_UP) {
         const eyeY = a.headY + Math.floor(a.headH * 0.35);
-        ctx.fillStyle = colors.eye;
+        ctx.fillStyle = runeColor;
         if (dir === DIR_DOWN) {
-            ctx.fillRect(cx - 8, eyeY, 6, 5);
-            ctx.fillRect(cx + 3, eyeY, 6, 5);
+            // Wide rectangular eyes
+            ctx.fillRect(cx - 9, eyeY, 7, 4);
+            ctx.fillRect(cx + 3, eyeY, 7, 4);
             // Glow halo
-            ctx.fillStyle = colors.eye;
+            ctx.fillStyle = runeColor;
             ctx.globalAlpha = 0.3;
-            ctx.fillRect(cx - 9, eyeY - 1, 8, 7);
-            ctx.fillRect(cx + 2, eyeY - 1, 8, 7);
+            ctx.fillRect(cx - 10, eyeY - 1, 9, 6);
+            ctx.fillRect(cx + 2, eyeY - 1, 9, 6);
             ctx.globalAlpha = 1.0;
-            // Eye highlight
+            // Bright center
             ctx.fillStyle = '#fff';
             ctx.fillRect(cx - 7, eyeY + 1, 3, 2);
-            ctx.fillRect(cx + 4, eyeY + 1, 3, 2);
+            ctx.fillRect(cx + 5, eyeY + 1, 3, 2);
         } else {
-            const ex = dir === DIR_RIGHT ? cx + 2 : cx - 7;
-            ctx.fillStyle = colors.eye;
-            ctx.fillRect(ex, eyeY, 6, 5);
-            ctx.fillStyle = colors.eye;
+            const ex = dir === DIR_RIGHT ? cx + 2 : cx - 8;
+            ctx.fillStyle = runeColor;
+            ctx.fillRect(ex, eyeY, 7, 4);
+            ctx.fillStyle = runeColor;
             ctx.globalAlpha = 0.3;
-            ctx.fillRect(ex - 1, eyeY - 1, 8, 7);
+            ctx.fillRect(ex - 1, eyeY - 1, 9, 6);
             ctx.globalAlpha = 1.0;
             ctx.fillStyle = '#fff';
-            ctx.fillRect(ex + 1, eyeY + 1, 3, 2);
+            ctx.fillRect(ex + 2, eyeY + 1, 3, 2);
         }
     }
 
-    // Head cracks (bigger for chibi head)
+    // --- Biggest fists at arm bottoms ---
+    const fistW = golemArmW + 3;
+    const fistH = 4;
+    ctx.fillStyle = stoneColor;
+    ctx.fillRect(armLX - 1, a.shoulderY + a.walk.armL + golemArmH - 1, fistW, fistH);
+    ctx.fillRect(armRX - 1, a.shoulderY + a.walk.armR + golemArmH - 1, fistW, fistH);
     ctx.fillStyle = stoneDark;
-    ctx.fillRect(golemHeadX + golemHeadW - 6, a.headY + 4, 1, 7);
-    ctx.fillRect(golemHeadX + golemHeadW - 7, a.headY + 6, 1, 4);
-    ctx.fillRect(golemHeadX + 4, a.headY + a.headH - 5, 3, 1);
+    ctx.fillRect(armLX - 1, a.shoulderY + a.walk.armL + golemArmH + fistH - 2, fistW, 1);
+    ctx.fillRect(armRX - 1, a.shoulderY + a.walk.armR + golemArmH + fistH - 2, fistW, 1);
+    // Rune on arm
+    ctx.fillStyle = runeColor;
+    ctx.globalAlpha = 0.5;
+    ctx.fillRect(armLX + 2, a.shoulderY + a.walk.armL + 4, 3, 3);
+    ctx.fillRect(armRX + 2, a.shoulderY + a.walk.armR + 4, 3, 3);
+    ctx.globalAlpha = 1.0;
 
-    // Fist details at arm bottoms
-    if (dir !== DIR_UP) {
-        ctx.fillStyle = stoneDark;
-        ctx.fillRect(cx - a.torsoW / 2 - golemArmW - 1, a.shoulderY + a.walk.armL + a.armH - 1, golemArmW + 2, 2);
-        ctx.fillRect(cx + a.torsoW / 2, a.shoulderY + a.walk.armR + a.armH - 1, golemArmW + 2, 2);
-    }
-
-    // Front arms
+    // --- Front arms ---
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        _drawRoundedRect(ctx, cx + a.torsoW / 2 + 1, a.shoulderY + a.walk.armR, golemArmW, a.armH, stoneColor, stoneDark);
-        _drawSoftShading(ctx, cx + a.torsoW / 2 + 1, a.shoulderY + a.walk.armR, golemArmW, a.armH, stoneMid);
+        _drawRoundedRect(ctx, armRX, a.shoulderY + a.walk.armR, golemArmW, golemArmH, stoneColor, stoneDark);
+        _drawSoftShading(ctx, armRX, a.shoulderY + a.walk.armR, golemArmW, golemArmH, stoneMid);
+        ctx.fillStyle = stoneDark;
+        ctx.fillRect(armRX + 1, a.shoulderY + a.walk.armR, golemArmW - 2, 1);
+        // Fist
+        ctx.fillStyle = stoneColor;
+        ctx.fillRect(armRX - 1, a.shoulderY + a.walk.armR + golemArmH - 1, fistW, fistH);
+        ctx.fillStyle = stoneDark;
+        ctx.fillRect(armRX - 1, a.shoulderY + a.walk.armR + golemArmH + fistH - 2, fistW, 1);
+        // Arm rune
+        ctx.fillStyle = runeColor;
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(armRX + 2, a.shoulderY + a.walk.armR + 4, 3, 3);
+        ctx.globalAlpha = 1.0;
     }
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        _drawRoundedRect(ctx, cx - a.torsoW / 2 - golemArmW - 1, a.shoulderY + a.walk.armL, golemArmW, a.armH, stoneColor, stoneDark);
-        _drawSoftShading(ctx, cx - a.torsoW / 2 - golemArmW - 1, a.shoulderY + a.walk.armL, golemArmW, a.armH, stoneMid);
+        _drawRoundedRect(ctx, armLX, a.shoulderY + a.walk.armL, golemArmW, golemArmH, stoneColor, stoneDark);
+        _drawSoftShading(ctx, armLX, a.shoulderY + a.walk.armL, golemArmW, golemArmH, stoneMid);
+        ctx.fillStyle = stoneDark;
+        ctx.fillRect(armLX + 1, a.shoulderY + a.walk.armL, golemArmW - 2, 1);
+        ctx.fillStyle = stoneColor;
+        ctx.fillRect(armLX - 1, a.shoulderY + a.walk.armL + golemArmH - 1, fistW, fistH);
+        ctx.fillStyle = stoneDark;
+        ctx.fillRect(armLX - 1, a.shoulderY + a.walk.armL + golemArmH + fistH - 2, fistW, 1);
+        ctx.fillStyle = runeColor;
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(armLX + 2, a.shoulderY + a.walk.armL + 4, 3, 3);
+        ctx.globalAlpha = 1.0;
     }
 }
 

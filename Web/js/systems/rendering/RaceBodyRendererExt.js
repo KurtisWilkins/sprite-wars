@@ -810,55 +810,189 @@ function _drawMonkeyman(ctx, a, dir, colors) {
 
 // ── Race 16: Mummy ──────────────────────────────────────────────────────────
 function _drawMummy(ctx, a, dir, colors) {
-    _drawGenericBody(ctx, a, dir, colors, false);
     const cx = Math.floor(a.torsoX + a.torsoW / 2);
+    const bob = a.walk.bob;
+    const bandageColor = '#d4c8a0';
+    const bandageDark = '#b0a478';
+    const voidColor = '#2a1a0a';
+    const goldColor = '#ccaa33';
 
-    // Bandage wrapping pattern - horizontal stripes across body
-    ctx.fillStyle = '#d4c8a0';
-    // Head bandages
-    for (let y = a.headY + 2; y < a.headY + a.headH - 2; y += 3) {
-        ctx.fillRect(a.headX + 1, y, a.headW - 2, 2);
+    // --- Trailing loose bandage strips (behind body) ---
+    ctx.fillStyle = bandageColor;
+    if (dir !== DIR_UP) {
+        // Loose strips hanging from back
+        ctx.fillRect(a.leftArmX - 2, a.shoulderY + a.walk.armL + a.armH, 2, 6 + Math.abs(a.walk.armL));
+        ctx.fillRect(a.rightArmX + a.armW, a.shoulderY + a.walk.armR + a.armH, 2, 5 + Math.abs(a.walk.armR));
+        ctx.fillRect(a.torsoX - 1, a.torsoY + a.torsoH + bob - 2, 2, 5);
+        ctx.fillRect(a.torsoX + a.torsoW - 1, a.torsoY + a.torsoH + bob - 1, 2, 4);
     }
-    // Torso bandages
-    for (let y = a.torsoY + a.walk.bob + 1; y < a.torsoY + a.walk.bob + a.torsoH - 1; y += 3) {
-        ctx.fillRect(a.torsoX + 1, y, a.torsoW - 2, 2);
+
+    // --- Back arms (bandaged) ---
+    if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        _drawArm(ctx, a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH, colors, 'right');
     }
-    // Arm bandages
-    for (let y = 0; y < a.armH; y += 3) {
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        _drawArm(ctx, a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH, colors, 'left');
+    }
+
+    // --- Legs (bandaged, shambling posture - offset) ---
+    const lLegOff = dir === DIR_DOWN || dir === DIR_LEFT ? 1 : 0;
+    const rLegOff = dir === DIR_DOWN || dir === DIR_RIGHT ? 1 : 0;
+    _drawLeg(ctx, a.leftLegX + lLegOff, a.legsTopY + a.walk.legL, a.legW, a.legH, colors);
+    _drawLeg(ctx, a.rightLegX - rLegOff, a.legsTopY + a.walk.legR, a.legW, a.legH, colors);
+    // Gold ankle bands
+    ctx.fillStyle = goldColor;
+    ctx.fillRect(a.leftLegX + lLegOff - 1, a.legsTopY + a.walk.legL + a.legH - 4, a.legW + 2, 2);
+    ctx.fillRect(a.rightLegX - rLegOff - 1, a.legsTopY + a.walk.legR + a.legH - 4, a.legW + 2, 2);
+    // Leg bandage wraps with void gaps
+    for (let y = 0; y < a.legH - 4; y += 3) {
+        ctx.fillStyle = bandageColor;
+        ctx.fillRect(a.leftLegX + lLegOff, a.legsTopY + a.walk.legL + y, a.legW, 2);
+        ctx.fillRect(a.rightLegX - rLegOff, a.legsTopY + a.walk.legR + y, a.legW, 2);
+        ctx.fillStyle = voidColor;
+        ctx.fillRect(a.leftLegX + lLegOff, a.legsTopY + a.walk.legL + y + 2, a.legW, 1);
+        ctx.fillRect(a.rightLegX - rLegOff, a.legsTopY + a.walk.legR + y + 2, a.legW, 1);
+    }
+    // Dessicated thin fingers on feet
+    ctx.fillStyle = '#554433';
+    ctx.fillRect(a.leftLegX + lLegOff - 1, a.legsTopY + a.walk.legL + a.legH - 1, a.legW + 2, 2);
+    ctx.fillRect(a.rightLegX - rLegOff - 1, a.legsTopY + a.walk.legR + a.legH - 1, a.legW + 2, 2);
+
+    // --- Torso (bandage wrapping IS the body, shambling posture) ---
+    const torsoOff = dir === DIR_LEFT ? 1 : (dir === DIR_RIGHT ? -1 : 0);
+    _drawOutlinedRect(ctx, a.torsoX + torsoOff, a.torsoY + bob, a.torsoW, a.torsoH, bandageColor, colors.outline);
+    // Bandage rows with dark void gaps between
+    for (let y = 0; y < a.torsoH - 1; y += 3) {
+        ctx.fillStyle = bandageColor;
+        ctx.fillRect(a.torsoX + torsoOff + 1, a.torsoY + bob + y, a.torsoW - 2, 2);
+        ctx.fillStyle = voidColor;
+        ctx.fillRect(a.torsoX + torsoOff + 1, a.torsoY + bob + y + 2, a.torsoW - 2, 1);
+    }
+    // Diagonal wrap detail
+    ctx.fillStyle = bandageDark;
+    ctx.fillRect(a.torsoX + torsoOff + 2, a.torsoY + bob + 1, 2, a.torsoH - 2);
+    ctx.fillRect(a.torsoX + torsoOff + a.torsoW - 4, a.torsoY + bob + 1, 2, a.torsoH - 2);
+
+    // Scarab on chest
+    if (dir === DIR_DOWN) {
+        ctx.fillStyle = '#2266aa';
+        ctx.fillRect(cx - 2, a.torsoY + bob + 2, 4, 3);
+        ctx.fillStyle = '#44aadd';
+        ctx.fillRect(cx - 1, a.torsoY + bob + 3, 2, 1);
+        // Scarab wings
+        ctx.fillStyle = '#2266aa';
+        ctx.fillRect(cx - 4, a.torsoY + bob + 3, 2, 2);
+        ctx.fillRect(cx + 2, a.torsoY + bob + 3, 2, 2);
+    }
+
+    // Gold collar/pectoral
+    ctx.fillStyle = goldColor;
+    ctx.fillRect(a.torsoX + torsoOff - 1, a.torsoY + bob - 1, a.torsoW + 2, 2);
+    // Gem in collar center
+    if (dir === DIR_DOWN) {
+        ctx.fillStyle = '#cc2222';
+        ctx.fillRect(cx - 1, a.torsoY + bob - 1, 3, 2);
+    }
+
+    // Gold arm bands
+    ctx.fillStyle = goldColor;
+    ctx.fillRect(a.leftArmX - 1, a.shoulderY + a.walk.armL + 2, a.armW + 2, 2);
+    ctx.fillRect(a.rightArmX - 1, a.shoulderY + a.walk.armR + 2, a.armW + 2, 2);
+
+    // Arm bandage wraps with void gaps
+    for (let y = 4; y < a.armH; y += 3) {
+        ctx.fillStyle = bandageColor;
         ctx.fillRect(a.leftArmX, a.shoulderY + a.walk.armL + y, a.armW, 2);
         ctx.fillRect(a.rightArmX, a.shoulderY + a.walk.armR + y, a.armW, 2);
+        ctx.fillStyle = voidColor;
+        ctx.fillRect(a.leftArmX, a.shoulderY + a.walk.armL + y + 2, a.armW, 1);
+        ctx.fillRect(a.rightArmX, a.shoulderY + a.walk.armR + y + 2, a.armW, 1);
     }
-    // Leg bandages
-    for (let y = 0; y < a.legH; y += 3) {
-        ctx.fillRect(a.leftLegX, a.legsTopY + a.walk.legL + y, a.legW, 2);
-        ctx.fillRect(a.rightLegX, a.legsTopY + a.walk.legR + y, a.legW, 2);
+    // Dessicated thin fingers
+    ctx.fillStyle = '#554433';
+    ctx.fillRect(a.leftArmX, a.shoulderY + a.walk.armL + a.armH, a.armW, 3);
+    ctx.fillRect(a.rightArmX, a.shoulderY + a.walk.armR + a.armH, a.armW, 3);
+    ctx.fillStyle = '#443322';
+    ctx.fillRect(a.leftArmX - 1, a.shoulderY + a.walk.armL + a.armH + 2, 1, 2);
+    ctx.fillRect(a.leftArmX + a.armW, a.shoulderY + a.walk.armL + a.armH + 2, 1, 2);
+    ctx.fillRect(a.rightArmX - 1, a.shoulderY + a.walk.armR + a.armH + 2, 1, 2);
+    ctx.fillRect(a.rightArmX + a.armW, a.shoulderY + a.walk.armR + a.armH + 2, 1, 2);
+
+    // --- Head (bandage wrapped with pharaonic headdress) ---
+    _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, bandageColor, colors.outline);
+    // Head bandage wraps
+    for (let y = 2; y < a.headH - 2; y += 3) {
+        ctx.fillStyle = bandageColor;
+        ctx.fillRect(a.headX + 1, a.headY + y, a.headW - 2, 2);
+        ctx.fillStyle = voidColor;
+        ctx.fillRect(a.headX + 1, a.headY + y + 2, a.headW - 2, 1);
     }
 
-    // One glowing eye visible through bandages
+    // Egyptian pharaonic headdress (nemes)
+    ctx.fillStyle = '#2244aa';
+    ctx.fillRect(a.headX - 3, a.headY - 4, a.headW + 6, 5);
+    ctx.fillRect(a.headX - 4, a.headY - 2, a.headW + 8, 3);
+    // Headdress side flaps
+    if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        ctx.fillRect(a.headX - 4, a.headY + 1, 4, a.headH - 1);
+        ctx.fillRect(a.headX - 5, a.headY + a.headH - 4, 4, 6);
+    }
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        ctx.fillRect(a.headX + a.headW, a.headY + 1, 4, a.headH - 1);
+        ctx.fillRect(a.headX + a.headW + 1, a.headY + a.headH - 4, 4, 6);
+    }
+    // Gold stripes on headdress
+    ctx.fillStyle = goldColor;
+    ctx.fillRect(a.headX - 2, a.headY - 3, a.headW + 4, 1);
+    ctx.fillRect(a.headX - 3, a.headY, a.headW + 6, 1);
+
+    // Eye of Horus on forehead
+    if (dir === DIR_DOWN) {
+        ctx.fillStyle = goldColor;
+        ctx.fillRect(cx - 2, a.headY + 1, 4, 2);
+        ctx.fillRect(cx - 1, a.headY, 2, 1);
+    }
+
+    // Glowing eye through bandage slit
     if (dir !== DIR_UP) {
         const eyeY = a.headY + Math.floor(a.headH * 0.35);
+        // Dark slit opening
+        ctx.fillStyle = voidColor;
+        if (dir === DIR_DOWN) {
+            ctx.fillRect(a.headX + 3, eyeY, a.headW - 6, 3);
+        } else {
+            const sx = dir === DIR_RIGHT ? cx - 1 : cx - a.headW / 2 + 2;
+            ctx.fillRect(sx, eyeY, Math.floor(a.headW * 0.5), 3);
+        }
+        // Glowing eye(s) in slit
         ctx.fillStyle = colors.eye;
         if (dir === DIR_DOWN) {
-            ctx.fillRect(cx + 3, eyeY, 3, 3);
+            ctx.fillRect(cx + 3, eyeY + 1, 3, 2);
+            ctx.fillRect(cx - 5, eyeY + 1, 3, 2);
         } else {
-            const ex = dir === DIR_RIGHT ? cx + 2 : cx - 3;
-            ctx.fillRect(ex, eyeY, 3, 3);
+            const ex = dir === DIR_RIGHT ? cx + 2 : cx - 4;
+            ctx.fillRect(ex, eyeY + 1, 3, 2);
         }
-        // Glow
-        ctx.fillStyle = 'rgba(255,255,100,0.3)';
-        ctx.fillRect(cx + (dir === DIR_DOWN ? 2 : (dir === DIR_RIGHT ? 1 : -4)), eyeY - 1, 5, 5);
+        // Glow aura
+        ctx.fillStyle = 'rgba(255,255,100,0.25)';
+        if (dir === DIR_DOWN) {
+            ctx.fillRect(cx + 2, eyeY - 1, 5, 5);
+            ctx.fillRect(cx - 6, eyeY - 1, 5, 5);
+        } else {
+            const gx = dir === DIR_RIGHT ? cx + 1 : cx - 5;
+            ctx.fillRect(gx, eyeY - 1, 5, 5);
+        }
     }
 
-    // Loose trailing bandage strips at arm ends
-    ctx.fillStyle = '#c4b890';
-    ctx.fillRect(a.leftArmX - 1, a.shoulderY + a.walk.armL + a.armH, 3, 4);
-    ctx.fillRect(a.rightArmX + a.armW - 2, a.shoulderY + a.walk.armR + a.armH, 3, 4);
-
-    // Dusty gray overlay dots for aged look
-    ctx.fillStyle = 'rgba(128,128,128,0.2)';
-    ctx.fillRect(a.torsoX + 3, a.torsoY + 3 + a.walk.bob, 2, 2);
-    ctx.fillRect(a.torsoX + a.torsoW - 5, a.torsoY + a.torsoH - 5 + a.walk.bob, 2, 2);
-    ctx.fillRect(a.headX + 4, a.headY + 5, 2, 2);
+    // --- Front arms ---
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH, colors, 'right');
+    if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH, colors, 'left');
+    // Re-apply front arm bandage wraps
+    for (let y = 4; y < a.armH; y += 3) {
+        ctx.fillStyle = bandageColor;
+        if (dir === DIR_DOWN || dir === DIR_RIGHT) ctx.fillRect(a.rightArmX, a.shoulderY + a.walk.armR + y, a.armW, 2);
+        if (dir === DIR_DOWN || dir === DIR_LEFT) ctx.fillRect(a.leftArmX, a.shoulderY + a.walk.armL + y, a.armW, 2);
+    }
 }
 
 // ── Race 17: Ork ────────────────────────────────────────────────────────────
