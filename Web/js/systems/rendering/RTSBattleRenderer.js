@@ -1,17 +1,17 @@
 /**
  * RTSBattleRenderer.js — Renders the RTS battlefield.
  *
- * Art Style: 2D mobile game cel-shaded style
- *   - Clean black outlines of uniform 2-3px thickness
- *   - Flat cel-shading with one highlight and one shadow per color zone (NO gradients)
- *   - Chibi proportions for units (large head, compact body)
+ * Art Style: Adventure Quest / Flash-RPG cartoon style
+ *   - Bold black outlines of uniform 2-3px thickness
+ *   - Cel-shaded with hard-edged two-tone shading (NO gradients)
+ *   - Semi-proportional heroic builds (head ~30% of height)
  *   - Vibrant saturated fantasy color palette
- *   - Bold readable silhouettes
+ *   - Bold readable silhouettes with dynamic poses
  *   - Clean geometric shapes for effects and UI
  *
  * Draws:
- *   - Battlefield background with flat cel-shaded terrain
- *   - All living units as chibi humanoid sprites with equipment
+ *   - Battlefield background with cel-shaded terrain
+ *   - All living units as AQ-style humanoid sprites with equipment
  *   - Health bars with clean black outlines
  *   - Status effect icons with outlines
  *   - Floating damage/heal numbers with outlines
@@ -56,8 +56,8 @@ const ELEMENT_COLORS = {
     Metal: '#9999bb', Poison: '#aa44cc',
 };
 
-// ── Unit Draw Constants (chibi proportions) ─────────────────────────────────
-const UNIT_DRAW_SIZE = 56;        // Chibi sprites drawn larger for big-head readability
+// ── Unit Draw Constants (AQ-style proportions) ──────────────────────────────
+const UNIT_DRAW_SIZE = 56;        // AQ-style sprites drawn for heroic readability
 const HP_BAR_WIDTH = 42;
 const HP_BAR_HEIGHT = 5;
 const HP_BAR_OFFSET_Y = 8;       // Above unit top
@@ -356,7 +356,7 @@ export class RTSBattleRenderer {
                 ctx.translate(-drawX, -(drawY - UNIT_DRAW_SIZE / 2));
             }
 
-            // Draw the unit sprite (chibi proportions handled by HumanoidSpriteSystem)
+            // Draw the unit sprite (AQ-style proportions handled by HumanoidSpriteSystem)
             this._drawUnitSprite(ctx, unit, drawX, drawY, spriteFrame);
 
             // Draw flash overlay if active (clean solid rect, no gradient)
@@ -432,7 +432,7 @@ export class RTSBattleRenderer {
 
     _drawUnitSprite(ctx, unit, x, y, frame) {
         // Use HumanoidSpriteSystem for composite sprites with equipment
-        // UNIT_DRAW_SIZE is set for chibi proportions (large head, compact body)
+        // UNIT_DRAW_SIZE is set for AQ-style proportions (heroic builds)
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, unit.raceId, unit.evolutionStage,
             unit.facing, frame != null ? frame : unit.walkFrame,

@@ -1,11 +1,14 @@
 /**
- * RaceBodyRendererExt.js — Cel-shaded race-specific humanoid body rendering (Races 13-24).
- * Each race has a unique chibi body shape with big head, stubby limbs, simple dot eyes,
- * and distinguishing characteristics drawn in 64×64 logical space, rendered at 256×256 via 4× supersampling.
+ * RaceBodyRendererExt.js — AQ-style race-specific humanoid body rendering (Races 13-24).
+ * Each race has a unique body shape with semi-proportional heroic builds, expressive
+ * anime-cartoon eyes, and distinguishing characteristics drawn in 64×64 logical space,
+ * rendered at 256×256 via 4× supersampling.
  *
- * Art style: Flat cel-shaded, clean black outlines of uniform thickness, smooth rounded edges,
- * chibi proportions, vibrant saturated colors, hard-edged shading (flat fills),
- * NO gradients, simple dot eyes, no pixel art.
+ * Art style: Adventure Quest / Flash-RPG cartoon style — bold black outlines,
+ * semi-proportional heroic builds (head ~30% of height), expressive anime-cartoon
+ * eyes with iris/pupil/highlight, vibrant saturated fantasy palette, cel-shaded
+ * with hard-edged two-tone shading, detailed race features, visible necks,
+ * longer limbs, dynamic poses. Clean digital cartoon illustration, no pixel art.
  *
  * Race mappings:
  *   13=Lizard man, 14=Minotaur, 15=Monkey man, 16=Mummy, 17=Ork, 18=Rat man,
@@ -34,12 +37,12 @@ export const RACE_BODY_TYPES_EXT = {
     24: 'zombie',
 };
 
-// Walk animation cycles (4 frames) — bouncier chibi walk
+// Walk animation cycles (4 frames) — AQ-style smooth stride
 const WALK_CYCLES = [
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: -4, armR: 4,  legL: 4,  legR: -2, bob: -2 },
+    { armL: -3, armR: 3,  legL: 3,  legR: -2, bob: -1 },
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: 4,  armR: -4, legL: -2, legR: 4,  bob: -2 },
+    { armL: 3,  armR: -3, legL: -2, legR: 3,  bob: -1 },
 ];
 
 // ── roundRect polyfill for older mobile WebViews ────────────────────────────
@@ -138,26 +141,58 @@ function _drawSoftShading(ctx, x, y, w, h, midColor) {
     ctx.globalAlpha = 1.0;
 }
 
-// ── Simple dot eyes (small filled black circles) ──────────────────────────
+// ── Expressive AQ-style anime-cartoon eyes with iris/pupil/highlight ───────
 function _drawEyes(ctx, cx, eyeY, dir, colors, spacing) {
     const sp = spacing || 7;
-    ctx.fillStyle = '#111111';
+    const eyeColor = colors.eye || '#4488cc';
     if (dir === DIR_DOWN) {
-        // Two small filled black dots
+        // White sclera
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - sp - 2, eyeY + 1, 5, 5);
+        ctx.fillRect(cx + sp - 2, eyeY + 1, 5, 5);
+        // Colored iris
+        ctx.fillStyle = eyeColor;
         ctx.fillRect(cx - sp - 1, eyeY + 2, 3, 3);
         ctx.fillRect(cx + sp - 1, eyeY + 2, 3, 3);
+        // Black pupil
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(cx - sp, eyeY + 3, 1, 1);
+        ctx.fillRect(cx + sp, eyeY + 3, 1, 1);
+        // White highlight
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - sp + 1, eyeY + 2, 1, 1);
+        ctx.fillRect(cx + sp + 1, eyeY + 2, 1, 1);
+        // Outline
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(cx - sp - 2, eyeY, 5, 1);
+        ctx.fillRect(cx + sp - 2, eyeY, 5, 1);
     } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
-        // Single dot for side view
-        const ex = dir === DIR_RIGHT ? cx + 3 : cx - 5;
-        ctx.fillRect(ex, eyeY + 2, 3, 3);
+        const ex = dir === DIR_RIGHT ? cx + 3 : cx - 6;
+        // White sclera
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(ex, eyeY + 1, 4, 5);
+        // Colored iris
+        ctx.fillStyle = eyeColor;
+        ctx.fillRect(ex + 1, eyeY + 2, 2, 3);
+        // Black pupil
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(ex + 1, eyeY + 3, 1, 1);
+        // White highlight
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(ex + 2, eyeY + 2, 1, 1);
+        // Outline
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(ex, eyeY, 4, 1);
     }
 }
 
 function _drawMouth(ctx, cx, y, dir, color) {
     if (dir === DIR_DOWN) {
         ctx.fillStyle = '#111111';
-        // Simple small line mouth
-        ctx.fillRect(cx - 1, y, 3, 1);
+        // Expressive AQ-style curved mouth
+        ctx.fillRect(cx - 2, y, 5, 1);
+        ctx.fillRect(cx - 3, y - 1, 1, 1);
+        ctx.fillRect(cx + 3, y - 1, 1, 1);
     }
 }
 
@@ -230,7 +265,8 @@ function _buildAnchors(cx, groundY, scale, walk, dims) {
     const feetY = groundY;
     const legsTopY = feetY - legH;
     const torsoTopY = legsTopY - torsoH + 1;
-    const headTopY = torsoTopY - headH + 4 + walk.bob;
+    const neckGap = 2; // Visible neck between head and torso (AQ style)
+    const headTopY = torsoTopY - headH - neckGap + walk.bob;
     const shoulderY = torsoTopY + 2 + walk.bob;
 
     const gap = 2;
@@ -1694,7 +1730,7 @@ function _drawTurtleman(ctx, a, dir, colors) {
     _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, colors.outline);
     _drawShading(ctx, a.headX, a.headY, a.headW, a.headH, colors.mid);
 
-    // Face — chibi turtleman
+    // Face — AQ-style turtleman
     if (dir !== DIR_UP) {
         _drawEyes(ctx, cx, a.headY + Math.floor(a.headH * 0.35), dir, colors);
         _drawBlush(ctx, cx, a.headY + Math.floor(a.headH * 0.35) + 9, dir);
@@ -1895,12 +1931,12 @@ const RACE_RENDERERS_EXT = {
 export function drawRaceBodyExt(ctx, raceId, cx, groundY, dir, frame, scale, colors) {
     const walk = WALK_CYCLES[frame % 4];
 
-    // Chibi proportions: big head, compact body, stubby limbs
+    // AQ-style proportions: proportional head, heroic torso, longer limbs
     const dims = {
-        headW: 28, headH: 22,
-        torsoW: 20, torsoH: 10,
-        armW: 6, armH: 10,
-        legW: 8, legH: 8,
+        headW: 22, headH: 18,
+        torsoW: 18, torsoH: 14,
+        armW: 5, armH: 13,
+        legW: 7, legH: 11,
     };
 
     const a = _buildAnchors(cx, groundY, scale, walk, dims);

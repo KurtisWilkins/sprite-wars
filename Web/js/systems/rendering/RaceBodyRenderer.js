@@ -1,12 +1,13 @@
 /**
- * RaceBodyRenderer.js — Race-specific humanoid body rendering (Races 1-12).
+ * RaceBodyRenderer.js — AQ-style race-specific humanoid body rendering (Races 1-12).
  * Each race has a unique body shape, head features, and distinguishing characteristics
  * drawn in 64×64 logical space, rendered at 256×256 via 4× supersampling.
  *
- * Art style: Flat cel-shaded, clean black outlines of uniform thickness, smooth rounded edges,
- * chibi proportions (head ~40% of total height), vibrant saturated colors,
- * hard-edged shading (3 flat fills per color zone: highlight, base, shadow),
- * NO gradients, simple dot eyes (small filled black circles), no pixel art.
+ * Art style: Adventure Quest / Flash-RPG cartoon style — bold black outlines,
+ * semi-proportional heroic builds (head ~30% of height), expressive anime-cartoon
+ * eyes with iris/pupil/highlight, vibrant saturated fantasy palette, cel-shaded
+ * with hard-edged two-tone shading, detailed race features, visible necks,
+ * longer limbs, dynamic poses. Clean digital cartoon illustration, no pixel art.
  *
  * Race mappings:
  *   1=Bug man, 2=Bear man, 3=Bird man, 4=Demon, 5=Devil, 6=Cat man,
@@ -35,12 +36,12 @@ export const RACE_BODY_TYPES = {
     12: 'human',
 };
 
-// Walk animation cycles (4 frames) — bouncier chibi walk
+// Walk animation cycles (4 frames) — AQ-style smooth stride
 const WALK_CYCLES = [
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: -4, armR: 4,  legL: 4,  legR: -2, bob: -2 },
+    { armL: -3, armR: 3,  legL: 3,  legR: -2, bob: -1 },
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: 4,  armR: -4, legL: -2, legR: 4,  bob: -2 },
+    { armL: 3,  armR: -3, legL: -2, legR: 3,  bob: -1 },
 ];
 
 // ── roundRect polyfill for older mobile WebViews ────────────────────────────
@@ -141,27 +142,59 @@ function _drawSoftShading(ctx, x, y, w, h, midColor) {
     ctx.globalAlpha = 1.0;
 }
 
-// ── Simple dot eyes (small filled black circles) ──────────────────────────
+// ── Expressive AQ-style anime-cartoon eyes with iris/pupil/highlight ───────
 function _drawEyes(ctx, cx, eyeY, dir, colors, spacing) {
     const sp = spacing || 7;
-    ctx.fillStyle = '#111111';
+    const eyeColor = colors.eye || '#4488cc';
     if (dir === DIR_DOWN) {
-        // Two small filled black dots
+        // White sclera
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - sp - 2, eyeY + 1, 5, 5);
+        ctx.fillRect(cx + sp - 2, eyeY + 1, 5, 5);
+        // Colored iris
+        ctx.fillStyle = eyeColor;
         ctx.fillRect(cx - sp - 1, eyeY + 2, 3, 3);
         ctx.fillRect(cx + sp - 1, eyeY + 2, 3, 3);
+        // Black pupil
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(cx - sp, eyeY + 3, 1, 1);
+        ctx.fillRect(cx + sp, eyeY + 3, 1, 1);
+        // White highlight
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - sp + 1, eyeY + 2, 1, 1);
+        ctx.fillRect(cx + sp + 1, eyeY + 2, 1, 1);
+        // Outline
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(cx - sp - 2, eyeY, 5, 1);
+        ctx.fillRect(cx + sp - 2, eyeY, 5, 1);
     } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
-        // Single dot for side view
-        const ex = dir === DIR_RIGHT ? cx + 3 : cx - 5;
-        ctx.fillRect(ex, eyeY + 2, 3, 3);
+        const ex = dir === DIR_RIGHT ? cx + 3 : cx - 6;
+        // White sclera
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(ex, eyeY + 1, 4, 5);
+        // Colored iris
+        ctx.fillStyle = eyeColor;
+        ctx.fillRect(ex + 1, eyeY + 2, 2, 3);
+        // Black pupil
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(ex + 1, eyeY + 3, 1, 1);
+        // White highlight
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(ex + 2, eyeY + 2, 1, 1);
+        // Outline
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(ex, eyeY, 4, 1);
     }
 }
 
-// ── Simple small mouth ──────────────────────────────────────────────────
+// ── Expressive AQ-style mouth ──────────────────────────────────────────
 function _drawMouth(ctx, cx, y, dir, outlineColor) {
     if (dir === DIR_DOWN) {
         ctx.fillStyle = '#111111';
-        // Simple small line mouth
-        ctx.fillRect(cx - 1, y, 3, 1);
+        // Expressive AQ-style curved mouth
+        ctx.fillRect(cx - 2, y, 5, 1);
+        ctx.fillRect(cx - 3, y - 1, 1, 1);
+        ctx.fillRect(cx + 3, y - 1, 1, 1);
     }
 }
 
@@ -170,11 +203,11 @@ function _drawBlush(ctx, cx, blushY, dir, spacing) {
     // No blush in clean cel-shaded style — keeping function as no-op for compatibility
 }
 
-// ── Fluffy chibi hair ────────────────────────────────────────────────────
+// ── Styled AQ hair ──────────────────────────────────────────────────────
 function _drawHairTop(ctx, x, y, w, dir, hairColor) {
     if (dir !== DIR_UP) {
         ctx.fillStyle = hairColor;
-        // Bigger, fluffier hair for chibi
+        // Dynamic AQ-style hair
         ctx.fillRect(x - 2, y - 3, w + 4, 6);
         ctx.fillRect(x - 1, y - 5, w + 2, 3);
         // Side bangs
@@ -208,10 +241,10 @@ function _drawArm(ctx, x, y, w, h, colors, side) {
     if (side === 'right') _drawSoftShading(ctx, x, y, w, h, colors.mid);
 }
 
-// ── Cute round chibi shoes ───────────────────────────────────────────────
+// ── AQ-style boots ──────────────────────────────────────────────────────
 function _drawShoes(ctx, lx, ly, rx, ry, legW, colors) {
     ctx.fillStyle = '#553322';
-    // Rounder, cuter shoes
+    // Heroic AQ-style boots
     ctx.fillRect(lx - 1, ly, legW + 2, 3);
     ctx.fillRect(lx, ly + 3, legW, 1);
     ctx.fillRect(rx - 1, ry, legW + 2, 3);
@@ -245,11 +278,12 @@ function _buildAnchors(cx, groundY, scale, walk, dims) {
     const legW = Math.round(dims.legW * scale);
     const legH = Math.round(dims.legH * scale);
 
-    // Chibi proportions: big head on top, compact body below
+    // AQ-style proportions: proportional head with visible neck gap
     const feetY = groundY;
     const legsTopY = feetY - legH;
     const torsoTopY = legsTopY - torsoH + 1;
-    const headTopY = torsoTopY - headH + 4 + walk.bob;  // head overlaps torso more
+    const neckGap = 2; // Visible neck between head and torso (AQ style)
+    const headTopY = torsoTopY - headH - neckGap + walk.bob;
     const shoulderY = torsoTopY + 2 + walk.bob;
 
     const gap = 2;
@@ -278,7 +312,7 @@ function _drawGenericBody(ctx, a, dir, colors, hasTunic) {
             leftLegX, rightLegX, legW, legH, legsTopY, feetY, walk } = a;
     const cx = Math.floor(torsoX + torsoW / 2);
 
-    // Back arms (stubby chibi arms)
+    // Back arms
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
         _drawArm(ctx, rightArmX, shoulderY + walk.armR, armW, armH, colors, 'right');
     }
@@ -299,7 +333,7 @@ function _drawGenericBody(ctx, a, dir, colors, hasTunic) {
     // Head (back hair when facing up)
     if (dir === DIR_UP) _drawHairBack(ctx, headX, headY, headW, headH, colors);
 
-    // Big round chibi head
+    // Head
     _drawRoundedRect(ctx, headX, headY, headW, headH, colors.skin, colors.outline);
     _drawSoftShading(ctx, headX, headY, headW, headH, colors.mid);
 
@@ -405,7 +439,7 @@ function _drawBugman(ctx, a, dir, colors) {
         ctx.fillRect(abdX + 2, abdY + 4, 8, 1);
     }
 
-    // --- Big chibi bug head (extra-wide for compound eyes) ---
+    // --- Bug head (extra-wide for compound eyes) ---
     const bugHeadW = headW + 10;
     const bugHeadX = Math.floor(cx - bugHeadW / 2);
     _drawRoundedRect(ctx, bugHeadX, headY, bugHeadW, headH, colors.skin, colors.outline);
@@ -629,7 +663,7 @@ function _drawBearman(ctx, a, dir, colors) {
     ctx.fillRect(bearTorsoX + bearTorsoW - 1, torsoYAdj + 1, 2, 3);
     ctx.fillRect(bearTorsoX + bearTorsoW - 1, torsoYAdj + 5, 2, 2);
 
-    // --- Big round chibi bear head ---
+    // --- Bear head ---
     _drawRoundedRect(ctx, bearHeadX, a.headY, bearHeadW, bearHeadH, colors.skin, colors.outline);
     _drawSoftShading(ctx, bearHeadX, a.headY, bearHeadW, bearHeadH, colors.mid);
 
@@ -3058,12 +3092,12 @@ const RACE_RENDERERS = {
 export function drawRaceBody(ctx, raceId, cx, groundY, dir, frame, scale, colors) {
     const walk = WALK_CYCLES[frame % 4];
 
-    // Chibi proportions: big head, compact body, stubby limbs
+    // AQ-style proportions: proportional head, heroic torso, longer limbs
     const dims = {
-        headW: 28, headH: 22,
-        torsoW: 20, torsoH: 10,
-        armW: 6, armH: 10,
-        legW: 8, legH: 8,
+        headW: 22, headH: 18,
+        torsoW: 18, torsoH: 14,
+        armW: 5, armH: 13,
+        legW: 7, legH: 11,
     };
 
     const a = _buildAnchors(cx, groundY, scale, walk, dims);
