@@ -486,11 +486,11 @@ export class OverworldScene extends Scene {
         // Deterministic race assignments for NPC types so they render via
         // HumanoidSpriteSystem (cel-shaded) instead of pixel-art sprite sheets.
         const NPC_RACE_BY_TYPE = {
-            talk:    [12, 6, 10, 15, 18, 20, 22],  // Human, Cat Man, Gnome, Mummy, Owl Man, Slime Man, Turtle Man
-            heal:    [9, 17, 24],                    // Fish Man, Ork, Wolf Man
+            talk:    [12, 6, 10, 15, 18, 20, 22],  // Human, Cat Man, Ghost, Monkey Man, Rat Man, Shark Man, Turtle Man
+            heal:    [9, 17, 24],                    // Fish Man, Ork, Zombie
             shop:    [8, 14, 11],                    // Ent, Minotaur, Golem
             quest:   [3, 5, 7],                      // Bird Man, Devil, Elf
-            trainer: [1, 2, 4, 13, 16, 19, 21, 23], // Bug Man, Bear Man, Demon, Lizard Man, Mushroom Man, Robot, Slime Man, Treant
+            trainer: [1, 2, 4, 13, 16, 19, 21, 23], // Bug Man, Bear Man, Demon, Lizard Man, Mummy, Robot, Skeleton, Wolf Man
         };
         const npcTypeCounters = {};
         this._npcs = (this._mapData.npcs || []).map((npcDef, idx) => {
