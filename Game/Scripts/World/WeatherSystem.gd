@@ -311,11 +311,9 @@ func _configure_particles(config: Dictionary) -> void:
 	var texture_path: String = config.get("particle_texture", "")
 	if not texture_path.is_empty():
 		var tex := load(texture_path) as Texture2D
-		if tex and particle_emitter.process_material:
-			# GPUParticles2D uses a ParticleProcessMaterial; texture is set on the
-			# draw pass (mesh) or via the texture property on a CanvasItemMaterial.
-			# For simplicity, we configure via the process material's direction.
-			pass
+		if tex:
+			# Apply particle texture to the emitter's texture property.
+			particle_emitter.texture = tex
 
 	# Set wind / direction via process material
 	if particle_emitter.process_material and particle_emitter.process_material is ParticleProcessMaterial:

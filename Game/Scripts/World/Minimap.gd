@@ -241,7 +241,7 @@ func _draw_minimap() -> void:
 
 ## Converts a world position to a grid cell position.
 func _world_to_grid(world_pos: Vector2) -> Vector2i:
-	if _map_bounds.size == Vector2.ZERO:
+	if _map_bounds.size == Vector2.ZERO or _map_grid_size == Vector2i.ZERO:
 		return Vector2i.ZERO
 
 	var relative: Vector2 = world_pos - _map_bounds.position

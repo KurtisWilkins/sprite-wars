@@ -246,7 +246,7 @@ func spawn_cel_impact(position: Vector2, impact_type: String, element_color: Col
 	# Fade out and remove.
 	var tween := create_tween()
 	tween.tween_property(impact_node, "modulate:a", 0.0, 0.4)
-	tween.tween_callback(impact_node.queue_free)
+	tween.tween_callback(func(): _active_vfx.erase(impact_node); impact_node.queue_free())
 
 	_active_vfx.append(impact_node)
 

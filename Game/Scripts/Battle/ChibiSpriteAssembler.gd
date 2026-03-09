@@ -125,7 +125,7 @@ func assemble_sprite(config: Dictionary) -> Node2D:
 	root.add_child(body)
 
 	# Head (oversized chibi head).
-	var head := _create_head(race_id, stage, skin_color)
+	var head := _create_head(race_id, stage, skin_color, element)
 	head.name = "Head"
 	head.position = Vector2(0, -16)
 	root.add_child(head)
@@ -173,7 +173,7 @@ func assemble_sprite(config: Dictionary) -> Node2D:
 ## Create the oversized chibi head (~26x24 px on a 64x64 canvas).
 ## Race ID controls shape variation; stage adds detail (horns, crest, etc.).
 ## Eyes are rendered as simple dot eyes via _draw_cel_eyes().
-func _create_head(race_id: int, stage: int, skin_color: Color) -> Sprite2D:
+func _create_head(race_id: int, stage: int, skin_color: Color, element: String = "Fire") -> Sprite2D:
 	var img := Image.create(CANVAS_SIZE, CANVAS_SIZE, false, Image.FORMAT_RGBA8)
 
 	var cx: int = CANVAS_SIZE / 2  # 32
@@ -232,17 +232,8 @@ func _create_head(race_id: int, stage: int, skin_color: Color) -> Sprite2D:
 				img.set_pixel(cx + ear_x_offset - 1, ear_y_pos, ear_color)
 	# Note: even races have round cheeks (no blush marks in cel-shaded style).
 
-	# ── Stage detail (evolution) ─────────────────────────────────────────
-	if stage >= 2:
-		# Small crest / horn nubs on top of head.
-		var crest_color := skin_color.lightened(0.15)
-		_draw_rect_filled(img, cx - 1, top - 2, 2, 3, crest_color)
-	if stage >= 3:
-		# Larger horns / crown detail.
-		var horn_color := Color(0.80, 0.75, 0.55)
-		_draw_rect_filled(img, cx - 5, top - 3, 2, 4, horn_color)
-		_draw_rect_filled(img, cx + 3, top - 3, 2, 4, horn_color)
-		_draw_rect_filled(img, cx - 1, top - 4, 2, 5, horn_color)
+	# ── Stage detail (evolution) — element-colored marks and crowns ──────
+	_draw_evolution_effects(img, stage, element, cx, top, half_h * 2)
 
 	# Build Sprite2D.
 	var sprite := Sprite2D.new()
