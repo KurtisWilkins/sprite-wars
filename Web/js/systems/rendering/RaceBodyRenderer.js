@@ -2397,108 +2397,180 @@ function _drawFishman(ctx, a, dir, colors) {
 function _drawGhost(ctx, a, dir, colors) {
     const cx = Math.floor(a.torsoX + a.torsoW / 2);
 
+    // --- Ethereal aura glow (outermost layer) ---
+    ctx.fillStyle = colors.skin;
+    ctx.globalAlpha = 0.12;
+    ctx.fillRect(a.headX - 4, a.headY - 3, a.headW + 8, a.headH + a.torsoH + 20);
+    ctx.globalAlpha = 1.0;
+
     // Ghost is semi-transparent
     ctx.save();
     ctx.globalAlpha = 0.6;
 
-    // Back arms (wispy, shorter chibi arms)
+    // --- Back arms (wispy, fading at tips) ---
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
         _drawRoundedRect(ctx, a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH - 2, colors.skin, colors.outline);
+        // Fading tips
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(a.rightArmX + 1, a.shoulderY + a.walk.armR + a.armH - 3, a.armW - 2, 3);
+        ctx.globalAlpha = 0.6;
     }
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
         _drawRoundedRect(ctx, a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH - 2, colors.skin, colors.outline);
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(a.leftArmX + 1, a.shoulderY + a.walk.armL + a.armH - 3, a.armW - 2, 3);
+        ctx.globalAlpha = 0.6;
     }
 
-    // NO LEGS — shorter wispy spectral tail for chibi proportions
+    // --- NO LEGS — ragged wispy tail with multiple tendrils ---
     ctx.fillStyle = colors.skin;
     const tailTop = a.legsTopY;
-    ctx.fillRect(cx - 6, tailTop, 12, 3);
-    ctx.fillRect(cx - 5, tailTop + 3, 10, 2);
-    ctx.fillRect(cx - 4, tailTop + 5, 8, 2);
-    ctx.fillRect(cx - 3, tailTop + 7, 6, 2);
-    ctx.fillRect(cx - 2, tailTop + 9, 4, 2);
-    // Wavy wisps (softer)
+    ctx.fillRect(cx - 8, tailTop, 16, 3);
+    ctx.fillRect(cx - 7, tailTop + 3, 14, 2);
+    ctx.fillRect(cx - 5, tailTop + 5, 10, 2);
+    ctx.fillRect(cx - 4, tailTop + 7, 8, 2);
+    // Multiple tendrils (ragged bottom edge)
+    ctx.fillRect(cx - 6, tailTop + 9, 3, 3);
+    ctx.fillRect(cx - 1, tailTop + 9, 3, 4);
+    ctx.fillRect(cx + 4, tailTop + 9, 3, 3);
+    // Thinner wisps at very end
+    ctx.globalAlpha = 0.35;
+    ctx.fillRect(cx - 7, tailTop + 11, 2, 3);
+    ctx.fillRect(cx, tailTop + 12, 2, 3);
+    ctx.fillRect(cx + 5, tailTop + 11, 2, 3);
+    ctx.fillRect(cx - 3, tailTop + 13, 1, 2);
+    ctx.fillRect(cx + 3, tailTop + 14, 1, 2);
+    ctx.globalAlpha = 0.6;
+    // Ectoplasmic side wisps
     ctx.fillStyle = colors.mid;
-    ctx.globalAlpha = 0.45;
-    ctx.fillRect(cx - 7, tailTop + 1, 3, 3);
-    ctx.fillRect(cx + 5, tailTop + 2, 3, 3);
-    ctx.fillRect(cx - 5, tailTop + 6, 2, 3);
-    ctx.fillRect(cx + 4, tailTop + 7, 2, 3);
-    ctx.fillRect(cx - 3, tailTop + 10, 2, 2);
-    ctx.fillRect(cx + 2, tailTop + 10, 2, 2);
+    ctx.globalAlpha = 0.3;
+    ctx.fillRect(cx - 9, tailTop + 1, 3, 4);
+    ctx.fillRect(cx + 7, tailTop + 2, 3, 4);
+    ctx.fillRect(cx - 8, tailTop + 6, 2, 3);
+    ctx.fillRect(cx + 7, tailTop + 7, 2, 3);
     ctx.globalAlpha = 0.6;
 
-    // Torso (fading, rounded for chibi)
+    // --- Torso with ribcage hints ---
     _drawRoundedRect(ctx, a.torsoX, a.torsoY + a.walk.bob, a.torsoW, a.torsoH, colors.skin, colors.outline);
     _drawSoftShading(ctx, a.torsoX, a.torsoY + a.walk.bob, a.torsoW, a.torsoH, colors.mid);
+    // Ribcage visible through translucent body
+    if (dir !== DIR_UP) {
+        ctx.fillStyle = colors.outline;
+        ctx.globalAlpha = 0.15;
+        ctx.fillRect(a.torsoX + 3, a.torsoY + a.walk.bob + 2, a.torsoW - 6, 1);
+        ctx.fillRect(a.torsoX + 2, a.torsoY + a.walk.bob + 4, a.torsoW - 4, 1);
+        ctx.fillRect(a.torsoX + 3, a.torsoY + a.walk.bob + 6, a.torsoW - 6, 1);
+        ctx.fillRect(a.torsoX + 4, a.torsoY + a.walk.bob + 8, a.torsoW - 8, 1);
+        ctx.globalAlpha = 0.6;
+    }
 
-    // Big translucent chibi head
-    if (dir === DIR_UP) _drawHairBack(ctx, a.headX, a.headY, a.headW, a.headH, colors);
+    // --- Floating chain links ---
+    ctx.fillStyle = '#888899';
+    ctx.globalAlpha = 0.5;
+    // Chain dangles from side
+    if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        ctx.fillRect(a.torsoX - 2, a.torsoY + a.walk.bob + 2, 2, 3);
+        ctx.fillRect(a.torsoX - 3, a.torsoY + a.walk.bob + 5, 3, 2);
+        ctx.fillRect(a.torsoX - 2, a.torsoY + a.walk.bob + 7, 2, 3);
+    }
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        ctx.fillRect(a.torsoX + a.torsoW, a.torsoY + a.walk.bob + 3, 2, 3);
+        ctx.fillRect(a.torsoX + a.torsoW, a.torsoY + a.walk.bob + 6, 3, 2);
+        ctx.fillRect(a.torsoX + a.torsoW, a.torsoY + a.walk.bob + 8, 2, 3);
+    }
+    ctx.globalAlpha = 0.6;
+
+    // --- Big translucent head with flowing ectoplasm ---
     _drawRoundedRect(ctx, a.headX, a.headY, a.headW, a.headH + 2, colors.skin, colors.outline);
     _drawSoftShading(ctx, a.headX, a.headY, a.headW, a.headH + 2, colors.mid);
+    // Flowing ectoplasmic wisps from top of head
+    ctx.fillStyle = colors.skin;
+    ctx.globalAlpha = 0.4;
+    ctx.fillRect(a.headX + 2, a.headY - 4, 4, 5);
+    ctx.fillRect(a.headX + a.headW - 6, a.headY - 5, 4, 6);
+    ctx.fillRect(a.headX + Math.floor(a.headW / 2) - 1, a.headY - 7, 3, 7);
+    // Thinner wisps reaching higher
+    ctx.globalAlpha = 0.2;
+    ctx.fillRect(a.headX + 3, a.headY - 7, 2, 4);
+    ctx.fillRect(a.headX + a.headW - 5, a.headY - 8, 2, 4);
+    ctx.fillRect(cx - 1, a.headY - 10, 2, 4);
+    ctx.globalAlpha = 0.6;
 
     ctx.restore(); // Restore alpha
 
-    // Large hollow dark eyes (always drawn solid, bigger for chibi)
+    // --- Deep hollow eye sockets with glowing pupils (always solid) ---
     if (dir !== DIR_UP) {
-        const eyeY = a.headY + Math.floor(a.headH * 0.25);
+        const eyeY = a.headY + Math.floor(a.headH * 0.22);
         if (dir === DIR_DOWN) {
-            // Larger hollow eyes
-            ctx.fillStyle = '#111';
-            ctx.fillRect(cx - 8, eyeY, 6, 7);
-            ctx.fillRect(cx + 3, eyeY, 6, 7);
-            // Rounded eye top/bottom
-            ctx.fillRect(cx - 7, eyeY - 1, 4, 1);
-            ctx.fillRect(cx + 4, eyeY - 1, 4, 1);
-            ctx.fillRect(cx - 7, eyeY + 7, 4, 1);
-            ctx.fillRect(cx + 4, eyeY + 7, 4, 1);
-            // Glowing pupil (bigger)
+            // Deep hollow sockets (large, dark, oval)
+            ctx.fillStyle = '#050510';
+            ctx.fillRect(cx - 9, eyeY, 7, 8);
+            ctx.fillRect(cx + 3, eyeY, 7, 8);
+            ctx.fillRect(cx - 8, eyeY - 1, 5, 1);
+            ctx.fillRect(cx + 4, eyeY - 1, 5, 1);
+            ctx.fillRect(cx - 8, eyeY + 8, 5, 1);
+            ctx.fillRect(cx + 4, eyeY + 8, 5, 1);
+            // Glowing pupils floating inside
             ctx.fillStyle = colors.eye;
-            ctx.fillRect(cx - 6, eyeY + 3, 3, 3);
+            ctx.fillRect(cx - 7, eyeY + 3, 3, 3);
             ctx.fillRect(cx + 5, eyeY + 3, 3, 3);
-            // Glow halo around pupils
+            // Pupil glow halo
             ctx.fillStyle = colors.eye;
-            ctx.globalAlpha = 0.3;
-            ctx.fillRect(cx - 7, eyeY + 2, 5, 5);
+            ctx.globalAlpha = 0.35;
+            ctx.fillRect(cx - 8, eyeY + 2, 5, 5);
             ctx.fillRect(cx + 4, eyeY + 2, 5, 5);
             ctx.globalAlpha = 1.0;
         } else {
-            const ex = dir === DIR_RIGHT ? cx + 2 : cx - 7;
-            ctx.fillStyle = '#111';
-            ctx.fillRect(ex, eyeY, 6, 7);
-            ctx.fillRect(ex + 1, eyeY - 1, 4, 1);
-            ctx.fillRect(ex + 1, eyeY + 7, 4, 1);
+            const ex = dir === DIR_RIGHT ? cx + 2 : cx - 8;
+            ctx.fillStyle = '#050510';
+            ctx.fillRect(ex, eyeY, 7, 8);
+            ctx.fillRect(ex + 1, eyeY - 1, 5, 1);
+            ctx.fillRect(ex + 1, eyeY + 8, 5, 1);
             ctx.fillStyle = colors.eye;
             ctx.fillRect(ex + 2, eyeY + 3, 3, 3);
             ctx.fillStyle = colors.eye;
-            ctx.globalAlpha = 0.3;
+            ctx.globalAlpha = 0.35;
             ctx.fillRect(ex + 1, eyeY + 2, 5, 5);
             ctx.globalAlpha = 1.0;
         }
-        // Wailing mouth (rounder for chibi)
+        // Wider O-shaped wailing mouth
         if (dir === DIR_DOWN) {
+            ctx.fillStyle = '#050510';
+            ctx.fillRect(cx - 4, a.headY + a.headH - 6, 8, 5);
+            ctx.fillRect(cx - 3, a.headY + a.headH - 7, 6, 1);
+            ctx.fillRect(cx - 3, a.headY + a.headH - 1, 6, 1);
+            // Inner mouth void
             ctx.fillStyle = '#111';
-            ctx.fillRect(cx - 3, a.headY + a.headH - 5, 6, 4);
-            ctx.fillRect(cx - 2, a.headY + a.headH - 6, 4, 1);
+            ctx.fillRect(cx - 2, a.headY + a.headH - 5, 4, 3);
         }
     }
 
-    // Ethereal highlight sparkles (more for chibi charm)
+    // --- Ethereal highlight sparkles ---
     ctx.fillStyle = 'rgba(255,255,255,0.6)';
     ctx.fillRect(a.headX + 4, a.headY + 2, 3, 2);
     ctx.fillRect(a.headX + a.headW - 6, a.headY + 4, 2, 2);
     ctx.fillRect(a.torsoX + a.torsoW - 5, a.torsoY + 3 + a.walk.bob, 2, 2);
-    ctx.fillRect(cx - 4, tailTop + 1, 2, 2);
-    ctx.fillRect(cx + 3, tailTop + 3, 2, 1);
+    ctx.fillRect(cx - 5, tailTop + 1, 2, 2);
+    ctx.fillRect(cx + 4, tailTop + 3, 2, 1);
+    ctx.fillRect(cx - 2, tailTop + 6, 1, 1);
 
-    // Front arms (wispy, shorter)
+    // --- Front arms (wispy, fading at tips) ---
     ctx.save();
     ctx.globalAlpha = 0.6;
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
         _drawRoundedRect(ctx, a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH - 2, colors.skin, colors.outline);
+        ctx.globalAlpha = 0.25;
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(a.rightArmX + 1, a.shoulderY + a.walk.armR + a.armH - 3, a.armW - 2, 4);
     }
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        ctx.globalAlpha = 0.6;
         _drawRoundedRect(ctx, a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH - 2, colors.skin, colors.outline);
+        ctx.globalAlpha = 0.25;
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(a.leftArmX + 1, a.shoulderY + a.walk.armL + a.armH - 3, a.armW - 2, 4);
     }
     ctx.restore();
 }
