@@ -1,6 +1,7 @@
 ## ChibiSpriteConfig — Core proportions and modular body-part assembly data
-## for chibi / super-deformed character sprites (Color Doodle Chibi style —
-## hand-drawn, sketchy, colorful doodle art with exaggerated chibi proportions).
+## for chibi / super-deformed character sprites (Flat Cel-Shaded Chibi style —
+## clean digital illustration, flat color zones, hard-edged shading with
+## uniform black outlines and exaggerated chibi proportions).
 ##
 ## All pixel positions are relative to a 64x64 canvas with origin at center (32, 32).
 ## Positive X = right, Positive Y = down (Godot 2D convention).
@@ -26,7 +27,7 @@ const CANVAS_HEIGHT: int = 64
 ## Canvas center — the origin all offsets are relative to.
 const ORIGIN := Vector2(32, 32)
 
-## Chibi head-to-body ratio.  Head ≈ 50 % of total sprite height (doodle chibi).
+## Chibi head-to-body ratio.  Head ≈ 50 % of total sprite height (cel-shaded chibi).
 const HEAD_HEIGHT_RATIO: float = 0.50
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -41,7 +42,7 @@ const HEAD_HEIGHT_RATIO: float = 0.50
 static func get_body_proportions() -> Dictionary:
 	return {
 		# ── Head ───────────────────────────────────────────────────────────
-		# 30 px tall ≈ 50 % of 64.  Extra big & round for doodle chibi.
+		# 30 px tall ≈ 50 % of 64.  Extra big & round for cel-shaded chibi.
 		"head": {
 			"size":   Vector2(34, 30),
 			"offset": Vector2(0, -18),     # top-center of canvas
@@ -49,7 +50,7 @@ static func get_body_proportions() -> Dictionary:
 		},
 
 		# ── Body / Torso ──────────────────────────────────────────────────
-		# Short stubby torso — doodle chibi proportions.
+		# Short stubby torso — cel-shaded chibi proportions.
 		"body": {
 			"size":   Vector2(18, 12),
 			"offset": Vector2(0, 0),       # centered vertically on origin
@@ -71,7 +72,7 @@ static func get_body_proportions() -> Dictionary:
 		},
 
 		# ── Legs ──────────────────────────────────────────────────────────
-		# Short stubby legs — doodle chibi proportions.
+		# Short stubby legs — cel-shaded chibi proportions.
 		"legs": {
 			"size":   Vector2(16, 10),
 			"offset": Vector2(0, 13),      # below body

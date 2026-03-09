@@ -1,7 +1,7 @@
 # [P10-001] Sprite Wars — Sprite Design Style Guide
 
-> **Version:** 2.0
-> **Last Updated:** 2026-03-08
+> **Version:** 3.0
+> **Last Updated:** 2026-03-09
 > **Owner:** Art Lead
 > **Engine:** Godot 4.2
 > **Target Platforms:** Android / iOS (Mobile)
@@ -10,17 +10,19 @@
 
 ## 1. Overview
 
-This document defines the **Color Doodle Chibi** art direction for all 72 Sprite forms (24 races x 3 evolution stages) in Sprite Wars. The visual style is hand-drawn, sketchy, colorful, and playful — evoking the feel of doodle art with chibi proportions.
+This document defines the **Flat Cel-Shaded Chibi** art direction for all 72 Sprite forms (24 races x 3 evolution stages) in Sprite Wars. The visual style is clean, professional, vibrant, and readable — a polished cel-shaded illustration style with chibi proportions.
 
 ### Core Style Characteristics
-- **Thick uneven outlines** — as if drawn with a marker or crayon, never perfectly straight or uniform.
-- **Visible pen strokes** — line work retains the energy and imperfection of hand-drawing.
-- **Hand-drawn imperfections** — wobbly edges, overlapping strokes, and slight asymmetry are intentional and desirable.
-- **Soft colorful fills with visible hatching/cross-hatching** — shading uses sketch techniques (hatching, cross-hatching, scribble fills) rather than smooth gradients.
-- **Pastel-meets-vibrant color palette** — colors lean slightly desaturated and warm, but pop with vibrant accents.
-- **Whimsical and playful feel** — every Sprite should look like it was lovingly doodled in a sketchbook and then colored in.
+- **Clean uniform outlines (2px)** — perfectly straight, consistent thickness, crisp digital lines with no wobble or variation.
+- **Clean digital lines** — no imperfections, no hand-drawn artifacts, no pen stroke texture.
+- **Flat solid color fills with hard-edged shadow/highlight zones** — each color area has exactly one shadow zone and one highlight zone with sharp transitions (no gradients, no hatching, no cross-hatching).
+- **Vibrant saturated fantasy color palette** — bold, vivid colors that pop on mobile screens.
+- **Clean professional cel-shaded illustration** — every Sprite should look like a polished 2D game character with bold, readable shapes.
 
-Every artist contributing character art must follow these standards to maintain a cohesive, readable, and mobile-optimized visual identity rooted in the Color Doodle Chibi aesthetic.
+### Cel-Shading Principle
+> One highlight zone and one shadow zone per color area, hard-edged transitions (no soft gradients). Shadow zones are approximately 25% darker than the base color. Highlight zones are approximately 20% lighter than the base color. Transitions between zones are pixel-sharp with no blending or feathering.
+
+Every artist contributing character art must follow these standards to maintain a cohesive, readable, and mobile-optimized visual identity rooted in the Flat Cel-Shaded Chibi aesthetic.
 
 ---
 
@@ -38,212 +40,208 @@ Each evolution stage uses a progressively larger canvas to reflect growing power
 - All canvases must be **square** (1:1 aspect ratio).
 - Sprites should fill **75-85%** of the canvas area; leave a small margin for visual breathing room and animation overshoot.
 - Export as **PNG-32** (RGBA, 8 bits per channel) with transparent background.
-- Soft anti-aliasing is encouraged on all edges to support the hand-drawn doodle feel. The Color Doodle Chibi style does not require pixel-perfect hard edges.
+- Use **hard pixel-perfect edges** on all outlines. The Flat Cel-Shaded Chibi style requires crisp, clean edges with no anti-aliasing blur on outlines. Internal color zone boundaries should also be hard-edged.
 
 ---
 
 ## 3. Color Palette
 
 ### Per-Sprite Limit
-Each individual Sprite form uses a **maximum of 24 unique colors** (excluding full transparency). The doodle style requires additional colors for sketch strokes, hatching lines, and color-bleed edges. This constraint ensures:
+Each individual Sprite form uses a **maximum of 20 unique colors** (excluding full transparency). The cel-shaded style is efficient with colors since each area only needs base + shadow + highlight. This constraint ensures:
 - Clean, readable silhouettes on mobile screens.
-- Consistency with the Color Doodle Chibi aesthetic.
+- Consistency with the Flat Cel-Shaded Chibi aesthetic.
 - Efficient texture memory usage.
 
 ### Color Breakdown per Sprite
 | Allocation | Count | Purpose |
 |-----------|-------|---------|
-| Doodle ink outline | 2-3 | Wobbly outlines + sketch strokes |
-| Primary body | 3-4 | Main body color + shading |
-| Hatching/shading | 2-3 | Cross-hatch lines, scribble shading |
-| Secondary feature | 2-3 | Accent markings, belly, mane |
-| Element accent | 2-3 | Elemental glow, particles, aura |
-| Eyes & details | 2-3 | Eyes, claws, teeth, gems |
-| Color bleed edges | 1-2 | Soft bleed past outlines |
-| Highlight/specular | 1-2 | White or near-white specular pop |
-| Sketch marks | 1-2 | Blush circles, motion lines, decorative marks |
+| Outline | 1 | Clean Black (#000000) for all outlines |
+| Primary body | 3 | Base + shadow + highlight |
+| Secondary feature | 3 | Accent markings (base + shadow + highlight) |
+| Element accent | 3 | Elemental glow/particles (base + shadow + highlight) |
+| Eyes & details | 2-3 | Dot eyes (black), teeth, gems, claws |
+| Tertiary color | 3 | Additional color zone (base + shadow + highlight) |
+| Specular pop | 1-2 | White or near-white specular highlight |
 
-### Doodle Ink Colors
-All Sprite outlines and sketch strokes should use one of these doodle ink colors rather than pure black. Choose based on the Sprite's overall warmth/coolness:
+### Outline Color
+All Sprite outlines use a single uniform color:
 
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Soft Black | `#2D2D2D` | Default outline for neutral/dark Sprites |
-| Warm Brown | `#5C4033` | Outlines for warm-toned Sprites (Fire, Earth, Solar) |
-| Dark Blue | `#2B3A67` | Outlines for cool-toned Sprites (Water, Ice, Lunar) |
-| Soft Gray | `#7A7A7A` | Secondary sketch marks, hatching lines, motion lines |
+| Clean Black | `#000000` | All outlines — external silhouette and internal part separation |
 
-### Doodle Color Treatment
-> **Important:** All colors should appear **slightly desaturated/pastel** compared to standard pixel art. The Color Doodle Chibi style favors soft, crayon-like color fills over high-saturation digital color. Colors should show **visible color bleeding at edges** — fills intentionally extend slightly past outlines for that hand-colored feel.
+### Cel-Shaded Color Treatment
+> **Important:** All colors should be **vibrant and saturated** — bold fantasy colors that read clearly on small mobile screens. Each color zone consists of exactly three values: **base color**, **shadow** (base darkened ~25%), and **highlight** (base lightened ~20%). Transitions between these zones are hard-edged with no blending, gradients, or feathering. Colors must stay cleanly within outlines with no bleeding or overflow.
 
 ### Element Color Palettes
 
-Each of the 14 elements has a defined color family. Sprites of that element must draw their primary and accent colors from this palette. Secondary colors may pull from neutral tones.
+Each of the 14 elements has a defined color family. Sprites of that element must draw their primary and accent colors from this palette. Colors below are more saturated than the previous doodle palette to match the vibrant cel-shaded style.
 
 #### Fire
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Deep Red | `#8B1A1A` | Dark shading, outline tint |
-| Crimson | `#CC3333` | Primary body shadow |
-| Flame Orange | `#E86A17` | Primary body |
-| Warm Yellow | `#F5B731` | Highlights, flame tips |
-| White-Hot | `#FFEEDD` | Specular, inner flame |
+| Deep Red | `#A01010` | Shadow zone |
+| Crimson | `#E03030` | Base body color |
+| Flame Orange | `#F07020` | Secondary / flame accent |
+| Warm Yellow | `#F5C020` | Highlight zone |
+| White-Hot | `#FFF0D0` | Specular pop |
 
 #### Water
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Deep Ocean | `#1A3A5C` | Dark shading |
-| Royal Blue | `#2E6BAD` | Primary body shadow |
-| Cerulean | `#4A9FD9` | Primary body |
-| Sky Cyan | `#7DD4F0` | Highlights, water surface |
-| White Foam | `#E8F4FA` | Specular, foam, bubbles |
+| Deep Ocean | `#104080` | Shadow zone |
+| Royal Blue | `#2080D0` | Base body color |
+| Cerulean | `#40B0F0` | Highlight zone |
+| Sky Cyan | `#70D8FF` | Secondary accent |
+| White Foam | `#E0F4FF` | Specular pop |
 
 #### Plant
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Dark Bark | `#3D2B1F` | Dark shading, wood |
-| Forest Green | `#2D6E2D` | Primary body shadow |
-| Leaf Green | `#4CAF50` | Primary body |
-| Spring Green | `#8BC34A` | Highlights, new growth |
-| Petal Yellow | `#FFE082` | Flowers, pollen accents |
+| Dark Bark | `#2E1A0E` | Dark shadow, wood |
+| Forest Green | `#208020` | Shadow zone |
+| Leaf Green | `#40C040` | Base body color |
+| Spring Green | `#80E040` | Highlight zone |
+| Petal Yellow | `#FFD860` | Flower/pollen accent |
 
 #### Ice
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Glacier Blue | `#1B3A4B` | Deep shadow |
-| Frost Blue | `#5B9BD5` | Primary body shadow |
-| Ice Blue | `#A8D8EA` | Primary body |
-| Pale Frost | `#D4EEF7` | Highlights |
-| Crystal White | `#F0F8FF` | Specular, ice shards |
+| Glacier Blue | `#103848` | Deep shadow |
+| Frost Blue | `#4898E0` | Shadow zone |
+| Ice Blue | `#90D0F0` | Base body color |
+| Pale Frost | `#C0E8F8` | Highlight zone |
+| Crystal White | `#F0F8FF` | Specular pop |
 
 #### Wind
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Storm Gray | `#4A5568` | Dark shading |
-| Sage Green | `#7B9E87` | Primary body shadow |
-| Breeze Green | `#A8D5BA` | Primary body |
-| Mist Gray | `#CBD5E0` | Cloud wisps |
-| White Wisp | `#F7FAFC` | Specular, wind trails |
+| Storm Gray | `#3A4858` | Shadow zone |
+| Sage Green | `#68A080` | Base body shadow |
+| Breeze Green | `#90D0B0` | Base body color |
+| Mist White | `#C0E8D8` | Highlight zone |
+| White Wisp | `#F0FAF8` | Specular pop |
 
 #### Earth
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Deep Soil | `#3E2723` | Dark shading |
-| Clay Brown | `#795548` | Primary body shadow |
-| Sandstone | `#A1887F` | Primary body |
-| Tan | `#D7CCC8` | Highlights, sand |
-| Moss Green | `#558B2F` | Vegetation accent |
+| Deep Soil | `#301E10` | Deep shadow |
+| Clay Brown | `#785040` | Shadow zone |
+| Sandstone | `#A88868` | Base body color |
+| Tan | `#D0C0A8` | Highlight zone |
+| Moss Green | `#409020` | Vegetation accent |
 
 #### Electric
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Thunder Dark | `#1A237E` | Dark shading |
-| Storm Blue | `#3F51B5` | Primary body shadow |
-| Volt Yellow | `#FFD600` | Primary body / energy |
-| Lightning | `#FFFF00` | Bright sparks |
-| Arc White | `#FFFFFF` | Specular, electric arcs |
+| Thunder Dark | `#101880` | Shadow zone |
+| Storm Blue | `#3048C0` | Secondary accent |
+| Volt Yellow | `#FFD800` | Base body / energy |
+| Lightning | `#FFFF20` | Highlight zone |
+| Arc White | `#FFFFFF` | Specular pop |
 
 #### Dark
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Void Black | `#1A1A2E` | Deep shadow, near-black |
-| Shadow Purple | `#3D1F5C` | Primary body shadow |
-| Dusk Purple | `#6A3D7D` | Primary body |
-| Twilight | `#9C6DB8` | Highlights |
-| Blood Red | `#8B0000` | Accent, eyes, markings |
+| Void Black | `#101028` | Deep shadow |
+| Shadow Purple | `#381858` | Shadow zone |
+| Dusk Purple | `#603080` | Base body color |
+| Twilight | `#9060C0` | Highlight zone |
+| Blood Red | `#C00000` | Accent, eyes, markings |
 
 #### Light
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Warm Gold | `#B8860B` | Dark shading |
-| Bright Gold | `#DAA520` | Primary body shadow |
-| Radiant White | `#FFF8DC` | Primary body |
-| Halo Yellow | `#FFFACD` | Highlights, aura |
-| Pure White | `#FFFFFF` | Specular, divine glow |
+| Warm Gold | `#C09010` | Shadow zone |
+| Bright Gold | `#E8B820` | Base body shadow |
+| Radiant White | `#FFF8D0` | Base body color |
+| Halo Yellow | `#FFFAE0` | Highlight zone |
+| Pure White | `#FFFFFF` | Specular pop |
 
 #### Fairy
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Deep Rose | `#8B2252` | Dark shading |
-| Magenta Pink | `#D81B8C` | Primary body shadow |
-| Fairy Pink | `#F48FB1` | Primary body |
-| Lavender | `#CE93D8` | Secondary accent |
-| Sparkle White | `#FCE4EC` | Specular, sparkle accents |
+| Deep Rose | `#901850` | Shadow zone |
+| Magenta Pink | `#E01890` | Base body shadow |
+| Fairy Pink | `#FF70B0` | Base body color |
+| Lavender | `#D880E0` | Highlight / secondary |
+| Sparkle White | `#FFE0F0` | Specular pop |
 
 #### Lunar
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Night Sky | `#0D1B2A` | Deep shadow |
-| Midnight Blue | `#1B2838` | Primary body shadow |
-| Moonlight Silver | `#B0BEC5` | Primary body |
-| Pale Lavender | `#B39DDB` | Accent, lunar glow |
-| Moon White | `#ECEFF1` | Specular, crescent motifs |
+| Night Sky | `#081828` | Deep shadow |
+| Midnight Blue | `#182838` | Shadow zone |
+| Moonlight Silver | `#A0B8C8` | Base body color |
+| Pale Lavender | `#A890D8` | Highlight / accent |
+| Moon White | `#E8F0F8` | Specular pop |
 
 #### Solar
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Corona Red | `#BF360C` | Dark shading |
-| Solar Orange | `#FF6F00` | Primary body shadow |
-| Sun Gold | `#FFB300` | Primary body |
-| Flare Yellow | `#FFD54F` | Highlights, solar flare |
-| Core White | `#FFF9C4` | Specular, inner glow |
+| Corona Red | `#C83008` | Shadow zone |
+| Solar Orange | `#FF7800` | Base body shadow |
+| Sun Gold | `#FFC000` | Base body color |
+| Flare Yellow | `#FFE040` | Highlight zone |
+| Core White | `#FFFAC0` | Specular pop |
 
 #### Metal
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Dark Steel | `#263238` | Deep shadow |
-| Gunmetal | `#455A64` | Primary body shadow |
-| Silver | `#90A4AE` | Primary body |
-| Bright Steel | `#CFD8DC` | Highlights |
-| Chrome White | `#ECEFF1` | Specular, reflections |
+| Dark Steel | `#202830` | Deep shadow |
+| Gunmetal | `#384858` | Shadow zone |
+| Silver | `#8098B0` | Base body color |
+| Bright Steel | `#C0D0E0` | Highlight zone |
+| Chrome White | `#E8F0F8` | Specular pop |
 
 #### Poison
 | Swatch | Hex | Usage |
 |--------|-----|-------|
-| Toxic Black | `#1B0033` | Deep shadow |
-| Dark Venom | `#4A148C` | Primary body shadow |
-| Poison Purple | `#7B1FA2` | Primary body |
-| Sickly Green | `#76FF03` | Accent, drip, ooze |
-| Magenta Glow | `#EA80FC` | Highlights, toxic aura |
+| Toxic Black | `#180030` | Deep shadow |
+| Dark Venom | `#401090` | Shadow zone |
+| Poison Purple | `#7018B0` | Base body color |
+| Sickly Green | `#60FF00` | Accent, drip, ooze |
+| Magenta Glow | `#F070FF` | Highlight zone |
 
 ---
 
 ## 4. Proportions & Anatomy
 
-All evolution stages use **chibi/doodle proportions** — even final forms remain cute and round. The style shifts from extra-chibi to slightly more detailed chibi, never reaching realistic proportions.
+All evolution stages use **chibi proportions** — even final forms remain cute and compact. The style shifts from extra-chibi to slightly more detailed chibi, never reaching realistic proportions.
 
-### Universal Doodle Body Rules (All Stages)
-- **Rounded, blobby limbs** with no sharp angles — everything should look soft and squishy.
+### Universal Body Rules (All Stages)
+- **Rounded, compact limbs** with smooth curves — everything should look clean and solid.
 - **Hands** are simple mittens or circles (no individual fingers unless the Sprite specifically requires them for identity).
 - **Feet** are round stubs — simple, chunky, and cute.
-- **No hard geometric angles** on bodies — even armored or metallic Sprites should have rounded, doodled edges.
+- **No overly complex geometry** on bodies — even armored or metallic Sprites should have rounded, clean edges with bold readable silhouettes.
+- **Modular armor design** — armor pieces are clearly defined shapes with bold outlines, designed for easy visual parsing at small sizes.
 
-### Stage 1 — Extra Chibi / Baby Doodle
+### Stage 1 — Extra Chibi / Baby Form
 - **Head-to-body ratio:** 1:1.5 (very large, round head dominates the body)
-- **Eyes:** Dot eyes or large sparkly eyes — take up ~40-50% of face area
-- **Limbs:** Tiny, blobby nubs — barely visible
-- **Details:** Minimal; 1-2 distinguishing features (e.g., a scribbled tail flame, tiny ear tufts)
+- **Eyes:** Simple dot eyes — small filled black circles, taking up ~20-30% of face area
+- **Limbs:** Tiny, rounded nubs — barely visible
+- **Details:** Minimal; 1-2 distinguishing features (e.g., a small tail flame, tiny ear tufts)
 - **Personality:** Maximum cute, baby-like, irresistible
 - **Pose:** Forward-facing, slightly tilted for charm
-- **Doodle feel:** Simplest sketch marks, minimal hatching, big round shapes
+- **Cel-shading:** Simplest shading — large flat color zones, minimal shadow/highlight areas
 
-### Stage 2 — Chibi / Kid Doodle
+### Stage 2 — Chibi / Kid Form
 - **Head-to-body ratio:** 1:2 (still chibi, cute with bigger features than realistic)
-- **Eyes:** Large and expressive, still sparkly but more determined
+- **Eyes:** Simple dot eyes — small filled black circles, slightly larger than Stage 1
 - **Limbs:** Short and rounded, mitten hands slightly defined, stubby feet
-- **Details:** Moderate; 3-4 features that build on Stage 1 (e.g., larger scribble flame, mane growth)
+- **Details:** Moderate; 3-4 features that build on Stage 1 (e.g., larger flame, mane growth)
 - **Personality:** Confident but still cute, capable little adventurer
 - **Pose:** Slight action stance, weight shifted
-- **Doodle feel:** More hatching detail, additional sketch marks, slightly more complex shapes
+- **Cel-shading:** More defined shadow/highlight zones, additional color areas for detail
 
-### Stage 3 — Chibi / Final Doodle Form
+### Stage 3 — Chibi / Final Form
 - **Head-to-body ratio:** 1:2.5 (still chibi even at final form, slightly more detailed)
-- **Eyes:** Expressive and detailed, may have additional eye features (sparkle highlights, element-colored irises)
+- **Eyes:** Simple dot eyes — small filled black circles, may have a single white specular dot for emphasis
 - **Limbs:** Rounded but slightly more defined, mitten hands may show claw shapes, feet slightly articulated
-- **Details:** Rich; 5+ features with doodle-style element-themed ornamentation (scribbled flames, sketchy crystals, etc.)
+- **Details:** Rich; 5+ features with element-themed ornamentation (clean flame shapes, crystalline structures, etc.)
 - **Personality:** Powerful but still adorably chibi — formidable yet huggable
 - **Pose:** Dynamic, commanding, may have spread wings/arms — but with rounded chibi proportions
-- **Doodle feel:** Most detailed hatching and cross-hatching, elaborate sketch marks, decorative doodle effects
+- **Cel-shading:** Most detailed shading with multiple color zones, crisp shadow/highlight areas on each section
 
 ---
 
@@ -259,14 +257,15 @@ This is the single most important readability rule. On mobile screens, during fa
 3. The Sprite must still be identifiable — distinguishable from every other Sprite in the game.
 4. Key identifying features (horns, wings, tail shape, ear shape) must remain visible at this scale.
 
-### Doodle Outline Note
-In the Color Doodle Chibi style, outlines are **2-4px thick** and **slightly wobbly/uneven** to achieve the hand-drawn feel. This thicker, irregular outline actually aids silhouette readability at small sizes, as the heavier line weight makes shapes more distinct. When creating silhouette test sheets, the wobbly outline is part of the silhouette shape.
+### Outline Note
+In the Flat Cel-Shaded Chibi style, outlines are **2px thick** and **perfectly uniform** — clean, straight, and consistent. This crisp outline creates strong silhouette readability at small sizes, as the consistent line weight provides a clear boundary between the Sprite and background. The clean outline is part of the silhouette shape.
 
 ### Silhouette Design Principles
 - **Unique contour:** No two Sprites in the same stage should share the same general outline shape.
 - **Asymmetric accents:** Add a feature that breaks symmetry (e.g., one horn longer, tail curving one direction) to aid recognition.
 - **Avoid internal-only detail:** If a Sprite's only distinguishing feature is a pattern or color on its body, it will fail the silhouette test. The outline itself must be distinct.
 - **Negative space:** Use gaps (between ears, legs, wings) to create recognizable negative space shapes.
+- **Bold readable silhouettes:** Design armor and accessories as distinct shapes that contribute to the overall silhouette, not just surface decoration.
 
 ### Silhouette Checksheet
 For each new Sprite, create a 4-up comparison sheet:
@@ -287,6 +286,7 @@ Each 3-stage evolution line must feel like a natural progression while maintaini
 3. **Color Consistency:** The dominant color hue shifts no more than 30 degrees on the color wheel between stages. Saturation and value may change more freely.
 4. **Size Progression:** Each stage must visually read as larger and more powerful than the previous.
 5. **Element Intensification:** Elemental visual effects (flames, water drops, leaf patterns) become more prominent and elaborate with each stage.
+6. **Shading Complexity:** Shadow/highlight zones become more numerous and refined with each evolution stage.
 
 ### Progression Examples
 | Feature | Stage 1 | Stage 2 | Stage 3 |
@@ -308,26 +308,22 @@ Each 3-stage evolution line must feel like a natural progression while maintaini
 All art must pass readability checks on actual mobile devices (or accurate emulators) at target resolution.
 
 ### Outline Requirements
-- **Outline width:** 2-4 pixels, **slightly uneven/wobbly** to achieve the hand-drawn doodle feel. Outlines should never be perfectly straight or uniform in thickness.
-- **Outline color:** Use **Doodle Ink Colors** (see Section 3) — Soft Black, Warm Brown, Dark Blue, or Soft Gray depending on the Sprite's color temperature. Do not use pure black (`#000000`).
-  - Example: For a Fire Sprite, use Warm Brown (`#5C4033`) for primary outlines.
-- **Inner outlines:** Optional 1-2px inner lines to separate major body sections (head/body/limbs). These should use Soft Gray (`#7A7A7A`) or a lighter doodle ink.
-- **No outline breaks:** The silhouette outline must be continuous -- no gaps where background shows through at the edge. Wobble is fine, gaps are not.
-- **Soft edges:** The doodle style uses soft, slightly fuzzy edges rather than pixel-perfect hard edges. Anti-aliasing and soft edge treatment is encouraged to support the hand-drawn feel.
+- **Outline width:** 2 pixels, **perfectly uniform** — clean, crisp, and consistent thickness everywhere. No wobble, no variation, no taper.
+- **Outline color:** Use **Clean Black** (`#000000`) for all outlines on all Sprites, regardless of element or color temperature.
+- **Inner outlines:** 1-2px inner lines in Clean Black to separate major body sections (head/body/limbs) and armor pieces.
+- **No outline breaks:** The silhouette outline must be continuous — no gaps where background shows through at the edge.
+- **Hard edges:** The cel-shaded style uses crisp, pixel-perfect hard edges. No anti-aliasing, feathering, or soft edge treatment on outlines.
 
 ### Detail Line Rules
-- **Minimum line width:** 1 pixel is acceptable for internal detail lines in the doodle style, as the sketchy aesthetic is more forgiving of fine lines.
+- **Minimum line width:** 1 pixel for fine internal detail lines.
 - **2px recommended** for important feature-defining details that must read at small sizes.
-- **Use hatching and sketch strokes** to add detail and shading rather than relying solely on color fills.
+- **Use flat color zones** for shading and detail — shadow zones and highlight zones with hard edges, not hatching or cross-hatching.
 
-### Sketch Marks
-The doodle aesthetic includes small **decorative sketch marks** near features that add personality and expressiveness:
-- **Motion lines** — short parallel strokes near moving parts (tails, wings, flames).
-- **Blush marks** — small pink/red circles on cheeks for cute expressions.
-- **Sweat drops** — classic doodle sweat drop near the head for stressed/nervous expressions.
-- **Sparkle marks** — tiny star/cross shapes near eyes or shiny surfaces.
-- **Emphasis lines** — short radiating lines around important features.
-These marks are part of the art style and should be included where appropriate — they are not optional decorations but core to the Color Doodle Chibi identity.
+### Eyes
+All Sprites use **simple dot eyes** — small filled black circles. This is a core part of the Flat Cel-Shaded Chibi identity:
+- **Stage 1:** Small dot eyes (2-3px diameter), centered on face.
+- **Stage 2:** Slightly larger dot eyes (3-4px diameter), positioned for expression.
+- **Stage 3:** Dot eyes (3-4px diameter), may include a single 1px white specular dot for emphasis. No sparkle eyes, no detailed iris.
 
 ### Zoom Testing
 Every Sprite must be reviewed at these zoom levels:
@@ -339,7 +335,7 @@ Every Sprite must be reviewed at these zoom levels:
 | 25% | Small phone / minimap icon | Silhouette recognizable only |
 
 ### Contrast Requirements
-- Minimum contrast ratio of **3:1** between the Sprite outline and the lightest expected battle background.
+- Minimum contrast ratio of **4:1** between the Sprite outline (black) and the lightest expected battle background.
 - Minimum contrast ratio of **2:1** between adjacent color regions within the Sprite.
 - Test against all battle background types: grass, sand, water, cave, temple stone, snow.
 
@@ -358,8 +354,8 @@ Every Sprite must be reviewed at these zoom levels:
 - Flying Sprites render at +1 z-layer above grounded Sprites in the same row.
 - Attack VFX render at +2 z-layers above the attacker.
 
-### Doodle Grid Lines
-The battle grid itself should use **hand-drawn wobbly grid borders** rather than pixel-perfect straight lines. Grid lines should appear sketched with slight irregularity, matching the overall Color Doodle Chibi aesthetic. Use Soft Gray (`#7A7A7A`) at 40% opacity for grid lines.
+### Grid Lines
+The battle grid uses **clean straight grid borders** with consistent line weight. Grid lines should be crisp and uniform, matching the overall Flat Cel-Shaded Chibi aesthetic. Use `#000000` at 15% opacity for grid lines.
 
 ### Shadow
 - All grounded Sprites have a simple **elliptical shadow** beneath them: 60% of Sprite width, 20% of Sprite height, color `#00000040` (black at 25% opacity).
@@ -380,9 +376,9 @@ Sprites appear in UI contexts (team roster, collection, shop) as portrait thumbn
 | Evolution preview | 96 x 96 px | Full Sprite centered |
 
 ### Portrait Frame
-- Portraits are displayed inside a **hand-drawn wobbly border** frame — the border should appear sketched with slight irregularity, not perfectly geometric. Use a **3px thick** uneven line in the element's primary doodle ink color.
-- Frame corners should be rounded and slightly imperfect, as if drawn freehand.
-- Background: **Colored fill** using the element's lightest palette color at 40% opacity, with visible soft color bleeding at the frame edges to match the doodle aesthetic.
+- Portraits are displayed inside a **clean geometric border** frame — crisp, uniform line weight, perfectly straight edges. Use a **2px thick** line in Clean Black (`#000000`).
+- Frame corners should be cleanly rounded (uniform radius).
+- Background: **Flat color fill** using the element's lightest palette color at 40% opacity, with hard edges at the frame boundary.
 
 ---
 
@@ -430,15 +426,15 @@ res://Sprites/Characters/
 Before any Sprite art is approved for integration, it must pass this checklist:
 
 - [ ] Canvas is correct size for stage (64/96/128 px square)
-- [ ] Maximum 24 unique colors (verify with indexed color count)
-- [ ] Colors pull from the correct element palette with pastel/desaturated treatment
+- [ ] Maximum 20 unique colors (verify with indexed color count)
+- [ ] Colors pull from the correct element palette with vibrant saturated treatment
 - [ ] Head-to-body ratio matches chibi stage guidelines (1:1.5 / 1:2 / 1:2.5)
 - [ ] Passes silhouette test at 32x32 (submit silhouette sheet)
 - [ ] Evolution continuity: shared features with previous/next stage
-- [ ] 2-4px wobbly doodle outline is continuous with no gaps, uses doodle ink colors
-- [ ] Hatching/cross-hatching used for shading (no smooth gradients)
-- [ ] Color bleed present at select outline edges
-- [ ] Sketch marks included where appropriate (motion lines, blush, sparkles)
+- [ ] 2px uniform Clean Black (#000000) outline is continuous with no gaps
+- [ ] Flat cel-shaded coloring: one shadow zone + one highlight zone per color area, hard edges only
+- [ ] No gradients, no hatching, no cross-hatching, no color bleed
+- [ ] Simple dot eyes (small filled black circles), no sparkle eyes
 - [ ] Readable at 50% zoom on a mobile device
 - [ ] Contrast passes against all battle background types
 - [ ] Shadow ellipse included for battle rendering
@@ -452,61 +448,60 @@ Before any Sprite art is approved for integration, it must pass this checklist:
 
 Quick reference for each element's visual motifs beyond color:
 
-| Element | Shape Motifs | Texture Cues | Particle FX | Doodle Motif |
-|---------|-------------|--------------|-------------|--------------|
-| Fire | Sharp angles, flame shapes | Crackled, ember texture | Rising sparks, heat haze | Crayon scribble flames, zigzag heat lines |
-| Water | Curves, wave shapes, droplets | Glossy, reflective highlights | Bubbles, water droplets | Wavy doodle lines, sketched splash drops |
-| Plant | Organic curves, leaf shapes | Bark texture, vein patterns | Floating leaves, pollen | Scribbly vine curls, doodled leaf spirals |
-| Ice | Crystalline angles, hexagons | Frosted, semi-transparent | Snowflakes, frost mist | Sketched snowflake stars, hatched ice shards |
-| Wind | Flowing curves, spiral shapes | Wispy, semi-transparent | Swirling lines, feathers | Loose spiral doodles, quick-stroke breeze lines |
-| Earth | Blocky, angular, solid | Rough stone, cracked dirt | Dust clouds, pebbles | Cross-hatched rock texture, scribbled cracks |
-| Electric | Zigzag lines, bolt shapes | Crackling, bright edges | Sparks, arcing bolts | Jagged crayon bolts, scribble spark bursts |
-| Dark | Pointed, angular, shadow wisps | Smoky, void-like | Shadow tendrils, dark mist | Heavy ink scribble shadows, scribbly wisps |
-| Light | Radial, starburst, halos | Smooth, luminous | Light rays, lens flares | Doodled starburst rays, sketched halo rings |
-| Fairy | Rounded, heart/star shapes | Sparkly, iridescent | Glitter, tiny stars | Doodled hearts and stars, sparkle pen marks |
-| Lunar | Crescent curves, orbital arcs | Pale, ethereal | Moon dust, soft glow | Sketched crescent moons, soft pencil glow lines |
-| Solar | Radial spikes, corona shapes | Warm, pulsing brightness | Solar flares, heat lines | Crayon sun rays, scribbled corona spikes |
-| Metal | Geometric, plated, rivets | Polished, reflective | Metal shards, sparks | Hatched metal plates, doodled rivet circles |
-| Poison | Dripping, bubbling, thorns | Slimy, corroded | Toxic drips, gas clouds | Scribbly drip lines, doodled bubble clusters |
+| Element | Shape Motifs | Texture Cues | Particle FX | Cel-Shaded Motif |
+|---------|-------------|--------------|-------------|-------------------|
+| Fire | Sharp angles, flame shapes | Flat warm fills, hard shadow edges | Rising sparks, heat haze | Bold flame silhouettes, sharp shadow/highlight zones |
+| Water | Curves, wave shapes, droplets | Flat cool fills, crisp reflective highlight | Bubbles, water droplets | Clean wave shapes, single specular highlight per droplet |
+| Plant | Organic curves, leaf shapes | Flat green fills, bark shadow zones | Floating leaves, pollen | Layered flat leaf shapes, clean vine silhouettes |
+| Ice | Crystalline angles, hexagons | Flat cool fills, sharp facet highlights | Snowflakes, frost mist | Geometric facets with hard highlight edges |
+| Wind | Flowing curves, spiral shapes | Semi-transparent flat fills | Swirling lines, feathers | Clean curved silhouettes, transparent layered zones |
+| Earth | Blocky, angular, solid | Flat brown fills, hard crack lines | Dust clouds, pebbles | Bold rocky shapes, clean crack detail lines |
+| Electric | Zigzag lines, bolt shapes | Bright flat fills, sharp energy edges | Sparks, arcing bolts | Clean zigzag bolt shapes, high-contrast glow zones |
+| Dark | Pointed, angular, shadow wisps | Dark flat fills, deep shadow zones | Shadow tendrils, dark mist | Deep layered shadow zones, sharp wisp silhouettes |
+| Light | Radial, starburst, halos | Bright flat fills, luminous highlights | Light rays, lens flares | Clean starburst shapes, bold halo outlines |
+| Fairy | Rounded, heart/star shapes | Soft pink flat fills, sparkle highlights | Glitter, tiny stars | Clean heart/star shapes, pastel cel zones |
+| Lunar | Crescent curves, orbital arcs | Pale flat fills, silver highlights | Moon dust, soft glow | Clean crescent shapes, cool-toned shadow zones |
+| Solar | Radial spikes, corona shapes | Warm bright flat fills, hot highlights | Solar flares, heat lines | Bold radial spike shapes, warm highlight zones |
+| Metal | Geometric, plated, rivets | Flat metallic fills, sharp specular | Metal shards, sparks | Clean plate shapes, crisp specular highlight zones |
+| Poison | Dripping, bubbling, thorns | Flat toxic fills, vivid accent zones | Toxic drips, gas clouds | Bold drip silhouettes, high-contrast toxic green accents |
 
 ---
 
-## 13. Doodle Art Style Rules
+## 13. Cel-Shaded Art Style Rules
 
-These rules define the core artistic principles of the Color Doodle Chibi style. All artists must internalize these before creating Sprite assets.
+These rules define the core artistic principles of the Flat Cel-Shaded Chibi style. All artists must internalize these before creating Sprite assets.
 
 ### Line Quality
-All outlines must appear **hand-drawn** with slight wobble and irregularity. No perfectly straight lines anywhere — even horizontal and vertical edges should have subtle organic waviness. Lines may vary in thickness along their length, as a real pen or marker stroke would.
+All outlines must be **clean, uniform, and digitally precise**. Lines are exactly 2px thick everywhere — no variation, no wobble, no taper. Every line should be perfectly straight or smoothly curved with no hand-drawn imperfections. Use Clean Black (#000000) for all outlines.
 
 ### Shading
-Use **hatching, cross-hatching, and scribble fills** instead of flat color fills or smooth gradients. Shading should look loose and sketchy, as if applied with colored pencils. Keep hatching strokes visible — they are a feature, not a flaw. Vary stroke density to control value (tighter hatching = darker, looser = lighter).
+Use **flat color zones with hard-edged transitions** for all shading. Each color area has exactly three values: base color, shadow (darker), and highlight (lighter). Shadow zones are ~25% darker than base. Highlight zones are ~20% lighter than base. Transitions between zones are pixel-sharp — no gradients, no feathering, no blending. Never use hatching, cross-hatching, or scribble fills.
 
 ### Color Fills
-Colors should **slightly bleed past outlines** for that hand-colored feel. This means color regions extend 1-2px beyond the outline boundary in places, creating the look of a coloring page filled in with markers or crayons. Not every edge needs bleed — use it selectively for organic, natural-feeling results.
+Colors must **stay cleanly within outlines** with no bleeding or overflow. Every color region is a flat, solid fill with hard edges. No texture, no grain, no pencil marks. Color zones should be clearly defined geometric or organic shapes, not loose or sketchy.
 
 ### Expressions
-Chibi faces use **simple but expressive features**:
-- **Eyes:** Dot eyes (Stage 1) or large sparkle eyes (Stages 2-3) — always oversized relative to face.
-- **Mouths:** Simple curved lines — a smile is a single arc, surprise is a small circle, determination is a flat dash.
-- **Blush circles:** Small pink/red circles on cheeks — use liberally for cute expressions.
-- **Eyebrows:** Optional short strokes above eyes for emotion (anger, worry, surprise).
+Chibi faces use **simple, clean features**:
+- **Eyes:** Simple dot eyes (small filled black circles) at all stages. No sparkle eyes, no detailed iris, no colored eyes. Stage 3 may add a single 1px white specular dot.
+- **Mouths:** Simple curved lines — a smile is a single clean arc, surprise is a small circle, determination is a flat dash. All in Clean Black.
+- **No blush circles** — the cel-shaded style does not use blush marks.
+- **Eyebrows:** Optional short clean strokes above eyes for emotion (anger, worry, surprise).
 
-### Motion
-Add **doodle motion lines** (short parallel strokes) around moving parts to convey energy and action. These are 2-4 short lines in Soft Gray or the Sprite's outline color, placed near tails, wings, flames, or any animated feature. Motion lines are essential during attack and ability animations.
+### Motion & Energy
+Convey motion through **pose, squash/stretch, and VFX particles** rather than drawn motion lines. The cel-shaded style relies on dynamic poses and animation rather than static sketch marks for energy. Speed lines and impact effects should be separate VFX layers, not drawn onto the Sprite itself.
 
-### Decorative
-Small **doodle decorative marks** add charm and emphasis:
-- **Stars** — tiny 4- or 5-point stars near shiny or magical features.
-- **Hearts** — small hearts for Fairy-type or affection-related expressions.
-- **Spirals** — loose spiral doodles for confusion, wind, or whimsy.
-- **Scribble clouds** — small scribbly cloud puffs for dust, smoke, or comedic emphasis.
-These marks should be used where appropriate to enhance personality without cluttering the silhouette.
+### Decorative Elements
+Element-themed decorative elements should be **clean, geometric shapes**:
+- **Stars** — clean 4- or 5-point star shapes near magical features.
+- **Hearts** — smooth heart shapes for Fairy-type accents.
+- **Circles** — clean circular particles for various element effects.
+These elements should be flat-colored with hard edges, matching the overall cel-shaded aesthetic.
 
 ### Texture
-Surfaces should have **visible pencil/pen texture marks** rather than being perfectly smooth. Even flat color areas benefit from subtle hatching or crayon-grain texture. This applies to all materials — fur, scales, metal, stone, water — everything should feel hand-drawn and tactile.
+Surfaces should be **perfectly smooth flat fills** with no pencil texture, no grain, and no hatching. Material differences (fur, scales, metal, stone) are communicated through **shape, color zone placement, and specular highlight shapes** rather than surface texture marks. Metal gets sharp angular highlights. Fur gets soft rounded shadow shapes. Stone gets blocky shadow edges.
 
 ### Backgrounds
-Battle backgrounds use the **same doodle/sketch treatment** with colored pencil fills. Background elements (grass, rocks, water, walls) should have visible sketch strokes, hatching, and wobbly outlines. Backgrounds should feel like they belong in the same sketchbook as the Sprites, maintaining visual cohesion across the entire game.
+Battle backgrounds use the **same flat cel-shaded treatment** with clean outlines and solid color fills. Background elements (grass, rocks, water, walls) should have clean outlines, flat colors, and hard-edged shadow/highlight zones. Backgrounds should feel like they belong in the same polished game world as the Sprites, maintaining visual cohesion across the entire game.
 
 ---
 
@@ -516,3 +511,4 @@ Battle backgrounds use the **same doodle/sketch treatment** with colored pencil 
 |---------|------|--------|---------|
 | 1.0 | 2026-02-16 | Art Lead | Initial style guide |
 | 2.0 | 2026-03-08 | Art Lead | Art direction changed to Color Doodle Chibi style |
+| 3.0 | 2026-03-09 | Art Lead | Art direction changed to Flat Cel-Shaded Chibi style |

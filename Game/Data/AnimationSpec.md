@@ -14,7 +14,7 @@ This document defines the animation pipeline for all 72 Sprite forms in Sprite W
 
 **Total animation workload:** 72 forms x 6 core states = **432 animation clips** (minimum). Additional states (special abilities, emotes) may increase this count.
 
-**Color Doodle Chibi Art Style:** All animations in Sprite Wars use the Color Doodle Chibi art style, which influences every aspect of the animation pipeline. Sprites should exhibit a subtle "sketch wobble" effect -- a small random position jitter (0.5-1px) applied per frame to make characters feel hand-drawn and alive. Squash-and-stretch values are exaggerated approximately 20% beyond standard proportions to reinforce the cartoony doodle aesthetic. During key frames (hit frames, ability casts, landing frames), decorative sketch marks should appear as overlays, including motion lines near fast-moving limbs, small stars or spirals on impact, and chibi expression marks such as blush marks, sweat drops, or exclamation pops. These doodle elements are integral to the visual identity and must be present in all animation deliverables.
+**Flat Cel-Shaded Chibi Art Style:** All animations in Sprite Wars use the Flat Cel-Shaded Chibi art style, which influences every aspect of the animation pipeline. Sprites use clean, uniform black outlines with consistent thickness and vibrant saturated flat colors with hard-edged shading (no gradients). Squash-and-stretch values are exaggerated approximately 20% beyond standard proportions to reinforce the cartoony chibi aesthetic. During key frames (hit frames, ability casts, landing frames), clean graphic overlays should appear, including sharp motion lines near fast-moving limbs, bold geometric stars or spirals on impact, and chibi expression marks such as blush marks, sweat drops, or exclamation pops. These cel-shaded elements are integral to the visual identity and must be present in all animation deliverables.
 
 ---
 
@@ -31,7 +31,7 @@ Every Sprite form requires the following core animation states:
 | **Faint** | 4 | 8 | 0.50s | No | Defeat animation. Play once, hold last frame |
 | **Hit** | 3 | 12 | 0.25s | No | Damage reaction. Play once, return to idle |
 
-**Doodle Wobble Layer:** All animation states include an optional "doodle wobble" layer -- a 0.5-1px random position offset applied per frame. This subtle jitter makes sprites look hand-drawn and alive, as if they are being continuously redrawn by an artist's pen. The wobble is applied as a post-process on the sprite's position and does not affect hitbox alignment or pivot anchoring. Animators do not need to bake this into sprite sheets; it is applied procedurally at runtime by the animation controller.
+**Cel-Shaded Outline Layer:** All animation states include a clean uniform outline layer -- a consistent 1-2px black outline applied around each sprite. This crisp outline keeps sprites visually distinct against all backgrounds, reinforcing the flat cel-shaded look. The outline is applied as a post-process on the sprite's rendering and does not affect hitbox alignment or pivot anchoring. Animators do not need to bake this into sprite sheets; it is applied procedurally at runtime by the animation controller.
 
 ### Optional / Extended States
 
@@ -306,14 +306,14 @@ Attack effect animations (hit sparks, elemental bursts) follow separate but rela
 - VFX playback duration should not exceed **0.5s** (6 frames at 12 FPS).
 - VFX fades to transparent on the last 1-2 frames (no hard cut).
 
-### Doodle VFX Rules
-All VFX must conform to the Color Doodle Chibi art style:
+### Cel-Shaded VFX Rules
+All VFX must conform to the Flat Cel-Shaded Chibi art style:
 
-- **Sketchy outlines:** VFX should use wobbly, hand-drawn outlines instead of clean geometric shapes. Outlines may vary 1-2px in thickness along their length to simulate pen strokes.
-- **Hand-drawn hit effects:** Hit impacts should include sketch-style marks such as hand-drawn stars, spirals, and short motion lines radiating from the impact point.
-- **Hatching overlays:** Elemental effects (fire, ice, lightning, etc.) should have visible hatching or crosshatch texture overlays to reinforce the illustrated, sketched aesthetic.
-- **Wobbly impact text:** Comic impact text bubbles ("BAM!", "POW!", etc.) should have hand-drawn wobbly borders instead of clean rounded rectangles. Border lines should vary in thickness.
-- **Doodle particles:** Decorative particle effects should use hand-drawn shapes -- small stars, hearts, spirals, and scribble clouds -- rather than smooth circles or geometric sprites. These spawn during hits, ability activations, and evolution sequences to add visual charm.
+- **Clean outlines:** VFX should use crisp, uniform-thickness black outlines with consistent weight. Outlines should be clean geometric shapes with sharp edges.
+- **Bold hit effects:** Hit impacts should include clean graphic marks such as sharp-edged stars, spirals, and bold motion lines radiating from the impact point.
+- **Flat color fills:** Elemental effects (fire, ice, lightning, etc.) should use flat saturated color fills with hard-edged shading (no gradients, no hatching). Use at most 2-3 flat color tones per element.
+- **Clean impact text:** Comic impact text bubbles ("BAM!", "POW!", etc.) should have clean, sharp-edged borders with uniform line thickness and bold sans-serif lettering.
+- **Graphic particles:** Decorative particle effects should use clean flat-colored shapes -- bold stars, hearts, spirals, and solid puff clouds -- with uniform outlines. These spawn during hits, ability activations, and evolution sequences to add visual charm.
 
 ---
 
@@ -458,12 +458,12 @@ On significant hits (30+ damage), the VFX system displays comic-book style impac
 - Pop-in animated, then fade out upward
 - Kept subtle (brief display, moderate size) to avoid overstimulation
 
-### Doodle Enhancements for Weapon Animations
-The following doodle-style modifications apply to all procedural weapon animations:
+### Cel-Shaded Enhancements for Weapon Animations
+The following cel-shaded style modifications apply to all procedural weapon animations:
 
-- **Sketchy motion trails:** Motion trails during swings and thrusts should be rendered as sketchy, hand-drawn doodled lines rather than smooth gradients. Trail lines should have slight wobble and vary in thickness.
-- **Hand-drawn impact stars:** Impact effects on hit use hand-drawn star shapes with uneven points and wobbly outlines, matching the doodle aesthetic.
-- **Wobbly speech bubbles:** Comic impact text ("BAM!", "POW!", etc.) gets speech bubble borders with hand-drawn wobbly edges. Border thickness varies along the path to simulate ink pen strokes.
+- **Clean motion trails:** Motion trails during swings and thrusts should be rendered as clean, flat-colored arcs with uniform outlines and no gradients. Trail shapes use solid fills with hard edges.
+- **Bold impact stars:** Impact effects on hit use clean star shapes with sharp, even points and uniform black outlines, matching the cel-shaded aesthetic.
+- **Clean speech bubbles:** Comic impact text ("BAM!", "POW!", etc.) gets speech bubble borders with crisp, uniform edges and consistent line thickness using bold sans-serif fonts.
 
 ---
 
