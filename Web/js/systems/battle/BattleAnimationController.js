@@ -506,7 +506,7 @@ export class BattleAnimationController {
      * Call after rendering units.
      * @param {CanvasRenderingContext2D} ctx
      */
-    renderDoodleOverlays(ctx) {
+    renderCelOverlays(ctx) {
         // Render motion lines
         this._renderMotionLines(ctx);
         // Render damage numbers
@@ -798,11 +798,13 @@ export class BattleAnimationController {
     _buildShakeSteps(prop, amount, steps, duration) {
         const anims = [];
         const stepDur = duration / steps;
+        let prevOffset = 0;
         for (let i = 0; i < steps; i++) {
             const offset = amount * (i % 2 === 0 ? 1 : -1) * (1 - i / steps);
-            anims.push({ prop, from: i === 0 ? 0 : undefined, to: offset, start: i * stepDur, dur: stepDur, ease: easeOutQuad });
+            anims.push({ prop, from: prevOffset, to: offset, start: i * stepDur, dur: stepDur, ease: easeOutQuad });
+            prevOffset = offset;
         }
-        anims.push({ prop, from: undefined, to: 0, start: duration - stepDur * 0.5, dur: stepDur * 0.5, ease: easeOutQuad });
+        anims.push({ prop, from: prevOffset, to: 0, start: duration - stepDur * 0.5, dur: stepDur * 0.5, ease: easeOutQuad });
         return anims;
     }
 

@@ -211,9 +211,7 @@ export class UnitRenderer {
         if (isSelected) {
             ctx.save();
             ctx.strokeStyle = '#ffdd44';
-            ctx.lineWidth = 2;
-            ctx.shadowColor = '#ffdd44';
-            ctx.shadowBlur = 8;
+            ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.arc(x, y + bobOffset, halfSize + 3, 0, Math.PI * 2);
             ctx.stroke();
@@ -354,10 +352,8 @@ export class UnitRenderer {
         if (!glowColor) return;
 
         ctx.save();
-        ctx.shadowColor = glowColor;
-        ctx.shadowBlur = bestRarity === 'legendary' ? 12 : bestRarity === 'epic' ? 8 : 5;
-        ctx.strokeStyle = glowColor + '88';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = glowColor;
+        ctx.lineWidth = bestRarity === 'legendary' ? 3 : bestRarity === 'epic' ? 2.5 : 2;
         const r = size / 2 + 1;
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
@@ -387,7 +383,7 @@ export class UnitRenderer {
             ctx.beginPath();
             ctx.arc(cx, cy, r, 0, Math.PI * 2);
             ctx.fill();
-            ctx.strokeStyle = '#111111';
+            ctx.strokeStyle = '#000000';
             ctx.lineWidth = 2;
             ctx.stroke();
             ctx.restore();
@@ -417,12 +413,12 @@ export class UnitRenderer {
         ctx.save();
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(bx, by, badgeW, badgeH);
-        ctx.strokeStyle = '#111111';
+        ctx.strokeStyle = '#000000';
         ctx.lineWidth = 2;
         ctx.lineJoin = 'miter';
         ctx.strokeRect(bx, by, badgeW, badgeH);
 
-        ctx.fillStyle = '#111111';
+        ctx.fillStyle = '#000000';
         ctx.font = `bold ${Math.max(7, unitSize * 0.18)}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -456,7 +452,7 @@ export class UnitRenderer {
         }
 
         // Clean uniform outline
-        ctx.strokeStyle = '#111111';
+        ctx.strokeStyle = '#000000';
         ctx.lineWidth = 2;
         ctx.lineJoin = 'miter';
         ctx.strokeRect(x, y, barW, barH);
@@ -556,7 +552,7 @@ export class UnitRenderer {
             display:flex;align-items:center;gap:6px;
             padding:4px 6px;cursor:pointer;
             background:${isSelected ? '#E8F0FF' : '#FFFFFF'};
-            border:2px solid #111111;
+            border:2px solid #000000;
             border-radius:4px;
             width:${cardWidth}px;height:${cardHeight}px;
             transition:background 0.15s, transform 0.15s;
@@ -601,7 +597,7 @@ export class UnitRenderer {
 
         // Name row — clean sans-serif font
         const nameRow = document.createElement('div');
-        nameRow.style.cssText = `font-size:0.8rem;font-weight:700;color:#111111;
+        nameRow.style.cssText = `font-size:0.8rem;font-weight:700;color:#000000;
             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
             font-family:sans-serif;`;
         nameRow.textContent = name;
@@ -661,7 +657,7 @@ export class UnitRenderer {
         container.style.cssText = `
             position:relative;width:${size}px;height:${size}px;
             background:#FFFFFF;border-radius:4px;
-            border:2px solid #111111;
+            border:2px solid #000000;
             font-family:sans-serif;
         `;
 
@@ -694,9 +690,9 @@ export class UnitRenderer {
                 width:${slotSize}px;height:${slotSize}px;
                 border-radius:2px;
                 background:${eqData ? '#E8F0FF' : '#F0F0F0'};
-                border:2px solid #111111;
+                border:2px solid #000000;
                 display:flex;align-items:center;justify-content:center;
-                font-size:${slotSize * 0.4}px;color:${eqData ? '#111111' : '#999'};
+                font-size:${slotSize * 0.4}px;color:${eqData ? '#000000' : '#999'};
                 cursor:pointer;
                 font-family:sans-serif;
             `;

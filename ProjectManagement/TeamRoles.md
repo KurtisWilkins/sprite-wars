@@ -92,7 +92,7 @@ When a task comes in, the appropriate agent(s) are selected based on their role 
 
 ## 7. 2D Artist / Art Lead
 
-- **Experience:** 20+ years, strong in pixel art or stylized 2D
+- **Experience:** 20+ years, strong in cel-shaded or stylized 2D
 - **Owns:** Art direction and Sprite character designs
 - **Responsibilities:**
   - Defines and maintains the art style guide

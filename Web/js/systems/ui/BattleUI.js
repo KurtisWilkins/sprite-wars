@@ -641,7 +641,7 @@ export class BattleUI {
         bar.appendChild(fill);
         wrapper.appendChild(bar);
         this._healthBarLayer.appendChild(wrapper);
-        this._healthBars.set(unitId, { wrapper, fill, maxHp });
+        this._healthBars.set(unitId, { wrapper, fill, maxHp, team });
     }
 
     /**
@@ -663,6 +663,8 @@ export class BattleUI {
             entry.fill.style.background = '#dd2222';
         } else if (pct < 50) {
             entry.fill.style.background = '#ddaa22';
+        } else {
+            entry.fill.style.background = entry.team === 0 ? '#33CC55' : '#CC3333';
         }
     }
 
@@ -711,8 +713,8 @@ export class BattleUI {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            title: effectName,
         });
+        icon.title = effectName;
 
         if (iconUrl) {
             const img = document.createElement('img');
@@ -988,9 +990,12 @@ export class BattleUI {
                 cursor:pointer;color:#fff;font-size:13px;padding:4px;font-family:Arial,Helvetica,sans-serif;
             `;
             slot.textContent = sprite.nickname || `#${sprite.instanceId || '?'}`;
+            slot.dataset.selected = 'false';
             slot.addEventListener('click', () => {
-                slot.style.borderColor = slot.style.borderColor === 'rgb(80, 200, 120)' ? 'rgba(100,160,255,0.4)' : 'rgb(80, 200, 120)';
-                if (placements[sprite.instanceId]) {
+                const isSelected = slot.dataset.selected === 'true';
+                slot.dataset.selected = isSelected ? 'false' : 'true';
+                slot.style.borderColor = isSelected ? '#1A1A1A' : 'rgb(80, 200, 120)';
+                if (isSelected) {
                     delete placements[sprite.instanceId];
                 } else {
                     placements[sprite.instanceId] = sprite;

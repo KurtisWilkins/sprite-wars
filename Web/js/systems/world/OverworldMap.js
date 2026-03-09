@@ -427,7 +427,7 @@ export class OverworldMap {
      * @param {number} viewWidth - Visible viewport width in pixels
      * @param {number} viewHeight - Visible viewport height in pixels
      */
-    renderDoodleOverlay(ctx, cameraOffset, viewWidth, viewHeight) {
+    renderCelOverlay(ctx, cameraOffset, viewWidth, viewHeight) {
         ctx.save();
 
         // 1. Clean grid lines over tiles
@@ -449,7 +449,7 @@ export class OverworldMap {
      * @param {number} [options.direction=0] - Facing direction (0=down, 1=left, 2=right, 3=up)
      * @param {number} [options.bobPhase=0] - Walk cycle phase for bounce
      */
-    renderDoodlePlayer(ctx, screenX, screenY, options = {}) {
+    renderCelPlayer(ctx, screenX, screenY, options = {}) {
         const color = options.color || '#4488ff';
         const dir = options.direction || 0;
         const bob = options.bobPhase || 0;
@@ -561,7 +561,7 @@ export class OverworldMap {
      * @param {string} [options.hatColor] - Optional hat color for differentiation
      * @param {number} [options.bobPhase=0] - Idle bob phase
      */
-    renderDoodleNpc(ctx, screenX, screenY, options = {}) {
+    renderCelNpc(ctx, screenX, screenY, options = {}) {
         const color = options.color || '#ff8844';
         const hatColor = options.hatColor || null;
         const bob = options.bobPhase || 0;

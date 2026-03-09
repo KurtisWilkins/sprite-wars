@@ -82,6 +82,9 @@ export class NPCController {
         this._waitTimer = 0.0;
         this._inInteraction = false;
         this._trainerTriggered = false;
+        this._trainerSequenceTimer = 0;
+        this._trainerPlayer = null;
+        this._walkContext = null;
 
         /** Pixel position of the NPC. */
         this.position = { x: 0, y: 0 };
@@ -115,6 +118,39 @@ export class NPCController {
      * @param {number} delta - Time since last frame in seconds.
      */
     update(delta) {
+        // Process trainer sequence timers (game-time aware)
+        if (this._trainerSequenceTimer > 0) {
+            this._trainerSequenceTimer -= delta;
+            if (this._trainerSequenceTimer <= 0) {
+                this._trainerSequenceTimer = 0;
+                this._onTrainerExclamationDone();
+            }
+        }
+
+        // Process game-loop-driven walk movement
+        if (this._isMoving && this._moveTarget) {
+            const dx = this._moveTarget.x - this.position.x;
+            const dy = this._moveTarget.y - this.position.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const step = this.patrolSpeed * delta;
+
+            if (dist <= step) {
+                this.position.x = this._moveTarget.x;
+                this.position.y = this._moveTarget.y;
+                this._isMoving = false;
+                this._registerWithMap();
+                if (this._walkContext) {
+                    const ctx = this._walkContext;
+                    this._executeWalkSteps(ctx.steps, ctx.stepIndex + 1, ctx.direction, ctx.player);
+                }
+            } else {
+                const nx = dx / dist;
+                const ny = dy / dist;
+                this.position.x += nx * step;
+                this.position.y += ny * step;
+            }
+        }
+
         if (this._inInteraction || this._trainerTriggered) {
             return;
         }
@@ -254,6 +290,7 @@ export class NPCController {
             return;
         }
         this._trainerTriggered = true;
+        this._trainerPlayer = player;
 
         // Freeze player movement
         if (player && typeof player.freeze === 'function') {
@@ -263,21 +300,28 @@ export class NPCController {
         // Show exclamation mark
         this.showExclamation = true;
 
-        // After 800ms, hide exclamation and begin walking
-        setTimeout(() => {
-            this.showExclamation = false;
+        // Start game-time timer (0.8s) — processed in update()
+        this._trainerSequenceTimer = 0.8;
+    }
 
-            // Get target grid (player's position)
-            const targetGrid = player.currentGridPos
-                ? { ...player.currentGridPos }
-                : {
-                    x: Math.round(player.position.x / this.gridSize),
-                    y: Math.round(player.position.y / this.gridSize),
-                };
+    /**
+     * Called by update() when the trainer exclamation timer expires.
+     * @private
+     */
+    _onTrainerExclamationDone() {
+        this.showExclamation = false;
+        const player = this._trainerPlayer;
 
-            // Walk toward the player
-            this._walkTowardPlayer(targetGrid, player);
-        }, 800);
+        // Get target grid (player's position)
+        const targetGrid = player.currentGridPos
+            ? { ...player.currentGridPos }
+            : {
+                x: Math.round(player.position.x / this.gridSize),
+                y: Math.round(player.position.y / this.gridSize),
+            };
+
+        // Walk toward the player
+        this._walkTowardPlayer(targetGrid, player);
     }
 
     /**
@@ -345,34 +389,9 @@ export class NPCController {
             y: nextGrid.y * this.gridSize + this.gridSize * 0.5,
         };
         this._isMoving = true;
+        this._walkContext = { steps, stepIndex, direction, player };
         this._setFacing(direction);
         this._playWalkAnimation();
-
-        let lastTime = null;
-        const moveStep = (timestamp) => {
-            const delta = lastTime != null ? (timestamp - lastTime) / 1000 : 1 / 60;
-            lastTime = timestamp;
-
-            const dx = this._moveTarget.x - this.position.x;
-            const dy = this._moveTarget.y - this.position.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const step = this.patrolSpeed * delta;
-
-            if (dist <= step) {
-                this.position.x = this._moveTarget.x;
-                this.position.y = this._moveTarget.y;
-                this._isMoving = false;
-                this._registerWithMap();
-                this._executeWalkSteps(steps, stepIndex + 1, direction, player);
-            } else {
-                const nx = dx / dist;
-                const ny = dy / dist;
-                this.position.x += nx * step;
-                this.position.y += ny * step;
-                requestAnimationFrame(moveStep);
-            }
-        };
-        requestAnimationFrame(moveStep);
     }
 
     // ── Facing ──────────────────────────────────────────────────────────────

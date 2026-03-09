@@ -217,7 +217,7 @@ export class WeatherSystem {
 
         /**
          * Active particles for canvas-based simulation.
-         * Each: { x, y, vx, vy, life, maxLife, size, alpha, wobble, rotation }
+         * Each: { x, y, vx, vy, life, maxLife, size, alpha, phase, rotation }
          * @type {object[]}
          */
         this._particles = [];
@@ -514,7 +514,7 @@ export class WeatherSystem {
             p.y += p.vy * delta;
 
             // Update phase for animation
-            p.wobble = (p.wobble || 0) + delta * 3;
+            p.phase = (p.phase || 0) + delta * 3;
             p.rotation = (p.rotation || 0) + delta * (p.rotSpeed || 0);
 
             // Calculate alpha based on remaining life
@@ -577,7 +577,7 @@ export class WeatherSystem {
             maxLife: lifetime,
             size,
             alpha: 1.0,
-            wobble: Math.random() * Math.PI * 2,
+            phase: Math.random() * Math.PI * 2,
             rotation: Math.random() * Math.PI * 2,
             rotSpeed: (Math.random() - 0.5) * 2,
         });
@@ -832,7 +832,7 @@ export class WeatherSystem {
      */
     _getMarkSpawnRate() {
         switch (this.currentWeather) {
-            case 'rain':       return 2.0;   // puddle scribbles
+            case 'rain':       return 2.0;   // puddle ripples
             case 'snow':       return 0.5;   // snowdrift marks
             case 'sandstorm':  return 3.0;   // wind swirls
             case 'fog':        return 1.0;   // wavy lines

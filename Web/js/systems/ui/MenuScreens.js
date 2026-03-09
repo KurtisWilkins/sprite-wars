@@ -33,11 +33,11 @@ const COLORS = {
 };
 
 const ELEMENT_COLORS = {
-    Fire:     '#ff6633', Water:    '#4d99ff', Earth:    '#997740',
-    Wind:     '#b3e6ff', Light:    '#ffff99', Dark:     '#804dbb',
-    Plant:    '#4dcc4d', Electric: '#ffe633', Ice:      '#99e6ff',
-    Metal:    '#b3b3bf', Poison:   '#b34dcc', Fairy:    '#ff80cc',
-    Solar:    '#99cce6', Lunar:    '#e63366',
+    Fire:     '#ff5533', Water:    '#3399ff', Plant:    '#33aa33',
+    Ice:      '#99ddff', Wind:     '#88ccaa', Earth:    '#996633',
+    Electric: '#ffcc00', Dark:     '#8844aa', Light:    '#ffee99',
+    Fairy:    '#ff66aa', Solar:    '#ffaa33', Lunar:    '#8899cc',
+    Metal:    '#aaaacc', Poison:   '#aa33aa',
 };
 
 const RARITY_COLORS = {
@@ -435,7 +435,7 @@ export class TeamScreen {
                 width: '56px', height: '56px',
                 borderRadius: '8px',
                 flexShrink: '0',
-                imageRendering: 'pixelated',
+                imageRendering: 'crisp-edges',
                 background: 'rgba(35,35,55,1)',
             });
             const pCtx = portrait.getContext('2d');
@@ -1434,7 +1434,7 @@ export class InventoryScreen {
             Object.assign(portrait.style, {
                 width: '44px', height: '44px',
                 borderRadius: '6px', flexShrink: '0',
-                imageRendering: 'pixelated',
+                imageRendering: 'crisp-edges',
                 background: 'rgba(35,35,55,1)',
             });
             const pCtx = portrait.getContext('2d');
@@ -1622,7 +1622,7 @@ export class SettingsScreen {
         content.appendChild(musicSlider.row);
 
         const musicMute = this._createCheckRow('Mute Music', settings.musicMuted, (checked) => {
-            if (this._audioEngine && checked) this._audioEngine.toggleMute();
+            if (this._audioEngine) this._audioEngine.toggleMute();
             this._autoSave();
         });
         content.appendChild(musicMute);
@@ -1633,12 +1633,14 @@ export class SettingsScreen {
         });
         content.appendChild(sfxSlider.row);
 
-        const sfxMute = this._createCheckRow('Mute SFX', settings.sfxMuted, (_checked) => {
+        const sfxMute = this._createCheckRow('Mute SFX', settings.sfxMuted, (checked) => {
+            if (this._audioEngine) this._audioEngine.setSfxMuted(checked);
             this._autoSave();
         });
         content.appendChild(sfxMute);
 
-        const ambientSlider = this._createSliderRow('Ambient Volume', 0, 1, settings.ambientVolume, (_val) => {
+        const ambientSlider = this._createSliderRow('Ambient Volume', 0, 1, settings.ambientVolume, (val) => {
+            if (this._audioEngine) this._audioEngine.setAmbientVolume(val);
             this._autoSave();
         });
         content.appendChild(ambientSlider.row);

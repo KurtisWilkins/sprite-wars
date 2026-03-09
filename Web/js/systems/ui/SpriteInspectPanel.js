@@ -20,10 +20,10 @@ import { EQUIPMENT } from '../../data/EquipmentData.js';
 // ── Colors ──────────────────────────────────────────────────────────────────
 
 const ELEMENT_COLORS = {
-    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
-    Electric: '#ffcc00', Ice: '#99ddff', Plant: '#33aa33', Poison: '#aa33aa',
-    Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Fairy: '#ff66aa',
-    Lunar: '#ff8833', Solar: '#ccccff',
+    Fire: '#ff5533', Water: '#3399ff', Plant: '#33aa33', Ice: '#99ddff',
+    Wind: '#88ccaa', Earth: '#996633', Electric: '#ffcc00', Dark: '#8844aa',
+    Light: '#ffee99', Fairy: '#ff66aa', Solar: '#ffaa33', Lunar: '#8899cc',
+    Metal: '#aaaacc', Poison: '#aa33aa',
 };
 
 const STAT_COLORS = {

@@ -425,6 +425,10 @@ export class EquipmentInventorySystem {
         }
         sprite.equipment[slot] = equipment.equipmentId ?? equipment.equipment_id;
 
+        // ── Calculate stat changes (before removing from inventory) ─────
+        const newEquipList = this._resolveEquipmentList(sprite, playerData);
+        const statsAfter = this._calculateStatBonuses(newEquipList, spriteElements, spriteClass);
+
         // Remove the new item from the player's equipment inventory
         if (playerData.equipmentInventory) {
             const eqId = equipment.equipmentId ?? equipment.equipment_id;
@@ -435,10 +439,6 @@ export class EquipmentInventorySystem {
                 playerData.equipmentInventory.splice(removeIdx, 1);
             }
         }
-
-        // ── Calculate stat changes ──────────────────────────────────────
-        const newEquipList = this._resolveEquipmentList(sprite, playerData);
-        const statsAfter = this._calculateStatBonuses(newEquipList, spriteElements, spriteClass);
 
         const statChanges = {};
         for (const key of STAT_KEYS) {

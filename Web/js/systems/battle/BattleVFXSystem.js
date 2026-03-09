@@ -251,7 +251,7 @@ export class BattleVFXSystem {
                 x: x, y: y,
                 vx: Math.cos(angle) * speed,
                 vy: Math.sin(angle) * speed - 30,
-                life: 0.5 + Math.random() * 0.3,
+                life: 0,
                 maxLife: 0.5 + Math.random() * 0.3,
                 size: 3 + Math.random() * 5,
                 shape: shape,
@@ -263,8 +263,8 @@ export class BattleVFXSystem {
         }
     }
 
-    // Keep legacy name as alias for backwards compatibility
-    spawnDoodleParticles(x, y, count = 4, color = '#2D2D2D') {
+    // Alias for backwards compatibility
+    spawnCelParticles(x, y, count = 4, color = '#2D2D2D') {
         this.spawnCleanParticles(x, y, count, color);
     }
 
@@ -360,8 +360,8 @@ export class BattleVFXSystem {
         ctx.restore();
     }
 
-    // Keep legacy name as alias for backwards compatibility
-    renderDoodleParticle(ctx, p) {
+    // Alias for backwards compatibility
+    renderCelParticle(ctx, p) {
         this.renderCleanParticle(ctx, p);
     }
 

@@ -30,11 +30,11 @@ const COLORS = {
 };
 
 const ELEMENT_COLORS = {
-    Fire:     '#ff6633', Water:    '#4d99ff', Earth:    '#997740',
-    Wind:     '#b3e6ff', Light:    '#ffff99', Dark:     '#804dbb',
-    Plant:    '#4dcc4d', Electric: '#ffe633', Ice:      '#99e6ff',
-    Metal:    '#b3b3bf', Poison:   '#b34dcc', Fairy:    '#ff80cc',
-    Solar:    '#99cce6', Lunar:    '#e63366',
+    Fire:     '#ff5533', Water:    '#3399ff', Plant:    '#33aa33',
+    Ice:      '#99ddff', Wind:     '#88ccaa', Earth:    '#996633',
+    Electric: '#ffcc00', Dark:     '#8844aa', Light:    '#ffee99',
+    Fairy:    '#ff66aa', Solar:    '#ffaa33', Lunar:    '#8899cc',
+    Metal:    '#aaaacc', Poison:   '#aa33aa',
 };
 
 const ALL_ELEMENTS = ["Fire", "Water", "Wind", "Earth", "Plant", "Metal", "Electric", "Dark", "Light", "Solar", "Lunar", "Fairy", "Poison", "Ice"];
@@ -490,7 +490,7 @@ export class GlossaryScreen {
                 flexShrink: '0',
                 borderRadius: '10px',
                 background: 'rgba(0,0,0,0.3)',
-                imageRendering: 'pixelated',
+                imageRendering: 'crisp-edges',
             });
             drawSpritePreview(previewCanvas, race.race_id, this._raceSelectedElement[race.race_id]);
             topRow.appendChild(previewCanvas);
