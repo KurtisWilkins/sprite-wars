@@ -1,12 +1,13 @@
 /**
- * OverworldScene - Procedural cel-shaded overworld with player, NPCs, encounters.
- * Renders all world visuals procedurally on Canvas using flat cel-shaded tiles
- * with clean outlines, hard-edged highlights/shadows, and simple decorations.
- * Handles player movement, NPC interaction, random/scripted encounters, and
- * area transitions.
+ * OverworldScene - Adventure Quest-style overworld with player, NPCs, encounters.
+ * Renders all world visuals procedurally on Canvas using AQ-style cel-shaded tiles
+ * with bold black outlines, hard-edged two-tone shading, and detailed decorations.
+ * Handles player movement, NPC interaction, building entry/exit, random/scripted
+ * encounters, and area transitions.
  *
- * Art style: flat cel-shaded, clean black outlines, vibrant saturated fantasy
- * color palette, hard-edged shading, no gradients, clean digital illustration.
+ * Art style: Adventure Quest / Flash-RPG cartoon style — bold black outlines,
+ * vibrant saturated fantasy palette, cel-shaded with hard-edged two-tone shading,
+ * detailed props and buildings, clean digital cartoon illustration.
  */
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
@@ -78,8 +79,8 @@ class AdminLog {
 // ── Map Constants ──────────────────────────────────────────────────────────
 const TILE_SIZE = 32;
 const TILE_DRAW_SIZE = 32;
-const PLAYER_SIZE = 34;          // Chibi characters need more space for big heads
-const NPC_DRAW_HALFSIZE = 17;    // NPC render radius matches chibi player proportions
+const PLAYER_SIZE = 34;          // AQ-style characters with heroic proportions
+const NPC_DRAW_HALFSIZE = 17;    // NPC render radius matches AQ player proportions
 const PLAYER_SPEED = 120;        // pixels per second
 const NPC_INTERACT_DISTANCE = 40;
 const ENCOUNTER_STEP_THRESHOLD = 10; // steps between encounter checks
@@ -95,45 +96,62 @@ const DIR = {
     right: { x: 1, y: 0 },
 };
 
-// ── Cel-shaded tile color palette ─────────────────────────────────────────
-// Each tile type maps to a base color, shadow, highlight, and name for
-// procedural cel-shaded rendering. No external tileset images are used.
+// ── AQ-style cel-shaded tile color palette ───────────────────────────────
+// Adventure Quest / Flash-RPG cartoon style — bold outlines, vibrant saturated
+// fantasy colors, hard-edged two-tone shading. Each tile has base, shadow,
+// highlight, and name for procedural rendering. No external tileset images.
 const TILE_COLORS = {
-    0:  { base: '#5cb85c', shadow: '#4a9a4a', highlight: '#6ed46e', name: 'grass' },
-    1:  { base: '#c4a96a', shadow: '#a89058', highlight: '#d8be80', name: 'path' },
-    2:  { base: '#c4a96a', shadow: '#a89058', highlight: '#d8be80', name: 'path_v' },
-    3:  { base: '#d0b878', shadow: '#b8a060', highlight: '#e0cc90', name: 'crossroad' },
-    4:  { base: '#4a90d9', shadow: '#3a78c0', highlight: '#5ca8f0', name: 'water' },
-    5:  { base: '#5a9ae0', shadow: '#4882c8', highlight: '#6cb0f4', name: 'water_edge' },
-    6:  { base: '#2a6a2a', shadow: '#1e5620', highlight: '#388038', name: 'tree_dark' },
-    7:  { base: '#3a7a3a', shadow: '#2d6630', highlight: '#4a9a4a', name: 'tree_light' },
-    8:  { base: '#5cb85c', shadow: '#4a9a4a', highlight: '#6ed46e', name: 'flowers' },
-    9:  { base: '#8a8a8a', shadow: '#707070', highlight: '#a0a0a0', name: 'stone' },
-    10: { base: '#6a5040', shadow: '#584030', highlight: '#7c6252', name: 'wall' },
-    11: { base: '#b84040', shadow: '#a03030', highlight: '#d05050', name: 'roof' },
-    12: { base: '#6a4028', shadow: '#583020', highlight: '#7c5038', name: 'door' },
-    13: { base: '#8a7a5a', shadow: '#746648', highlight: '#a09070', name: 'fence' },
-    14: { base: '#8a7050', shadow: '#745c3c', highlight: '#a08464', name: 'bridge' },
-    15: { base: '#a0a060', shadow: '#88884a', highlight: '#b8b878', name: 'sign' },
-    16: { base: '#c09030', shadow: '#a07828', highlight: '#d8a840', name: 'chest' },
-    17: { base: '#e0b840', shadow: '#c8a030', highlight: '#f0d058', name: 'lamp' },
-    18: { base: '#70b0d0', shadow: '#5898b8', highlight: '#88c8e8', name: 'fountain' },
-    19: { base: '#505050', shadow: '#3c3c3c', highlight: '#646464', name: 'stairs' },
-    20: { base: '#b84040', shadow: '#a03030', highlight: '#d05050', name: 'roof_peak' },
-    21: { base: '#6a5040', shadow: '#584030', highlight: '#7c6252', name: 'wall_wood' },
-    22: { base: '#6a4428', shadow: '#583420', highlight: '#7c5438', name: 'barrel' },
-    23: { base: '#4a9a3a', shadow: '#3a822e', highlight: '#5ab24a', name: 'tall_grass' },
-    24: { base: '#c04040', shadow: '#a83030', highlight: '#d85858', name: 'mushroom' },
-    25: { base: '#6a5438', shadow: '#584428', highlight: '#7c6448', name: 'stump' },
-    26: { base: '#1e5a1e', shadow: '#144a14', highlight: '#2a6e2a', name: 'big_tree_tl' },
-    27: { base: '#1e5a1e', shadow: '#144a14', highlight: '#2a6e2a', name: 'big_tree_tr' },
-    28: { base: '#4a3420', shadow: '#3a2818', highlight: '#5c4430', name: 'big_tree_bl' },
-    29: { base: '#4a3420', shadow: '#3a2818', highlight: '#5c4430', name: 'big_tree_br' },
-    30: { base: '#7a5838', shadow: '#644828', highlight: '#906848', name: 'crate' },
-    31: { base: '#b84040', shadow: '#a03030', highlight: '#d05050', name: 'roof_left' },
-    32: { base: '#b84040', shadow: '#a03030', highlight: '#d05050', name: 'roof_right' },
-    33: { base: '#6a5040', shadow: '#584030', highlight: '#7c6252', name: 'wall_window' },
-    34: { base: '#8a8a8a', shadow: '#707070', highlight: '#a0a0a0', name: 'stone_path' },
+    0:  { base: '#4db84d', shadow: '#3a9a3a', highlight: '#66d466', name: 'grass' },
+    1:  { base: '#c8a858', shadow: '#a88e40', highlight: '#e0c070', name: 'path' },
+    2:  { base: '#c8a858', shadow: '#a88e40', highlight: '#e0c070', name: 'path_v' },
+    3:  { base: '#d4b868', shadow: '#b89848', highlight: '#ecd080', name: 'crossroad' },
+    4:  { base: '#3878cc', shadow: '#2860b0', highlight: '#4890e8', name: 'water' },
+    5:  { base: '#4888d8', shadow: '#3870c0', highlight: '#58a0f0', name: 'water_edge' },
+    6:  { base: '#1a5c1a', shadow: '#104810', highlight: '#287428', name: 'tree_dark' },
+    7:  { base: '#2a7030', shadow: '#1e5c22', highlight: '#3a8a3a', name: 'tree_light' },
+    8:  { base: '#4db84d', shadow: '#3a9a3a', highlight: '#66d466', name: 'flowers' },
+    9:  { base: '#787888', shadow: '#606070', highlight: '#9090a0', name: 'stone' },
+    10: { base: '#5c4030', shadow: '#483020', highlight: '#705240', name: 'wall' },
+    11: { base: '#c03030', shadow: '#a02020', highlight: '#e04848', name: 'roof' },
+    12: { base: '#5c3418', shadow: '#482810', highlight: '#704428', name: 'door' },
+    13: { base: '#7a6848', shadow: '#645434', highlight: '#907c5c', name: 'fence' },
+    14: { base: '#7a6040', shadow: '#644c2c', highlight: '#907454', name: 'bridge' },
+    15: { base: '#909050', shadow: '#787838', highlight: '#a8a868', name: 'sign' },
+    16: { base: '#cc8820', shadow: '#aa7010', highlight: '#e8a038', name: 'chest' },
+    17: { base: '#e8b030', shadow: '#d09820', highlight: '#f8c848', name: 'lamp' },
+    18: { base: '#58a0c8', shadow: '#4088b0', highlight: '#70b8e0', name: 'fountain' },
+    19: { base: '#484848', shadow: '#343434', highlight: '#5c5c5c', name: 'stairs' },
+    20: { base: '#c03030', shadow: '#a02020', highlight: '#e04848', name: 'roof_peak' },
+    21: { base: '#5c4030', shadow: '#483020', highlight: '#705240', name: 'wall_wood' },
+    22: { base: '#5c3818', shadow: '#482c10', highlight: '#704828', name: 'barrel' },
+    23: { base: '#3a9a2a', shadow: '#2a821e', highlight: '#4ab23a', name: 'tall_grass' },
+    24: { base: '#cc3030', shadow: '#b02020', highlight: '#e84848', name: 'mushroom' },
+    25: { base: '#5c4828', shadow: '#48381c', highlight: '#705838', name: 'stump' },
+    26: { base: '#145014', shadow: '#0c400c', highlight: '#1c641c', name: 'big_tree_tl' },
+    27: { base: '#145014', shadow: '#0c400c', highlight: '#1c641c', name: 'big_tree_tr' },
+    28: { base: '#3c2c18', shadow: '#2c2010', highlight: '#4c3c28', name: 'big_tree_bl' },
+    29: { base: '#3c2c18', shadow: '#2c2010', highlight: '#4c3c28', name: 'big_tree_br' },
+    30: { base: '#6c4c28', shadow: '#583c1c', highlight: '#805c38', name: 'crate' },
+    31: { base: '#c03030', shadow: '#a02020', highlight: '#e04848', name: 'roof_left' },
+    32: { base: '#c03030', shadow: '#a02020', highlight: '#e04848', name: 'roof_right' },
+    33: { base: '#5c4030', shadow: '#483020', highlight: '#705240', name: 'wall_window' },
+    34: { base: '#787888', shadow: '#606070', highlight: '#9090a0', name: 'stone_path' },
+    // ── New AQ-style building tiles ───
+    35: { base: '#584838', shadow: '#443428', highlight: '#6c5c48', name: 'inn_wall' },
+    36: { base: '#2848a0', shadow: '#1c3880', highlight: '#3858c0', name: 'shop_awning' },
+    37: { base: '#b07828', shadow: '#905c18', highlight: '#c89038', name: 'tavern_sign' },
+    38: { base: '#483040', shadow: '#382030', highlight: '#584050', name: 'magic_wall' },
+    39: { base: '#6048a0', shadow: '#483880', highlight: '#7858c0', name: 'magic_roof' },
+    40: { base: '#c8b898', shadow: '#b0a080', highlight: '#e0d0b0', name: 'wood_floor' },
+    41: { base: '#483838', shadow: '#342828', highlight: '#5c4c4c', name: 'fireplace' },
+    42: { base: '#a08858', shadow: '#887040', highlight: '#b8a070', name: 'counter' },
+    43: { base: '#384890', shadow: '#283878', highlight: '#4858a8', name: 'bookshelf' },
+    44: { base: '#907048', shadow: '#785830', highlight: '#a88860', name: 'table' },
+    45: { base: '#686070', shadow: '#504858', highlight: '#807888', name: 'anvil' },
+    46: { base: '#c86830', shadow: '#a85020', highlight: '#e88040', name: 'forge_fire' },
+    47: { base: '#e8d8c0', shadow: '#d0c0a8', highlight: '#f8e8d8', name: 'carpet' },
+    48: { base: '#58a868', shadow: '#489050', highlight: '#68c080', name: 'potion_shelf' },
+    49: { base: '#785838', shadow: '#604020', highlight: '#906850', name: 'bed' },
 };
 
 // Default fallback for unknown tile indices
@@ -502,8 +520,8 @@ export class OverworldScene extends Scene {
             return {
                 id: npcDef.id || `npc_${idx}`,
                 name: npcDef.name || 'NPC',
-                x: (npcDef.gridX || 5) * TILE_SIZE + TILE_SIZE / 2,
-                y: (npcDef.gridY || 5) * TILE_SIZE + TILE_SIZE / 2,
+                x: (npcDef.gridX ?? 5) * TILE_SIZE + TILE_SIZE / 2,
+                y: (npcDef.gridY ?? 5) * TILE_SIZE + TILE_SIZE / 2,
                 spriteImg: null,
                 spritePath: npcDef.spritePath || null,
                 dialogue: npcDef.dialogue || ['...'],
@@ -599,6 +617,21 @@ export class OverworldScene extends Scene {
                 return this._buildStarterRouteMap();
             case 'fire_temple':
                 return this._buildFireTempleMap();
+            // ── Building interiors ──
+            case 'healer_hut':
+                return this._buildHealerHutInterior();
+            case 'general_store':
+                return this._buildGeneralStoreInterior();
+            case 'potion_shop':
+                return this._buildPotionShopInterior();
+            case 'blacksmith_forge':
+                return this._buildBlacksmithInterior();
+            case 'professor_lab':
+                return this._buildProfessorLabInterior();
+            case 'mom_house':
+                return this._buildMomHouseInterior();
+            case 'tavern_inn':
+                return this._buildTavernInnInterior();
             default:
                 return this._buildGenericFallbackMap(regionId);
         }
@@ -995,6 +1028,14 @@ export class OverworldScene extends Scene {
             transitions: [
                 { gridX:45, gridY:24, width:2, height:2, targetRegion:'fire_temple', targetSpawn:{x:1,y:12} },
                 { gridX:22, gridY:46, width:6, height:2, targetRegion:'starter_route', targetSpawn:{x:16,y:1} },
+                // ── Enterable building doors (door tile at bldg row+2) ──
+                { gridX:7, gridY:6, width:1, height:1, targetRegion:'mom_house', targetSpawn:{x:5,y:8} },
+                { gridX:7, gridY:18, width:1, height:1, targetRegion:'healer_hut', targetSpawn:{x:4,y:7} },
+                { gridX:6, gridY:32, width:1, height:1, targetRegion:'general_store', targetSpawn:{x:5,y:8} },
+                { gridX:12, gridY:32, width:1, height:1, targetRegion:'potion_shop', targetSpawn:{x:4,y:7} },
+                { gridX:6, gridY:43, width:1, height:1, targetRegion:'blacksmith_forge', targetSpawn:{x:4,y:7} },
+                { gridX:35, gridY:32, width:2, height:1, targetRegion:'professor_lab', targetSpawn:{x:6,y:10} },
+                { gridX:16, gridY:6, width:1, height:1, targetRegion:'tavern_inn', targetSpawn:{x:5,y:9} },
             ],
             encounterZones: [],
         };
@@ -1227,6 +1268,389 @@ export class OverworldScene extends Scene {
                 { x1: 7, y1: 1, x2: 16, y2: 6, encounterRate: 0.05, minLevel: 7, maxLevel: 12 },
                 // Rest alcove: NO encounters (excluded by not covering rows 21-22, cols 3-7)
             ],
+        };
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  BUILDING INTERIORS — AQ-style enterable buildings with NPCs
+    //  Each interior is a small map (10-14 tiles) with wood floors, furniture,
+    //  and NPCs the player can talk to. Exit door transitions back to town.
+    // ══════════════════════════════════════════════════════════════════════
+
+    /** Interior helper: builds a rectangular room with walls, floor, and exit door */
+    _buildInterior(w, h, opts = {}) {
+        const ground = new Array(w * h).fill(40); // wood floor
+        const S = (x, y, t) => { if (x >= 0 && x < w && y >= 0 && y < h) ground[y * w + x] = t; };
+        const F = (x1, y1, x2, y2, t) => { for (let y = y1; y <= y2; y++) for (let x = x1; x <= x2; x++) S(x, y, t); };
+
+        // Walls around edges
+        for (let x = 0; x < w; x++) { S(x, 0, 10); S(x, h - 1, 10); }
+        for (let y = 0; y < h; y++) { S(0, y, 10); S(w - 1, y, 10); }
+
+        // Exit door at bottom center
+        const doorX = opts.doorX ?? Math.floor(w / 2);
+        const doorY = h - 1;
+        S(doorX, doorY, 12);
+
+        // Carpet runner to door
+        if (opts.carpet !== false) {
+            for (let y = doorY - 1; y >= Math.max(1, doorY - 3); y--) S(doorX, y, 47);
+        }
+
+        const collision = ground.map(t =>
+            [10, 41, 42, 43, 44, 45, 46, 48, 49].includes(t) ? 1 : 0
+        );
+        // Door is walkable
+        collision[doorY * w + doorX] = 0;
+
+        return { ground, collision, S, F, w, h, doorX, doorY };
+    }
+
+    // ── Mom's House Interior ──────────────────────────────────────────────
+    _buildMomHouseInterior() {
+        const { ground, collision, S, F, w, h } = this._buildInterior(10, 10, { doorX: 5 });
+
+        // Furniture
+        S(1, 1, 41);  // Fireplace
+        S(2, 1, 43);  // Bookshelf
+        S(3, 1, 43);  // Bookshelf
+        S(7, 1, 49);  // Bed
+        S(8, 1, 49);  // Bed
+        S(1, 4, 44);  // Kitchen table
+        S(2, 4, 44);  // Kitchen table
+        S(7, 4, 42);  // Counter
+        S(8, 4, 42);  // Counter
+        F(4, 5, 6, 6, 47); // Carpet area
+
+        // Mark furniture as collidable
+        for (let i = 0; i < ground.length; i++) {
+            if ([41, 42, 43, 44, 49].includes(ground[i])) collision[i] = 1;
+        }
+
+        return {
+            id: 'mom_house', width: w, height: h,
+            layers: [ground], collisionMap: collision,
+            defaultSpawn: { x: 5, y: 8 },
+            npcs: [
+                { id: 'mom_inside', name: 'Mom', gridX: 2, gridY: 5, type: 'heal', facing: 'down',
+                  dialogue: [
+                      'Welcome home, sweetheart!',
+                      'You must be tired from your adventures.',
+                      'Here, let me patch up your Sprites for you.',
+                      'There we go -- all better! Come visit any time.',
+                  ] },
+            ],
+            transitions: [
+                { gridX: 5, gridY: 9, width: 1, height: 1, targetRegion: 'starter_town', targetSpawn: { x: 7, y: 7 } },
+            ],
+            encounterZones: [],
+        };
+    }
+
+    // ── Healer Hut Interior ───────────────────────────────────────────────
+    _buildHealerHutInterior() {
+        const { ground, collision, S, F, w, h } = this._buildInterior(8, 8, { doorX: 4 });
+
+        // Healing setup
+        S(1, 1, 48);  // Potion shelf
+        S(2, 1, 48);  // Potion shelf
+        S(5, 1, 43);  // Bookshelf (medical texts)
+        S(6, 1, 43);
+        S(3, 3, 42);  // Healing counter
+        S(4, 3, 42);
+        S(1, 3, 41);  // Warm fireplace
+        F(3, 4, 5, 5, 47); // Carpet in front of counter
+
+        for (let i = 0; i < ground.length; i++) {
+            if ([41, 42, 43, 48].includes(ground[i])) collision[i] = 1;
+        }
+
+        return {
+            id: 'healer_hut', width: w, height: h,
+            layers: [ground], collisionMap: collision,
+            defaultSpawn: { x: 4, y: 6 },
+            npcs: [
+                { id: 'healer_inside', name: 'Healer Mira', gridX: 4, gridY: 2, type: 'heal', facing: 'down',
+                  dialogue: [
+                      'Welcome to my clinic!',
+                      'Place your injured Sprites on the counter.',
+                      'A little herbal magic and... good as new!',
+                      'Your Sprites have been fully restored!',
+                      'Come back whenever you need healing.',
+                  ] },
+                { id: 'healer_assistant', name: 'Apprentice Lily', gridX: 2, gridY: 5, type: 'talk', facing: 'right',
+                  dialogue: [
+                      'I\'m studying to become a healer like Mira!',
+                      'Did you know certain herbs can cure any status condition?',
+                      'You can find them growing in the wild if you look carefully.',
+                  ] },
+            ],
+            transitions: [
+                { gridX: 4, gridY: 7, width: 1, height: 1, targetRegion: 'starter_town', targetSpawn: { x: 7, y: 19 } },
+            ],
+            encounterZones: [],
+        };
+    }
+
+    // ── General Store Interior ─────────────────────────────────────────────
+    _buildGeneralStoreInterior() {
+        const { ground, collision, S, F, w, h } = this._buildInterior(10, 10, { doorX: 5 });
+
+        // Shop shelves and counter
+        F(1, 1, 3, 1, 48); // Potion shelves (left wall)
+        F(6, 1, 8, 1, 43); // Book/item shelves (right wall)
+        F(1, 3, 1, 5, 48); // Side shelf
+        S(3, 4, 42);  // Shop counter
+        S(4, 4, 42);
+        S(5, 4, 42);
+        S(6, 4, 42);
+        S(8, 4, 30); // Crate
+        S(8, 5, 30); // Crate
+        S(8, 6, 22); // Barrel
+        F(3, 6, 6, 7, 47); // Carpet in front of counter
+
+        for (let i = 0; i < ground.length; i++) {
+            if ([22, 30, 42, 43, 48].includes(ground[i])) collision[i] = 1;
+        }
+
+        return {
+            id: 'general_store', width: w, height: h,
+            layers: [ground], collisionMap: collision,
+            defaultSpawn: { x: 5, y: 8 },
+            npcs: [
+                { id: 'shopkeeper_inside', name: 'Merchant Grin', gridX: 5, gridY: 3, type: 'shop', facing: 'down',
+                  dialogue: [
+                      'Welcome to Grin\'s General Goods!',
+                      'I\'ve got potions, crystals, and essential supplies.',
+                      'Business has been booming since trainers started passing through!',
+                      'Take a look around -- everything is priced fairly!',
+                  ] },
+                { id: 'shop_cat', name: 'Shop Cat Whiskers', gridX: 2, gridY: 6, type: 'talk', facing: 'right',
+                  dialogue: [
+                      '...Meow.',
+                      'The cat stares at you with knowing eyes.',
+                      'It seems unimpressed by your trainer credentials.',
+                  ] },
+            ],
+            transitions: [
+                { gridX: 5, gridY: 9, width: 1, height: 1, targetRegion: 'starter_town', targetSpawn: { x: 6, y: 33 } },
+            ],
+            encounterZones: [],
+        };
+    }
+
+    // ── Potion Shop Interior ──────────────────────────────────────────────
+    _buildPotionShopInterior() {
+        const { ground, collision, S, F, w, h } = this._buildInterior(8, 8, { doorX: 4 });
+
+        // Potion brewing setup
+        F(1, 1, 3, 1, 48); // Potion shelves
+        F(5, 1, 6, 1, 48); // More potions
+        S(2, 3, 42);  // Brewing counter
+        S(3, 3, 42);
+        S(4, 3, 42);
+        S(5, 3, 46);  // Brewing fire/cauldron
+        S(1, 5, 22);  // Ingredient barrel
+        S(6, 5, 22);  // Ingredient barrel
+
+        for (let i = 0; i < ground.length; i++) {
+            if ([22, 42, 46, 48].includes(ground[i])) collision[i] = 1;
+        }
+
+        return {
+            id: 'potion_shop', width: w, height: h,
+            layers: [ground], collisionMap: collision,
+            defaultSpawn: { x: 4, y: 6 },
+            npcs: [
+                { id: 'potion_brewer', name: 'Alchemist Zara', gridX: 3, gridY: 2, type: 'shop', facing: 'down',
+                  dialogue: [
+                      'Bubbling cauldrons and ancient recipes!',
+                      'I specialize in potions and status cures.',
+                      'My Fire Resist potions are very popular with temple explorers.',
+                      'Shall I brew something for your journey?',
+                  ] },
+            ],
+            transitions: [
+                { gridX: 4, gridY: 7, width: 1, height: 1, targetRegion: 'starter_town', targetSpawn: { x: 12, y: 33 } },
+            ],
+            encounterZones: [],
+        };
+    }
+
+    // ── Blacksmith Forge Interior ─────────────────────────────────────────
+    _buildBlacksmithInterior() {
+        const { ground, collision, S, F, w, h } = this._buildInterior(8, 8, { doorX: 4 });
+
+        // Forge equipment
+        S(1, 1, 46);  // Forge fire
+        S(2, 1, 46);  // Forge fire
+        S(3, 1, 45);  // Anvil
+        S(5, 1, 43);  // Equipment shelf
+        S(6, 1, 43);
+        S(1, 3, 22);  // Metal barrel
+        S(1, 4, 22);  // Metal barrel
+        S(6, 4, 30);  // Crate of materials
+        S(6, 5, 30);  // Crate
+        S(3, 4, 42);  // Work counter
+        S(4, 4, 42);
+
+        for (let i = 0; i < ground.length; i++) {
+            if ([22, 30, 42, 43, 45, 46].includes(ground[i])) collision[i] = 1;
+        }
+
+        return {
+            id: 'blacksmith_forge', width: w, height: h,
+            layers: [ground], collisionMap: collision,
+            defaultSpawn: { x: 4, y: 6 },
+            npcs: [
+                { id: 'smith_inside', name: 'Smith Doran', gridX: 4, gridY: 2, type: 'shop', facing: 'down',
+                  dialogue: [
+                      '*CLANG* *CLANG*',
+                      'Ah, a customer! Welcome to my forge!',
+                      'I craft the finest weapons and armor in Willowshade.',
+                      'Bring me raw materials and gold, and I\'ll make something special.',
+                      'My work speaks for itself -- just look at these blades!',
+                  ] },
+                { id: 'smith_apprentice', name: 'Apprentice Cog', gridX: 2, gridY: 5, type: 'talk', facing: 'right',
+                  dialogue: [
+                      'Master Doran taught me everything about metalwork.',
+                      'The secret to a good blade is patience and the right alloy.',
+                      'One day I\'ll forge legendary weapons of my own!',
+                  ] },
+            ],
+            transitions: [
+                { gridX: 4, gridY: 7, width: 1, height: 1, targetRegion: 'starter_town', targetSpawn: { x: 6, y: 44 } },
+            ],
+            encounterZones: [],
+        };
+    }
+
+    // ── Professor Lab Interior ────────────────────────────────────────────
+    _buildProfessorLabInterior() {
+        const { ground, collision, S, F, w, h } = this._buildInterior(12, 12, { doorX: 6 });
+
+        // Lab equipment
+        F(1, 1, 4, 1, 43);  // Bookshelves (research library)
+        F(7, 1, 10, 1, 43); // More bookshelves
+        S(1, 3, 48);  // Specimen shelf
+        S(2, 3, 48);
+        S(9, 3, 48);
+        S(10, 3, 48);
+        F(4, 4, 8, 4, 42);  // Long research counter
+        S(3, 6, 44);  // Analysis table
+        S(4, 6, 44);
+        S(8, 6, 44);  // Second table
+        S(9, 6, 44);
+        S(1, 8, 30);  // Crate of supplies
+        S(10, 8, 30);
+        F(4, 8, 8, 9, 47);  // Carpet in main area
+
+        for (let i = 0; i < ground.length; i++) {
+            if ([30, 42, 43, 44, 48].includes(ground[i])) collision[i] = 1;
+        }
+
+        return {
+            id: 'professor_lab', width: w, height: h,
+            layers: [ground], collisionMap: collision,
+            defaultSpawn: { x: 6, y: 10 },
+            npcs: [
+                { id: 'professor_inside', name: 'Professor Elm', gridX: 6, gridY: 3, type: 'quest', facing: 'down',
+                  dialogue: [
+                      'Ah, a young trainer! Welcome to my laboratory!',
+                      'I\'ve dedicated my life to studying Sprite evolution.',
+                      'There are 24 known Sprite races, each with three stages.',
+                      'That\'s 72 unique forms waiting to be discovered!',
+                      'I need your help cataloging wild Sprites.',
+                      'Bring me data from your encounters and I\'ll reward you handsomely.',
+                  ] },
+                { id: 'lab_assistant_a', name: 'Researcher Ada', gridX: 3, gridY: 7, type: 'talk', facing: 'right',
+                  dialogue: [
+                      'The Professor\'s research is groundbreaking!',
+                      'We\'ve discovered that element types influence evolution paths.',
+                      'Fire-types evolve fastest in volcanic regions.',
+                      'Water-types seem to prefer areas near large bodies of water.',
+                  ] },
+                { id: 'lab_assistant_b', name: 'Researcher Max', gridX: 9, gridY: 7, type: 'talk', facing: 'left',
+                  dialogue: [
+                      'I\'m analyzing the equipment bonding data.',
+                      'Did you know Sprites can equip gear that boosts their abilities?',
+                      'The rarer the equipment, the stronger the bond.',
+                      'Check the Glossary for details on what each piece does!',
+                  ] },
+            ],
+            transitions: [
+                { gridX: 6, gridY: 11, width: 1, height: 1, targetRegion: 'starter_town', targetSpawn: { x: 35, y: 33 } },
+            ],
+            encounterZones: [],
+        };
+    }
+
+    // ── Tavern / Inn Interior ─────────────────────────────────────────────
+    _buildTavernInnInterior() {
+        const { ground, collision, S, F, w, h } = this._buildInterior(12, 10, { doorX: 5 });
+
+        // Tavern setup
+        S(1, 1, 41);  // Fireplace
+        S(2, 1, 41);  // Fireplace (large)
+        F(5, 1, 10, 1, 43); // Bottles/shelves behind bar
+        F(5, 3, 9, 3, 42);  // Bar counter
+        S(10, 3, 42);
+        // Tables and chairs
+        S(1, 4, 44);  // Table
+        S(2, 4, 44);
+        S(1, 6, 44);  // Table
+        S(2, 6, 44);
+        S(9, 6, 44);  // Table
+        S(10, 6, 44);
+        // Decorations
+        S(10, 8, 22);  // Barrel
+        S(1, 8, 22);   // Barrel
+        F(4, 5, 7, 7, 47);  // Carpet area
+
+        for (let i = 0; i < ground.length; i++) {
+            if ([22, 41, 42, 43, 44].includes(ground[i])) collision[i] = 1;
+        }
+
+        return {
+            id: 'tavern_inn', width: w, height: h,
+            layers: [ground], collisionMap: collision,
+            defaultSpawn: { x: 5, y: 8 },
+            npcs: [
+                { id: 'innkeeper', name: 'Innkeeper Rose', gridX: 7, gridY: 2, type: 'heal', facing: 'down',
+                  dialogue: [
+                      'Welcome to the Wandering Sprite Inn!',
+                      'A warm meal and a soft bed will fix you right up.',
+                      'Your Sprites deserve a good rest too.',
+                      'There! All healed and ready for adventure!',
+                      'Come back any time you need a break from the road.',
+                  ] },
+                { id: 'tavern_patron_a', name: 'Traveling Merchant', gridX: 2, gridY: 5, type: 'talk', facing: 'right',
+                  dialogue: [
+                      'I\'ve traveled far and wide across these lands.',
+                      'Beyond the Verdant Route lies the Crystal Caverns.',
+                      'I once saw a Legendary Wolf Man Sprite there!',
+                      'If you\'re brave enough, the treasures are worth the risk.',
+                  ] },
+                { id: 'tavern_patron_b', name: 'Retired Trainer', gridX: 10, gridY: 5, type: 'talk', facing: 'left',
+                  dialogue: [
+                      'Back in my day, we didn\'t have fancy equipment.',
+                      'Just raw skill and a bond with our Sprites.',
+                      'I defeated all 30 temple guardians with just three Sprites!',
+                      'Well... maybe it was two guardians. Memory isn\'t what it used to be.',
+                  ] },
+                { id: 'tavern_bard', name: 'Bard Melody', gridX: 5, gridY: 6, type: 'talk', facing: 'down',
+                  dialogue: [
+                      '♪ In Willowshade where Sprites do play... ♪',
+                      '♪ The trainers train both night and day... ♪',
+                      '♪ With fire and ice and lightning bright... ♪',
+                      '♪ They battle on with all their might! ♪',
+                      'Heh, how was that? I\'m still working on it.',
+                  ] },
+            ],
+            transitions: [
+                { gridX: 5, gridY: 9, width: 1, height: 1, targetRegion: 'starter_town', targetSpawn: { x: 16, y: 7 } },
+            ],
+            encounterZones: [],
         };
     }
 
@@ -2242,7 +2666,7 @@ export class OverworldScene extends Scene {
         const camY = Math.round(this._camera.y);
         const halfSize = PLAYER_SIZE / 2;
 
-        // Use chibi HumanoidSpriteSystem for the player character
+        // Use AQ-style HumanoidSpriteSystem for the player character
         const dirMap = { down: 0, left: 1, right: 2, up: 3 };
         const dir = dirMap[this._player.facing] || 0;
         const animFrame = this._player.moving ? (this._player.animFrame % 4) : 0;
@@ -2294,7 +2718,7 @@ export class OverworldScene extends Scene {
     }
 
     _renderNpc(renderer, npc) {
-        // Try chibi HumanoidSpriteSystem rendering for NPCs with race data
+        // Try AQ-style HumanoidSpriteSystem rendering for NPCs with race data
         if (npc.raceId) {
             try {
                 const ctx = renderer.ctx || renderer._ctx;
@@ -2360,18 +2784,18 @@ export class OverworldScene extends Scene {
         ctx.fillStyle = colors.base;
         ctx.fillRect(dx, dy, size, size);
 
-        // 2. Highlight strip (top 2px and left 2px) — hard edge, no gradient
+        // 2. Highlight strip (top 3px and left 2px) — AQ-style hard edge
         ctx.fillStyle = colors.highlight;
-        ctx.fillRect(dx, dy, size, 2);       // top highlight
+        ctx.fillRect(dx, dy, size, 3);       // top highlight (bolder)
         ctx.fillRect(dx, dy, 2, size);       // left highlight
 
-        // 3. Shadow strip (bottom 2px and right 2px) — hard edge, no gradient
+        // 3. Shadow strip (bottom 3px and right 2px) — AQ-style hard edge
         ctx.fillStyle = colors.shadow;
-        ctx.fillRect(dx, dy + size - 2, size, 2);  // bottom shadow
+        ctx.fillRect(dx, dy + size - 3, size, 3);  // bottom shadow (bolder)
         ctx.fillRect(dx + size - 2, dy, 2, size);  // right shadow
 
-        // 4. Subtle 1px black outline on tile edges
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+        // 4. Bold 1px black outline on tile edges — AQ cartoon style
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.18)';
         ctx.lineWidth = 1;
         ctx.strokeRect(dx + 0.5, dy + 0.5, size - 1, size - 1);
 
@@ -2559,11 +2983,174 @@ export class OverworldScene extends Scene {
             ctx.fillRect(dx + 2, dy + 6, size - 4, 1);
             ctx.fillRect(dx + 2, dy + 16, size - 4, 1);
             ctx.fillRect(dx + 2, dy + 26, size - 4, 1);
+        } else if (name === 'inn_wall') {
+            // Timber frame pattern (AQ inn style)
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 2, dy + 10, size - 4, 2);
+            ctx.fillRect(dx + 2, dy + 22, size - 4, 2);
+            ctx.fillRect(dx + 14, dy + 2, 2, size - 4);
+            // Plaster fill between timbers
+            ctx.fillStyle = '#d8c8a8';
+            ctx.fillRect(dx + 4, dy + 12, 10, 10);
+            ctx.fillRect(dx + 16, dy + 12, 10, 10);
+        } else if (name === 'shop_awning') {
+            // Striped awning (AQ shop front)
+            ctx.fillStyle = colors.highlight;
+            for (let sx = 0; sx < size; sx += 8) {
+                ctx.fillRect(dx + sx, dy, 4, size);
+            }
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx, dy + size - 4, size, 4); // awning edge
+        } else if (name === 'tavern_sign') {
+            // Hanging sign board
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 14, dy, 4, 8); // chain/hook
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 4, dy + 8, 24, 16); // sign board
+            ctx.fillStyle = '#111';
+            ctx.fillRect(dx + 8, dy + 12, 16, 8); // text area
+            ctx.fillStyle = '#e8d068';
+            ctx.fillRect(dx + 10, dy + 14, 4, 4); // mug icon
+            ctx.fillRect(dx + 16, dy + 14, 4, 4);
+        } else if (name === 'magic_wall') {
+            // Mystical stone wall (AQ magic shop)
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx, dy + 10, size, 1);
+            ctx.fillRect(dx, dy + 22, size, 1);
+            // Glowing rune marks
+            ctx.fillStyle = '#8868d0';
+            ctx.globalAlpha = 0.5 + 0.2 * Math.sin((gridX * 3 + gridY * 7) + performance.now() / 600);
+            ctx.fillRect(dx + 10, dy + 4, 4, 4);
+            ctx.fillRect(dx + 18, dy + 16, 4, 4);
+            ctx.globalAlpha = 1.0;
+        } else if (name === 'magic_roof') {
+            // Peaked mystical roof with star decorations
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx, dy + 8, size, 1);
+            ctx.fillRect(dx, dy + 18, size, 1);
+            ctx.fillStyle = '#c8b8f0';
+            ctx.fillRect(dx + 12, dy + 12, 3, 3); // star
+            ctx.fillRect(dx + 13, dy + 11, 1, 1);
+            ctx.fillRect(dx + 13, dy + 15, 1, 1);
+        } else if (name === 'wood_floor') {
+            // Interior wood plank floor
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx, dy + 7, size, 1);
+            ctx.fillRect(dx, dy + 15, size, 1);
+            ctx.fillRect(dx, dy + 23, size, 1);
+            ctx.fillRect(dx + 10 + ((gridX * 11) % 12), dy, 1, size);
+        } else if (name === 'fireplace') {
+            // Stone fireplace with fire glow
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 4, dy + 4, size - 8, size - 8); // stone surround
+            ctx.fillStyle = '#d85020';
+            ctx.fillRect(dx + 8, dy + 12, 6, 8); // fire
+            ctx.fillStyle = '#e8a030';
+            ctx.fillRect(dx + 10, dy + 10, 4, 6);
+            ctx.fillStyle = '#f8d040';
+            ctx.fillRect(dx + 11, dy + 8, 2, 4); // flame tip
+            // Warm glow
+            ctx.fillStyle = 'rgba(255, 160, 60, 0.15)';
+            ctx.fillRect(dx, dy, size, size);
+        } else if (name === 'counter') {
+            // Shop/inn counter
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx, dy + 12, size, 2); // counter edge
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 2, dy + 2, size - 4, 10); // counter top
+        } else if (name === 'bookshelf') {
+            // Bookshelf with colored book spines
+            const bookColors = ['#c04040', '#40a040', '#4060c0', '#c0a030', '#a040a0'];
+            for (let bx = 3; bx < size - 4; bx += 5) {
+                ctx.fillStyle = bookColors[(bx + gridX) % bookColors.length];
+                ctx.fillRect(dx + bx, dy + 4, 4, 10);
+                ctx.fillRect(dx + bx, dy + 18, 4, 10);
+            }
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 2, dy + 14, size - 4, 2); // shelf divider
+        } else if (name === 'table') {
+            // Wooden table top
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 2, dy + 4, size - 4, 12); // table surface
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 6, dy + 16, 4, 12); // left leg
+            ctx.fillRect(dx + size - 10, dy + 16, 4, 12); // right leg
+        } else if (name === 'anvil') {
+            // Blacksmith anvil
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 6, dy + 8, 20, 8); // anvil top
+            ctx.fillRect(dx + 10, dy + 16, 12, 8); // anvil body
+            ctx.fillStyle = '#888';
+            ctx.fillRect(dx + 8, dy + 6, 16, 4); // horn
+        } else if (name === 'forge_fire') {
+            // Blacksmith forge fire
+            ctx.fillStyle = '#e85020';
+            ctx.fillRect(dx + 4, dy + 6, size - 8, size - 10);
+            ctx.fillStyle = '#f8a030';
+            ctx.fillRect(dx + 8, dy + 10, size - 16, size - 18);
+            ctx.fillStyle = '#f8d850';
+            ctx.fillRect(dx + 12, dy + 14, 8, 8);
+            // Sparks
+            ctx.fillStyle = '#ffe080';
+            ctx.fillRect(dx + 6, dy + 4, 2, 2);
+            ctx.fillRect(dx + 20, dy + 2, 2, 2);
+        } else if (name === 'carpet') {
+            // Ornate carpet/rug
+            ctx.fillStyle = '#b84040';
+            ctx.fillRect(dx + 2, dy + 2, size - 4, size - 4);
+            ctx.fillStyle = '#d8a040';
+            ctx.fillRect(dx + 4, dy + 4, size - 8, 2); // border pattern
+            ctx.fillRect(dx + 4, dy + size - 6, size - 8, 2);
+            ctx.fillRect(dx + 4, dy + 4, 2, size - 8);
+            ctx.fillRect(dx + size - 6, dy + 4, 2, size - 8);
+        } else if (name === 'potion_shelf') {
+            // Shelf with potion bottles
+            ctx.fillStyle = colors.shadow;
+            ctx.fillRect(dx + 2, dy + 14, size - 4, 2); // shelf
+            // Potion bottles
+            ctx.fillStyle = '#e04040';
+            ctx.fillRect(dx + 4, dy + 6, 4, 8);
+            ctx.fillStyle = '#4080e0';
+            ctx.fillRect(dx + 10, dy + 6, 4, 8);
+            ctx.fillStyle = '#40c040';
+            ctx.fillRect(dx + 16, dy + 6, 4, 8);
+            ctx.fillStyle = '#e0d040';
+            ctx.fillRect(dx + 22, dy + 6, 4, 8);
+            // Bottom shelf potions
+            ctx.fillStyle = '#c040c0';
+            ctx.fillRect(dx + 6, dy + 20, 4, 8);
+            ctx.fillStyle = '#40c0c0';
+            ctx.fillRect(dx + 14, dy + 20, 4, 8);
+            ctx.fillStyle = '#e08040';
+            ctx.fillRect(dx + 22, dy + 20, 4, 8);
+        } else if (name === 'bed') {
+            // Bed with pillow and blanket
+            ctx.fillStyle = colors.highlight;
+            ctx.fillRect(dx + 2, dy + 2, size - 4, size - 4); // bed frame
+            ctx.fillStyle = '#e8e0d0';
+            ctx.fillRect(dx + 4, dy + 4, size - 8, 8); // pillow
+            ctx.fillStyle = '#4060a0';
+            ctx.fillRect(dx + 4, dy + 14, size - 8, 14); // blanket
+            ctx.fillStyle = '#3050a0';
+            ctx.fillRect(dx + 4, dy + 14, size - 8, 2); // blanket fold
         }
     }
 
     _formatRegionName(regionId) {
-        return regionId.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        // Named overrides for building interiors and key locations
+        const REGION_NAMES = {
+            starter_town: 'Willowshade',
+            starter_route: 'Verdant Route',
+            fire_temple: 'Blazecore Sanctum',
+            mom_house: "Mom's House",
+            healer_hut: 'Healer Clinic',
+            general_store: "Grin's General Goods",
+            potion_shop: 'Alchemy Shop',
+            blacksmith_forge: "Doran's Forge",
+            professor_lab: "Professor Elm's Lab",
+            tavern_inn: 'Wandering Sprite Inn',
+        };
+        return REGION_NAMES[regionId] || regionId.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     }
 
     // ── Mobile Controls ───────────────────────────────────────────────────
