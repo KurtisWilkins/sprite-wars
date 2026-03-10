@@ -124,7 +124,7 @@ function showAuthError(message) {
 
     const err = document.createElement('p');
     err.className = 'auth-error';
-    err.style.cssText = 'color: #cc4444; text-align: center; font-size: 0.85rem; margin-top: 8px;';
+    err.style.cssText = 'color: #FF6655; text-align: center; font-size: 0.85rem; margin-top: 8px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);';
     err.textContent = message;
 
     const activeForm = document.querySelector('.auth-form:not(.hidden)');

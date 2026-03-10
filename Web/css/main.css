@@ -1,6 +1,6 @@
 /* ============================================
    Sprite Wars - Web Game Stylesheet
-   Flat Cel-Shaded Chibi Art Style Theme
+   Adventure Quest Fantasy RPG Art Style Theme
    Mobile-first responsive design (landscape 960x540 base)
    ============================================ */
 
@@ -15,36 +15,43 @@
 }
 
 :root {
-    /* Cel-shaded color palette — vibrant & saturated */
-    --primary: #FF6B2B;
-    --primary-dark: #D94E10;
-    --secondary: #3DA5FF;
-    --secondary-dark: #1A80E0;
-    --bg-dark: #F0F4FA;
-    --bg-darker: #E2E8F2;
+    /* AQ Fantasy dark color palette — deep medieval tones with gold accents */
+    --primary: #D4A017;
+    --primary-dark: #B8860B;
+    --secondary: #4E9AFF;
+    --secondary-dark: #2E6FCF;
+    --bg-dark: #1A1A2E;
+    --bg-darker: #0F0F1E;
     --bg-panel: #FFFFFF;
     --bg-panel-light: #F8FAFF;
-    --text: #1A1A2E;
-    --text-dim: #6B7280;
-    --text-bright: #1A1A2E;
+    --text: #E8E0D0;
+    --text-dim: #9A8E7E;
+    --text-bright: #FFF5E0;
     --hp-green: #22CC55;
     --hp-yellow: #FFBB00;
     --hp-red: #FF3344;
     --mp-blue: #4488FF;
     --xp-purple: #AA44FF;
-    --border: #C0C8D8;
-    --shadow: rgba(26, 26, 46, 0.15);
+    --border: #554433;
+    --shadow: rgba(0, 0, 0, 0.4);
     --font-main: 'Nunito', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     --font-ui: 'Nunito', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     --transition-speed: 0.2s;
 
-    /* Cel-shaded style variables — clean uniform outlines */
-    --outline-color: #1A1A2E;
+    /* AQ style variables — bold outlines, dark panels, gold trim */
+    --outline-color: #111111;
     --outline-width: 2px;
-    --panel-bg: #FFFFFF;
-    --panel-bg-alt: #F0F4FA;
-    --panel-shadow: rgba(26, 26, 46, 0.12);
-    --border-radius: 8px;
+    --panel-bg: #2A2440;
+    --panel-bg-alt: #1E1833;
+    --panel-shadow: rgba(0, 0, 0, 0.35);
+    --border-radius: 6px;
+
+    /* AQ fantasy accents */
+    --gold: #D4A017;
+    --gold-light: #F0D060;
+    --gold-dark: #8B6914;
+    --parchment: #F5E6C8;
+    --parchment-dark: #D4C4A0;
 
     /* Element colors — vibrant saturated fantasy palette */
     --el-fire: #FF3311;
@@ -76,6 +83,14 @@ html, body {
     -webkit-user-select: none;
 }
 
+/* AQ-style decorative border mixin for panels */
+.aq-panel {
+    background: var(--panel-bg);
+    border: var(--outline-width) solid var(--gold-dark);
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(212,160,23,0.15);
+}
+
 /* === Cel-Shaded Utility Classes === */
 .cel-border {
     border: var(--outline-width) solid var(--outline-color);
@@ -104,6 +119,9 @@ html, body {
 /* === Login Screen === */
 #login-screen {
     background: var(--bg-darker);
+    background-image:
+        radial-gradient(ellipse at 50% 30%, rgba(30, 25, 60, 0.9) 0%, rgba(15, 15, 30, 1) 70%),
+        linear-gradient(180deg, #0F0F1E 0%, #1A1A3A 50%, #0F0F1E 100%);
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -114,30 +132,38 @@ html, body {
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    padding: 24px 32px;
+    padding: 28px 36px;
     max-width: 480px;
     width: 90%;
     max-height: 100vh;
     overflow-y: auto;
-    background: var(--panel-bg);
-    border: var(--outline-width) solid var(--outline-color);
+    background: linear-gradient(180deg, #2A2440 0%, #1E1833 100%);
+    border: 2px solid var(--gold-dark);
     border-radius: var(--border-radius);
-    box-shadow: 0 4px 16px var(--panel-shadow);
+    box-shadow: 0 0 20px rgba(0,0,0,0.6), 0 0 60px rgba(212,160,23,0.08), inset 0 1px 0 rgba(212,160,23,0.2);
 }
 
 .logo {
     width: 200px;
     height: auto;
     image-rendering: auto;
-    filter: drop-shadow(0 2px 4px var(--panel-shadow));
+    filter: drop-shadow(0 2px 8px rgba(212,160,23,0.3));
 }
 
 .game-title {
     font-size: 2.5rem;
     font-weight: 800;
-    color: var(--primary);
-    text-shadow: none;
+    color: var(--gold-light);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(212,160,23,0.3);
+    letter-spacing: 3px;
+}
+
+.login-subtitle {
+    color: var(--text-dim);
+    font-size: 0.9rem;
     letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: -4px;
 }
 
 .auth-form {
@@ -149,20 +175,20 @@ html, body {
 
 .auth-form input {
     padding: 14px 18px;
-    border: var(--outline-width) solid var(--border);
+    border: 2px solid var(--border);
     border-radius: var(--border-radius);
-    background: var(--panel-bg);
-    color: var(--text);
+    background: rgba(15, 15, 30, 0.6);
+    color: var(--parchment);
     font-size: 1rem;
     font-family: var(--font-main);
     outline: none;
-    transition: border-color var(--transition-speed);
-    box-shadow: none;
+    transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .auth-form input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(255, 107, 43, 0.2);
+    border-color: var(--gold);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3), 0 0 0 2px rgba(212,160,23,0.25);
 }
 
 .auth-form input::placeholder {
@@ -173,7 +199,7 @@ html, body {
 /* === Buttons === */
 .btn {
     padding: 14px 24px;
-    border: var(--outline-width) solid var(--outline-color);
+    border: 2px solid var(--gold-dark);
     border-radius: var(--border-radius);
     font-size: 1rem;
     font-weight: 700;
@@ -182,35 +208,36 @@ html, body {
     transition: all var(--transition-speed);
     text-transform: uppercase;
     letter-spacing: 1px;
-    box-shadow: 0 2px 0px var(--outline-color);
+    box-shadow: 0 2px 0px rgba(0,0,0,0.4);
     position: relative;
 }
 
 .btn:active {
     transform: scale(0.96);
-    box-shadow: 0 1px 0px var(--outline-color);
+    box-shadow: 0 1px 0px rgba(0,0,0,0.4);
 }
 
 .btn-primary {
-    background: var(--primary);
-    color: #FFFFFF;
-    border-color: var(--outline-color);
+    background: linear-gradient(180deg, #D4A017 0%, #B8860B 100%);
+    color: #1A1A2E;
+    border-color: var(--gold-dark);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.2);
 }
 
 .btn-primary:hover {
-    background: var(--primary-dark);
-    box-shadow: 0 3px 0px var(--outline-color);
+    background: linear-gradient(180deg, #F0D060 0%, #D4A017 100%);
+    box-shadow: 0 3px 0px rgba(0,0,0,0.4), 0 0 12px rgba(212,160,23,0.3);
 }
 
 .btn-secondary {
-    background: var(--secondary);
-    color: #FFFFFF;
-    border: var(--outline-width) solid var(--outline-color);
+    background: linear-gradient(180deg, #4E6A8E 0%, #3A506E 100%);
+    color: var(--parchment);
+    border: 2px solid #5A7090;
 }
 
 .btn-secondary:hover {
-    background: var(--secondary-dark);
-    border-color: var(--outline-color);
+    background: linear-gradient(180deg, #5A7A9E 0%, #4E6A8E 100%);
+    border-color: #7A9ABE;
 }
 
 .btn-tertiary {
@@ -223,7 +250,7 @@ html, body {
 }
 
 .btn-tertiary:hover {
-    color: var(--text);
+    color: var(--gold-light);
 }
 
 .version-text {
@@ -237,7 +264,7 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: var(--panel-bg-alt);
+    background: var(--bg-darker);
 }
 
 #game-canvas {
@@ -280,7 +307,7 @@ html, body {
 
 .hud-text {
     font-size: 0.9rem;
-    color: var(--outline-color);
+    color: var(--parchment-dark);
     text-shadow: none;
     font-family: var(--font-main);
 }
@@ -323,8 +350,8 @@ html, body {
 }
 
 .hud-action-btn:hover, .hud-action-btn:active {
-    background: rgba(255, 107, 43, 0.15);
-    border-color: var(--primary);
+    background: rgba(212, 160, 23, 0.15);
+    border-color: var(--gold);
 }
 
 .hud-action-icon {
@@ -400,8 +427,8 @@ html, body {
 }
 
 .admin-log-btn:hover {
-    background: rgba(255, 107, 43, 0.15);
-    color: var(--outline-color);
+    background: rgba(212, 160, 23, 0.15);
+    color: var(--text);
 }
 
 #admin-log-content {
@@ -517,8 +544,8 @@ html, body {
 }
 
 .dialogue-choice:hover, .dialogue-choice.selected {
-    border-color: var(--primary);
-    background: rgba(255, 107, 43, 0.15);
+    border-color: var(--gold);
+    background: rgba(212, 160, 23, 0.15);
 }
 
 #dialogue-advance {
@@ -675,8 +702,8 @@ html, body {
 
 .unit-name {
     font-size: 0.6rem;
-    color: var(--outline-color);
-    text-shadow: none;
+    color: var(--parchment);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     font-family: var(--font-main);
     font-weight: 700;
 }
@@ -900,7 +927,7 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--panel-bg);
+    background: var(--bg-darker);
     z-index: 500;
     opacity: 0;
     transition: opacity 0.4s;
@@ -924,7 +951,7 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--panel-bg);
+    background: linear-gradient(180deg, #1A1A2E 0%, #0F0F1E 100%);
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -937,7 +964,7 @@ html, body {
     width: 48px;
     height: 48px;
     border: 4px solid var(--border);
-    border-top-color: var(--primary);
+    border-top-color: var(--gold);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
@@ -947,7 +974,7 @@ html, body {
 }
 
 #loading-text {
-    color: var(--text-dim);
+    color: var(--parchment-dark);
     font-size: 0.9rem;
     font-family: var(--font-main);
 }
@@ -955,8 +982,8 @@ html, body {
 #loading-bar-container {
     width: 200px;
     height: 6px;
-    background: var(--panel-bg-alt);
-    border: 1px solid var(--outline-color);
+    background: rgba(30, 24, 51, 0.8);
+    border: 1px solid var(--gold-dark);
     border-radius: 4px;
     overflow: hidden;
 }
@@ -964,7 +991,7 @@ html, body {
 #loading-bar {
     height: 100%;
     width: 0%;
-    background: var(--primary);
+    background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold-light) 100%);
     transition: width 0.2s;
     border-radius: 4px;
 }
@@ -1077,7 +1104,7 @@ html, body {
 }
 
 .dpad-btn:active {
-    background: rgba(255, 107, 43, 0.15);
+    background: rgba(212, 160, 23, 0.15);
     box-shadow: 0 1px 0px var(--outline-color);
 }
 
