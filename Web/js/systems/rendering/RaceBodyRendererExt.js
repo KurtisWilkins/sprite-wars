@@ -414,7 +414,7 @@ function _drawLizardman(ctx, a, dir, colors) {
 
     // --- Thick neck ---
     ctx.fillStyle = colors.skin;
-    ctx.fillRect(cx - 3, a.headY + a.headH - 1, 6, 3);
+    ctx.fillRect(cx - 3, a.headY + a.headH - 1, 6, 5);
 
     // --- Head ---
     _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, colors.outline);
@@ -546,13 +546,13 @@ function _drawMinotaur(ctx, a, dir, colors) {
         const tailX = dir === DIR_UP ? cx - 1 : (dir === DIR_LEFT ? mTorsoX + mTorsoW - 2 : mTorsoX);
         const tailY = a.torsoY + a.torsoH - 2 + bob;
         ctx.fillRect(tailX + td * 0, tailY, 3, 2);
-        ctx.fillRect(tailX + td * 2, tailY + 2, 2, 3);
-        ctx.fillRect(tailX + td * 3, tailY + 4, 2, 3);
-        ctx.fillRect(tailX + td * 4, tailY + 6, 2, 3);
+        ctx.fillRect(tailX + td * 2, tailY + 2, 2, 2);
+        ctx.fillRect(tailX + td * 3, tailY + 3, 2, 2);
+        ctx.fillRect(tailX + td * 4, tailY + 4, 2, 2);
         // Tail tuft
         ctx.fillStyle = colors.hair;
-        ctx.fillRect(tailX + td * 3, tailY + 8, 4, 3);
-        ctx.fillRect(tailX + td * 4, tailY + 9, 3, 3);
+        ctx.fillRect(tailX + td * 3, tailY + 5, 4, 3);
+        ctx.fillRect(tailX + td * 4, tailY + 6, 3, 2);
     }
 
     // --- Back arms ---
@@ -623,28 +623,24 @@ function _drawMinotaur(ctx, a, dir, colors) {
         ctx.fillRect(cx - 1, a.headY + Math.floor(mHeadH * 0.18), 2, 2);
     }
 
-    // Large curved horns with ridges
+    // Curved horns with ridges (shortened for realistic proportions)
     ctx.fillStyle = '#998877';
     // Left horn base -> curve up-out
-    ctx.fillRect(mHeadX - 2, a.headY, 4, 4);
-    ctx.fillRect(mHeadX - 5, a.headY - 3, 4, 4);
-    ctx.fillRect(mHeadX - 7, a.headY - 6, 3, 4);
-    ctx.fillRect(mHeadX - 8, a.headY - 9, 3, 4);
-    ctx.fillRect(mHeadX - 7, a.headY - 11, 3, 3);
+    ctx.fillRect(mHeadX - 2, a.headY, 4, 3);
+    ctx.fillRect(mHeadX - 4, a.headY - 2, 3, 3);
+    ctx.fillRect(mHeadX - 6, a.headY - 4, 3, 3);
+    ctx.fillRect(mHeadX - 7, a.headY - 6, 3, 3);
     // Right horn
-    ctx.fillRect(mHeadX + mHeadW - 2, a.headY, 4, 4);
-    ctx.fillRect(mHeadX + mHeadW + 1, a.headY - 3, 4, 4);
-    ctx.fillRect(mHeadX + mHeadW + 4, a.headY - 6, 3, 4);
-    ctx.fillRect(mHeadX + mHeadW + 5, a.headY - 9, 3, 4);
-    ctx.fillRect(mHeadX + mHeadW + 4, a.headY - 11, 3, 3);
+    ctx.fillRect(mHeadX + mHeadW - 2, a.headY, 4, 3);
+    ctx.fillRect(mHeadX + mHeadW + 1, a.headY - 2, 3, 3);
+    ctx.fillRect(mHeadX + mHeadW + 3, a.headY - 4, 3, 3);
+    ctx.fillRect(mHeadX + mHeadW + 4, a.headY - 6, 3, 3);
     // Horn ridges (darker lines)
     ctx.fillStyle = '#776655';
-    ctx.fillRect(mHeadX - 4, a.headY - 2, 3, 1);
-    ctx.fillRect(mHeadX - 6, a.headY - 5, 2, 1);
-    ctx.fillRect(mHeadX - 7, a.headY - 8, 2, 1);
-    ctx.fillRect(mHeadX + mHeadW + 1, a.headY - 2, 3, 1);
-    ctx.fillRect(mHeadX + mHeadW + 4, a.headY - 5, 2, 1);
-    ctx.fillRect(mHeadX + mHeadW + 5, a.headY - 8, 2, 1);
+    ctx.fillRect(mHeadX - 3, a.headY - 1, 2, 1);
+    ctx.fillRect(mHeadX - 5, a.headY - 3, 2, 1);
+    ctx.fillRect(mHeadX + mHeadW + 1, a.headY - 1, 2, 1);
+    ctx.fillRect(mHeadX + mHeadW + 3, a.headY - 3, 2, 1);
 
     // Face features
     if (dir !== DIR_UP) {
@@ -814,23 +810,26 @@ function _drawMonkeyman(ctx, a, dir, colors) {
 
         // Wide grin with teeth
         if (dir === DIR_DOWN) {
+            const mouthY = a.headY + Math.floor(a.headH * 0.75);
             ctx.fillStyle = colors.outline;
-            ctx.fillRect(cx - 4, a.headY + a.headH - 5, 9, 3);
+            ctx.fillRect(cx - 4, mouthY, 9, 3);
             ctx.fillStyle = '#fff';
-            ctx.fillRect(cx - 3, a.headY + a.headH - 5, 7, 2);
+            ctx.fillRect(cx - 3, mouthY, 7, 2);
             // Flat nose
+            const noseY = a.headY + Math.floor(a.headH * 0.55);
             ctx.fillStyle = colors.mid;
-            ctx.fillRect(cx - 2, a.headY + a.headH - 8, 4, 2);
+            ctx.fillRect(cx - 2, noseY, 4, 2);
             ctx.fillStyle = '#222';
-            ctx.fillRect(cx - 1, a.headY + a.headH - 7, 1, 1);
-            ctx.fillRect(cx + 1, a.headY + a.headH - 7, 1, 1);
+            ctx.fillRect(cx - 1, noseY + 1, 1, 1);
+            ctx.fillRect(cx + 1, noseY + 1, 1, 1);
         } else {
             // Side grin
             const gx = dir === DIR_RIGHT ? cx + 2 : cx - 5;
+            const sideGrinY = a.headY + Math.floor(a.headH * 0.75);
             ctx.fillStyle = colors.outline;
-            ctx.fillRect(gx, a.headY + a.headH - 5, 4, 2);
+            ctx.fillRect(gx, sideGrinY, 4, 2);
             ctx.fillStyle = '#fff';
-            ctx.fillRect(gx + 1, a.headY + a.headH - 5, 2, 1);
+            ctx.fillRect(gx + 1, sideGrinY, 2, 1);
         }
     }
 

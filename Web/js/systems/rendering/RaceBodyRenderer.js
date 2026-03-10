@@ -1007,20 +1007,21 @@ function _drawBirdman(ctx, a, dir, colors) {
 
     // --- Sharp raptor beak (prominent, colored) ---
     if (dir === DIR_DOWN) {
+        const beakTop = a.headY + Math.floor(a.headH * 0.5);
         ctx.fillStyle = beakColor;
-        ctx.fillRect(cx - 4, a.headY + a.headH - 8, 8, 5);
-        ctx.fillRect(cx - 3, a.headY + a.headH - 3, 6, 3);
-        ctx.fillRect(cx - 2, a.headY + a.headH, 4, 2);
+        ctx.fillRect(cx - 4, beakTop, 8, 5);
+        ctx.fillRect(cx - 3, beakTop + 5, 6, 3);
+        ctx.fillRect(cx - 2, beakTop + 8, 4, 2);
         // Beak seam line
         ctx.fillStyle = beakDark;
-        ctx.fillRect(cx - 3, a.headY + a.headH - 5, 6, 1);
+        ctx.fillRect(cx - 3, beakTop + 3, 6, 1);
         // Nostril dots
         ctx.fillStyle = '#997722';
-        ctx.fillRect(cx - 2, a.headY + a.headH - 7, 1, 1);
-        ctx.fillRect(cx + 2, a.headY + a.headH - 7, 1, 1);
+        ctx.fillRect(cx - 2, beakTop + 1, 1, 1);
+        ctx.fillRect(cx + 2, beakTop + 1, 1, 1);
         // Beak tip (darker)
         ctx.fillStyle = beakDark;
-        ctx.fillRect(cx - 1, a.headY + a.headH + 1, 2, 1);
+        ctx.fillRect(cx - 1, beakTop + 9, 2, 1);
     } else if (dir === DIR_LEFT) {
         ctx.fillStyle = beakColor;
         ctx.fillRect(a.headX - 10, a.headY + Math.floor(a.headH * 0.35), 11, 5);
@@ -1778,12 +1779,13 @@ function _drawCatman(ctx, a, dir, colors) {
 
         // --- Pink triangle nose ---
         if (dir === DIR_DOWN) {
+            const noseY = a.headY + Math.floor(a.headH * 0.55);
             ctx.fillStyle = '#ee6688';
-            ctx.fillRect(cx - 2, a.headY + a.headH - 7, 4, 2);
-            ctx.fillRect(cx - 1, a.headY + a.headH - 8, 2, 1);
+            ctx.fillRect(cx - 2, noseY, 4, 2);
+            ctx.fillRect(cx - 1, noseY - 1, 2, 1);
             // Nose highlight
             ctx.fillStyle = '#ff99aa';
-            ctx.fillRect(cx - 1, a.headY + a.headH - 7, 1, 1);
+            ctx.fillRect(cx - 1, noseY, 1, 1);
         } else if (dir === DIR_LEFT) {
             ctx.fillStyle = '#ee6688';
             ctx.fillRect(a.headX - 2, a.headY + Math.floor(a.headH * 0.5), 3, 2);
