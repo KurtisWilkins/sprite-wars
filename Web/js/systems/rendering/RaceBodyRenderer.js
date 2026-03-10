@@ -439,8 +439,8 @@ function _drawBugman(ctx, a, dir, colors) {
     _drawSoftShading(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.mid);
     // Chitin plate lines — two horizontal segments
     ctx.fillStyle = colors.outline;
-    ctx.fillRect(torsoX + 2, torsoY + walk.bob + 3, torsoW - 4, 1);
-    ctx.fillRect(torsoX + 2, torsoY + walk.bob + 7, torsoW - 4, 1);
+    ctx.fillRect(torsoX + 2, torsoY + walk.bob + Math.floor(torsoH * 0.22), torsoW - 4, 1);
+    ctx.fillRect(torsoX + 2, torsoY + walk.bob + Math.floor(torsoH * 0.5), torsoW - 4, 1);
 
     // --- Abdomen visible behind body (insect rear segment) ---
     if (dir === DIR_UP || dir === DIR_LEFT || dir === DIR_RIGHT) {
@@ -2373,22 +2373,22 @@ function _drawFishman(ctx, a, dir, colors) {
 
     // --- Large bulging fish eyes with iris ---
     if (dir !== DIR_UP) {
-        const eyeY = a.headY + Math.floor(a.headH * 0.22);
+        const eyeY = a.headY + Math.floor(a.headH * 0.15);
         if (dir === DIR_DOWN) {
             // Bulging eye whites (protruding slightly from head)
             ctx.fillStyle = '#fff';
-            ctx.fillRect(cx - 11, eyeY, 9, 8);
-            ctx.fillRect(cx - 12, eyeY + 1, 1, 6);
-            ctx.fillRect(cx + 3, eyeY, 9, 8);
-            ctx.fillRect(cx + 12, eyeY + 1, 1, 6);
+            ctx.fillRect(cx - 11, eyeY, 9, 6);
+            ctx.fillRect(cx - 12, eyeY + 1, 1, 4);
+            ctx.fillRect(cx + 3, eyeY, 9, 6);
+            ctx.fillRect(cx + 12, eyeY + 1, 1, 4);
             // Colored iris
             ctx.fillStyle = colors.eye;
-            ctx.fillRect(cx - 8, eyeY + 1, 5, 6);
-            ctx.fillRect(cx + 5, eyeY + 1, 5, 6);
+            ctx.fillRect(cx - 8, eyeY + 1, 5, 4);
+            ctx.fillRect(cx + 5, eyeY + 1, 5, 4);
             // Dark pupil
             ctx.fillStyle = '#111';
-            ctx.fillRect(cx - 6, eyeY + 2, 3, 4);
-            ctx.fillRect(cx + 6, eyeY + 2, 3, 4);
+            ctx.fillRect(cx - 6, eyeY + 2, 3, 3);
+            ctx.fillRect(cx + 6, eyeY + 2, 3, 3);
             // Highlight
             ctx.fillStyle = '#fff';
             ctx.fillRect(cx - 9, eyeY + 1, 2, 2);
@@ -2396,23 +2396,24 @@ function _drawFishman(ctx, a, dir, colors) {
         } else {
             const ex = dir === DIR_RIGHT ? cx + 3 : cx - 10;
             ctx.fillStyle = '#fff';
-            ctx.fillRect(ex, eyeY, 9, 8);
+            ctx.fillRect(ex, eyeY, 9, 6);
             ctx.fillStyle = colors.eye;
-            ctx.fillRect(ex + 2, eyeY + 1, 5, 6);
+            ctx.fillRect(ex + 2, eyeY + 1, 5, 4);
             ctx.fillStyle = '#111';
-            ctx.fillRect(ex + 3, eyeY + 2, 3, 4);
+            ctx.fillRect(ex + 3, eyeY + 2, 3, 3);
             ctx.fillStyle = '#fff';
             ctx.fillRect(ex + 1, eyeY + 1, 2, 2);
         }
         // Wide fish-lipped mouth
         if (dir === DIR_DOWN) {
+            const mouthY = a.headY + Math.floor(a.headH * 0.7);
             ctx.fillStyle = colors.outline;
-            ctx.fillRect(cx - 4, a.headY + a.headH - 5, 8, 3);
-            ctx.fillRect(cx - 5, a.headY + a.headH - 4, 1, 1);
-            ctx.fillRect(cx + 4, a.headY + a.headH - 4, 1, 1);
+            ctx.fillRect(cx - 4, mouthY, 8, 3);
+            ctx.fillRect(cx - 5, mouthY + 1, 1, 1);
+            ctx.fillRect(cx + 4, mouthY + 1, 1, 1);
             // Inner mouth
             ctx.fillStyle = '#cc5555';
-            ctx.fillRect(cx - 3, a.headY + a.headH - 4, 6, 1);
+            ctx.fillRect(cx - 3, mouthY + 1, 6, 1);
         }
     }
 
@@ -2606,13 +2607,14 @@ function _drawGhost(ctx, a, dir, colors) {
         }
         // Wider O-shaped wailing mouth
         if (dir === DIR_DOWN) {
+            const mouthY = a.headY + Math.floor(a.headH * 0.7);
             ctx.fillStyle = '#050510';
-            ctx.fillRect(cx - 4, a.headY + a.headH - 6, 8, 5);
-            ctx.fillRect(cx - 3, a.headY + a.headH - 7, 6, 1);
-            ctx.fillRect(cx - 3, a.headY + a.headH - 1, 6, 1);
+            ctx.fillRect(cx - 4, mouthY, 8, 4);
+            ctx.fillRect(cx - 3, mouthY - 1, 6, 1);
+            ctx.fillRect(cx - 3, mouthY + 4, 6, 1);
             // Inner mouth void
             ctx.fillStyle = '#111';
-            ctx.fillRect(cx - 2, a.headY + a.headH - 5, 4, 3);
+            ctx.fillRect(cx - 2, mouthY + 1, 4, 2);
         }
     }
 
@@ -2759,7 +2761,7 @@ function _drawGolem(ctx, a, dir, colors) {
     }
 
     // --- Square head (no neck, directly on torso) ---
-    const golemHeadW = a.headW + 8;
+    const golemHeadW = a.headW + 4;
     const golemHeadX = Math.floor(cx - golemHeadW / 2);
     _drawRoundedRect(ctx, golemHeadX, a.headY + 2, golemHeadW, a.headH - 2, stoneColor, stoneDark);
     _drawSoftShading(ctx, golemHeadX, a.headY + 2, golemHeadW, a.headH - 2, stoneMid);
