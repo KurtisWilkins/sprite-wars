@@ -2,339 +2,352 @@
 ## [P1-002 through P1-005] Populates SpriteRaceData resources for the full roster.
 ##
 ## Design notes:
-##   - 16 single-element + 6 dual-element + 2 legendary Sprites = 24 total
-##   - All 14 elements represented; all 10 classes represented (at least 2 each)
-##   - Base stat totals: common 280-320, uncommon 320-360, rare 360-400, legendary 400-420
-##   - Growth rates use 1-5 scale (per-level additive) tuned to class archetype
+##   - 24 unique races: 14 common, 7 uncommon, 3 rare
+##   - ALL races can be ANY of the 14 elements and ANY of the 16 classes
+##   - Base stat totals: common 285-310, uncommon 325-345, rare 360-370
+##   - Growth rates use 1-5 scale (per-level additive) tuned to race archetype
 ##   - Evolution chains: form_id = race_id * 3 - 2 (stage 1), race_id * 3 - 1 (stage 2), race_id * 3 (stage 3)
 class_name SpriteRaces
 extends RefCounted
+
+## All 14 elements available to every race.
+const ALL_ELEMENTS: Array[String] = [
+	"Fire", "Water", "Wind", "Earth", "Plant", "Metal", "Electric",
+	"Dark", "Light", "Solar", "Lunar", "Fairy", "Poison", "Ice",
+]
+
+## All 16 classes available to every race.
+const ALL_CLASSES: Array[String] = [
+	"Barbarian", "Fighter", "Archer", "Spearman", "Heavy", "Wizard",
+	"Javelin", "Alchemist", "Cleric", "Ambrosian", "Assassin", "Monk",
+	"Crossbow", "Handgunner", "Siegebreaker", "Paladin",
+]
 
 ## Return all 24 race data dictionaries keyed by race_id.
 static func get_all_races() -> Dictionary:
 	return {
 		# ──────────────────────────────────────────────────────────────────────
-		# SINGLE-ELEMENT SPRITES (16)
+		# COMMON RACES (14)
 		# ──────────────────────────────────────────────────────────────────────
 
-		# 1 — Emberpaw (Fire / Berserker) — Common
+		# 1 — Bug Man — Fast, fragile (spd/atk focus, low def) — total ~300
 		1: {
 			"race_id": 1,
-			"race_name": "Emberpaw",
-			"element_types": ["Fire"],
-			"class_type": "Berserker",
-			"base_stats": {"hp": 52, "atk": 62, "def": 40, "spd": 55, "sp_atk": 48, "sp_def": 38},
-			"growth_rates": {"hp": 3.0, "atk": 4.0, "def": 2.0, "spd": 3.5, "sp_atk": 2.5, "sp_def": 2.0},
+			"race_name": "Bug Man",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 42, "atk": 55, "def": 35, "spd": 65, "sp_atk": 58, "sp_def": 45},
+			"growth_rates": {"hp": 2.0, "atk": 3.5, "def": 1.5, "spd": 4.5, "sp_atk": 3.0, "sp_def": 2.0},
 			"evolution_chain": [1, 2, 3],
 			"rarity": "common",
-			"lore_description": "A scrappy fire-furred cub with smoldering paws. It charges headlong into battle, leaving scorch marks in its wake. Wild Emberpaws are drawn to campfires and volcanic vents.",
+			"lore_description": "Chitinous humanoids with compound eyes and vestigial wings. Bug Men are swift and relentless, swarming enemies with coordinated strikes before they can mount a defense.",
 		},
 
-		# 2 — Tidalfin (Water / Guardian) — Common
+		# 2 — Bear Man — Tanky bruiser (hp/atk/def focus, low spd) — total ~310
 		2: {
 			"race_id": 2,
-			"race_name": "Tidalfin",
-			"element_types": ["Water"],
-			"class_type": "Guardian",
-			"base_stats": {"hp": 60, "atk": 40, "def": 58, "spd": 42, "sp_atk": 50, "sp_def": 55},
-			"growth_rates": {"hp": 3.5, "atk": 2.0, "def": 3.5, "spd": 2.0, "sp_atk": 3.0, "sp_def": 3.5},
+			"race_name": "Bear Man",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 72, "atk": 62, "def": 60, "spd": 30, "sp_atk": 38, "sp_def": 48},
+			"growth_rates": {"hp": 4.5, "atk": 4.0, "def": 3.5, "spd": 1.0, "sp_atk": 1.5, "sp_def": 2.5},
 			"evolution_chain": [4, 5, 6],
 			"rarity": "common",
-			"lore_description": "A sturdy aquatic Sprite with shimmering blue scales and translucent fins. Tidalfin forms living barriers in shallow waters, shielding smaller creatures from predators.",
+			"lore_description": "Massive ursine warriors with thick hides and crushing strength. Bear Men shrug off blows that would fell lesser races, then retaliate with bone-shattering force.",
 		},
 
-		# 3 — Thornvine (Nature / Ranger) — Common
+		# 3 — Bird Man — Fast ranged (spd/sp_atk focus, low def) — total ~295
 		3: {
 			"race_id": 3,
-			"race_name": "Thornvine",
-			"element_types": ["Nature"],
-			"class_type": "Ranger",
-			"base_stats": {"hp": 55, "atk": 45, "def": 50, "spd": 48, "sp_atk": 55, "sp_def": 50},
-			"growth_rates": {"hp": 3.0, "atk": 2.5, "def": 3.0, "spd": 2.5, "sp_atk": 3.5, "sp_def": 3.0},
+			"race_name": "Bird Man",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 40, "atk": 42, "def": 35, "spd": 68, "sp_atk": 62, "sp_def": 48},
+			"growth_rates": {"hp": 2.0, "atk": 2.0, "def": 1.5, "spd": 5.0, "sp_atk": 4.0, "sp_def": 2.5},
 			"evolution_chain": [7, 8, 9],
 			"rarity": "common",
-			"lore_description": "A vine-wrapped creature with thorny tendrils that extend from its back. Thornvine thrives in dense forests, using its roots to sense vibrations through the earth.",
+			"lore_description": "Feathered humanoids who soar above the battlefield, raining down elemental attacks from on high. Their hollow bones grant unmatched speed at the cost of durability.",
 		},
 
-		# 4 — Frostfang (Ice / Assassin) — Uncommon
-		4: {
-			"race_id": 4,
-			"race_name": "Frostfang",
-			"element_types": ["Ice"],
-			"class_type": "Assassin",
-			"base_stats": {"hp": 48, "atk": 58, "def": 42, "spd": 65, "sp_atk": 55, "sp_def": 45},
-			"growth_rates": {"hp": 2.5, "atk": 3.5, "def": 2.0, "spd": 4.5, "sp_atk": 3.0, "sp_def": 2.5},
-			"evolution_chain": [10, 11, 12],
-			"rarity": "uncommon",
-			"lore_description": "A sleek predator coated in crystalline ice. Frostfang hunts in blizzards, its pale fur rendering it invisible against the snow. Its bite flash-freezes on contact.",
-		},
-
-		# 5 — Galecrest (Air / Archer) — Common
-		5: {
-			"race_id": 5,
-			"race_name": "Galecrest",
-			"element_types": ["Air"],
-			"class_type": "Archer",
-			"base_stats": {"hp": 45, "atk": 50, "def": 38, "spd": 68, "sp_atk": 52, "sp_def": 42},
-			"growth_rates": {"hp": 2.0, "atk": 3.0, "def": 2.0, "spd": 5.0, "sp_atk": 3.0, "sp_def": 2.0},
-			"evolution_chain": [13, 14, 15],
-			"rarity": "common",
-			"lore_description": "A swift avian Sprite with feathers that shimmer like the sky at dawn. Galecrest rides thermal currents effortlessly, launching razor-sharp wind blades from its wings.",
-		},
-
-		# 6 — Terraclaw (Earth / Knight) — Common
+		# 6 — Cat Man — Speed assassin (spd/atk, low hp) — total ~295
 		6: {
 			"race_id": 6,
-			"race_name": "Terraclaw",
-			"element_types": ["Earth"],
-			"class_type": "Knight",
-			"base_stats": {"hp": 62, "atk": 55, "def": 65, "spd": 28, "sp_atk": 35, "sp_def": 50},
-			"growth_rates": {"hp": 4.0, "atk": 3.0, "def": 4.5, "spd": 1.0, "sp_atk": 1.5, "sp_def": 3.0},
+			"race_name": "Cat Man",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 38, "atk": 58, "def": 40, "spd": 70, "sp_atk": 48, "sp_def": 41},
+			"growth_rates": {"hp": 1.5, "atk": 3.5, "def": 2.0, "spd": 5.0, "sp_atk": 2.5, "sp_def": 2.0},
 			"evolution_chain": [16, 17, 18],
 			"rarity": "common",
-			"lore_description": "An armored quadruped with stone-plated hide and massive claws. Terraclaw moves slowly but shrugs off blows that would fell lesser Sprites. It digs vast underground warrens.",
+			"lore_description": "Lithe feline warriors with retractable claws and night-piercing eyes. Cat Men strike from the shadows with blinding speed, vanishing before their prey hits the ground.",
 		},
 
-		# 7 — Voltail (Electric / Wizard) — Uncommon
-		7: {
-			"race_id": 7,
-			"race_name": "Voltail",
-			"element_types": ["Electric"],
-			"class_type": "Wizard",
-			"base_stats": {"hp": 45, "atk": 35, "def": 40, "spd": 62, "sp_atk": 68, "sp_def": 48},
-			"growth_rates": {"hp": 2.0, "atk": 1.5, "def": 2.0, "spd": 4.0, "sp_atk": 5.0, "sp_def": 2.5},
-			"evolution_chain": [19, 20, 21],
-			"rarity": "uncommon",
-			"lore_description": "A fox-like Sprite with a lightning-bolt tail that crackles with static. Voltail channels ambient electricity into devastating arcane bolts. Thunderstorms amplify its power tenfold.",
-		},
-
-		# 8 — Gloomshade (Dark / Assassin) — Uncommon
-		8: {
-			"race_id": 8,
-			"race_name": "Gloomshade",
-			"element_types": ["Dark"],
-			"class_type": "Assassin",
-			"base_stats": {"hp": 48, "atk": 60, "def": 40, "spd": 62, "sp_atk": 55, "sp_def": 48},
-			"growth_rates": {"hp": 2.5, "atk": 4.0, "def": 2.0, "spd": 4.0, "sp_atk": 3.5, "sp_def": 2.5},
-			"evolution_chain": [22, 23, 24],
-			"rarity": "uncommon",
-			"lore_description": "A shadowy feline that melts into darkness. Gloomshade's eyes glow faintly crimson, the only warning before its silent strike. It feeds on fear, growing stronger in places of dread.",
-		},
-
-		# 9 — Luminos (Light / Cleric) — Uncommon
+		# 9 — Fish Man — Water specialist (balanced, slight sp_atk) — total ~300
 		9: {
 			"race_id": 9,
-			"race_name": "Luminos",
-			"element_types": ["Light"],
-			"class_type": "Cleric",
-			"base_stats": {"hp": 58, "atk": 35, "def": 48, "spd": 45, "sp_atk": 60, "sp_def": 62},
-			"growth_rates": {"hp": 3.5, "atk": 1.5, "def": 2.5, "spd": 2.5, "sp_atk": 4.0, "sp_def": 4.0},
+			"race_name": "Fish Man",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 52, "atk": 45, "def": 48, "spd": 48, "sp_atk": 58, "sp_def": 49},
+			"growth_rates": {"hp": 3.0, "atk": 2.5, "def": 2.5, "spd": 2.5, "sp_atk": 3.5, "sp_def": 2.5},
 			"evolution_chain": [25, 26, 27],
-			"rarity": "uncommon",
-			"lore_description": "A radiant moth-like Sprite whose wings emit a warm golden glow. Luminos is revered as a healer; its light mends wounds and purifies corrupted energy wherever it rests.",
+			"rarity": "common",
+			"lore_description": "Amphibious humanoids with iridescent scales and gills that function in air and water alike. Fish Men channel the tides through their bodies, bending currents to their will.",
 		},
 
-		# 10 — Glimmerwing (Psychic / Summoner) — Uncommon
-		10: {
-			"race_id": 10,
-			"race_name": "Glimmerwing",
-			"element_types": ["Psychic"],
-			"class_type": "Summoner",
-			"base_stats": {"hp": 50, "atk": 30, "def": 45, "spd": 50, "sp_atk": 65, "sp_def": 58},
-			"growth_rates": {"hp": 2.5, "atk": 1.0, "def": 2.5, "spd": 3.0, "sp_atk": 4.5, "sp_def": 3.5},
-			"evolution_chain": [28, 29, 30],
-			"rarity": "uncommon",
-			"lore_description": "A butterfly-like Sprite with iridescent wings that refract psychic energy into visible spectrums. Glimmerwing can project illusions and summon phantasmal allies from thought alone.",
-		},
-
-		# 11 — Spectrail (Spirit / Wizard) — Rare
-		11: {
-			"race_id": 11,
-			"race_name": "Spectrail",
-			"element_types": ["Spirit"],
-			"class_type": "Wizard",
-			"base_stats": {"hp": 52, "atk": 40, "def": 48, "spd": 58, "sp_atk": 72, "sp_def": 55},
-			"growth_rates": {"hp": 2.5, "atk": 1.5, "def": 2.5, "spd": 3.5, "sp_atk": 5.0, "sp_def": 3.0},
-			"evolution_chain": [31, 32, 33],
-			"rarity": "rare",
-			"lore_description": "A ghostly serpent wreathed in pale ectoplasmic flame. Spectrail drifts between the material world and the spirit plane, drawing arcane power from the boundary between life and death.",
-		},
-
-		# 12 — Ignisurge (Chaos / Berserker) — Rare
+		# 12 — Human — Perfectly balanced — total ~300
 		12: {
 			"race_id": 12,
-			"race_name": "Ignisurge",
-			"element_types": ["Chaos"],
-			"class_type": "Berserker",
-			"base_stats": {"hp": 58, "atk": 70, "def": 45, "spd": 55, "sp_atk": 55, "sp_def": 42},
-			"growth_rates": {"hp": 3.0, "atk": 5.0, "def": 2.0, "spd": 3.0, "sp_atk": 3.0, "sp_def": 2.0},
+			"race_name": "Human",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 50, "atk": 50, "def": 50, "spd": 50, "sp_atk": 50, "sp_def": 50},
+			"growth_rates": {"hp": 3.0, "atk": 3.0, "def": 3.0, "spd": 3.0, "sp_atk": 3.0, "sp_def": 3.0},
 			"evolution_chain": [34, 35, 36],
-			"rarity": "rare",
-			"lore_description": "A volatile beast born from raw chaotic energy. Its body constantly shifts between solid and plasma states. Ignisurge's attacks are wildly unpredictable but devastatingly powerful.",
+			"rarity": "common",
+			"lore_description": "The most adaptable of all races, Humans lack natural extremes but excel through sheer versatility. Their balanced nature lets them master any element or fighting style with equal proficiency.",
 		},
 
-		# 13 — Ironhusk (Metal / Knight) — Common
+		# 13 — Lizard Man — Physical balanced (atk/def) — total ~305
 		13: {
 			"race_id": 13,
-			"race_name": "Ironhusk",
-			"element_types": ["Metal"],
-			"class_type": "Knight",
-			"base_stats": {"hp": 58, "atk": 52, "def": 68, "spd": 25, "sp_atk": 30, "sp_def": 55},
-			"growth_rates": {"hp": 3.5, "atk": 3.0, "def": 5.0, "spd": 1.0, "sp_atk": 1.0, "sp_def": 3.5},
+			"race_name": "Lizard Man",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 52, "atk": 58, "def": 55, "spd": 48, "sp_atk": 42, "sp_def": 50},
+			"growth_rates": {"hp": 3.0, "atk": 3.5, "def": 3.5, "spd": 2.5, "sp_atk": 2.0, "sp_def": 2.5},
 			"evolution_chain": [37, 38, 39],
 			"rarity": "common",
-			"lore_description": "A beetle-like Sprite encased in a carapace of living metal. Ironhusk's shell can deflect sword strikes without a scratch. It grows heavier and more resilient with age.",
+			"lore_description": "Cold-blooded reptilian warriors with regenerating tails and armored scales. Lizard Men are disciplined fighters who rely on physical prowess and natural resilience in battle.",
 		},
 
-		# 14 — Venomire (Poison / Ranger) — Common
-		14: {
-			"race_id": 14,
-			"race_name": "Venomire",
-			"element_types": ["Poison"],
-			"class_type": "Ranger",
-			"base_stats": {"hp": 52, "atk": 48, "def": 45, "spd": 55, "sp_atk": 52, "sp_def": 45},
-			"growth_rates": {"hp": 3.0, "atk": 2.5, "def": 2.5, "spd": 3.5, "sp_atk": 3.0, "sp_def": 2.5},
-			"evolution_chain": [40, 41, 42],
-			"rarity": "common",
-			"lore_description": "A gecko-like Sprite with vivid purple markings that warn of its potent toxins. Venomire coats its darts with paralyzing venom extracted from its own glands.",
-		},
-
-		# 15 — Blazeguard (Fire / Guardian) — Uncommon
+		# 15 — Monkey Man — Agile (spd/atk, low def) — total ~290
 		15: {
 			"race_id": 15,
-			"race_name": "Blazeguard",
-			"element_types": ["Fire"],
-			"class_type": "Guardian",
-			"base_stats": {"hp": 62, "atk": 45, "def": 58, "spd": 35, "sp_atk": 48, "sp_def": 55},
-			"growth_rates": {"hp": 4.0, "atk": 2.0, "def": 3.5, "spd": 1.5, "sp_atk": 2.5, "sp_def": 3.5},
+			"race_name": "Monkey Man",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 44, "atk": 55, "def": 38, "spd": 65, "sp_atk": 50, "sp_def": 38},
+			"growth_rates": {"hp": 2.0, "atk": 3.5, "def": 1.5, "spd": 4.5, "sp_atk": 3.0, "sp_def": 1.5},
 			"evolution_chain": [43, 44, 45],
-			"rarity": "uncommon",
-			"lore_description": "A lion-maned Sprite wreathed in protective flames. Blazeguard stands sentinel over volcanic temples, its fiery barrier shielding allies from harm while scorching any who dare approach.",
-		},
-
-		# 16 — Aquashot (Water / Archer) — Common
-		16: {
-			"race_id": 16,
-			"race_name": "Aquashot",
-			"element_types": ["Water"],
-			"class_type": "Archer",
-			"base_stats": {"hp": 48, "atk": 52, "def": 42, "spd": 58, "sp_atk": 55, "sp_def": 45},
-			"growth_rates": {"hp": 2.5, "atk": 3.0, "def": 2.0, "spd": 3.5, "sp_atk": 3.5, "sp_def": 2.5},
-			"evolution_chain": [46, 47, 48],
 			"rarity": "common",
-			"lore_description": "A nimble amphibian Sprite that fires pressurized water jets with pinpoint accuracy. Aquashot perches on lily pads, sniping insects from remarkable distances with its water bolts.",
+			"lore_description": "Acrobatic primate warriors who swing through battle with unpredictable agility. Monkey Men use terrain to their advantage, leaping and tumbling to avoid attacks while landing precise strikes.",
 		},
 
-		# ──────────────────────────────────────────────────────────────────────
-		# DUAL-ELEMENT SPRITES (6)
-		# ──────────────────────────────────────────────────────────────────────
-
-		# 17 — Pyrovolt (Fire + Electric / Wizard) — Rare
+		# 17 — Ork — Barbarian (atk/hp, low sp_def) — total ~305
 		17: {
 			"race_id": 17,
-			"race_name": "Pyrovolt",
-			"element_types": ["Fire", "Electric"],
-			"class_type": "Wizard",
-			"base_stats": {"hp": 50, "atk": 40, "def": 42, "spd": 60, "sp_atk": 72, "sp_def": 50},
-			"growth_rates": {"hp": 2.5, "atk": 1.5, "def": 2.0, "spd": 3.5, "sp_atk": 5.0, "sp_def": 2.5},
+			"race_name": "Ork",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 62, "atk": 65, "def": 50, "spd": 42, "sp_atk": 38, "sp_def": 48},
+			"growth_rates": {"hp": 3.5, "atk": 4.5, "def": 2.5, "spd": 2.0, "sp_atk": 1.5, "sp_def": 2.0},
 			"evolution_chain": [49, 50, 51],
-			"rarity": "rare",
-			"lore_description": "A salamander-like Sprite that conducts lightning through its flame-wreathed body. Pyrovolt's dual nature lets it unleash devastating plasma storms that incinerate and electrocute simultaneously.",
+			"rarity": "common",
+			"lore_description": "Green-skinned brutes fueled by battle rage. Orks grow stronger as the fight intensifies, their fury overwhelming any attempt at magical suppression. They live for the thrill of combat.",
 		},
 
-		# 18 — Venomthorn (Poison + Nature / Spearman) — Uncommon
+		# 18 — Rat Man — Glass cannon speed (spd/atk, low hp/def) — total ~285
 		18: {
 			"race_id": 18,
-			"race_name": "Venomthorn",
-			"element_types": ["Poison", "Nature"],
-			"class_type": "Spearman",
-			"base_stats": {"hp": 55, "atk": 58, "def": 50, "spd": 45, "sp_atk": 48, "sp_def": 48},
-			"growth_rates": {"hp": 3.0, "atk": 3.5, "def": 3.0, "spd": 2.0, "sp_atk": 2.5, "sp_def": 2.5},
+			"race_name": "Rat Man",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 35, "atk": 55, "def": 32, "spd": 68, "sp_atk": 52, "sp_def": 43},
+			"growth_rates": {"hp": 1.5, "atk": 3.5, "def": 1.0, "spd": 5.0, "sp_atk": 3.0, "sp_def": 2.0},
 			"evolution_chain": [52, 53, 54],
-			"rarity": "uncommon",
-			"lore_description": "A mantis-like Sprite with toxic barbed forelimbs and a body covered in poisonous thorns. Venomthorn impales prey with surgical precision, injecting paralyzing plant toxins.",
+			"rarity": "common",
+			"lore_description": "Wiry rodent humanoids with razor-sharp reflexes and an uncanny ability to find weak points. Rat Men strike fast and fade away, preferring guerrilla tactics over prolonged confrontation.",
 		},
 
-		# 19 — Shadowflare (Dark + Fire / Spearman) — Rare
-		19: {
-			"race_id": 19,
-			"race_name": "Shadowflare",
-			"element_types": ["Dark", "Fire"],
-			"class_type": "Spearman",
-			"base_stats": {"hp": 55, "atk": 65, "def": 45, "spd": 58, "sp_atk": 50, "sp_def": 42},
-			"growth_rates": {"hp": 2.5, "atk": 4.5, "def": 2.0, "spd": 3.5, "sp_atk": 2.5, "sp_def": 2.0},
-			"evolution_chain": [55, 56, 57],
-			"rarity": "rare",
-			"lore_description": "A wolf-like Sprite cloaked in black flames that burn without light. Shadowflare strikes from impossible angles, its dark fire consuming both flesh and spirit. Born during eclipses.",
-		},
-
-		# 20 — Crystalmist (Ice + Psychic / Cleric) — Rare
-		20: {
-			"race_id": 20,
-			"race_name": "Crystalmist",
-			"element_types": ["Ice", "Psychic"],
-			"class_type": "Cleric",
-			"base_stats": {"hp": 58, "atk": 30, "def": 50, "spd": 42, "sp_atk": 62, "sp_def": 68},
-			"growth_rates": {"hp": 3.0, "atk": 1.0, "def": 2.5, "spd": 2.0, "sp_atk": 4.0, "sp_def": 4.5},
-			"evolution_chain": [58, 59, 60],
-			"rarity": "rare",
-			"lore_description": "A crystalline deer whose antlers are made of psychic ice. Crystalmist can heal allies by channeling mental energy through frozen lattices, converting pain into soothing frost.",
-		},
-
-		# 21 — Ironstorm (Metal + Air / Berserker) — Uncommon
+		# 21 — Skeleton — Fast undead (spd/atk, low hp) — total ~290
 		21: {
 			"race_id": 21,
-			"race_name": "Ironstorm",
-			"element_types": ["Metal", "Air"],
-			"class_type": "Berserker",
-			"base_stats": {"hp": 55, "atk": 62, "def": 52, "spd": 50, "sp_atk": 40, "sp_def": 45},
-			"growth_rates": {"hp": 3.0, "atk": 4.0, "def": 3.0, "spd": 2.5, "sp_atk": 1.5, "sp_def": 2.5},
+			"race_name": "Skeleton",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 35, "atk": 58, "def": 45, "spd": 62, "sp_atk": 50, "sp_def": 40},
+			"growth_rates": {"hp": 1.5, "atk": 3.5, "def": 2.5, "spd": 4.0, "sp_atk": 3.0, "sp_def": 2.0},
 			"evolution_chain": [61, 62, 63],
-			"rarity": "uncommon",
-			"lore_description": "A raptor-like Sprite with steel-plated wings that slice through the air like blades. Ironstorm dives from great heights, becoming a living missile of wind and metal.",
+			"rarity": "common",
+			"lore_description": "Animated skeletal warriors that move with unnatural speed and precision. Freed from the burden of flesh, Skeletons fight with mechanical efficiency, reforming even after being shattered.",
 		},
 
-		# 22 — Spiritbloom (Spirit + Nature / Summoner) — Rare
-		22: {
-			"race_id": 22,
-			"race_name": "Spiritbloom",
-			"element_types": ["Spirit", "Nature"],
-			"class_type": "Summoner",
-			"base_stats": {"hp": 55, "atk": 32, "def": 48, "spd": 45, "sp_atk": 65, "sp_def": 60},
-			"growth_rates": {"hp": 3.0, "atk": 1.0, "def": 2.5, "spd": 2.0, "sp_atk": 4.5, "sp_def": 3.5},
-			"evolution_chain": [64, 65, 66],
-			"rarity": "rare",
-			"lore_description": "A tree-spirit Sprite whose blossoms are portals to the spirit realm. Spiritbloom summons ancestral nature spirits to fight alongside it, drawing power from ancient groves.",
-		},
-
-		# ──────────────────────────────────────────────────────────────────────
-		# LEGENDARY SPRITES (2)
-		# ──────────────────────────────────────────────────────────────────────
-
-		# 23 — Solarius (Light + Chaos / Guardian) — Legendary
+		# 23 — Wolf Man — Pack fighter (spd/atk balanced) — total ~300
 		23: {
 			"race_id": 23,
-			"race_name": "Solarius",
-			"element_types": ["Light", "Chaos"],
-			"class_type": "Guardian",
-			"base_stats": {"hp": 72, "atk": 55, "def": 68, "spd": 50, "sp_atk": 65, "sp_def": 70},
-			"growth_rates": {"hp": 4.5, "atk": 2.5, "def": 4.0, "spd": 2.5, "sp_atk": 3.5, "sp_def": 4.0},
+			"race_name": "Wolf Man",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 50, "atk": 55, "def": 45, "spd": 58, "sp_atk": 45, "sp_def": 47},
+			"growth_rates": {"hp": 2.5, "atk": 3.5, "def": 2.5, "spd": 3.5, "sp_atk": 2.5, "sp_def": 2.5},
 			"evolution_chain": [67, 68, 69],
-			"rarity": "legendary",
-			"lore_description": "An ancient phoenix-like Sprite that embodies the paradox of order and chaos. Solarius guards the Temple of the Sun, its blinding radiance and unpredictable power keeping all but the worthy at bay.",
+			"rarity": "common",
+			"lore_description": "Lupine warriors who fight with coordinated pack tactics. Wolf Men grow fiercer when allies are near, their howls bolstering companions while striking fear into the hearts of enemies.",
 		},
 
-		# 24 — Eclipsar (Dark + Spirit / Summoner) — Legendary
+		# 24 — Zombie — Relentless (hp/atk, very low spd) — total ~300
 		24: {
 			"race_id": 24,
-			"race_name": "Eclipsar",
-			"element_types": ["Dark", "Spirit"],
-			"class_type": "Summoner",
-			"base_stats": {"hp": 68, "atk": 48, "def": 55, "spd": 55, "sp_atk": 75, "sp_def": 65},
-			"growth_rates": {"hp": 3.5, "atk": 2.0, "def": 3.0, "spd": 3.0, "sp_atk": 5.0, "sp_def": 3.5},
+			"race_name": "Zombie",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 68, "atk": 58, "def": 52, "spd": 25, "sp_atk": 45, "sp_def": 52},
+			"growth_rates": {"hp": 4.5, "atk": 3.5, "def": 3.0, "spd": 1.0, "sp_atk": 2.0, "sp_def": 3.0},
 			"evolution_chain": [70, 71, 72],
-			"rarity": "legendary",
-			"lore_description": "A spectral dragon that exists in eternal twilight. Eclipsar commands legions of shadow spirits and is said to have witnessed the creation of the first temples. Its presence warps reality itself.",
+			"rarity": "common",
+			"lore_description": "Shambling undead driven by an insatiable hunger for battle. Zombies endure punishment that would destroy any living creature, dragging themselves forward through sheer relentless will.",
+		},
+
+		# ──────────────────────────────────────────────────────────────────────
+		# UNCOMMON RACES (7)
+		# ──────────────────────────────────────────────────────────────────────
+
+		# 4 — Demon — High sp_atk, glass cannon — total ~330
+		4: {
+			"race_id": 4,
+			"race_name": "Demon",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 48, "atk": 50, "def": 40, "spd": 55, "sp_atk": 75, "sp_def": 62},
+			"growth_rates": {"hp": 2.0, "atk": 2.5, "def": 1.5, "spd": 3.0, "sp_atk": 5.0, "sp_def": 3.0},
+			"evolution_chain": [10, 11, 12],
+			"rarity": "uncommon",
+			"lore_description": "Infernal beings forged in abyssal fire, Demons wield devastating magical power at the cost of physical resilience. Their arcane might can level entire battalions in a single incantation.",
+		},
+
+		# 5 — Devil — Balanced, tricky (sp_atk/spd) — total ~335
+		5: {
+			"race_id": 5,
+			"race_name": "Devil",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 52, "atk": 48, "def": 45, "spd": 62, "sp_atk": 70, "sp_def": 58},
+			"growth_rates": {"hp": 2.5, "atk": 2.0, "def": 2.0, "spd": 4.0, "sp_atk": 4.5, "sp_def": 3.0},
+			"evolution_chain": [13, 14, 15],
+			"rarity": "uncommon",
+			"lore_description": "Cunning fiends who prefer manipulation over brute force. Devils weave illusions and hexes with deceptive elegance, always three steps ahead of their opponents in the deadly game of battle.",
+		},
+
+		# 7 — Elf — Magic balanced (sp_atk/sp_def/spd) — total ~325
+		7: {
+			"race_id": 7,
+			"race_name": "Elf",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 45, "atk": 42, "def": 42, "spd": 62, "sp_atk": 68, "sp_def": 66},
+			"growth_rates": {"hp": 2.0, "atk": 2.0, "def": 2.0, "spd": 4.0, "sp_atk": 4.5, "sp_def": 4.0},
+			"evolution_chain": [19, 20, 21],
+			"rarity": "uncommon",
+			"lore_description": "Ancient and graceful, Elves command magic with an elegance born of centuries of study. Their attunement to the arcane makes them peerless spellcasters and resilient against magical assault.",
+		},
+
+		# 8 — Ent — Extreme tank (hp/def, very low spd) — total ~340
+		8: {
+			"race_id": 8,
+			"race_name": "Ent",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 80, "atk": 48, "def": 72, "spd": 18, "sp_atk": 52, "sp_def": 70},
+			"growth_rates": {"hp": 5.0, "atk": 2.0, "def": 4.5, "spd": 1.0, "sp_atk": 2.5, "sp_def": 4.0},
+			"evolution_chain": [22, 23, 24],
+			"rarity": "uncommon",
+			"lore_description": "Living tree giants who have walked the world since before recorded history. Ents are nearly immovable fortresses, their bark-like skin absorbing punishment while they slowly crush all opposition.",
+		},
+
+		# 11 — Golem — Ultra tank (hp/def, minimal spd) — total ~345
+		11: {
+			"race_id": 11,
+			"race_name": "Golem",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 82, "atk": 55, "def": 78, "spd": 15, "sp_atk": 40, "sp_def": 75},
+			"growth_rates": {"hp": 5.0, "atk": 2.5, "def": 5.0, "spd": 1.0, "sp_atk": 1.5, "sp_def": 4.5},
+			"evolution_chain": [31, 32, 33],
+			"rarity": "uncommon",
+			"lore_description": "Constructs of animated stone and arcane runes, Golems are the ultimate defensive bulwarks. They feel no pain, know no fear, and will stand guard for eternity if commanded.",
+		},
+
+		# 14 — Minotaur — Power bruiser (atk/hp, low spd) — total ~335
+		14: {
+			"race_id": 14,
+			"race_name": "Minotaur",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 68, "atk": 72, "def": 58, "spd": 32, "sp_atk": 45, "sp_def": 60},
+			"growth_rates": {"hp": 4.0, "atk": 5.0, "def": 3.0, "spd": 1.0, "sp_atk": 2.0, "sp_def": 3.0},
+			"evolution_chain": [40, 41, 42],
+			"rarity": "uncommon",
+			"lore_description": "Towering bull-headed warriors whose charge can shatter fortress gates. Minotaurs channel primal fury into devastating physical attacks, their horns and fists equally lethal instruments of destruction.",
+		},
+
+		# 20 — Shark Man — Aggressive (atk/hp/spd) — total ~340
+		20: {
+			"race_id": 20,
+			"race_name": "Shark Man",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 62, "atk": 68, "def": 52, "spd": 58, "sp_atk": 48, "sp_def": 52},
+			"growth_rates": {"hp": 3.5, "atk": 4.5, "def": 2.5, "spd": 3.5, "sp_atk": 2.0, "sp_def": 2.5},
+			"evolution_chain": [58, 59, 60],
+			"rarity": "uncommon",
+			"lore_description": "Apex predators of the deep given humanoid form. Shark Men sense weakness like blood in the water, growing more ferocious as their prey falters. They never stop advancing.",
+		},
+
+		# 22 — Turtle Man — Extreme defense (def/sp_def/hp, low spd/atk) — total ~330
+		22: {
+			"race_id": 22,
+			"race_name": "Turtle Man",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 70, "atk": 35, "def": 75, "spd": 20, "sp_atk": 55, "sp_def": 75},
+			"growth_rates": {"hp": 4.0, "atk": 1.5, "def": 5.0, "spd": 1.0, "sp_atk": 2.5, "sp_def": 5.0},
+			"evolution_chain": [64, 65, 66],
+			"rarity": "uncommon",
+			"lore_description": "Patient, shell-armored warriors who outlast any foe through sheer endurance. Turtle Men retreat into their shells to weather the fiercest storms, then emerge to counterattack with methodical precision.",
+		},
+
+		# ──────────────────────────────────────────────────────────────────────
+		# RARE RACES (3)
+		# ──────────────────────────────────────────────────────────────────────
+
+		# 10 — Ghost — Ethereal (sp_atk/spd, very low def/hp) — total ~360
+		10: {
+			"race_id": 10,
+			"race_name": "Ghost",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 38, "atk": 40, "def": 30, "spd": 72, "sp_atk": 82, "sp_def": 98},
+			"growth_rates": {"hp": 1.5, "atk": 1.5, "def": 1.0, "spd": 4.5, "sp_atk": 5.0, "sp_def": 4.5},
+			"evolution_chain": [28, 29, 30],
+			"rarity": "rare",
+			"lore_description": "Spectral entities that phase between the material and spirit planes. Ghosts are nearly impossible to pin down, their intangible forms slipping through attacks while unleashing devastating psychic assaults.",
+		},
+
+		# 16 — Mummy — Curse specialist (sp_atk/sp_def, low spd) — total ~365
+		16: {
+			"race_id": 16,
+			"race_name": "Mummy",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 65, "atk": 45, "def": 60, "spd": 25, "sp_atk": 80, "sp_def": 90},
+			"growth_rates": {"hp": 3.5, "atk": 2.0, "def": 3.0, "spd": 1.0, "sp_atk": 5.0, "sp_def": 4.5},
+			"evolution_chain": [46, 47, 48],
+			"rarity": "rare",
+			"lore_description": "Ancient rulers preserved through forbidden rituals, Mummies wield curses accumulated over millennia. Their bandaged forms radiate dread, and their hexes erode both body and spirit of all who oppose them.",
+		},
+
+		# 19 — Robot — Calculated (def/atk, no sp_atk variance) — total ~370
+		19: {
+			"race_id": 19,
+			"race_name": "Robot",
+			"element_types": ALL_ELEMENTS.duplicate(),
+			"available_classes": ALL_CLASSES.duplicate(),
+			"base_stats": {"hp": 65, "atk": 70, "def": 75, "spd": 45, "sp_atk": 55, "sp_def": 60},
+			"growth_rates": {"hp": 3.5, "atk": 4.0, "def": 4.5, "spd": 2.0, "sp_atk": 3.0, "sp_def": 3.0},
+			"evolution_chain": [55, 56, 57],
+			"rarity": "rare",
+			"lore_description": "Mechanical constructs powered by arcane cores, Robots execute combat algorithms with flawless precision. They adapt to enemy patterns in real-time, becoming deadlier with each exchange.",
 		},
 	}
 
@@ -345,7 +358,7 @@ static func get_race(race_id: int) -> Dictionary:
 	return all_races.get(race_id, {})
 
 
-## Return all race IDs for a given element.
+## Return all race IDs that have a given element in their element_types list.
 static func get_races_by_element(element_name: String) -> Array[int]:
 	var result: Array[int] = []
 	var all_races := get_all_races()
@@ -356,13 +369,13 @@ static func get_races_by_element(element_name: String) -> Array[int]:
 	return result
 
 
-## Return all race IDs for a given class.
-static func get_races_by_class(class_type: String) -> Array[int]:
+## Return all race IDs that have a given class in their available_classes list.
+static func get_races_by_class(class_name_str: String) -> Array[int]:
 	var result: Array[int] = []
 	var all_races := get_all_races()
 	for race_id: int in all_races:
 		var race: Dictionary = all_races[race_id]
-		if race.get("class_type", "") == class_type:
+		if class_name_str in race.get("available_classes", []):
 			result.append(race_id)
 	return result
 
@@ -378,7 +391,7 @@ static func get_races_by_rarity(rarity: String) -> Array[int]:
 	return result
 
 
-## Return a summary count of how many races exist per element (for balance validation).
+## Return a summary count of how many races list each element (for balance validation).
 static func get_element_coverage() -> Dictionary:
 	var coverage := {}
 	var all_races := get_all_races()
@@ -389,12 +402,12 @@ static func get_element_coverage() -> Dictionary:
 	return coverage
 
 
-## Return a summary count of how many races exist per class (for balance validation).
+## Return a summary count of how many races list each class (for balance validation).
 static func get_class_coverage() -> Dictionary:
 	var coverage := {}
 	var all_races := get_all_races()
 	for race_id: int in all_races:
 		var race: Dictionary = all_races[race_id]
-		var cls: String = race.get("class_type", "")
-		coverage[cls] = coverage.get(cls, 0) + 1
+		for cls: String in race.get("available_classes", []):
+			coverage[cls] = coverage.get(cls, 0) + 1
 	return coverage

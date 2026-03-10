@@ -154,6 +154,44 @@ func _build_ui() -> void:
 
 	add_child(_root)
 
+## -- Rarity Colors -----------------------------------------------------------
+
+const RARITY_COLORS: Dictionary = {
+	"common": Color(0.55, 0.55, 0.55),
+	"uncommon": Color(0.2, 0.8, 0.38),
+	"rare": Color(0.2, 0.6, 1.0),
+	"epic": Color(0.67, 0.27, 1.0),
+	"legendary": Color(1.0, 0.67, 0.0),
+}
+
+const RARITY_BG_COLORS: Dictionary = {
+	"common": Color(0.15, 0.15, 0.18, 0.9),
+	"uncommon": Color(0.08, 0.2, 0.12, 0.9),
+	"rare": Color(0.08, 0.12, 0.25, 0.9),
+	"epic": Color(0.15, 0.08, 0.25, 0.9),
+	"legendary": Color(0.25, 0.18, 0.05, 0.9),
+}
+
+const RARITY_LABELS: Dictionary = {
+	"common": "Common",
+	"uncommon": "Uncommon",
+	"rare": "Rare",
+	"epic": "Epic",
+	"legendary": "Legendary",
+}
+
+const SLOT_ICONS: Dictionary = {
+	"weapon": "Weapon",
+	"helmet": "Helmet",
+	"chest": "Chest",
+	"legs": "Legs",
+	"boots": "Boots",
+	"gloves": "Gloves",
+	"ring": "Ring",
+	"amulet": "Amulet",
+	"crystal": "Crystal",
+}
+
 ## -- Public API ---------------------------------------------------------------
 
 ## Show the results screen with battle outcome data.
@@ -161,6 +199,7 @@ func _build_ui() -> void:
 ##   outcome: String ("player_win" | "enemy_win" | "draw"),
 ##   xp_per_sprite: Dictionary {instance_id: {name: String, xp_gained: int, old_level: int, new_level: int, old_xp: int, new_xp: int, xp_to_next: int}},
 ##   items: Array[Dictionary] ({name: String, icon: Texture2D, quantity: int}),
+##   equipment: Array[Dictionary] ({equipment_name, slot_type, rarity, stat_bonuses, element_synergy, description}),
 ##   currency: int,
 ##   evolutions: Array[Dictionary] ({name: String, old_form: String, new_form: String}),
 ## }
@@ -204,6 +243,14 @@ func show_results(result: Dictionary) -> void:
 	var currency: int = result.get("currency", 0)
 	if currency > 0:
 		_add_reward_entry("Gold", str(currency), null)
+
+	# Equipment drops — displayed as rarity-colored cards.
+	var equipment_drops: Array = result.get("equipment", [])
+	if equipment_drops.size() > 0:
+		_add_equipment_header()
+		for equip in equipment_drops:
+			_add_equipment_card(equip, delay)
+			delay += 0.25
 
 	# Evolution notifications.
 	var evolutions: Array = result.get("evolutions", [])
@@ -394,6 +441,134 @@ func _add_evolution_notification(evo: Dictionary) -> void:
 
 	panel.add_child(label)
 	_rewards_container.add_child(panel)
+
+## -- Private: Equipment Drop Cards -------------------------------------------
+
+func _add_equipment_header() -> void:
+	var sep := HSeparator.new()
+	sep.add_theme_constant_override("separation", 8)
+	_rewards_container.add_child(sep)
+
+	var header := Label.new()
+	header.text = "Equipment Found!"
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_theme_font_size_override("font_size", NAME_FONT_SIZE)
+	header.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+	header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rewards_container.add_child(header)
+
+
+func _add_equipment_card(equip_data: Dictionary, delay: float) -> void:
+	var rarity: String = str(equip_data.get("rarity", "common"))
+	var rarity_color: Color = RARITY_COLORS.get(rarity, RARITY_COLORS["common"])
+	var bg_color: Color = RARITY_BG_COLORS.get(rarity, RARITY_BG_COLORS["common"])
+	var rarity_label: String = RARITY_LABELS.get(rarity, "Common")
+	var slot_type: String = str(equip_data.get("slot_type", "weapon"))
+	var slot_label: String = SLOT_ICONS.get(slot_type, slot_type.capitalize())
+
+	# Card panel.
+	var card := PanelContainer.new()
+	var card_style := StyleBoxFlat.new()
+	card_style.bg_color = bg_color
+	card_style.set_border_width_all(2)
+	card_style.border_color = rarity_color
+	card_style.set_corner_radius_all(10)
+	card_style.set_content_margin_all(14)
+	card.add_theme_stylebox_override("panel", card_style)
+
+	# Start invisible for animation.
+	card.modulate.a = 0.0
+	card.scale = Vector2(0.8, 0.8)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+
+	# Row 1: Name + Rarity badge.
+	var name_row := HBoxContainer.new()
+	name_row.add_theme_constant_override("separation", 8)
+
+	var name_lbl := Label.new()
+	name_lbl.text = str(equip_data.get("equipment_name", "Unknown Equipment"))
+	name_lbl.add_theme_font_size_override("font_size", 22)
+	name_lbl.add_theme_color_override("font_color", rarity_color)
+	name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_row.add_child(name_lbl)
+
+	var rarity_badge := Label.new()
+	rarity_badge.text = rarity_label
+	rarity_badge.add_theme_font_size_override("font_size", 14)
+	rarity_badge.add_theme_color_override("font_color", rarity_color)
+	name_row.add_child(rarity_badge)
+	vbox.add_child(name_row)
+
+	# Row 2: Slot type + Element synergy.
+	var meta_row := HBoxContainer.new()
+	meta_row.add_theme_constant_override("separation", 12)
+
+	var slot_lbl := Label.new()
+	slot_lbl.text = slot_label
+	slot_lbl.add_theme_font_size_override("font_size", 16)
+	slot_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
+	meta_row.add_child(slot_lbl)
+
+	var element_synergy: String = str(equip_data.get("element_synergy", ""))
+	if not element_synergy.is_empty():
+		var synergy_lbl := Label.new()
+		synergy_lbl.text = "%s Synergy" % element_synergy
+		synergy_lbl.add_theme_font_size_override("font_size", 14)
+		synergy_lbl.add_theme_color_override("font_color", Color(0.4, 0.8, 0.6))
+		meta_row.add_child(synergy_lbl)
+	vbox.add_child(meta_row)
+
+	# Row 3: Stat bonuses in a compact grid.
+	var stat_bonuses: Dictionary = equip_data.get("stat_bonuses", {})
+	var stat_text := ""
+	var stat_parts: Array[String] = []
+	for key in ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]:
+		var val: int = int(stat_bonuses.get(key, 0))
+		if val != 0:
+			var label: String = key.to_upper().replace("_", ".")
+			var sign_str: String = "+" if val > 0 else ""
+			stat_parts.append("%s %s%d" % [label, sign_str, val])
+	if stat_parts.size() > 0:
+		stat_text = ", ".join(stat_parts)
+	else:
+		stat_text = "No stat bonuses"
+
+	var stats_lbl := Label.new()
+	stats_lbl.text = stat_text
+	stats_lbl.add_theme_font_size_override("font_size", 15)
+	stats_lbl.add_theme_color_override("font_color", Color(0.45, 0.75, 0.45))
+	stats_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(stats_lbl)
+
+	# Row 4: Description.
+	var desc: String = str(equip_data.get("description", ""))
+	if not desc.is_empty():
+		var desc_lbl := Label.new()
+		desc_lbl.text = desc
+		desc_lbl.add_theme_font_size_override("font_size", 14)
+		desc_lbl.add_theme_color_override("font_color", Color(0.5, 0.5, 0.6))
+		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		vbox.add_child(desc_lbl)
+
+	card.add_child(vbox)
+	_rewards_container.add_child(card)
+
+	# Animate the card appearing.
+	var tween := create_tween()
+	tween.tween_interval(delay)
+	tween.tween_property(card, "modulate:a", 1.0, 0.35)\
+		.set_trans(Tween.TRANS_BACK)\
+		.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(card, "scale", Vector2(1.0, 1.0), 0.35)\
+		.set_trans(Tween.TRANS_BACK)\
+		.set_ease(Tween.EASE_OUT)
+
+	# Emit loot event.
+	if has_node("/root/EventBus"):
+		EventBus.equipment_dropped.emit(equip_data)
+
 
 ## -- Private Helpers ----------------------------------------------------------
 

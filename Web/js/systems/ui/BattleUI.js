@@ -110,7 +110,7 @@ export class BattleUI {
 
     /** @private */
     _buildComponents() {
-        // Turn Order Bar (top)
+        // Turn Order Bar (top) — clean cel-shaded style with uniform black outline
         this._turnOrderBar = document.createElement('div');
         this._turnOrderBar.className = 'battle-turn-order';
         Object.assign(this._turnOrderBar.style, {
@@ -123,10 +123,22 @@ export class BattleUI {
             padding: '4px 12px',
             boxSizing: 'border-box',
             pointerEvents: 'none',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
+        // Clean cel-shaded background panel
+        const turnOrderBg = document.createElement('div');
+        turnOrderBg.style.cssText = `
+            position:absolute;top:0;left:5%;right:5%;bottom:0;
+            background:#2A1F4E;
+            border:3px solid #1A1A1A;
+            border-radius:8px;
+            z-index:-1;
+        `;
+        this._turnOrderBar.style.position = 'absolute';
+        this._turnOrderBar.appendChild(turnOrderBg);
         this._container.appendChild(this._turnOrderBar);
 
-        // Event Feed (top-left)
+        // Event Feed (top-left) — clean flat panel
         this._eventFeed = document.createElement('div');
         this._eventFeed.className = 'battle-event-feed';
         Object.assign(this._eventFeed.style, {
@@ -140,6 +152,11 @@ export class BattleUI {
             gap: '2px',
             pointerEvents: 'none',
             fontSize: '13px',
+            fontFamily: "Arial, Helvetica, sans-serif",
+            background: '#1E1533',
+            border: '3px solid #1A1A1A',
+            borderRadius: '8px',
+            padding: '8px 10px',
         });
         this._container.appendChild(this._eventFeed);
 
@@ -370,20 +387,22 @@ export class BattleUI {
 
     /** @private */
     _addTurnOrderPortrait(unitId, textureUrl, team) {
+        // Clean cel-shaded portrait with uniform outline
         const el = document.createElement('div');
         el.className = 'turn-order-portrait';
         Object.assign(el.style, {
             width: '48px',
             height: '48px',
-            borderRadius: '8px',
-            border: `2px solid ${team === 0 ? '#55aaff' : '#ff5555'}`,
-            background: team === 0 ? 'rgba(30,60,120,0.7)' : 'rgba(120,30,30,0.7)',
+            borderRadius: '6px',
+            border: `3px solid #1A1A1A`,
+            background: team === 0 ? '#4A90D9' : '#D94A4A',
             overflow: 'hidden',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '12px',
-            color: '#fff',
+            color: '#FFFFFF',
+            fontFamily: "Arial, Helvetica, sans-serif",
             transition: 'transform 0.2s, box-shadow 0.2s',
         });
 
@@ -435,17 +454,20 @@ export class BattleUI {
         for (const ability of abilities) {
             const btn = document.createElement('button');
             btn.className = 'ability-btn';
+            // Clean cel-shaded button with uniform outline
             Object.assign(btn.style, {
                 padding: '10px 14px',
-                background: 'rgba(20,40,80,0.9)',
-                color: '#ffffff',
-                border: '1px solid rgba(100,160,255,0.5)',
-                borderRadius: '10px',
+                background: '#3366AA',
+                color: '#FFFFFF',
+                border: '3px solid #1A1A1A',
+                borderRadius: '8px',
                 fontSize: '14px',
                 cursor: 'pointer',
                 minWidth: '80px',
                 textAlign: 'center',
                 pointerEvents: 'auto',
+                fontFamily: "Arial, Helvetica, sans-serif",
+                transition: 'background 0.15s',
             });
 
             const nameSpan = document.createElement('div');
@@ -456,19 +478,19 @@ export class BattleUI {
             if (ability.element) {
                 const elemSpan = document.createElement('div');
                 elemSpan.textContent = ability.element;
-                elemSpan.style.cssText = 'font-size:11px;color:rgba(180,200,255,0.8);margin-top:2px;';
+                elemSpan.style.cssText = "font-size:11px;color:#AABBDD;margin-top:2px;font-family:Arial,Helvetica,sans-serif;";
                 btn.appendChild(elemSpan);
             }
 
             const abilityId = ability.abilityId !== undefined ? ability.abilityId : ability.ability_id;
             btn.addEventListener('click', () => this._onAbilitySelected(abilityId));
 
-            // Hover
+            // Hover — clean highlight
             btn.addEventListener('mouseenter', () => {
-                btn.style.background = 'rgba(40,70,140,0.9)';
+                btn.style.background = '#4477BB';
             });
             btn.addEventListener('mouseleave', () => {
-                btn.style.background = 'rgba(20,40,80,0.9)';
+                btn.style.background = '#3366AA';
             });
 
             this._abilityBar.appendChild(btn);
@@ -477,17 +499,20 @@ export class BattleUI {
         // Add a "Catch" button if applicable (can be shown conditionally)
         const catchBtn = document.createElement('button');
         catchBtn.className = 'ability-btn catch-btn';
+        // Clean cel-shaded catch button
         Object.assign(catchBtn.style, {
             padding: '10px 14px',
-            background: 'rgba(20,80,60,0.9)',
-            color: '#ffffff',
-            border: '1px solid rgba(100,220,180,0.5)',
-            borderRadius: '10px',
+            background: '#33AA55',
+            color: '#FFFFFF',
+            border: '3px solid #1A1A1A',
+            borderRadius: '8px',
             fontSize: '14px',
             cursor: 'pointer',
             minWidth: '80px',
             textAlign: 'center',
             pointerEvents: 'auto',
+            fontFamily: "Arial, Helvetica, sans-serif",
+            fontWeight: 'bold',
         });
         catchBtn.textContent = 'Catch';
         catchBtn.addEventListener('click', () => this._onCatchButtonPressed());
@@ -554,11 +579,13 @@ export class BattleUI {
             left: '50%',
             transform: 'translateX(-50%)',
             padding: '10px 24px',
-            background: 'rgba(80,30,30,0.9)',
-            color: '#fff',
-            border: '1px solid rgba(255,100,100,0.5)',
+            background: '#AA3333',
+            color: '#FFFFFF',
+            border: '3px solid #1A1A1A',
             borderRadius: '8px',
             fontSize: '14px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            fontWeight: 'bold',
             cursor: 'pointer',
         });
         cancelBtn.addEventListener('click', () => this._onTargetCancelled());
@@ -591,9 +618,11 @@ export class BattleUI {
         Object.assign(bar.style, {
             width: '100%',
             height: '8px',
-            background: 'rgba(30,30,40,0.8)',
+            background: '#1A1A2E',
             borderRadius: '4px',
             overflow: 'hidden',
+            border: '2px solid #1A1A1A',
+            position: 'relative',
         });
 
         const fill = document.createElement('div');
@@ -602,15 +631,17 @@ export class BattleUI {
         Object.assign(fill.style, {
             width: pct + '%',
             height: '100%',
-            background: team === 0 ? '#33cc55' : '#cc3333',
-            borderRadius: '4px',
+            background: team === 0 ? '#33CC55' : '#CC3333',
+            borderRadius: '2px',
             transition: 'width 0.3s ease-out',
+            position: 'relative',
+            zIndex: '1',
         });
 
         bar.appendChild(fill);
         wrapper.appendChild(bar);
         this._healthBarLayer.appendChild(wrapper);
-        this._healthBars.set(unitId, { wrapper, fill, maxHp });
+        this._healthBars.set(unitId, { wrapper, fill, maxHp, team });
     }
 
     /**
@@ -632,6 +663,8 @@ export class BattleUI {
             entry.fill.style.background = '#dd2222';
         } else if (pct < 50) {
             entry.fill.style.background = '#ddaa22';
+        } else {
+            entry.fill.style.background = entry.team === 0 ? '#33CC55' : '#CC3333';
         }
     }
 
@@ -673,15 +706,15 @@ export class BattleUI {
         Object.assign(icon.style, {
             width: '20px', height: '20px',
             borderRadius: '4px',
-            background: 'rgba(120,80,200,0.7)',
-            border: '1px solid rgba(180,140,255,0.5)',
+            background: '#6B44BB',
+            border: '2px solid #1A1A1A',
             fontSize: '10px',
             color: '#fff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            title: effectName,
         });
+        icon.title = effectName;
 
         if (iconUrl) {
             const img = document.createElement('img');
@@ -753,29 +786,40 @@ export class BattleUI {
             color = '#ffdd00';
         }
 
+        // Clean cel-shaded floating damage with solid outline
         el.textContent = prefix + amount;
         Object.assign(el.style, {
             position: 'absolute',
             left: (screenPos.x || 100) + 'px',
             top: (screenPos.y || 200) + 'px',
             color,
-            fontSize: isCrit ? '24px' : '20px',
+            fontSize: isCrit ? '26px' : '21px',
             fontWeight: 'bold',
-            textShadow: '1px 1px 3px rgba(0,0,0,0.8)',
+            fontFamily: "Arial, Helvetica, sans-serif",
+            textShadow: `-2px -2px 0 #1A1A1A, 2px -2px 0 #1A1A1A, -2px 2px 0 #1A1A1A, 2px 2px 0 #1A1A1A`,
             pointerEvents: 'none',
             transition: 'transform 1s ease-out, opacity 1s ease-out',
             zIndex: '150',
         });
 
-        this._floatingDamageLayer.appendChild(el);
+        // Wrap in a positioned container
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = `position:absolute;left:${(screenPos.x || 100)}px;top:${(screenPos.y || 200)}px;pointer-events:none;z-index:150;`;
+        wrapper.appendChild(el);
+        el.style.position = 'relative';
+        el.style.left = '';
+        el.style.top = '';
+
+        this._floatingDamageLayer.appendChild(wrapper);
 
         // Animate: float up and fade out
-        void el.offsetWidth;
-        el.style.transform = 'translateY(-60px)';
-        el.style.opacity = '0';
+        void wrapper.offsetWidth;
+        wrapper.style.transition = 'transform 1s ease-out, opacity 1s ease-out';
+        wrapper.style.transform = 'translateY(-60px)';
+        wrapper.style.opacity = '0';
 
         setTimeout(() => {
-            if (el.parentNode) el.parentNode.removeChild(el);
+            if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
         }, 1000);
     }
 
@@ -796,7 +840,8 @@ export class BattleUI {
             color,
             fontSize: '16px',
             fontWeight: 'bold',
-            textShadow: '1px 1px 3px rgba(0,0,0,0.8)',
+            fontFamily: "Arial, Helvetica, sans-serif",
+            textShadow: '-2px -2px 0 #1A1A1A, 2px -2px 0 #1A1A1A, -2px 2px 0 #1A1A1A, 2px 2px 0 #1A1A1A',
             pointerEvents: 'none',
             transition: 'transform 1.2s ease-out, opacity 1.2s ease-out',
             zIndex: '150',
@@ -826,9 +871,12 @@ export class BattleUI {
         el.textContent = message;
         Object.assign(el.style, {
             color,
-            padding: '1px 0',
+            padding: '2px 0',
             opacity: '1',
             transition: 'opacity 0.5s',
+            fontFamily: "Arial, Helvetica, sans-serif",
+            fontSize: '13px',
+            lineHeight: '20px',
         });
 
         this._eventFeed.appendChild(el);
@@ -901,11 +949,13 @@ export class BattleUI {
         btn.textContent = 'Continue';
         Object.assign(btn.style, {
             padding: '12px 36px',
-            background: 'rgba(40,80,160,0.9)',
-            color: '#fff',
-            border: '1px solid rgba(100,160,255,0.5)',
-            borderRadius: '10px',
+            background: '#3366AA',
+            color: '#FFFFFF',
+            border: '3px solid #1A1A1A',
+            borderRadius: '8px',
             fontSize: '18px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            fontWeight: 'bold',
             cursor: 'pointer',
         });
         btn.addEventListener('click', () => this._onResultsClosed());
@@ -935,14 +985,17 @@ export class BattleUI {
         for (const sprite of availableSprites) {
             const slot = document.createElement('div');
             slot.style.cssText = `
-                width:80px;height:100px;background:rgba(20,40,80,0.8);border:2px solid rgba(100,160,255,0.4);
-                border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                cursor:pointer;color:#fff;font-size:13px;padding:4px;
+                width:80px;height:100px;background:#2A1F4E;border:3px solid #1A1A1A;
+                border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                cursor:pointer;color:#fff;font-size:13px;padding:4px;font-family:Arial,Helvetica,sans-serif;
             `;
             slot.textContent = sprite.nickname || `#${sprite.instanceId || '?'}`;
+            slot.dataset.selected = 'false';
             slot.addEventListener('click', () => {
-                slot.style.borderColor = slot.style.borderColor === 'rgb(80, 200, 120)' ? 'rgba(100,160,255,0.4)' : 'rgb(80, 200, 120)';
-                if (placements[sprite.instanceId]) {
+                const isSelected = slot.dataset.selected === 'true';
+                slot.dataset.selected = isSelected ? 'false' : 'true';
+                slot.style.borderColor = isSelected ? '#1A1A1A' : 'rgb(80, 200, 120)';
+                if (isSelected) {
                     delete placements[sprite.instanceId];
                 } else {
                     placements[sprite.instanceId] = sprite;
@@ -956,9 +1009,10 @@ export class BattleUI {
         confirmBtn.textContent = 'Deploy';
         Object.assign(confirmBtn.style, {
             marginTop: '20px', padding: '12px 36px',
-            background: 'rgba(30,100,60,0.9)', color: '#fff',
-            border: '1px solid rgba(100,220,160,0.5)', borderRadius: '10px',
-            fontSize: '18px', cursor: 'pointer',
+            background: '#33AA55', color: '#FFFFFF',
+            border: '3px solid #1A1A1A', borderRadius: '8px',
+            fontSize: '18px', fontFamily: 'Arial, Helvetica, sans-serif',
+            fontWeight: 'bold', cursor: 'pointer',
         });
         confirmBtn.addEventListener('click', () => {
             this._deploymentScreen.style.display = 'none';

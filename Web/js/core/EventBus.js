@@ -33,11 +33,9 @@ export class EventBus {
         if (listeners) {
             for (const cb of listeners) cb(...args);
         }
-        const onceListeners = this._onceListeners[event];
-        if (onceListeners) {
-            for (const cb of onceListeners) cb(...args);
-            this._onceListeners[event] = [];
-        }
+        const onceListeners = this._onceListeners[event] || [];
+        this._onceListeners[event] = []; // clear before firing so errors don't leave stale listeners
+        for (const cb of onceListeners) cb(...args);
     }
 
     clear(event) {
@@ -102,6 +100,17 @@ export const GameEvents = {
     GOLD_CHANGED: 'gold_changed',
     TEAM_CHANGED: 'team_changed',
     EQUIPMENT_CHANGED: 'equipment_changed',
+    EQUIPMENT_DROPPED: 'equipment_dropped',
+    EQUIPMENT_LOOTED: 'equipment_looted',
+    BATTLE_LOOT_ROLLED: 'battle_loot_rolled',
+
+    // Animation & VFX events
+    ATTACK_ANIMATION_REQUESTED: 'attack_animation_requested',
+    HIT_IMPACT_REQUESTED: 'hit_impact_requested',
+    SPECIAL_ANIMATION_REQUESTED: 'special_animation_requested',
+    TELEPORT_EXECUTED: 'teleport_executed',
+    KNOCKBACK_VISUAL_REQUESTED: 'knockback_visual_requested',
+    FAINT_ANIMATION_REQUESTED: 'faint_animation_requested',
 
     // System events
     GAME_SAVED: 'game_saved',

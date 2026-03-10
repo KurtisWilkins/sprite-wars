@@ -168,12 +168,12 @@ export class BattleAI {
 
             // Bonus for type advantage.
             const effectiveness = this._getEffectiveness(ability, target, elementChart);
-            if (effectiveness > 1.5) {
-                score *= 1.5; // Super effective bonus.
+            if (effectiveness < 0.01) {
+                score = 0.0; // Immune -- don't bother.
             } else if (effectiveness < 0.75) {
                 score *= 0.5; // Not very effective penalty.
-            } else if (effectiveness < 0.01) {
-                score = 0.0; // Immune -- don't bother.
+            } else if (effectiveness > 1.5) {
+                score *= 1.5; // Super effective bonus.
             }
 
             // Bonus for killing the target.

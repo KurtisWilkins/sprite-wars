@@ -1,0 +1,2019 @@
+{
+  "schemaVersion": "1.0.0",
+  "tileset": {
+    "filename": "Chick_03.png",
+    "tileWidth": 16,
+    "tileHeight": 16,
+    "columns": 8,
+    "rows": 20,
+    "totalTiles": 160,
+    "themeTags": [
+      "farm",
+      "farmgameworld"
+    ],
+    "notes": "Auto-generated metadata for Chick_03.png. Review and correct in Tile Admin."
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "Empty 0",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Empty 1",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Empty 2",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Empty 3",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 4,
+      "name": "Empty 4",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 5,
+      "name": "Empty 5",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 6,
+      "name": "Empty 6",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 7,
+      "name": "Empty 7",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 8,
+      "name": "Nature Top Left 8",
+      "description": "Nature tile from Chick_03 (top left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 9,
+      "name": "Nature Top 9",
+      "description": "Nature tile from Chick_03 (top region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 10,
+      "name": "Nature Top 10",
+      "description": "Nature tile from Chick_03 (top region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 11,
+      "name": "Nature Top 11",
+      "description": "Nature tile from Chick_03 (top region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 12,
+      "name": "Nature Top 12",
+      "description": "Nature tile from Chick_03 (top region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 13,
+      "name": "Nature Top 13",
+      "description": "Nature tile from Chick_03 (top region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 14,
+      "name": "Nature Top 14",
+      "description": "Nature tile from Chick_03 (top region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 15,
+      "name": "Nature Top Right 15",
+      "description": "Nature tile from Chick_03 (top right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 16,
+      "name": "Empty 16",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 17,
+      "name": "Empty 17",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 18,
+      "name": "Empty 18",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 19,
+      "name": "Empty 19",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 20,
+      "name": "Empty 20",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 21,
+      "name": "Empty 21",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 22,
+      "name": "Empty 22",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 23,
+      "name": "Empty 23",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 24,
+      "name": "Nature Left 24",
+      "description": "Nature tile from Chick_03 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 25,
+      "name": "Nature 25",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 26,
+      "name": "Nature 26",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 27,
+      "name": "Nature 27",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 28,
+      "name": "Nature 28",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 29,
+      "name": "Nature 29",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 30,
+      "name": "Nature 30",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 31,
+      "name": "Nature Right 31",
+      "description": "Nature tile from Chick_03 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 32,
+      "name": "Empty 32",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 33,
+      "name": "Empty 33",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 34,
+      "name": "Empty 34",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 35,
+      "name": "Empty 35",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 36,
+      "name": "Empty 36",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 37,
+      "name": "Empty 37",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 38,
+      "name": "Empty 38",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 39,
+      "name": "Empty 39",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 40,
+      "name": "Nature Left 40",
+      "description": "Nature tile from Chick_03 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 41,
+      "name": "Nature 41",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 42,
+      "name": "Nature 42",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 43,
+      "name": "Nature 43",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 44,
+      "name": "Nature 44",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 45,
+      "name": "Nature 45",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 46,
+      "name": "Nature 46",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 47,
+      "name": "Nature Right 47",
+      "description": "Nature tile from Chick_03 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 48,
+      "name": "Empty 48",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 49,
+      "name": "Empty 49",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 50,
+      "name": "Empty 50",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 51,
+      "name": "Empty 51",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 52,
+      "name": "Empty 52",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 53,
+      "name": "Empty 53",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 54,
+      "name": "Empty 54",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 55,
+      "name": "Empty 55",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 56,
+      "name": "Nature Left 56",
+      "description": "Nature tile from Chick_03 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 57,
+      "name": "Nature 57",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 58,
+      "name": "Nature 58",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 59,
+      "name": "Nature 59",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 60,
+      "name": "Nature 60",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 61,
+      "name": "Nature 61",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 62,
+      "name": "Nature 62",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 63,
+      "name": "Nature Right 63",
+      "description": "Nature tile from Chick_03 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 64,
+      "name": "Empty 64",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 65,
+      "name": "Empty 65",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 66,
+      "name": "Empty 66",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 67,
+      "name": "Empty 67",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 68,
+      "name": "Empty 68",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 69,
+      "name": "Empty 69",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 70,
+      "name": "Empty 70",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 71,
+      "name": "Empty 71",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 72,
+      "name": "Nature Left 72",
+      "description": "Nature tile from Chick_03 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 73,
+      "name": "Nature 73",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 74,
+      "name": "Nature 74",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 75,
+      "name": "Nature 75",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 76,
+      "name": "Nature 76",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 77,
+      "name": "Nature 77",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 78,
+      "name": "Nature 78",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 79,
+      "name": "Nature Right 79",
+      "description": "Nature tile from Chick_03 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 80,
+      "name": "Empty 80",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 81,
+      "name": "Empty 81",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 82,
+      "name": "Empty 82",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 83,
+      "name": "Empty 83",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 84,
+      "name": "Empty 84",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 85,
+      "name": "Empty 85",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 86,
+      "name": "Empty 86",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 87,
+      "name": "Empty 87",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 88,
+      "name": "Nature Left 88",
+      "description": "Nature tile from Chick_03 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 89,
+      "name": "Nature 89",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 90,
+      "name": "Nature 90",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 91,
+      "name": "Nature 91",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 92,
+      "name": "Nature 92",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 93,
+      "name": "Nature 93",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 94,
+      "name": "Nature 94",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 95,
+      "name": "Nature Right 95",
+      "description": "Nature tile from Chick_03 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 96,
+      "name": "Empty 96",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 97,
+      "name": "Empty 97",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 98,
+      "name": "Empty 98",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 99,
+      "name": "Empty 99",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 100,
+      "name": "Empty 100",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 101,
+      "name": "Empty 101",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 102,
+      "name": "Empty 102",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 103,
+      "name": "Empty 103",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 104,
+      "name": "Nature Left 104",
+      "description": "Nature tile from Chick_03 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 105,
+      "name": "Nature 105",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 106,
+      "name": "Nature 106",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 107,
+      "name": "Nature 107",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 108,
+      "name": "Nature 108",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 109,
+      "name": "Nature 109",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 110,
+      "name": "Nature 110",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 111,
+      "name": "Nature Right 111",
+      "description": "Nature tile from Chick_03 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 112,
+      "name": "Empty 112",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 113,
+      "name": "Empty 113",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 114,
+      "name": "Empty 114",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 115,
+      "name": "Empty 115",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 116,
+      "name": "Empty 116",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 117,
+      "name": "Empty 117",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 118,
+      "name": "Empty 118",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 119,
+      "name": "Empty 119",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 120,
+      "name": "Nature Left 120",
+      "description": "Nature tile from Chick_03 (left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 121,
+      "name": "Nature 121",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 122,
+      "name": "Nature 122",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 123,
+      "name": "Nature 123",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 124,
+      "name": "Nature 124",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 125,
+      "name": "Nature 125",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 126,
+      "name": "Nature 126",
+      "description": "Nature tile from Chick_03",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 127,
+      "name": "Nature Right 127",
+      "description": "Nature tile from Chick_03 (right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 128,
+      "name": "Empty 128",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 129,
+      "name": "Empty 129",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 130,
+      "name": "Empty 130",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 131,
+      "name": "Empty 131",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 132,
+      "name": "Empty 132",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 133,
+      "name": "Empty 133",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 134,
+      "name": "Empty 134",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 135,
+      "name": "Empty 135",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 136,
+      "name": "Nature Bottom Left 136",
+      "description": "Nature tile from Chick_03 (bottom left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 137,
+      "name": "Nature Bottom 137",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 138,
+      "name": "Nature Bottom 138",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 139,
+      "name": "Nature Bottom 139",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 140,
+      "name": "Nature Bottom 140",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 141,
+      "name": "Nature Bottom 141",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 142,
+      "name": "Nature Bottom 142",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 143,
+      "name": "Nature Bottom Right 143",
+      "description": "Nature tile from Chick_03 (bottom right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 144,
+      "name": "Empty 144",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 145,
+      "name": "Empty 145",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 146,
+      "name": "Empty 146",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 147,
+      "name": "Empty 147",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 148,
+      "name": "Empty 148",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 149,
+      "name": "Empty 149",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 150,
+      "name": "Empty 150",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 151,
+      "name": "Empty 151",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 152,
+      "name": "Nature Bottom Left 152",
+      "description": "Nature tile from Chick_03 (bottom left region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 153,
+      "name": "Nature Bottom 153",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 154,
+      "name": "Nature Bottom 154",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 155,
+      "name": "Nature Bottom 155",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 156,
+      "name": "Nature Bottom 156",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 157,
+      "name": "Nature Bottom 157",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 158,
+      "name": "Nature Bottom 158",
+      "description": "Nature tile from Chick_03 (bottom region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    },
+    {
+      "index": 159,
+      "name": "Nature Bottom Right 159",
+      "description": "Nature tile from Chick_03 (bottom right region)",
+      "category": "nature",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "farm",
+        "farmgameworld",
+        "nature"
+      ]
+    }
+  ],
+  "structures": []
+}

@@ -1,7 +1,7 @@
 # [P10-014] Sprite Wars — Animation Specification Sheet
 
-> **Version:** 1.0
-> **Last Updated:** 2026-02-16
+> **Version:** 2.0
+> **Last Updated:** 2026-03-08
 > **Owner:** 2D Animator / Art Lead
 > **Engine:** Godot 4.2 (SpriteFrames / AnimatedSprite2D)
 > **Target Platforms:** Android / iOS (Mobile)
@@ -13,6 +13,8 @@
 This document defines the animation pipeline for all 72 Sprite forms in Sprite Wars. It covers animation states, frame counts, frame rates, sprite sheet layout, naming conventions, pivot points, timing hooks (hit frames), and loop behavior. Animators must follow these specifications for consistency and correct integration with the battle and world systems.
 
 **Total animation workload:** 72 forms x 6 core states = **432 animation clips** (minimum). Additional states (special abilities, emotes) may increase this count.
+
+**Flat Cel-Shaded Chibi Art Style:** All animations in Sprite Wars use the Flat Cel-Shaded Chibi art style, which influences every aspect of the animation pipeline. Sprites use clean, uniform black outlines with consistent thickness and vibrant saturated flat colors with hard-edged shading (no gradients). Squash-and-stretch values are exaggerated approximately 20% beyond standard proportions to reinforce the cartoony chibi aesthetic. During key frames (hit frames, ability casts, landing frames), clean graphic overlays should appear, including sharp motion lines near fast-moving limbs, bold geometric stars or spirals on impact, and chibi expression marks such as sweat drops or exclamation pops. These cel-shaded elements are integral to the visual identity and must be present in all animation deliverables.
 
 ---
 
@@ -28,6 +30,8 @@ Every Sprite form requires the following core animation states:
 | **Ability** | 8 | 12 | 0.67s | No | Special ability cast. Play once, return to idle |
 | **Faint** | 4 | 8 | 0.50s | No | Defeat animation. Play once, hold last frame |
 | **Hit** | 3 | 12 | 0.25s | No | Damage reaction. Play once, return to idle |
+
+**Cel-Shaded Outline Layer:** All animation states include a clean uniform outline layer -- a consistent 1-2px black outline applied around each sprite. This crisp outline keeps sprites visually distinct against all backgrounds, reinforcing the flat cel-shaded look. The outline is applied as a post-process on the sprite's rendering and does not affect hitbox alignment or pivot anchoring. Animators do not need to bake this into sprite sheets; it is applied procedurally at runtime by the animation controller.
 
 ### Optional / Extended States
 
@@ -302,6 +306,15 @@ Attack effect animations (hit sparks, elemental bursts) follow separate but rela
 - VFX playback duration should not exceed **0.5s** (6 frames at 12 FPS).
 - VFX fades to transparent on the last 1-2 frames (no hard cut).
 
+### Cel-Shaded VFX Rules
+All VFX must conform to the Flat Cel-Shaded Chibi art style:
+
+- **Clean outlines:** VFX should use crisp, uniform-thickness black outlines with consistent weight. Outlines should be clean geometric shapes with sharp edges.
+- **Bold hit effects:** Hit impacts should include clean graphic marks such as sharp-edged stars, spirals, and bold motion lines radiating from the impact point.
+- **Flat color fills:** Elemental effects (fire, ice, lightning, etc.) should use flat saturated color fills with hard-edged shading (no gradients, no hatching). Use at most 2-3 flat color tones per element.
+- **Clean impact text:** Comic impact text bubbles ("BAM!", "POW!", etc.) should have clean, sharp-edged borders with uniform line thickness and bold sans-serif lettering.
+- **Graphic particles:** Decorative particle effects should use clean flat-colored shapes -- bold stars, hearts, spirals, and solid puff clouds -- with uniform outlines. These spawn during hits, ability activations, and evolution sequences to add visual charm.
+
 ---
 
 ## 11. Sprite Sheet Export Pipeline
@@ -384,8 +397,121 @@ Before submitting animation assets for integration:
 
 ---
 
-## 14. Revision History
+## 14. Weapon Attack Animation System (Procedural)
+
+In addition to sprite-sheet-based character animations, the battle system includes a **procedural weapon animation system** that drives unit movement, weapon swing arcs, and visual timing during attacks. This system uses Godot Tweens to generate motion without requiring additional sprite sheet frames.
+
+### System Components
+
+| File | Role |
+|------|------|
+| `WeaponAnimationData.gd` | Maps 40+ weapon types to animation profiles (timing, motion, arc) |
+| `BattleAnimationController.gd` | Executes procedural Tween animations on Sprite2D nodes |
+| `BattleVFXSystem.gd` | Spawns hit impacts, comic text, particles, smoke, trails |
+| `ClassSpecialAnimations.gd` | Defines 16 class-specific special ability animations |
+| `AssassinTeleportSystem.gd` | Grid teleport + backstab mechanic for Assassin class |
+| `BattleVisualOrchestrator.gd` | Bridges EventBus signals to visual systems |
+
+### Weapon Attack Styles
+
+| Style | Weapons | Motion |
+|-------|---------|--------|
+| **SLASH** | Swords, axes, greatswords | Lunge forward + rotation arc sweep |
+| **THRUST** | Spears, daggers, lances | Pull back then rapid forward stab |
+| **SMASH** | Hammers, maces, mauls, rams | Rise up, slam down with squash-stretch |
+| **DRAW_RELEASE** | Bows, crossbows | Lean back (draw) then snap (release) |
+| **THROW** | Javelins, flasks, mortars | Wind-up arm, step forward, follow-through |
+| **CAST** | Staves, wands, orbs, tomes | Float up, element glow pulse, release |
+| **PUNCH** | Fists, nunchaku, bo staff | Minimal wind-up, rapid snap forward |
+| **BLOCK_BASH** | Shields | Brace (widen stance), then shove forward |
+| **HOLY_STRIKE** | Holy mace, holy symbol | Rise with golden glow, divine slam |
+| **GUNFIRE** | Pistols, muskets, blunderbuss | Aim, muzzle flash, recoil back |
+
+### Class Special Animations
+
+Each of the 16 classes has a unique special move animation:
+
+| Class | Special | Multi-hit | Teleport |
+|-------|---------|-----------|----------|
+| Barbarian | Berserker Rush | 3 strikes | No |
+| Fighter | Shield Wall | 1 counter | No |
+| Archer | Arrow Rain | 5 arrows | No |
+| Spearman | Spear Charge | 1 thrust | No |
+| Heavy | Fortress Slam | 1 ground pound | No |
+| Wizard | Arcane Burst | 1 burst | No |
+| Javelin | Javelin Volley | 3 throws | No |
+| Alchemist | Potion Loom | 1 flask | No |
+| Cleric | Divine Light | 1 circle | No |
+| Ambrosian | Soul Link | 1 tether | No |
+| **Assassin** | **Shadow Step** | **1 backstab** | **Yes** |
+| Monk | Flurry | 5 punches | No |
+| Crossbow | Bolt Barrage | 4 bolts | No |
+| Handgunner | Cannon Blast | 1 shot | No |
+| Siegebreaker | Wall Break | 1 charge | No |
+| Paladin | Holy Judgement | 1 beam | No |
+
+### Comic-Book Impact Effects
+
+On significant hits (30+ damage), the VFX system displays comic-book style impact words: "BAM!", "POW!", "WHAM!", "CRACK!", "SMASH!". These are:
+- Randomly rotated for visual variety
+- Scaled based on damage amount
+- Pop-in animated, then fade out upward
+- Kept subtle (brief display, moderate size) to avoid overstimulation
+
+### Cel-Shaded Enhancements for Weapon Animations
+The following cel-shaded style modifications apply to all procedural weapon animations:
+
+- **Clean motion trails:** Motion trails during swings and thrusts should be rendered as clean, flat-colored arcs with uniform outlines and no gradients. Trail shapes use solid fills with hard edges.
+- **Bold impact stars:** Impact effects on hit use clean star shapes with sharp, even points and uniform black outlines, matching the cel-shaded aesthetic.
+- **Clean speech bubbles:** Comic impact text ("BAM!", "POW!", etc.) gets speech bubble borders with crisp, uniform edges and consistent line thickness using bold sans-serif fonts.
+
+---
+
+## 15. Cel-Shaded Animation Style Rules
+
+This section consolidates all cel-shaded style animation rules that apply globally across the Flat Cel-Shaded Chibi art style.
+
+### Clean Outlines
+All sprites have a **uniform 1-2px black outline** rendered around their silhouette. This is handled procedurally by the animation controller and gives every sprite crisp visual separation from the background. Outline thickness remains consistent across all sprites on screen.
+
+### Flat Color Shading
+Sprite surfaces use **hard-edged two-tone shading** -- a base color and a single shadow tone per surface. There are no gradients or smooth transitions between light and shadow. Shadow edges are sharp and clean, reinforcing the cel-shaded look.
+
+### Squash-Stretch
+Squash-and-stretch values are **20% more exaggerated** than standard animation proportions. This amplification reinforces the cartoony chibi feel. For example, a standard 10% squash on landing becomes 12%, and a standard 15% stretch on jump becomes 18%.
+
+### Motion Lines
+Short parallel clean lines (3-5 small lines) appear near fast-moving body parts during attacks, dashes, and ability casts. These motion lines are drawn with uniform thickness and sharp edges, fading out within 2-3 frames. They should use the sprite's outline color.
+
+### Expression Pops
+Chibi expression marks appear during key gameplay moments:
+- **!** (exclamation) -- when a critical hit lands
+- **?** (question mark) -- when an attack misses or is dodged
+- **Hearts** -- during healing abilities or friendship interactions
+- **Anger veins** -- when a Sprite enters berserk/enraged state
+- **Sweat drops** -- when a Sprite is at low HP or under status pressure
+- **Stars** -- when a Sprite is stunned or confused
+
+These marks appear as floating overlays near the sprite's head and persist for 0.3-0.5 seconds before fading.
+
+### Decorative Particles
+Clean flat-colored particles spawn during hits, ability activations, and evolution sequences:
+- **Stars** (4-6 point, sharp-edged) -- general impact and celebration
+- **Hearts** -- healing and support abilities
+- **Spirals** -- confusion, psychic, and wind effects
+- **Solid puff clouds** -- dust, smoke, and earth impacts
+
+Particles use flat color fills with uniform outlines and clean geometric shapes.
+
+### Bouncy Landing
+Characters have an **extra bounce frame** when landing from jumps, knockback recovery, or attack lunges. After the initial landing squash, the sprite overshoots upward by 2-3px before settling into its resting position. This adds a playful, springy quality consistent with the chibi proportions.
+
+---
+
+## 16. Revision History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-02-16 | 2D Animator / Art Lead | Initial specification |
+| 1.1 | 2026-03-04 | Gameplay Programmer (Battle) | Added weapon animation system, class specials, VFX, teleport, knockback visuals |
+| 2.0 | 2026-03-08 | Art Lead / 2D Animator | Animation spec updated for Flat Cel-Shaded Chibi art style |

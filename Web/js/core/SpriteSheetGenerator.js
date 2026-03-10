@@ -2,16 +2,164 @@
  * SpriteSheetGenerator - Generates 4-direction walk cycle sprite sheets
  * from base body sprites (e.g. the Units body type sheet).
  *
- * Output: 128x128 canvas (4 cols x 4 rows, 32x32 per frame)
+ * Art style: flat cel-shaded, clean uniform-thickness black outlines,
+ * chibi proportions (large head ~40% of body height, compact body),
+ * hard-edged shading, simple dot eyes, vibrant saturated colours,
+ * NO gradients, NO pixel art, NO wobbly/sketch lines.
+ *
+ * Output: 256x256 canvas (4 cols x 4 rows, 64x64 per frame)
  *   Row 0: facing down  (frames 0-3)
  *   Row 1: facing left  (frames 0-3)
  *   Row 2: facing right (frames 0-3)
  *   Row 3: facing up    (frames 0-3)
  *
- * Each frame adds procedural arms and legs with walk animation offsets.
+ * Each frame draws a chibi character with procedural arms, legs, head,
+ * and walk animation offsets using flat cel-shading.
  */
 
+import { Renderer } from './Renderer.js';
+
 export class SpriteSheetGenerator {
+
+    // ---- Cel-shading drawing helpers (operate on a raw CanvasRenderingContext2D) ----
+
+    /**
+     * Draw a cel-shaded rectangle on a raw context.
+     * Flat base fill, hard-edged shadow on bottom, highlight on top, clean outline.
+     */
+    static _celRect(ctx, x, y, w, h, baseColor, outlineColor = '#000000', outlineWidth = 2) {
+        const { base, shadow, highlight } = Renderer.getCelShadedColors(baseColor);
+        x = Math.floor(x);
+        y = Math.floor(y);
+
+        // Base fill
+        ctx.fillStyle = base;
+        ctx.fillRect(x, y, w, h);
+
+        // Shadow strip — bottom 35%
+        const shadowH = Math.max(1, Math.floor(h * 0.35));
+        ctx.fillStyle = shadow;
+        ctx.fillRect(x, y + h - shadowH, w, shadowH);
+
+        // Highlight strip — top 25%
+        const highlightH = Math.max(1, Math.floor(h * 0.25));
+        ctx.fillStyle = highlight;
+        ctx.fillRect(x, y, w, highlightH);
+
+        // Clean uniform outline
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = outlineWidth;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.strokeRect(x, y, w, h);
+    }
+
+    /**
+     * Draw a cel-shaded ellipse / circle on a raw context.
+     */
+    static _celEllipse(ctx, cx, cy, rx, ry, baseColor, outlineColor = '#000000', outlineWidth = 2) {
+        const { base, shadow, highlight } = Renderer.getCelShadedColors(baseColor);
+        cx = Math.floor(cx);
+        cy = Math.floor(cy);
+
+        ctx.save();
+
+        // Base fill
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fillStyle = base;
+        ctx.fill();
+
+        // Shadow crescent — clip to ellipse, fill offset ellipse
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        ctx.clip();
+        // Lower shadow zone
+        ctx.fillStyle = shadow;
+        ctx.fillRect(cx - rx, cy + ry * 0.3, rx * 2, ry);
+        ctx.restore();
+
+        // Highlight dot (upper-left)
+        ctx.beginPath();
+        ctx.ellipse(cx - rx * 0.25, cy - ry * 0.3, rx * 0.25, ry * 0.2, 0, 0, Math.PI * 2);
+        ctx.fillStyle = highlight;
+        ctx.fill();
+
+        // Clean outline
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = outlineWidth;
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    /**
+     * Draw a simple filled dot eye.
+     */
+    static _dotEye(ctx, cx, cy, radius = 2) {
+        ctx.beginPath();
+        ctx.arc(Math.floor(cx), Math.floor(cy), radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#000000';
+        ctx.fill();
+        // Tiny white highlight
+        ctx.beginPath();
+        ctx.arc(Math.floor(cx) - 0.5, Math.floor(cy) - 0.5, Math.max(0.5, radius * 0.35), 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+    }
+
+    /**
+     * Draw a cel-shaded limb (arm or leg) with clean outline and flat shading.
+     */
+    static _drawLimb(ctx, x, y, w, h, fillColor, outlineColor, direction, limbType) {
+        const { base, shadow, highlight } = Renderer.getCelShadedColors(fillColor);
+        x = Math.floor(x);
+        y = Math.floor(y);
+
+        // Rounded limb shape
+        const radius = Math.min(w, h) * 0.3;
+        ctx.save();
+
+        // Base fill
+        ctx.beginPath();
+        if (ctx.roundRect) { ctx.roundRect(x, y, w, h, radius); } else { ctx.rect(x, y, w, h); }
+        ctx.fillStyle = base;
+        ctx.fill();
+
+        // Shadow strip on lower portion
+        ctx.save();
+        ctx.beginPath();
+        if (ctx.roundRect) { ctx.roundRect(x, y, w, h, radius); } else { ctx.rect(x, y, w, h); }
+        ctx.clip();
+        const shadowH = Math.max(1, Math.floor(h * 0.35));
+        ctx.fillStyle = shadow;
+        ctx.fillRect(x, y + h - shadowH, w, shadowH);
+        ctx.restore();
+
+        // Highlight on upper portion
+        ctx.save();
+        ctx.beginPath();
+        if (ctx.roundRect) { ctx.roundRect(x, y, w, h, radius); } else { ctx.rect(x, y, w, h); }
+        ctx.clip();
+        ctx.fillStyle = highlight;
+        ctx.fillRect(x, y, w, Math.max(1, Math.floor(h * 0.25)));
+        ctx.restore();
+
+        // Clean outline
+        ctx.beginPath();
+        if (ctx.roundRect) { ctx.roundRect(x, y, w, h, radius); } else { ctx.rect(x, y, w, h); }
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
     /**
      * Generate a walk-cycle sprite sheet from a base body image.
      * @param {HTMLImageElement|HTMLCanvasElement} bodyImg - The base body sprite (single frame)
@@ -21,47 +169,54 @@ export class SpriteSheetGenerator {
      * @param {number} opts.sx - Source X offset in bodyImg (default: 0)
      * @param {number} opts.sy - Source Y offset in bodyImg (default: 0)
      * @param {string} opts.skinColor - Skin/limb color (default: '#c8a882')
-     * @param {string} opts.outlineColor - Limb outline color (default: '#6b5a4e')
-     * @returns {HTMLCanvasElement} 128x128 sprite sheet canvas
+     * @param {string} opts.outlineColor - Limb outline color (default: '#000000')
+     * @param {string} opts.hairColor - Hair color (default: '#5A3825')
+     * @returns {HTMLCanvasElement} 256x256 sprite sheet canvas
      */
     static generate(bodyImg, opts = {}) {
-        const FRAME_SIZE = 32;
-        const SHEET_SIZE = 128; // 4 frames x 32px
+        const FRAME_SIZE = 64;
+        const SHEET_SIZE = 256; // 4 frames x 64px
 
         const sx = opts.sx || 0;
         const sy = opts.sy || 0;
         const bodyW = opts.bodyW || bodyImg.width;
         const bodyH = opts.bodyH || bodyImg.height;
         const skinColor = opts.skinColor || '#c8a882';
-        const outlineColor = opts.outlineColor || '#6b5a4e';
+        const outlineColor = opts.outlineColor || '#000000';
+        const hairColor = opts.hairColor || '#5A3825';
 
         // Create output sprite sheet
         const sheet = document.createElement('canvas');
         sheet.width = SHEET_SIZE;
         sheet.height = SHEET_SIZE;
         const ctx = sheet.getContext('2d');
-        ctx.imageSmoothingEnabled = false;
+        // Smooth rendering for clean cel-shaded style (NOT pixel art)
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
 
-        // Body is drawn centered in a 32x32 frame, scaled to ~18x20 pixels
-        // leaving room for limbs (arms: 3px each side, legs: 6px below)
-        const scaledBodyW = Math.min(18, bodyW);
-        const scaledBodyH = Math.min(18, bodyH);
-        const bodyOffsetX = Math.floor((FRAME_SIZE - scaledBodyW) / 2);
-        const bodyTopY = 4; // Leave room at top for head bob
+        // --- Chibi proportions ---
+        // Head is ~40% of total character height
+        // Total character height fits in ~56px (leaving 4px margin top/bottom)
+        const totalH = 54;
+        const headH = Math.floor(totalH * 0.40);   // ~22px
+        const headW = Math.floor(headH * 1.05);     // slightly wider than tall
+        const torsoH = Math.floor(totalH * 0.28);   // ~15px
+        const torsoW = Math.floor(headW * 0.75);    // narrower than head
+        const legH = totalH - headH - torsoH;       // ~17px
+        const legW = 7;
+        const armW = 6;
+        const armH = Math.floor(torsoH * 0.85);
 
-        // Limb dimensions
-        const armW = 3;
-        const armH = 8;
-        const legW = 3;
-        const legH = 7;
+        // Body sprite is drawn onto the torso area
+        const scaledBodyW = Math.min(torsoW, bodyW);
+        const scaledBodyH = Math.min(torsoH, bodyH);
 
         // Animation offsets per frame [idle, step1, idle2, step2]
-        // Each direction has 4 frames of walk animation
         const walkCycle = [
-            { armL: 0, armR: 0, legL: 0, legR: 0, bob: 0 },   // idle
-            { armL: -2, armR: 2, legL: 3, legR: -1, bob: -1 }, // step left leg forward
-            { armL: 0, armR: 0, legL: 0, legR: 0, bob: 0 },   // idle (passing)
-            { armL: 2, armR: -2, legL: -1, legR: 3, bob: -1 }, // step right leg forward
+            { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
+            { armL: -4, armR: 4,  legL: 4,  legR: -2, bob: -2 },
+            { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
+            { armL: 4,  armR: -4, legL: -2, legR: 4,  bob: -2 },
         ];
 
         // Direction rows: down=0, left=1, right=2, up=3
@@ -75,52 +230,108 @@ export class SpriteSheetGenerator {
                 const fy = dirIdx * FRAME_SIZE;
                 const anim = walkCycle[frame];
 
-                // Body position with bob
-                const bx = fx + bodyOffsetX;
-                const by = fy + bodyTopY + anim.bob;
+                // Character centered horizontally in the 64px frame
+                const charCenterX = fx + FRAME_SIZE / 2;
+                const charTopY = fy + 4 + anim.bob; // 4px top margin + bob
 
-                // Draw legs first (behind body)
-                const legBaseY = by + scaledBodyH - 2;
-                const leftLegX = bx + Math.floor(scaledBodyW / 2) - legW - 1;
-                const rightLegX = bx + Math.floor(scaledBodyW / 2) + 1;
+                // --- Positions ---
+                const headCX = charCenterX;
+                const headCY = charTopY + headH / 2;
 
+                const torsoCX = charCenterX;
+                const torsoTopY = charTopY + headH - 2; // slight overlap with head
+
+                const legBaseY = torsoTopY + torsoH;
+                const leftLegX = charCenterX - legW - 1;
+                const rightLegX = charCenterX + 1;
+
+                const armBaseY = torsoTopY + 2;
+
+                // --- Draw order: legs, arms-behind, torso+body, head, arms-front, eyes ---
+
+                // 1. Legs
                 this._drawLimb(ctx, leftLegX, legBaseY + anim.legL,
                     legW, legH, skinColor, outlineColor, dir, 'leg');
                 this._drawLimb(ctx, rightLegX, legBaseY + anim.legR,
                     legW, legH, skinColor, outlineColor, dir, 'leg');
 
-                // Draw arms (behind body for side views, beside body for front/back)
-                const armBaseY = by + 4;
+                // 2. Arms behind body (for side views)
                 if (dir === 'left') {
-                    // Left-facing: right arm visible behind, left arm in front
-                    this._drawLimb(ctx, bx + scaledBodyW - 1, armBaseY + anim.armR,
+                    this._drawLimb(ctx, charCenterX + torsoW / 2 - 1, armBaseY + anim.armR,
                         armW, armH, skinColor, outlineColor, dir, 'arm');
                 } else if (dir === 'right') {
-                    // Right-facing: left arm visible behind, right arm in front
-                    this._drawLimb(ctx, bx - armW + 1, armBaseY + anim.armL,
+                    this._drawLimb(ctx, charCenterX - torsoW / 2 - armW + 1, armBaseY + anim.armL,
                         armW, armH, skinColor, outlineColor, dir, 'arm');
                 } else {
-                    // Front/back: both arms visible on sides
-                    this._drawLimb(ctx, bx - armW, armBaseY + anim.armL,
+                    // Front/back: draw both arms
+                    this._drawLimb(ctx, charCenterX - torsoW / 2 - armW, armBaseY + anim.armL,
                         armW, armH, skinColor, outlineColor, dir, 'arm');
-                    this._drawLimb(ctx, bx + scaledBodyW, armBaseY + anim.armR,
+                    this._drawLimb(ctx, charCenterX + torsoW / 2, armBaseY + anim.armR,
                         armW, armH, skinColor, outlineColor, dir, 'arm');
                 }
 
-                // Draw body (on top of legs and behind-arms)
+                // 3. Torso (cel-shaded rect) with body sprite overlay
+                this._celRect(ctx,
+                    torsoCX - torsoW / 2, torsoTopY,
+                    torsoW, torsoH,
+                    skinColor, outlineColor, 2);
+
+                // Draw body sprite image on top of torso
                 ctx.drawImage(bodyImg,
                     sx, sy, bodyW, bodyH,
-                    bx, by, scaledBodyW, scaledBodyH
+                    Math.floor(torsoCX - scaledBodyW / 2), torsoTopY,
+                    scaledBodyW, scaledBodyH
                 );
 
-                // Draw front arms for side views (on top of body)
+                // 4. Head (cel-shaded ellipse — large chibi head)
+                this._celEllipse(ctx, headCX, headCY,
+                    Math.floor(headW / 2), Math.floor(headH / 2),
+                    skinColor, outlineColor, 2);
+
+                // 5. Hair tuft on top (simple cel-shaded arc)
+                if (dir !== 'up') {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.ellipse(headCX, charTopY + 2, headW / 2 + 1, headH * 0.3, 0, Math.PI, 0);
+                    const { base: hairBase } = Renderer.getCelShadedColors(hairColor);
+                    ctx.fillStyle = hairBase;
+                    ctx.fill();
+                    ctx.strokeStyle = outlineColor;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // 6. Front arms for side views (on top of body)
                 if (dir === 'left') {
-                    this._drawLimb(ctx, bx - armW + 1, armBaseY + anim.armL,
+                    this._drawLimb(ctx, charCenterX - torsoW / 2 - armW + 1, armBaseY + anim.armL,
                         armW, armH, skinColor, outlineColor, dir, 'arm');
                 } else if (dir === 'right') {
-                    this._drawLimb(ctx, bx + scaledBodyW - 1, armBaseY + anim.armR,
+                    this._drawLimb(ctx, charCenterX + torsoW / 2 - 1, armBaseY + anim.armR,
                         armW, armH, skinColor, outlineColor, dir, 'arm');
                 }
+
+                // 7. Face (dot eyes + simple mouth) — only for front and side views
+                if (dir === 'down') {
+                    // Front-facing: two dot eyes
+                    const eyeY = headCY + 1;
+                    const eyeSpacing = Math.floor(headW * 0.18);
+                    this._dotEye(ctx, headCX - eyeSpacing, eyeY, 2);
+                    this._dotEye(ctx, headCX + eyeSpacing, eyeY, 2);
+                    // Small mouth
+                    ctx.beginPath();
+                    ctx.arc(headCX, eyeY + 5, 1.5, 0, Math.PI);
+                    ctx.strokeStyle = outlineColor;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                } else if (dir === 'left') {
+                    // Side-facing left: one dot eye
+                    this._dotEye(ctx, headCX - Math.floor(headW * 0.12), headCY + 1, 2);
+                } else if (dir === 'right') {
+                    // Side-facing right: one dot eye
+                    this._dotEye(ctx, headCX + Math.floor(headW * 0.12), headCY + 1, 2);
+                }
+                // 'up' direction: no face visible
             }
         }
 
@@ -135,7 +346,7 @@ export class SpriteSheetGenerator {
      * @param {number} opts.frameH - Height per body in source (default: 26)
      * @param {number} opts.cols - Number of columns (default: auto from sheet width)
      * @param {number} opts.rows - Number of rows (default: 3)
-     * @returns {HTMLCanvasElement[]} Array of 128x128 sprite sheet canvases
+     * @returns {HTMLCanvasElement[]} Array of 256x256 sprite sheet canvases
      */
     static generateFromSheet(unitsSheet, opts = {}) {
         const frameW = opts.frameW || 22;
@@ -149,11 +360,15 @@ export class SpriteSheetGenerator {
             '#c8a882', '#d4b896', '#a87c5a', '#e8ccaa',
             '#b89878', '#c4a070', '#dcc0a0', '#9a6e4a',
         ];
+        const hairColors = [
+            '#5A3825', '#2C1810', '#8B4513', '#D4A574',
+            '#3D2B1F', '#654321', '#C4956A', '#1A1A2E',
+        ];
 
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < cols; col++) {
                 const sx = col * (frameW + padding) + padding;
-                const sy = row * (frameH + padding + 58) + padding + 10; // Account for variable row spacing
+                const sy = row * (frameH + padding + 58) + padding + 10;
 
                 // Skip if out of bounds
                 if (sx + frameW > unitsSheet.width || sy + frameH > unitsSheet.height) continue;
@@ -172,10 +387,12 @@ export class SpriteSheetGenerator {
                 if (!hasContent) continue;
 
                 const skinColor = skinColors[sheets.length % skinColors.length];
+                const hairColor = hairColors[sheets.length % hairColors.length];
                 const sheet = this.generate(unitsSheet, {
                     sx, sy, bodyW: frameW, bodyH: frameH,
                     skinColor,
-                    outlineColor: '#5a4a3e',
+                    outlineColor: '#000000',
+                    hairColor,
                 });
                 sheets.push(sheet);
             }
@@ -185,33 +402,16 @@ export class SpriteSheetGenerator {
     }
 
     /**
-     * Generate a single walk-cycle sheet for a Characters ASAI sprite
+     * Generate a single walk-cycle sheet for a character sprite
      * (already has directions but may need enhanced limb animation).
-     * Returns the original sheet since ASAI sprites already have walk cycles.
-     * @param {HTMLImageElement} asaiSheet - 128x128 ASAI character sprite sheet
-     * @returns {HTMLImageElement} Same image (ASAI sprites already animated)
+     * Returns the original sheet since character sprites already have walk cycles.
+     * @param {HTMLImageElement} charSheet - 128x128 character sprite sheet
+     * @returns {HTMLImageElement} Same image (sprites already animated)
      */
-    static enhanceAsaiSheet(asaiSheet) {
-        // ASAI sprites already have proper 4-dir walk cycles
+    static enhanceAsaiSheet(charSheet) {
+        // Character sprites already have proper 4-dir walk cycles
         // Return as-is since they already have arms and legs in their animation
-        return asaiSheet;
-    }
-
-    /**
-     * Draw a limb (arm or leg) with outline.
-     */
-    static _drawLimb(ctx, x, y, w, h, fillColor, outlineColor, direction, limbType) {
-        // Outline
-        ctx.fillStyle = outlineColor;
-        ctx.fillRect(Math.floor(x) - 1, Math.floor(y), w + 2, h + 1);
-
-        // Fill
-        ctx.fillStyle = fillColor;
-        ctx.fillRect(Math.floor(x), Math.floor(y), w, h);
-
-        // Small highlight for depth
-        ctx.fillStyle = 'rgba(255,255,255,0.15)';
-        ctx.fillRect(Math.floor(x), Math.floor(y), 1, h - 1);
+        return charSheet;
     }
 
     /**

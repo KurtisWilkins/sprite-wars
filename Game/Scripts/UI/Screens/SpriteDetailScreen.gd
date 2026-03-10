@@ -407,14 +407,23 @@ func _update_stats_display() -> void:
 	# Level.
 	level_label.text = "Lv. %d" % _sprite_instance.level
 
+	# Class.
+	if not _sprite_instance.class_type.is_empty():
+		class_label.text = _sprite_instance.class_type
+	else:
+		class_label.text = ""
+
 	# XP bar.
-	xp_bar.max_value = float(_sprite_instance.xp_to_next_level)
+	var xp_needed: int = SpriteInstance.xp_for_level(_sprite_instance.level + 1)
+	xp_bar.max_value = float(xp_needed) if xp_needed > 0 else 1.0
 	xp_bar.value = float(_sprite_instance.current_xp)
 
-	# Elements.
+	# Elements — look up from race data since element_types lives on SpriteRaceData.
 	for child in element_icons.get_children():
 		child.queue_free()
-	for element in _sprite_instance.element_types:
+	var race_data: Dictionary = SpriteRaces.get_race(_sprite_instance.race_id)
+	var elements: Array = race_data.get("element_types", [])
+	for element in elements:
 		var badge := Label.new()
 		badge.text = "  %s  " % element
 		badge.add_theme_font_size_override("font_size", 16)
@@ -431,20 +440,22 @@ func _update_stats_display() -> void:
 		badge.label_settings = label_settings
 		element_icons.add_child(badge)
 
-	# Stats — we show the base stat. Equipment bonuses would be added if equipment data exists.
+	# Stats — use iv_stats (the actual property) + race base stats + growth.
 	for stat_key in SpriteInstance.STAT_KEYS:
 		if stat_labels.has(stat_key):
 			var base_val: int = 0
-			# Try to compute from race data if available.
-			var iv_bonus: int = _sprite_instance.ivs.get(stat_key, 0)
-			var ev_bonus: int = int(float(_sprite_instance.evs.get(stat_key, 0)) / 4.0)
-			base_val = iv_bonus + ev_bonus + _sprite_instance.level * 2  # Simplified fallback.
-			stat_labels[stat_key].text = str(base_val)
+			var iv_bonus: int = int(_sprite_instance.iv_stats.get(stat_key, 0))
+			var race_base: int = int(race_data.get("base_stats", {}).get(stat_key, 0))
+			var growth: float = float(race_data.get("growth_rates", {}).get(stat_key, 0.0))
+			base_val = int(float(race_base) + growth * float(maxi(_sprite_instance.level - 1, 0))) + iv_bonus
+			if stat_key == "hp":
+				base_val += _sprite_instance.level + 10
+			stat_labels[stat_key].text = str(maxi(1, base_val))
 
 	# Abilities.
 	for i in range(ABILITY_SLOTS_COUNT):
-		if i < _sprite_instance.equipped_ability_ids.size() and _sprite_instance.equipped_ability_ids[i] > 0:
-			ability_slots[i].text = "Ability #%d" % _sprite_instance.equipped_ability_ids[i]
+		if i < _sprite_instance.equipped_abilities.size() and _sprite_instance.equipped_abilities[i] > 0:
+			ability_slots[i].text = "Ability #%d" % _sprite_instance.equipped_abilities[i]
 		else:
 			ability_slots[i].text = "-- Empty --"
 
@@ -498,15 +509,15 @@ func _get_element_color(element_name: String) -> Color:
 		"Fire": return Color(1.0, 0.4, 0.2)
 		"Water": return Color(0.3, 0.6, 1.0)
 		"Earth": return Color(0.6, 0.45, 0.25)
-		"Air": return Color(0.7, 0.9, 1.0)
+		"Wind": return Color(0.7, 0.9, 1.0)
 		"Light": return Color(1.0, 1.0, 0.6)
 		"Dark": return Color(0.5, 0.3, 0.7)
-		"Nature": return Color(0.3, 0.8, 0.3)
+		"Plant": return Color(0.3, 0.8, 0.3)
 		"Electric": return Color(1.0, 0.9, 0.2)
 		"Ice": return Color(0.6, 0.9, 1.0)
 		"Metal": return Color(0.7, 0.7, 0.75)
 		"Poison": return Color(0.7, 0.3, 0.8)
-		"Psychic": return Color(1.0, 0.5, 0.8)
-		"Spirit": return Color(0.6, 0.8, 0.9)
-		"Chaos": return Color(0.9, 0.2, 0.4)
+		"Fairy": return Color(1.0, 0.5, 0.8)
+		"Solar": return Color(0.6, 0.8, 0.9)
+		"Lunar": return Color(0.9, 0.2, 0.4)
 		_: return Color(0.7, 0.7, 0.7)

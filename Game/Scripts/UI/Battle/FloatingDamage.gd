@@ -1,6 +1,9 @@
 ## FloatingDamage -- Spawns floating damage/heal numbers and status text.
 ## Numbers float upward with slight random horizontal offset, scaling up for
 ## critical hits and displaying effectiveness text.
+##
+## Art style: flat cel-shaded -- clean sans-serif font, vibrant saturated colors,
+## uniform 2px black text shadow outlines, no wobble/jitter, no handwriting fonts.
 extends Control
 
 ## -- Constants ----------------------------------------------------------------
@@ -15,13 +18,17 @@ const HEAL_FONT_SIZE: int = 26
 const STATUS_FONT_SIZE: int = 22
 const EFFECTIVENESS_FONT_SIZE: int = 20
 
-const COLOR_DAMAGE := Color(1.0, 0.25, 0.2)
-const COLOR_CRIT := Color(1.0, 0.15, 0.05)
-const COLOR_HEAL := Color(0.2, 1.0, 0.35)
-const COLOR_SUPER_EFFECTIVE := Color(1.0, 0.7, 0.1)
-const COLOR_NOT_EFFECTIVE := Color(0.6, 0.6, 0.7)
-const COLOR_IMMUNE := Color(0.5, 0.5, 0.55)
-const COLOR_MISS := Color(0.65, 0.65, 0.7)
+## Vibrant saturated flat colors for cel-shaded style.
+const COLOR_DAMAGE := Color(1.0, 0.2, 0.15)
+const COLOR_CRIT := Color(1.0, 0.1, 0.0)
+const COLOR_HEAL := Color(0.1, 1.0, 0.3)
+const COLOR_SUPER_EFFECTIVE := Color(1.0, 0.75, 0.0)
+const COLOR_NOT_EFFECTIVE := Color(0.5, 0.5, 0.65)
+const COLOR_IMMUNE := Color(0.45, 0.45, 0.5)
+const COLOR_MISS := Color(0.6, 0.6, 0.65)
+
+## Clean sans-serif font path (system default sans-serif if null).
+const CLEAN_FONT_PATH: String = "res://Assets/Fonts/NotoSans-Bold.tres"
 
 ## -- Initialization -----------------------------------------------------------
 

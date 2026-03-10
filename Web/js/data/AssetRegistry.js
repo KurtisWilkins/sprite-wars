@@ -14,16 +14,16 @@ class AssetRegistry {
   static ELEMENT_ICONS = {
     "Fire":     "../Sprites/ElementIcons/FireElement.png",
     "Water":    "../Sprites/ElementIcons/WaterElement.png",
-    "Nature":   "../Sprites/ElementIcons/GrassElement.png",
+    "Plant":    "../Sprites/ElementIcons/GrassElement.png",
     "Ice":      "../Sprites/ElementIcons/IceElement.png",
-    "Air":      "../Sprites/ElementIcons/WindElement.png",
+    "Wind":     "../Sprites/ElementIcons/WindElement.png",
     "Earth":    "../Sprites/ElementIcons/RockElement.png",
     "Electric": "../Sprites/ElementIcons/LightingElement.png",
     "Dark":     "../Sprites/ElementIcons/DarkElement.png",
     "Light":    "../Sprites/ElementIcons/LightElement.png",
-    "Psychic":  "../Sprites/ElementIcons/FairyElement.png",
-    "Spirit":   "../Sprites/ElementIcons/LunarElement.png",
-    "Chaos":    "../Sprites/ElementIcons/SolarElement.png",
+    "Fairy":    "../Sprites/ElementIcons/FairyElement.png",
+    "Solar":    "../Sprites/ElementIcons/LunarElement.png",
+    "Lunar":    "../Sprites/ElementIcons/SolarElement.png",
     "Metal":    "../Sprites/ElementIcons/RockElement.png",
     "Poison":   "../Sprites/ElementIcons/GrassElement.png",
   };
@@ -34,102 +34,205 @@ class AssetRegistry {
   // 24 races x 3 evolution stages = 72 forms
   // -------------------------------------------------------------------------
   static CHARACTER_SPRITES = {
-    // Race 1 — Emberpaw (Fire / Berserker)
-    1:  "../Sprites/Monsters/Slime.png",
-    2:  "../Sprites/Monsters/Slime.png",
-    3:  "../Sprites/Monsters/Slime.png",
-    // Race 2 — Tidalfin (Water / Guardian)
-    4:  "../Sprites/Monsters/Snake.png",
-    5:  "../Sprites/Monsters/Snake.png",
-    6:  "../Sprites/Monsters/Snake.png",
-    // Race 3 — Thornvine (Nature / Ranger)
-    7:  "../Sprites/Monsters/Bug.png",
-    8:  "../Sprites/Monsters/Bug.png",
-    9:  "../Sprites/Monsters/Bug.png",
-    // Race 4 — Frostfang (Ice / Assassin)
-    10: "../Sprites/Monsters/Bat.png",
-    11: "../Sprites/Monsters/Bat.png",
-    12: "../Sprites/Monsters/Bat.png",
-    // Race 5 — Galecrest (Air / Archer)
-    13: "../Sprites/Monsters/Crow.png",
-    14: "../Sprites/Monsters/Crow.png",
-    15: "../Sprites/Monsters/Crow.png",
-    // Race 6 — Terraclaw (Earth / Knight)
-    16: "../Sprites/Monsters/Gourmet.png",
-    17: "../Sprites/Monsters/Gourmet.png",
-    18: "../Sprites/Monsters/Gourmet.png",
-    // Race 7 — Voltail (Electric / Wizard)
-    19: "../Sprites/Monsters/Bee.png",
-    20: "../Sprites/Monsters/Bee.png",
-    21: "../Sprites/Monsters/Bee.png",
-    // Race 8 — Gloomshade (Dark / Assassin)
-    22: "../Sprites/Monsters/Bat.png",
-    23: "../Sprites/Monsters/Bat.png",
-    24: "../Sprites/Monsters/Bat.png",
-    // Race 9 — Luminos (Light / Cleric)
-    25: "../Sprites/Monsters/Bee.png",
-    26: "../Sprites/Monsters/Bee.png",
-    27: "../Sprites/Monsters/Bee.png",
-    // Race 10 — Glimmerwing (Psychic / Summoner)
-    28: "../Sprites/Monsters/Bee.png",
-    29: "../Sprites/Monsters/Bee.png",
-    30: "../Sprites/Monsters/Bee.png",
-    // Race 11 — Spectrail (Spirit / Wizard)
-    31: "../Sprites/Monsters/Snake.png",
-    32: "../Sprites/Monsters/Snake.png",
-    33: "../Sprites/Monsters/Snake.png",
-    // Race 12 — Ignisurge (Chaos / Berserker)
-    34: "../Sprites/Monsters/Slime.png",
-    35: "../Sprites/Monsters/Slime.png",
-    36: "../Sprites/Monsters/Slime.png",
-    // Race 13 — Ironhusk (Metal / Knight)
-    37: "../Sprites/Monsters/Bug.png",
-    38: "../Sprites/Monsters/Bug.png",
-    39: "../Sprites/Monsters/Bug.png",
-    // Race 14 — Venomire (Poison / Ranger)
-    40: "../Sprites/Monsters/Snake.png",
-    41: "../Sprites/Monsters/Snake.png",
-    42: "../Sprites/Monsters/Snake.png",
-    // Race 15 — Blazeguard (Fire / Guardian)
-    43: "../Sprites/Monsters/Gourmet.png",
-    44: "../Sprites/Monsters/Gourmet.png",
-    45: "../Sprites/Monsters/Gourmet.png",
-    // Race 16 — Aquashot (Water / Archer)
-    46: "../Sprites/Monsters/Crow.png",
-    47: "../Sprites/Monsters/Crow.png",
-    48: "../Sprites/Monsters/Crow.png",
-    // Race 17 — Pyrovolt (Fire+Electric / Wizard)
-    49: "../Sprites/Monsters/Slime.png",
-    50: "../Sprites/Monsters/Slime.png",
-    51: "../Sprites/Monsters/Slime.png",
-    // Race 18 — Venomthorn (Poison+Nature / Spearman)
-    52: "../Sprites/Monsters/Bug.png",
-    53: "../Sprites/Monsters/Bug.png",
-    54: "../Sprites/Monsters/Bug.png",
-    // Race 19 — Shadowflare (Dark+Fire / Spearman)
-    55: "../Sprites/Monsters/Bat.png",
-    56: "../Sprites/Monsters/Bat.png",
-    57: "../Sprites/Monsters/Bat.png",
-    // Race 20 — Crystalmist (Ice+Psychic / Cleric)
-    58: "../Sprites/Monsters/Crow.png",
-    59: "../Sprites/Monsters/Crow.png",
-    60: "../Sprites/Monsters/Crow.png",
-    // Race 21 — Ironstorm (Metal+Air / Berserker)
-    61: "../Sprites/Monsters/Crow.png",
-    62: "../Sprites/Monsters/Crow.png",
-    63: "../Sprites/Monsters/Crow.png",
-    // Race 22 — Spiritbloom (Spirit+Nature / Summoner)
-    64: "../Sprites/Monsters/Bug.png",
-    65: "../Sprites/Monsters/Bug.png",
-    66: "../Sprites/Monsters/Bug.png",
-    // Race 23 — Solarius (Light+Chaos / Guardian) — legendary phoenix
-    67: "../Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png",
-    68: "../Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png",
-    69: "../Sprites/Tiles Sprites/Characters ASAI/Farmer 1.png",
-    // Race 24 — Eclipsar (Dark+Spirit / Summoner) — legendary dragon
-    70: "../Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png",
-    71: "../Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png",
-    72: "../Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png",
+    // Race 1 — Bug Man (Fire / Barbarian)
+    1:  "../Sprites/Characters/FlameSpike_Flynn/FlameSpike_Flynn_Walk_Down.png",
+    2:  "../Sprites/Characters/EmberCrest_Knight_Aldric/EmberCrest_Knight_Aldric_Walk_Down.png",
+    3:  "../Sprites/Characters/CrimsonScarlet_Knight_Hugo/CrimsonScarlet_Knight_Hugo_Walk_Down.png",
+    // Race 2 — Bear Man (Water / Paladin)
+    4:  "../Sprites/Characters/AzureBare_Knight_Hartford/AzureBare_Knight_Hartford_Walk_Down.png",
+    5:  "../Sprites/Characters/AzureGuard_Knight_Beaumont/AzureGuard_Knight_Beaumont_Walk_Down.png",
+    6:  "../Sprites/Characters/AzureShield_Knight_Bexley/AzureShield_Knight_Bexley_Walk_Down.png",
+    // Race 3 — Bird Man (Plant / Javelin)
+    7:  "../Sprites/Characters/GreenVest_Forrest/GreenVest_Forrest_Walk_Down.png",
+    8:  "../Sprites/Characters/WoodlandTunic_Sage/WoodlandTunic_Sage_Walk_Down.png",
+    9:  "../Sprites/Characters/CobaltPlume_Knight_Ashford/CobaltPlume_Knight_Ashford_Walk_Down.png",
+    // Race 4 — Demon (Ice / Assassin)
+    10: "../Sprites/Characters/DarkTeal_Storm/DarkTeal_Storm_Walk_Down.png",
+    11: "../Sprites/Characters/TealShadow_Dusk/TealShadow_Dusk_Walk_Down.png",
+    12: "../Sprites/Characters/ShadowBare_Knight_Callum/ShadowBare_Knight_Callum_Walk_Down.png",
+    // Race 5 — Devil (Wind / Archer)
+    13: "../Sprites/Characters/BlueCap_Marcus/BlueCap_Marcus_Walk_Down.png",
+    14: "../Sprites/Characters/BlueCap_Toby/BlueCap_Toby_Walk_Down.png",
+    15: "../Sprites/Characters/AzurePlume_Knight_Winston/AzurePlume_Knight_Winston_Walk_Down.png",
+    // Race 6 — Cat Man (Earth / Fighter)
+    16: "../Sprites/Characters/IronHelm_Knight_Garrett/IronHelm_Knight_Garrett_Walk_Down.png",
+    17: "../Sprites/Characters/CopperBare_Knight_Desmond/CopperBare_Knight_Desmond_Walk_Down.png",
+    18: "../Sprites/Characters/IronCrest_Knight_Orion/IronCrest_Knight_Orion_Walk_Down.png",
+    // Race 7 — Elf (Electric / Wizard)
+    19: "../Sprites/Characters/SkyTurban_Cyrus/SkyTurban_Cyrus_Walk_Down.png",
+    20: "../Sprites/Characters/GingerSuit_Ashton/GingerSuit_Ashton_Walk_Down.png",
+    21: "../Sprites/Characters/GoldSuit_Sterling/GoldSuit_Sterling_Walk_Down.png",
+    // Race 8 — Ent (Dark / Assassin)
+    22: "../Sprites/Characters/PhantomCloak_Raven/PhantomCloak_Raven_Walk_Down.png",
+    23: "../Sprites/Characters/NightHelm_Ember/NightHelm_Ember_Walk_Down.png",
+    24: "../Sprites/Characters/ShadowBare_Knight_Lennox/ShadowBare_Knight_Lennox_Walk_Down.png",
+    // Race 9 — Fish Man (Light / Cleric)
+    25: "../Sprites/Characters/SunnyHat_Goldie/SunnyHat_Goldie_Walk_Down.png",
+    26: "../Sprites/Characters/GoldenBare_Knight_Matthias/GoldenBare_Knight_Matthias_Walk_Down.png",
+    27: "../Sprites/Characters/GoldenHelm_Knight_Galahad/GoldenHelm_Knight_Galahad_Walk_Down.png",
+    // Race 10 — Ghost (Fairy / Alchemist)
+    28: "../Sprites/Characters/CrimsonPuff_Ruby/CrimsonPuff_Ruby_Walk_Down.png",
+    29: "../Sprites/Characters/GoldenBraid_Celeste/GoldenBraid_Celeste_Walk_Down.png",
+    30: "../Sprites/Characters/RoseFluff_Plum/RoseFluff_Plum_Walk_Down.png",
+    // Race 11 — Golem (Solar / Wizard)
+    31: "../Sprites/Characters/MidnightHair_Violet/MidnightHair_Violet_Walk_Down.png",
+    32: "../Sprites/Characters/CeruleanBare_Knight_Cromwell/CeruleanBare_Knight_Cromwell_Walk_Down.png",
+    33: "../Sprites/Characters/SapphirePlume_Knight_Montague/SapphirePlume_Knight_Montague_Walk_Down.png",
+    // Race 12 — Human (Lunar / Barbarian)
+    34: "../Sprites/Characters/WildSpike_Blaze/WildSpike_Blaze_Walk_Down.png",
+    35: "../Sprites/Characters/EmberHelm_Knight_Darius/EmberHelm_Knight_Darius_Walk_Down.png",
+    36: "../Sprites/Characters/EmberScarlet_Knight_Felix/EmberScarlet_Knight_Felix_Walk_Down.png",
+    // Race 13 — Lizard Man (Metal / Fighter)
+    37: "../Sprites/Characters/IronHelm_Knight_Roland/IronHelm_Knight_Roland_Walk_Down.png",
+    38: "../Sprites/Characters/CopperBare_Knight_Warren/CopperBare_Knight_Warren_Walk_Down.png",
+    39: "../Sprites/Characters/IronCrest_Knight_Tristan/IronCrest_Knight_Tristan_Walk_Down.png",
+    // Race 14 — Minotaur (Poison / Javelin)
+    40: "../Sprites/Characters/MaroonHood_Jasmine/MaroonHood_Jasmine_Walk_Down.png",
+    41: "../Sprites/Characters/DarkRose_Hazel/DarkRose_Hazel_Walk_Down.png",
+    42: "../Sprites/Characters/MaroonPlume_Knight_Drake/MaroonPlume_Knight_Drake_Walk_Down.png",
+    // Race 15 — Monkey Man (Fire / Paladin)
+    43: "../Sprites/Characters/ScarletBare_Knight_Corbin/ScarletBare_Knight_Corbin_Walk_Down.png",
+    44: "../Sprites/Characters/ScarletGuard_Knight_Emeric/ScarletGuard_Knight_Emeric_Walk_Down.png",
+    45: "../Sprites/Characters/ScarletShield_Knight_Beckett/ScarletShield_Knight_Beckett_Walk_Down.png",
+    // Race 16 — Mummy (Water / Archer)
+    46: "../Sprites/Characters/RedCapRound_Porter/RedCapRound_Porter_Walk_Down.png",
+    47: "../Sprites/Characters/AzureHelm_Knight_Edmund/AzureHelm_Knight_Edmund_Walk_Down.png",
+    48: "../Sprites/Characters/AzureCrest_Knight_Mercer/AzureCrest_Knight_Mercer_Walk_Down.png",
+    // Race 17 — Ork (Fire+Electric / Wizard)
+    49: "../Sprites/Characters/CrimsonHat_Miles/CrimsonHat_Miles_Walk_Down.png",
+    50: "../Sprites/Characters/EmberHelm_Knight_Silas/EmberHelm_Knight_Silas_Walk_Down.png",
+    51: "../Sprites/Characters/EmberCrest_Knight_Dorian/EmberCrest_Knight_Dorian_Walk_Down.png",
+    // Race 18 — Rat Man (Poison+Plant / Spearman)
+    52: "../Sprites/Characters/RedWrap_Jasper/RedWrap_Jasper_Walk_Down.png",
+    53: "../Sprites/Characters/MaroonPlume_Knight_Rowan/MaroonPlume_Knight_Rowan_Walk_Down.png",
+    54: "../Sprites/Characters/MaroonScarlet_Knight_Ignatius/MaroonScarlet_Knight_Ignatius_Walk_Down.png",
+    // Race 19 — Robot (Dark+Fire / Spearman)
+    55: "../Sprites/Characters/RedBand_Kai/RedBand_Kai_Walk_Down.png",
+    56: "../Sprites/Characters/ScarletIron_Knight_Barrett/ScarletIron_Knight_Barrett_Walk_Down.png",
+    57: "../Sprites/Characters/ScarletCrest_Knight_Magnus/ScarletCrest_Knight_Magnus_Walk_Down.png",
+    // Race 20 — Shark Man (Ice+Fairy / Cleric)
+    58: "../Sprites/Characters/PeachBonnet_Pippin/PeachBonnet_Pippin_Walk_Down.png",
+    59: "../Sprites/Characters/CeruleanBare_Knight_Lowell/CeruleanBare_Knight_Lowell_Walk_Down.png",
+    60: "../Sprites/Characters/RadiantPlume_Knight_Cassander/RadiantPlume_Knight_Cassander_Walk_Down.png",
+    // Race 21 — Skeleton (Metal+Wind / Barbarian)
+    61: "../Sprites/Characters/AuburnBob_Hector/AuburnBob_Hector_Walk_Down.png",
+    62: "../Sprites/Characters/CobaltHelm_Knight_Harding/CobaltHelm_Knight_Harding_Walk_Down.png",
+    63: "../Sprites/Characters/CobaltCrest_Knight_Pembroke/CobaltCrest_Knight_Pembroke_Walk_Down.png",
+    // Race 22 — Turtle Man (Solar+Plant / Alchemist)
+    64: "../Sprites/Characters/CurlyAfro_Maggie/CurlyAfro_Maggie_Walk_Down.png",
+    65: "../Sprites/Characters/DarkLocks_Kira/DarkLocks_Kira_Walk_Down.png",
+    66: "../Sprites/Characters/GoldenPony_Rosie/GoldenPony_Rosie_Walk_Down.png",
+    // Race 23 — Wolf Man (Light+Lunar / Paladin) — legendary phoenix
+    67: "../Sprites/Characters/GoldenArmor_Aurum/GoldenArmor_Aurum_Walk_Down.png",
+    68: "../Sprites/Characters/GoldenGuard_Knight_Montgomery/GoldenGuard_Knight_Montgomery_Walk_Down.png",
+    69: "../Sprites/Characters/GoldenShield_Knight_Alistair/GoldenShield_Knight_Alistair_Walk_Down.png",
+    // Race 24 — Zombie (Dark+Solar / Alchemist) — legendary dragon
+    70: "../Sprites/Characters/SolarBare_Knight_Leonidas/SolarBare_Knight_Leonidas_Walk_Down.png",
+    71: "../Sprites/Characters/SolarHelm_Knight_Valerian/SolarHelm_Knight_Valerian_Walk_Down.png",
+    72: "../Sprites/Characters/RadiantCrest_Knight_Theodoric/RadiantCrest_Knight_Theodoric_Walk_Down.png",
+  };
+
+  // -------------------------------------------------------------------------
+  // Character sprite directory names keyed by form_id (1-72)
+  // Used to resolve attack, death, and directional animation strips
+  // -------------------------------------------------------------------------
+  static CHARACTER_SPRITE_DIRS = {
+    // Race 1 — Bug Man (Fire / Barbarian)
+    1:  "FlameSpike_Flynn",
+    2:  "EmberCrest_Knight_Aldric",
+    3:  "CrimsonScarlet_Knight_Hugo",
+    // Race 2 — Bear Man (Water / Paladin)
+    4:  "AzureBare_Knight_Hartford",
+    5:  "AzureGuard_Knight_Beaumont",
+    6:  "AzureShield_Knight_Bexley",
+    // Race 3 — Bird Man (Plant / Javelin)
+    7:  "GreenVest_Forrest",
+    8:  "WoodlandTunic_Sage",
+    9:  "CobaltPlume_Knight_Ashford",
+    // Race 4 — Demon (Ice / Assassin)
+    10: "DarkTeal_Storm",
+    11: "TealShadow_Dusk",
+    12: "ShadowBare_Knight_Callum",
+    // Race 5 — Devil (Wind / Archer)
+    13: "BlueCap_Marcus",
+    14: "BlueCap_Toby",
+    15: "AzurePlume_Knight_Winston",
+    // Race 6 — Cat Man (Earth / Fighter)
+    16: "IronHelm_Knight_Garrett",
+    17: "CopperBare_Knight_Desmond",
+    18: "IronCrest_Knight_Orion",
+    // Race 7 — Elf (Electric / Wizard)
+    19: "SkyTurban_Cyrus",
+    20: "GingerSuit_Ashton",
+    21: "GoldSuit_Sterling",
+    // Race 8 — Ent (Dark / Assassin)
+    22: "PhantomCloak_Raven",
+    23: "NightHelm_Ember",
+    24: "ShadowBare_Knight_Lennox",
+    // Race 9 — Fish Man (Light / Cleric)
+    25: "SunnyHat_Goldie",
+    26: "GoldenBare_Knight_Matthias",
+    27: "GoldenHelm_Knight_Galahad",
+    // Race 10 — Ghost (Fairy / Alchemist)
+    28: "CrimsonPuff_Ruby",
+    29: "GoldenBraid_Celeste",
+    30: "RoseFluff_Plum",
+    // Race 11 — Golem (Solar / Wizard)
+    31: "MidnightHair_Violet",
+    32: "CeruleanBare_Knight_Cromwell",
+    33: "SapphirePlume_Knight_Montague",
+    // Race 12 — Human (Lunar / Barbarian)
+    34: "WildSpike_Blaze",
+    35: "EmberHelm_Knight_Darius",
+    36: "EmberScarlet_Knight_Felix",
+    // Race 13 — Lizard Man (Metal / Fighter)
+    37: "IronHelm_Knight_Roland",
+    38: "CopperBare_Knight_Warren",
+    39: "IronCrest_Knight_Tristan",
+    // Race 14 — Minotaur (Poison / Javelin)
+    40: "MaroonHood_Jasmine",
+    41: "DarkRose_Hazel",
+    42: "MaroonPlume_Knight_Drake",
+    // Race 15 — Monkey Man (Fire / Paladin)
+    43: "ScarletBare_Knight_Corbin",
+    44: "ScarletGuard_Knight_Emeric",
+    45: "ScarletShield_Knight_Beckett",
+    // Race 16 — Mummy (Water / Archer)
+    46: "RedCapRound_Porter",
+    47: "AzureHelm_Knight_Edmund",
+    48: "AzureCrest_Knight_Mercer",
+    // Race 17 — Ork (Fire+Electric / Wizard)
+    49: "CrimsonHat_Miles",
+    50: "EmberHelm_Knight_Silas",
+    51: "EmberCrest_Knight_Dorian",
+    // Race 18 — Rat Man (Poison+Plant / Spearman)
+    52: "RedWrap_Jasper",
+    53: "MaroonPlume_Knight_Rowan",
+    54: "MaroonScarlet_Knight_Ignatius",
+    // Race 19 — Robot (Dark+Fire / Spearman)
+    55: "RedBand_Kai",
+    56: "ScarletIron_Knight_Barrett",
+    57: "ScarletCrest_Knight_Magnus",
+    // Race 20 — Shark Man (Ice+Fairy / Cleric)
+    58: "PeachBonnet_Pippin",
+    59: "CeruleanBare_Knight_Lowell",
+    60: "RadiantPlume_Knight_Cassander",
+    // Race 21 — Skeleton (Metal+Wind / Barbarian)
+    61: "AuburnBob_Hector",
+    62: "CobaltHelm_Knight_Harding",
+    63: "CobaltCrest_Knight_Pembroke",
+    // Race 22 — Turtle Man (Solar+Plant / Alchemist)
+    64: "CurlyAfro_Maggie",
+    65: "DarkLocks_Kira",
+    66: "GoldenPony_Rosie",
+    // Race 23 — Wolf Man (Light+Lunar / Paladin) — legendary phoenix
+    67: "GoldenArmor_Aurum",
+    68: "GoldenGuard_Knight_Montgomery",
+    69: "GoldenShield_Knight_Alistair",
+    // Race 24 — Zombie (Dark+Solar / Alchemist) — legendary dragon
+    70: "SolarBare_Knight_Leonidas",
+    71: "SolarHelm_Knight_Valerian",
+    72: "RadiantCrest_Knight_Theodoric",
   };
 
   // -------------------------------------------------------------------------
@@ -160,7 +263,7 @@ class AssetRegistry {
     20:  "../Sprites/AbilityIcons/icons 1/sk1_chain_A.png",
     21:  "../Sprites/AbilityIcons/icons 1/sk1_empower_A.png",
     22:  "../Sprites/AbilityIcons/icons 1/sk1_dash_A.png",
-    // --- Nature / Plant abilities (IDs 23-33) -> Druid ---
+    // --- Plant abilities (IDs 23-33) -> Druid ---
     23:  "../Sprites/AbilityIcons/Druid/PNG/Icon1.png",
     24:  "../Sprites/AbilityIcons/Druid/PNG/Icon2.png",
     25:  "../Sprites/AbilityIcons/Druid/PNG/Icon3.png",
@@ -184,7 +287,7 @@ class AssetRegistry {
     42:  "../Sprites/AbilityIcons/Cryomancer/PNG/Icon9.png",
     43:  "../Sprites/AbilityIcons/Cryomancer/PNG/Icon10.png",
     44:  "../Sprites/AbilityIcons/Cryomancer/PNG/Icon11.png",
-    // --- Air / Wind abilities (IDs 45-55) -> Aeromancer ---
+    // --- Wind abilities (IDs 45-55) -> Aeromancer ---
     45:  "../Sprites/AbilityIcons/Aeromancer/PNG/Icon1Aeromancer.png",
     46:  "../Sprites/AbilityIcons/Aeromancer/PNG/Icon10Aeromancer.png",
     47:  "../Sprites/AbilityIcons/Aeromancer/PNG/Icon11Aeromancer.png",
@@ -244,7 +347,7 @@ class AssetRegistry {
     97:  "../Sprites/AbilityIcons/Paladin/PNG/Icon9.png",
     98:  "../Sprites/AbilityIcons/Paladin/PNG/Icon10.png",
     99:  "../Sprites/AbilityIcons/Paladin/PNG/Icon11.png",
-    // --- Psychic / Fairy abilities (IDs 100-110) -> Fairy skills ---
+    // --- Fairy abilities (IDs 100-110) -> Fairy skills ---
     100: "../Sprites/AbilityIcons/Fairy skills/PNG/Icon1.png",
     101: "../Sprites/AbilityIcons/Fairy skills/PNG/Icon2.png",
     102: "../Sprites/AbilityIcons/Fairy skills/PNG/Icon3.png",
@@ -256,7 +359,7 @@ class AssetRegistry {
     108: "../Sprites/AbilityIcons/Fairy skills/PNG/Icon9.png",
     109: "../Sprites/AbilityIcons/Fairy skills/PNG/Icon10.png",
     110: "../Sprites/AbilityIcons/Fairy skills/PNG/Icon11.png",
-    // --- Spirit / Lunar abilities (IDs 111-121) -> Curse ---
+    // --- Lunar abilities (IDs 111-121) -> Curse ---
     111: "../Sprites/AbilityIcons/Curse/PNG/Icon1.png",
     112: "../Sprites/AbilityIcons/Curse/PNG/Icon2.png",
     113: "../Sprites/AbilityIcons/Curse/PNG/Icon3.png",
@@ -268,7 +371,7 @@ class AssetRegistry {
     119: "../Sprites/AbilityIcons/Curse/PNG/Icon9.png",
     120: "../Sprites/AbilityIcons/Curse/PNG/Icon10.png",
     121: "../Sprites/AbilityIcons/Curse/PNG/Icon11.png",
-    // --- Chaos / Solar abilities (IDs 122-132) -> Demon_skills ---
+    // --- Solar abilities (IDs 122-132) -> Demon_skills ---
     122: "../Sprites/AbilityIcons/Demon_skills/PNG/Icon1.png",
     123: "../Sprites/AbilityIcons/Demon_skills/PNG/Icon2.png",
     124: "../Sprites/AbilityIcons/Demon_skills/PNG/Icon3.png",
@@ -322,21 +425,21 @@ class AssetRegistry {
     "Fire_alt":     "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 17",
     "Water":        "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 18",
     "Water_alt":    "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 19",
-    "Nature":       "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 20",
-    "Nature_alt":   "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 21",
+    "Plant":        "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 20",
+    "Plant_alt":    "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 21",
     "Ice":          "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 22",
     "Ice_alt":      "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 23",
-    "Air":          "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 24",
-    "Air_alt":      "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 25",
+    "Wind":         "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 24",
+    "Wind_alt":     "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 25",
     "Earth":        "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 26",
     "Earth_alt":    "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 27",
     "Electric":     "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 28",
     "Electric_alt": "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 29",
     "Dark":         "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 30",
     "Light":        "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 31",
-    "Psychic":      "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 32",
-    "Spirit":       "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 33",
-    "Chaos":        "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 34",
+    "Fairy":        "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 32",
+    "Solar":        "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 33",
+    "Lunar":        "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 34",
     "Metal":        "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 35",
     "Poison":       "../Sprites/AttackEffects/RPG Effect All/Effect and FX/Effects 36",
   };
@@ -363,16 +466,16 @@ class AssetRegistry {
     // Weapon icons by element theme
     "weapon_fire":     "../Sprites/Weapons/Fire Theme.png",
     "weapon_water":    "../Sprites/Weapons/Water Theme.png",
-    "weapon_nature":   "../Sprites/Weapons/Forest Theme.png",
+    "weapon_plant":    "../Sprites/Weapons/Forest Theme.png",
     "weapon_ice":      "../Sprites/Weapons/Water Theme.png",
-    "weapon_air":      "../Sprites/Weapons/Fairy Theme.png",
+    "weapon_wind":     "../Sprites/Weapons/Fairy Theme.png",
     "weapon_earth":    "../Sprites/Weapons/Rock Theme.png",
     "weapon_electric": "../Sprites/Weapons/Electric Theme.png",
     "weapon_dark":     "../Sprites/Weapons/Demon Theme.png",
     "weapon_light":    "../Sprites/Weapons/Golden Angel Theme.png",
-    "weapon_psychic":  "../Sprites/Weapons/Fairy Theme.png",
-    "weapon_spirit":   "../Sprites/Weapons/Lunar Theme.png",
-    "weapon_chaos":    "../Sprites/Weapons/Demon Theme.png",
+    "weapon_fairy":    "../Sprites/Weapons/Fairy Theme.png",
+    "weapon_solar":    "../Sprites/Weapons/Lunar Theme.png",
+    "weapon_lunar":    "../Sprites/Weapons/Demon Theme.png",
     "weapon_metal":    "../Sprites/Weapons/English Knight Theme.png",
     "weapon_poison":   "../Sprites/Weapons/Bug Theme.png",
     "weapon_default":  "../Sprites/Weapons/Peasant 1 Theme.png",
@@ -527,24 +630,24 @@ class AssetRegistry {
   // Tileset paths by theme
   // -------------------------------------------------------------------------
   static TILESETS = {
-    "cave":                     "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Caverns/Sprites/RA_Cavern.png",
-    "cave_folder":              "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Caverns",
-    "town":                     "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Village/Sprites/RA_Village.png",
-    "town_folder":              "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Village",
-    "overworld":                "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png",
-    "overworld_folder":         "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld",
-    "home":                     "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Interior/Sprites/RA_Interior.png",
-    "home_folder":              "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Interior",
-    "fantasy_dreamland":        "../Sprites/Tiles Sprites/Fantasy Dreamland",
-    "fantasy_dreamland_reborn": "../Sprites/Tiles Sprites/Fantasy Dreamland Reborn",
-    "rogue_adventure":          "../Sprites/Tiles Sprites/Rogue Adventure",
-    "farm_game_world":          "../Sprites/Tiles Sprites/Farm Game World",
-    "buildings":                "../Sprites/Tiles Sprites/Buildings",
-    "characters_asai":          "../Sprites/Tiles Sprites/Characters ASAI",
-    "extras":                   "../Sprites/Tiles Sprites/Extras",
-    "flowers":                  "../Sprites/Tiles Sprites/Flowers",
-    "icons":                    "../Sprites/Tiles Sprites/Icons",
-    "prefab_tiles":             "../Sprites/Tiles Sprites/Prefab Tiles",
+    "cave":                     "../Sprites/Tiles/RogueAdventure/Cavern/RA_Cavern.png",
+    "cave_folder":              "../Sprites/Tiles/RogueAdventure/Cavern",
+    "town":                     "../Sprites/Tiles/RogueAdventure/Village/RA_Village.png",
+    "town_folder":              "../Sprites/Tiles/RogueAdventure/Village",
+    "overworld":                "../Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png",
+    "overworld_folder":         "../Sprites/Tiles/RogueAdventure/Overworld",
+    "home":                     "../Sprites/Tiles/RogueAdventure/Interior/RA_Interior.png",
+    "home_folder":              "../Sprites/Tiles/RogueAdventure/Interior",
+    "fantasy_dreamland":        "../Sprites/Tiles/FantasyDreamland",
+    "fantasy_dreamland_reborn": "../Sprites/Tiles/FantasyDreamlandReborn",
+    "rogue_adventure":          "../Sprites/Tiles/RogueAdventure",
+    "farm_game_world":          "../Sprites/Tiles/FarmGameWorld",
+    "buildings":                "../Sprites/Tiles/Buildings",
+    "characters":               "../Sprites/Characters",
+    "extras":                   "../Sprites/Tiles/Extras",
+    "flowers":                  "../Sprites/Tiles/Flowers",
+    "icons":                    "../Sprites/Tiles/Icons",
+    "prefab_tiles":             "../Sprites/Tiles/PrefabTiles",
   };
 
   // -------------------------------------------------------------------------
@@ -618,30 +721,30 @@ class AssetRegistry {
   // Maps race_id -> { name, element(s), class }
   // -------------------------------------------------------------------------
   static RACE_META = {
-    1:  { name: "Emberpaw",     elements: ["Fire"],               class: "Berserker" },
-    2:  { name: "Tidalfin",     elements: ["Water"],              class: "Guardian" },
-    3:  { name: "Thornvine",    elements: ["Nature"],             class: "Ranger" },
-    4:  { name: "Frostfang",    elements: ["Ice"],                class: "Assassin" },
-    5:  { name: "Galecrest",    elements: ["Air"],                class: "Archer" },
-    6:  { name: "Terraclaw",    elements: ["Earth"],              class: "Knight" },
-    7:  { name: "Voltail",      elements: ["Electric"],           class: "Wizard" },
-    8:  { name: "Gloomshade",   elements: ["Dark"],               class: "Assassin" },
-    9:  { name: "Luminos",      elements: ["Light"],              class: "Cleric" },
-    10: { name: "Glimmerwing",  elements: ["Psychic"],            class: "Summoner" },
-    11: { name: "Spectrail",    elements: ["Spirit"],             class: "Wizard" },
-    12: { name: "Ignisurge",    elements: ["Chaos"],              class: "Berserker" },
-    13: { name: "Ironhusk",     elements: ["Metal"],              class: "Knight" },
-    14: { name: "Venomire",     elements: ["Poison"],             class: "Ranger" },
-    15: { name: "Blazeguard",   elements: ["Fire"],               class: "Guardian" },
-    16: { name: "Aquashot",     elements: ["Water"],              class: "Archer" },
-    17: { name: "Pyrovolt",     elements: ["Fire", "Electric"],   class: "Wizard" },
-    18: { name: "Venomthorn",   elements: ["Poison", "Nature"],   class: "Spearman" },
-    19: { name: "Shadowflare",  elements: ["Dark", "Fire"],       class: "Spearman" },
-    20: { name: "Crystalmist",  elements: ["Ice", "Psychic"],     class: "Cleric" },
-    21: { name: "Ironstorm",    elements: ["Metal", "Air"],       class: "Berserker" },
-    22: { name: "Spiritbloom",  elements: ["Spirit", "Nature"],   class: "Summoner" },
-    23: { name: "Solarius",     elements: ["Light", "Chaos"],     class: "Guardian" },
-    24: { name: "Eclipsar",     elements: ["Dark", "Spirit"],     class: "Summoner" },
+    1:  { name: "Bug Man",      elements: ["Fire"],               class: "Barbarian" },
+    2:  { name: "Bear Man",     elements: ["Water"],              class: "Paladin" },
+    3:  { name: "Bird Man",     elements: ["Plant"],              class: "Javelin" },
+    4:  { name: "Demon",        elements: ["Ice"],                class: "Assassin" },
+    5:  { name: "Devil",        elements: ["Wind"],               class: "Archer" },
+    6:  { name: "Cat Man",      elements: ["Earth"],              class: "Fighter" },
+    7:  { name: "Elf",          elements: ["Electric"],           class: "Wizard" },
+    8:  { name: "Ent",          elements: ["Dark"],               class: "Assassin" },
+    9:  { name: "Fish Man",     elements: ["Light"],              class: "Cleric" },
+    10: { name: "Ghost",        elements: ["Fairy"],              class: "Alchemist" },
+    11: { name: "Golem",        elements: ["Solar"],              class: "Wizard" },
+    12: { name: "Human",        elements: ["Lunar"],              class: "Barbarian" },
+    13: { name: "Lizard Man",   elements: ["Metal"],              class: "Fighter" },
+    14: { name: "Minotaur",     elements: ["Poison"],             class: "Javelin" },
+    15: { name: "Monkey Man",   elements: ["Fire"],               class: "Paladin" },
+    16: { name: "Mummy",        elements: ["Water"],              class: "Archer" },
+    17: { name: "Ork",          elements: ["Fire", "Electric"],   class: "Wizard" },
+    18: { name: "Rat Man",      elements: ["Poison", "Plant"],    class: "Spearman" },
+    19: { name: "Robot",        elements: ["Dark", "Fire"],       class: "Spearman" },
+    20: { name: "Shark Man",    elements: ["Ice", "Fairy"],       class: "Cleric" },
+    21: { name: "Skeleton",     elements: ["Metal", "Wind"],      class: "Barbarian" },
+    22: { name: "Turtle Man",   elements: ["Solar", "Plant"],     class: "Alchemist" },
+    23: { name: "Wolf Man",     elements: ["Light", "Lunar"],     class: "Paladin" },
+    24: { name: "Zombie",       elements: ["Dark", "Solar"],      class: "Alchemist" },
   };
 
 
@@ -665,6 +768,16 @@ class AssetRegistry {
    */
   getCharacterSprite(formId) {
     return AssetRegistry.CHARACTER_SPRITES[formId] ?? AssetRegistry.FALLBACK_SPRITE;
+  }
+
+  /**
+   * Returns the character directory name for a specific form_id (1-72).
+   * Used to resolve attack, death, and directional animation strips.
+   * @param {number} formId
+   * @returns {string|null}
+   */
+  getCharacterSpriteDir(formId) {
+    return AssetRegistry.CHARACTER_SPRITE_DIRS[formId] || null;
   }
 
   /**
@@ -799,7 +912,7 @@ class AssetRegistry {
    * @returns {string}
    */
   getTileset(theme) {
-    return AssetRegistry.TILESETS[theme] ?? "../Sprites/Tiles Sprites/Rogue Adventure/Tilesets/Overworld/Sprites/RA_Overworld.png";
+    return AssetRegistry.TILESETS[theme] ?? "../Sprites/Tiles/RogueAdventure/Overworld/RA_Overworld.png";
   }
 
   /**

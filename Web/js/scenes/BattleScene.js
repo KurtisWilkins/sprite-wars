@@ -1,6 +1,6 @@
 /**
  * BattleScene -- Core 5v5 grid-based battle scene for Sprite Wars.
- * Renders a 6x8 BattleGrid on Canvas with units, health bars, status icons,
+ * Renders a 9x18 BattleGrid on Canvas with units, health bars, status icons,
  * floating damage numbers, turn order bar, ability selection, and battle log.
  *
  * Uses Canvas for the battlefield + DOM overlays for ability bar, turn order,
@@ -21,33 +21,32 @@ import { BattleAI } from '../systems/battle/BattleAI.js';
 import { StatusEffectSystem } from '../systems/battle/StatusEffectSystem.js';
 import { AbilityExecutor } from '../systems/battle/AbilityExecutor.js';
 import { AssetRegistry } from '../data/AssetRegistry.js';
+import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
+import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
+import { ABILITIES } from '../data/AbilityData.js';
+import { rollBattleLoot, formatLootForDisplay } from '../systems/battle/BattleLootSystem.js';
+import { getClassSpecial } from '../data/ClassSpecialAnimations.js';
 
 // ── Layout Constants ────────────────────────────────────────────────────────
 const GRID_PADDING_X = 24;
 const GRID_PADDING_TOP = 72;
 const CELL_SIZE = 48;
 const CELL_GAP = 4;
-const HP_BAR_HEIGHT = 5;
-const HP_BAR_WIDTH = 40;
-const SPRITE_SIZE = 36;
-const STATUS_ICON_SIZE = 12;
 const TURN_ORDER_HEIGHT = 52;
-const ABILITY_BAR_HEIGHT = 80;
 const BATTLE_LOG_MAX_LINES = 40;
 
 // ── Colors ──────────────────────────────────────────────────────────────────
 const COLOR_GRID_PLAYER = 'rgba(50, 120, 200, 0.15)';
 const COLOR_GRID_ENEMY = 'rgba(200, 50, 50, 0.15)';
-const COLOR_GRID_LINES = 'rgba(255,255,255,0.08)';
+const COLOR_GRID_LINES = '#222222';  // Clean black outlines
 const COLOR_CELL_HIGHLIGHT = 'rgba(255, 255, 100, 0.35)';
 const COLOR_CELL_TARGET_VALID = 'rgba(0, 255, 100, 0.25)';
 const COLOR_CELL_TARGET_HOVER = 'rgba(0, 255, 100, 0.50)';
-const COLOR_HP_BG = '#1a1a2e';
 const COLOR_HP_GREEN = '#33cc66';
 const COLOR_HP_YELLOW = '#cccc33';
 const COLOR_HP_RED = '#cc3333';
-const COLOR_BG_DEFAULT = '#0d0d1e';
-const COLOR_BG_BOSS = '#1a0a0a';
+const COLOR_BG_DEFAULT = '#2a4a3a';  // Medieval fantasy flat forest green
+const COLOR_BG_BOSS = '#3a1a1a';    // Dark crimson flat cel-shaded
 
 // ── Battle Phases ───────────────────────────────────────────────────────────
 const PHASE_INTRO = 'intro';
@@ -57,13 +56,90 @@ const PHASE_PLAYER_SELECT_TARGET = 'player_select_target';
 const PHASE_ANIMATING = 'animating';
 const PHASE_BATTLE_END = 'battle_end';
 
-// ── Element Color Map ───────────────────────────────────────────────────────
+// ── Element Color Map (canonical UnitRenderer palette + local overrides) ─────
 const ELEMENT_COLORS = {
-    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
-    Electric: '#ffcc00', Ice: '#99ddff', Nature: '#33aa33', Poison: '#aa33aa',
-    Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Psychic: '#ff66aa',
-    Dragon: '#6633cc', Spirit: '#ccccff',
+    ...UR_ELEMENT_COLORS,
+    // Legacy aliases used in some ability/unit data
+    Wind: '#88ccaa',
+    Dragon: '#6633cc',
 };
+
+// ── Ability wrapper: converts raw AbilityData (snake_case) to battle format ──
+function _wrapAbility(raw) {
+    return {
+        abilityId: raw.ability_id,
+        abilityName: raw.ability_name,
+        elementType: raw.element_type,
+        targetingType: raw.targeting_type,
+        basePower: raw.base_power,
+        accuracy: raw.accuracy,
+        ppMax: raw.pp_max,
+        cooldownTurns: raw.cooldown_turns,
+        priorityModifier: raw.priority_modifier || 0,
+        statusEffectIds: raw.status_effect_ids || [],
+        statusApplyChance: raw.status_apply_chance || 0,
+        isPhysical: raw.is_physical,
+        critRateBonus: raw.crit_rate_bonus || 0,
+        description: raw.description || '',
+        isDamaging() { return this.basePower > 0; },
+        getOffenseStatKey() { return this.isPhysical ? 'atk' : 'sp_atk'; },
+        getDefenseStatKey() { return this.isPhysical ? 'def' : 'sp_def'; },
+        hasStatusEffects() { return this.statusEffectIds.length > 0; },
+    };
+}
+
+/**
+ * Resolve abilities for a sprite, using the canonical ABILITIES database.
+ * Player sprites have simplified ability objects (abilityId, name, power).
+ * Enemies may have no abilities — assign from the race/level.
+ */
+function _resolveAbilities(raw, raceData, stageData, level) {
+    const wrapped = [];
+
+    // 1. Try to use the sprite's own ability list (player sprites)
+    if (raw.abilities && raw.abilities.length > 0) {
+        for (const ab of raw.abilities) {
+            const id = ab.abilityId || ab.ability_id;
+            const canonical = ABILITIES[id];
+            if (canonical) {
+                wrapped.push(_wrapAbility(canonical));
+            }
+        }
+    }
+
+    // 2. If we found abilities from the sprite data, we're done
+    if (wrapped.length > 0) return wrapped;
+
+    // 3. Fallback for enemies with no abilities: assign based on element + level
+    const elemType = (raceData.element_types && raceData.element_types[0]) || 'Fire';
+
+    // Find abilities matching this element, sorted by base_power ascending
+    const matching = [];
+    for (const id in ABILITIES) {
+        const ab = ABILITIES[id];
+        if (ab.element_type === elemType || ab.element_type === 'None') {
+            matching.push(ab);
+        }
+    }
+    matching.sort((a, b) => a.base_power - b.base_power);
+
+    // Pick up to 2 abilities appropriate for level
+    const levelAppropriate = matching.filter(ab => ab.base_power <= 30 + level * 3);
+    const picks = levelAppropriate.length > 0 ? levelAppropriate : matching.slice(0, 2);
+
+    // Take the last (strongest) 2 that are level-appropriate
+    const selected = picks.slice(-2);
+    for (const ab of selected) {
+        wrapped.push(_wrapAbility(ab));
+    }
+
+    // Always have at least Tackle (ability 155) as a fallback
+    if (wrapped.length === 0 && ABILITIES[155]) {
+        wrapped.push(_wrapAbility(ABILITIES[155]));
+    }
+
+    return wrapped;
+}
 
 export class BattleScene extends Scene {
     constructor(engine) {
@@ -131,6 +207,13 @@ export class BattleScene extends Scene {
 
         // ── Pending turn advance delay ────────────────────────────────
         this._turnAdvanceDelay = 0;
+
+        // ── Time tracker for UnitRenderer animations ──────────────────
+        this._time = 0;
+
+        // ── Unit inspection ───────────────────────────────────────────
+        this._inspectedUnit = null;
+        this._inspectPanelEl = null;
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -148,12 +231,16 @@ export class BattleScene extends Scene {
         this._bgColor = this._isBoss ? COLOR_BG_BOSS : COLOR_BG_DEFAULT;
         this._bgImage = null;
 
+        // Store return data so we can pass spawn position back to overworld
+        this._returnData = data.returnData || null;
+
         // Reset state
         this._phase = PHASE_INTRO;
         this._introTimer = 0;
         this._floatingTexts = [];
         this._battleLog = [];
         this._battleResult = null;
+        this._battleRewards = null;
         this._resultTimer = 0;
         this._selectedAbilityIndex = -1;
         this._selectedAbility = null;
@@ -165,6 +252,7 @@ export class BattleScene extends Scene {
         this._autoBattle = false;
         this._turnAdvanceDelay = 0;
         this._unitRenderCache.clear();
+        this._inspectedUnit = null;
 
         // Calculate grid layout
         const designW = this.engine.designWidth;
@@ -178,16 +266,9 @@ export class BattleScene extends Scene {
                 .catch(() => {});
         }
 
-        // Preload fallback character sheets (Characters ASAI: 128x128, 4x4, 32x32 frames)
-        this._fallbackPlayerSheet = null;
-        this._fallbackEnemySheet = null;
-        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png')
-            .then(img => { this._fallbackPlayerSheet = img; }).catch(() => {});
-        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/Skeleton1.png')
-            .then(img => { this._fallbackEnemySheet = img; }).catch(() => {});
-
-        // Preload sprite images for all units before battle renders
-        this._preloadUnitSprites([...this._playerTeamData, ...this._enemyTeamData]);
+        // Preload unit assets via UnitRenderer for rich composite rendering
+        UnitRenderer.preloadTeam(this.engine, this._playerTeamData).catch(() => {});
+        UnitRenderer.preloadTeam(this.engine, this._enemyTeamData).catch(() => {});
 
         // Build DOM overlays
         this._createDOMOverlays();
@@ -220,6 +301,8 @@ export class BattleScene extends Scene {
         this._turnOrderBarEl = null;
         this._battleLogEl = null;
         this._endScreenEl = null;
+        this._inspectPanelEl = null;
+        this._inspectedUnit = null;
 
         this._unitRenderCache.clear();
 
@@ -231,6 +314,8 @@ export class BattleScene extends Scene {
     // ═══════════════════════════════════════════════════════════════════
 
     update(dt) {
+        this._time += dt;
+
         switch (this._phase) {
             case PHASE_INTRO:
                 this._updateIntro(dt);
@@ -254,8 +339,8 @@ export class BattleScene extends Scene {
         // Update floating texts
         this._updateFloatingTexts(dt);
 
-        // Update turn advance delay
-        if (this._turnAdvanceDelay > 0) {
+        // Update turn advance delay (skip if battle already ended)
+        if (this._turnAdvanceDelay > 0 && this._phase !== PHASE_BATTLE_END) {
             this._turnAdvanceDelay -= dt;
             if (this._turnAdvanceDelay <= 0) {
                 this._turnAdvanceDelay = 0;
@@ -277,6 +362,17 @@ export class BattleScene extends Scene {
     }
 
     _updateTurns(dt) {
+        // Detect player turn: when BattleManager chains AI turns synchronously,
+        // awaitingPlayerInput becomes true but _advanceTurn() has already returned.
+        // Catch it here and show the ability bar.
+        if (this._phase === PHASE_TURNS &&
+            this._battleManager.awaitingPlayerInput &&
+            !this._autoBattle &&
+            this._turnAdvanceDelay <= 0) {
+            this._phase = PHASE_PLAYER_SELECT_ABILITY;
+            this._showAbilityBar();
+        }
+
         // Refresh turn order display
         this._refreshTurnOrderUI();
     }
@@ -340,6 +436,11 @@ export class BattleScene extends Scene {
         // Draw units
         this._renderUnits(ctx, renderer);
 
+        // Draw ability animation effects (screen flash, impact flash)
+        if (this._currentAnim && this._currentAnim.type === 'ability_use') {
+            this._renderAbilityEffect(ctx, renderer);
+        }
+
         // Draw floating texts
         this._renderFloatingTexts(ctx, renderer);
 
@@ -389,17 +490,17 @@ export class BattleScene extends Scene {
                     }
                 }
 
-                // Cell border
+                // Cell border — clean black outlines, uniform 2px
                 ctx.strokeStyle = COLOR_GRID_LINES;
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 2;
                 ctx.strokeRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
             }
         }
 
         // Draw divider between player and enemy sides
         const dividerY = gy + BattleGrid.GRID_HEIGHT_PER_SIDE * (CELL_SIZE + CELL_GAP) - CELL_GAP / 2;
-        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#222222';
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(gx - 4, dividerY);
         ctx.lineTo(gx + BattleGrid.GRID_WIDTH * (CELL_SIZE + CELL_GAP), dividerY);
@@ -412,104 +513,60 @@ export class BattleScene extends Scene {
         const grid = this._battleManager.grid;
         if (!grid) return;
 
+        const cellStep = CELL_SIZE + CELL_GAP;
+
         for (let y = 0; y < BattleGrid.TOTAL_HEIGHT; y++) {
             for (let x = 0; x < BattleGrid.GRID_WIDTH; x++) {
                 const unit = grid.getUnitAt({ x, y });
                 if (!unit || !unit.isAlive) continue;
 
-                const cellX = gx + x * (CELL_SIZE + CELL_GAP);
-                const cellY = gy + y * (CELL_SIZE + CELL_GAP);
+                const cellX = gx + x * cellStep;
+                const cellY = gy + y * cellStep;
                 const centerX = cellX + CELL_SIZE / 2;
-                const spriteX = centerX - SPRITE_SIZE / 2;
-                const spriteY = cellY + 2;
+                const centerY = cellY + CELL_SIZE / 2;
+                const spriteSize = CELL_SIZE - 4; // chibi sprites fill more of the cell
 
-                // Try loading sprite image from cache
+                // Update render cache position for floating text placement
                 let cache = this._unitRenderCache.get(unit);
                 if (!cache) {
                     cache = { spriteImg: null, x: cellX, y: cellY };
                     this._unitRenderCache.set(unit, cache);
-                    // Attempt to load sprite image using AssetRegistry lookup
-                    const inst = unit.spriteInstance;
-                    const spritePath = this._getSpritePathForInstance(inst);
-                    if (spritePath) {
-                        this.engine.assets.loadImage(spritePath)
-                            .then(img => { if (img) cache.spriteImg = img; })
-                            .catch(() => {});
-                    }
                 }
                 cache.x = cellX;
                 cache.y = cellY;
 
-                // Draw sprite (image or fallback character sheet or fallback circle)
-                if (cache.spriteImg && cache.spriteImg.complete) {
-                    renderer.drawImageRaw(cache.spriteImg, spriteX, spriteY, SPRITE_SIZE, SPRITE_SIZE);
-                } else {
-                    // Try fallback character sheet
-                    const sheet = unit.team === 0 ? this._fallbackPlayerSheet : this._fallbackEnemySheet;
-                    if (sheet && sheet.complete) {
-                        // Characters ASAI: 128x128, 4 cols x 4 rows, 32x32 per frame
-                        const fw = 32, fh = 32;
-                        ctx.drawImage(sheet, 0, 0, fw, fh,
-                            spriteX, spriteY, SPRITE_SIZE, SPRITE_SIZE);
-                    } else {
-                        // Final fallback: colored circle
-                        const elemColor = ELEMENT_COLORS[unit.elementTypes[0]] || '#888888';
-                        ctx.fillStyle = elemColor;
-                        ctx.beginPath();
-                        ctx.arc(centerX, spriteY + SPRITE_SIZE / 2, SPRITE_SIZE / 2 - 2, 0, Math.PI * 2);
-                        ctx.fill();
+                // Apply shake offset if this unit is being hit by an ability animation
+                let shakeX = 0;
+                let shakeY = 0;
+                if (this._currentAnim && this._currentAnim.type === 'ability_use' && this._currentAnim.targetPos) {
+                    const tp = this._currentAnim.targetPos;
+                    if (tp.x === x && tp.y === y) {
+                        const progress = Math.min(1, this._animTimer / this._currentAnim.duration);
+                        if (progress >= 0.1 && progress < 0.4) {
+                            const shakeIntensity = (1 - (progress - 0.1) / 0.3) * 4;
+                            shakeX = Math.sin(progress * 60) * shakeIntensity;
+                            shakeY = Math.cos(progress * 45) * shakeIntensity * 0.5;
+                        }
                     }
-
-                    // Team indicator border
-                    ctx.strokeStyle = unit.team === 0 ? '#3399ff' : '#ff3333';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(centerX, spriteY + SPRITE_SIZE / 2, SPRITE_SIZE / 2 - 2, 0, Math.PI * 2);
-                    ctx.stroke();
-
-                    // Level text on the sprite
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 10px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(`${unit.getLevel()}`, centerX, spriteY + SPRITE_SIZE / 2);
                 }
 
-                // Draw HP bar
-                const hpBarX = centerX - HP_BAR_WIDTH / 2;
-                const hpBarY = spriteY + SPRITE_SIZE + 2;
-                const hpFrac = unit.getHpFraction();
-                const hpColor = hpFrac > 0.5 ? COLOR_HP_GREEN
-                    : hpFrac > 0.25 ? COLOR_HP_YELLOW : COLOR_HP_RED;
-
-                ctx.fillStyle = COLOR_HP_BG;
-                ctx.fillRect(hpBarX, hpBarY, HP_BAR_WIDTH, HP_BAR_HEIGHT);
-                ctx.fillStyle = hpColor;
-                ctx.fillRect(hpBarX, hpBarY, HP_BAR_WIDTH * hpFrac, HP_BAR_HEIGHT);
-                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-                ctx.lineWidth = 0.5;
-                ctx.strokeRect(hpBarX, hpBarY, HP_BAR_WIDTH, HP_BAR_HEIGHT);
-
-                // Draw status effect icons
-                const statusY = hpBarY + HP_BAR_HEIGHT + 1;
-                const maxIcons = Math.min(unit.activeStatusEffects.length, 3);
-                const iconStartX = centerX - (maxIcons * (STATUS_ICON_SIZE + 1)) / 2;
-                for (let s = 0; s < maxIcons; s++) {
-                    const entry = unit.activeStatusEffects[s];
-                    const effectData = entry.effectData;
-                    if (!effectData) continue;
-                    const iconColor = this._getStatusColor(effectData);
-                    const ix = iconStartX + s * (STATUS_ICON_SIZE + 1);
-                    ctx.fillStyle = iconColor;
-                    ctx.fillRect(ix, statusY, STATUS_ICON_SIZE, STATUS_ICON_SIZE);
-                    // First letter of effect name
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = 'bold 8px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    const letter = (effectData.effectName || '?')[0].toUpperCase();
-                    ctx.fillText(letter, ix + STATUS_ICON_SIZE / 2, statusY + STATUS_ICON_SIZE / 2);
-                }
+                // Draw fully composited unit via UnitRenderer
+                const inst = unit.spriteInstance || unit.spriteData || unit;
+                UnitRenderer.draw(ctx, inst, centerX + shakeX, centerY + shakeY, spriteSize, {
+                    time: this._time,
+                    team: unit.team,
+                    showHpBar: true,
+                    hpFraction: unit.getHpFraction ? unit.getHpFraction() : (unit.currentHp / unit.maxHp),
+                    showLevel: true,
+                    showAura: true,
+                    showWeapon: true,
+                    showArmorGlow: true,
+                    showElementBadge: true,
+                    showStatusIcons: true,
+                    isSelected: unit === this._battleManager.currentUnit,
+                    statusEffects: unit.activeStatusEffects || [],
+                    direction: unit.facing || 0,
+                });
 
                 // Draw name label for current unit
                 if (this._battleManager.currentUnit === unit) {
@@ -564,6 +621,175 @@ export class BattleScene extends Scene {
         renderer.restore();
     }
 
+    _renderAbilityEffect(ctx, renderer) {
+        const anim = this._currentAnim;
+        if (!anim) return;
+
+        const progress = Math.min(1, this._animTimer / anim.duration);
+        const ability = anim.ability;
+        const elemColor = ELEMENT_COLORS[ability.elementType] || '#ffffff';
+        const flashColor = anim.flashColor || elemColor;
+
+        // Phase 1 (0-0.3): Screen flash with class-specific or element color
+        if (progress < 0.3) {
+            const flashAlpha = (1 - progress / 0.3) * 0.2;
+            ctx.fillStyle = flashColor;
+            ctx.globalAlpha = flashAlpha;
+            ctx.fillRect(0, 0, this.engine.designWidth, this.engine.designHeight);
+            ctx.globalAlpha = 1;
+        }
+
+        // Phase 2 (0.15-0.5): Impact flash at target cell (flat cel-shaded fill, no gradients)
+        if (progress >= 0.15 && progress < 0.5) {
+            const impactProgress = (progress - 0.15) / 0.35;
+            const impactAlpha = (1 - impactProgress) * 0.6;
+            const targetPos = anim.targetPos;
+            if (targetPos) {
+                const cellStep = CELL_SIZE + CELL_GAP;
+                const tx = this._gridOriginX + targetPos.x * cellStep + CELL_SIZE / 2;
+                const ty = this._gridOriginY + targetPos.y * cellStep + CELL_SIZE / 2;
+                const radius = CELL_SIZE * (0.5 + impactProgress * 0.8);
+
+                ctx.globalAlpha = impactAlpha;
+                ctx.fillStyle = elemColor;
+                ctx.beginPath();
+                ctx.arc(tx, ty, radius, 0, Math.PI * 2);
+                ctx.fill();
+                // Clean black outline around impact
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        // Phase 2b (0.2-0.7): Class-specific VFX overlay at target
+        if (anim.vfxStyle && progress >= 0.2 && progress < 0.7) {
+            const targetPos = anim.targetPos;
+            if (targetPos) {
+                const cellStep = CELL_SIZE + CELL_GAP;
+                const tx = this._gridOriginX + targetPos.x * cellStep + CELL_SIZE / 2;
+                const ty = this._gridOriginY + targetPos.y * cellStep + CELL_SIZE / 2;
+                const vfxProgress = (progress - 0.2) / 0.5;
+                this._drawGridVFX(ctx, anim.vfxStyle, tx, ty, vfxProgress, elemColor, flashColor, anim.strikeCount || 1);
+            }
+        }
+
+        // Phase 3 (0.1-0.35): Shake the target unit slightly
+        // This is handled in _renderUnits via _currentAnim reference
+    }
+
+    /**
+     * Draw class-specific VFX overlay on the grid battlefield.
+     * Cel-shaded style: flat colors, black outlines, geometric shapes.
+     */
+    _drawGridVFX(ctx, vfxStyle, x, y, progress, elemColor, flashColor, strikeCount) {
+        ctx.save();
+        switch (vfxStyle) {
+            case 'arrow_rain': {
+                // Multiple arrows falling from above
+                const count = strikeCount || 5;
+                for (let i = 0; i < count; i++) {
+                    const t = (progress * 3 + i * 0.2) % 1;
+                    const ax = x + (i - count / 2) * 8;
+                    const ay = y - 40 + t * 50;
+                    const alpha = t < 0.8 ? 0.7 : (1 - t) * 3.5;
+                    ctx.globalAlpha = alpha;
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(ax, ay - 8);
+                    ctx.lineTo(ax, ay + 8);
+                    ctx.stroke();
+                    // Arrowhead
+                    ctx.fillStyle = flashColor;
+                    ctx.beginPath();
+                    ctx.moveTo(ax, ay + 8);
+                    ctx.lineTo(ax - 3, ay + 4);
+                    ctx.lineTo(ax + 3, ay + 4);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                }
+                break;
+            }
+            case 'arcane_explosion': {
+                // Expanding magic circle with runes
+                const radius = 10 + progress * 30;
+                const alpha = (1 - progress) * 0.6;
+                ctx.globalAlpha = alpha;
+                ctx.strokeStyle = flashColor;
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.stroke();
+                // Inner ring
+                ctx.beginPath();
+                ctx.arc(x, y, radius * 0.6, 0, Math.PI * 2);
+                ctx.stroke();
+                // Outline
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(x, y, radius + 1, 0, Math.PI * 2);
+                ctx.stroke();
+                // Radiating lines
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i / 6) * Math.PI * 2 + progress * Math.PI;
+                    ctx.strokeStyle = flashColor;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x + Math.cos(angle) * radius * 0.3, y + Math.sin(angle) * radius * 0.3);
+                    ctx.lineTo(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
+                    ctx.stroke();
+                }
+                break;
+            }
+            case 'bolt_volley': {
+                // Crossbow bolts streaking across
+                const count = strikeCount || 4;
+                for (let i = 0; i < count; i++) {
+                    const t = (progress * 2.5 + i * 0.25) % 1;
+                    const bx = x - 50 + t * 60;
+                    const by = y - 6 + i * 4;
+                    const alpha = t > 0.2 && t < 0.9 ? 0.8 : 0.2;
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = flashColor;
+                    ctx.fillRect(bx - 6, by - 1, 12, 2);
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(bx - 6, by - 1, 12, 2);
+                }
+                break;
+            }
+            case 'muzzle_blast': {
+                // Big circular blast with smoke ring
+                const blastRadius = 8 + progress * 25;
+                const alpha = (1 - progress) * 0.7;
+                ctx.globalAlpha = alpha;
+                // Muzzle flash burst
+                ctx.fillStyle = flashColor;
+                ctx.beginPath();
+                ctx.arc(x, y, blastRadius * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                // Smoke ring
+                ctx.globalAlpha = alpha * 0.5;
+                ctx.strokeStyle = 'rgba(128, 128, 128, 0.6)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(x, y, blastRadius, 0, Math.PI * 2);
+                ctx.stroke();
+                break;
+            }
+            default:
+                break;
+        }
+        ctx.restore();
+    }
+
     // ═══════════════════════════════════════════════════════════════════
     // Input
     // ═══════════════════════════════════════════════════════════════════
@@ -600,6 +826,19 @@ export class BattleScene extends Scene {
             if (input.isKeyJustPressed('Escape') && !this._isBoss) {
                 this._attemptFlee();
             }
+
+            // Tap on grid: inspect unit or close inspect panel
+            if (input.isTap() && this._hoveredCell) {
+                const grid = this._battleManager.grid;
+                if (grid) {
+                    const tappedUnit = grid.getUnitAt(this._hoveredCell);
+                    if (tappedUnit && tappedUnit.isAlive) {
+                        this._showUnitInspect(tappedUnit);
+                    } else if (this._inspectedUnit) {
+                        this._hideUnitInspect();
+                    }
+                }
+            }
             return;
         }
 
@@ -616,10 +855,37 @@ export class BattleScene extends Scene {
                     p => p.x === this._hoveredCell.x && p.y === this._hoveredCell.y
                 );
                 if (isValid) {
+                    this._hideUnitInspect();
                     this._confirmTarget(this._hoveredCell);
+                } else {
+                    // Tapped a non-target cell — inspect if there is a living unit
+                    const grid = this._battleManager.grid;
+                    if (grid) {
+                        const tappedUnit = grid.getUnitAt(this._hoveredCell);
+                        if (tappedUnit && tappedUnit.isAlive) {
+                            this._showUnitInspect(tappedUnit);
+                        } else if (this._inspectedUnit) {
+                            this._hideUnitInspect();
+                        }
+                    }
                 }
             }
             return;
+        }
+
+        // During PHASE_TURNS or PHASE_ANIMATING: allow unit inspection on tap
+        if (this._phase === PHASE_TURNS || this._phase === PHASE_ANIMATING) {
+            if (input.isTap() && this._hoveredCell) {
+                const grid = this._battleManager.grid;
+                if (grid) {
+                    const tappedUnit = grid.getUnitAt(this._hoveredCell);
+                    if (tappedUnit && tappedUnit.isAlive) {
+                        this._showUnitInspect(tappedUnit);
+                    } else if (this._inspectedUnit) {
+                        this._hideUnitInspect();
+                    }
+                }
+            }
         }
     }
 
@@ -627,41 +893,174 @@ export class BattleScene extends Scene {
     // Battle Lifecycle
     // ═══════════════════════════════════════════════════════════════════
 
+    /**
+     * Enrich raw team data so BattleManager._createBattleUnit() gets the
+     * { instance, raceData, stageData, abilities } shape it expects.
+     *
+     * Player sprites from GameManager have: raceId, formId, level, stats,
+     * abilities (simplified), elementTypes, maxHp, etc.
+     *
+     * Enemy sprites from encounters may only have: raceId, level, stage.
+     */
+    _enrichTeamData(rawTeam, isEnemy = false) {
+        const enriched = [];
+
+        for (const raw of rawTeam) {
+            // Already enriched — pass through
+            if (raw.instance && raw.raceData && raw.stageData) {
+                enriched.push(raw);
+                continue;
+            }
+
+            const raceId = raw.raceId;
+            const raceData = SPRITE_RACES.find(r => r.race_id === raceId);
+            if (!raceData) {
+                console.warn(`BattleScene: Unknown raceId ${raceId}, skipping.`);
+                continue;
+            }
+
+            // Resolve formId: player data has formId, enemies have stage (0-2)
+            let formId = raw.formId;
+            if (formId == null) {
+                const stageIdx = raw.stage != null ? raw.stage : 0; // 0,1,2
+                formId = raceId * 3 - 2 + stageIdx;
+            }
+            const stageData = EVOLUTION_FORMS[formId];
+            if (!stageData) {
+                console.warn(`BattleScene: Unknown formId ${formId}, skipping.`);
+                continue;
+            }
+
+            // Build instance object with calculateAllEffectiveStats
+            const level = raw.level || 1;
+            // Deep copy equipment so each unit has its own equipment dict
+            // (prevents shared-reference bug where all sprites show same armor)
+            const rawEquipment = raw.equipment || {};
+            const instanceEquipment = { ...rawEquipment };
+            const instance = {
+                ...raw,
+                raceId,
+                formId,
+                level,
+                equipment: instanceEquipment,
+                calculateAllEffectiveStats(rd, sd, equipmentList, elemTypes, spriteClass) {
+                    // Player sprites have pre-computed stats — use them as base
+                    let baseStats;
+                    if (this.stats && this.maxHp) {
+                        baseStats = {
+                            hp: this.maxHp,
+                            atk: this.stats.attack || this.stats.atk || 1,
+                            def: this.stats.defense || this.stats.def || 1,
+                            spd: this.stats.speed || this.stats.spd || 1,
+                            sp_atk: this.stats.specialAttack || this.stats.sp_atk || 1,
+                            sp_def: this.stats.specialDefense || this.stats.sp_def || 1,
+                        };
+                    } else {
+                        // Enemy sprites: compute from base_stats, growth, level, stage mult
+                        baseStats = {};
+                        const keys = ['hp', 'atk', 'def', 'spd', 'sp_atk', 'sp_def'];
+                        for (const key of keys) {
+                            const base = rd.base_stats[key] || 10;
+                            const growth = rd.growth_rates[key] || 1;
+                            const mult = sd.stat_multipliers[key] || 1;
+                            baseStats[key] = Math.max(1, Math.floor((base + growth * this.level) * mult));
+                        }
+                    }
+                    // Apply equipment stat bonuses with synergy multipliers
+                    if (equipmentList && equipmentList.length > 0) {
+                        for (const equip of equipmentList) {
+                            const bonuses = equip.stat_bonuses || {};
+                            for (const key of Object.keys(bonuses)) {
+                                if (key in baseStats) {
+                                    let bonus = bonuses[key] || 0;
+                                    if (elemTypes && equip.element_synergy && elemTypes.includes(equip.element_synergy)) {
+                                        bonus = Math.floor(bonus * (equip.element_synergy_multiplier || 1));
+                                    }
+                                    if (spriteClass && equip.class_synergy && spriteClass === equip.class_synergy) {
+                                        bonus = Math.floor(bonus * (equip.class_synergy_multiplier || 1));
+                                    }
+                                    baseStats[key] = Math.max(1, baseStats[key] + bonus);
+                                }
+                            }
+                        }
+                    }
+                    return baseStats;
+                },
+            };
+
+            // Resolve abilities from the canonical ABILITIES database
+            const abilities = _resolveAbilities(raw, raceData, stageData, level);
+
+            enriched.push({
+                instance,
+                raceData,
+                stageData,
+                abilities,
+                position: raw.position || null,
+            });
+        }
+
+        return enriched;
+    }
+
     _startBattle() {
-        const config = {};
+        try {
+            const config = {};
 
-        // Provide element chart from engine data if available
-        if (this.engine.data && this.engine.data.elementChart) {
-            config.elementChart = this.engine.data.elementChart;
+            // Provide element chart from engine data if available
+            if (this.engine.data && this.engine.data.effectivenessMatrix) {
+                config.elementChart = this.engine.data.effectivenessMatrix;
+            }
+            if (this.engine.data && this.engine.data.statusEffects) {
+                config.statusDb = this.engine.data.statusEffects;
+            }
+
+            // Enrich raw team data into the format BattleManager expects
+            const playerTeam = this._enrichTeamData(this._playerTeamData, false);
+            const enemyTeam = this._enrichTeamData(this._enemyTeamData, true);
+
+            if (playerTeam.length === 0) {
+                console.error('BattleScene: No player units after enrichment. Raw data:', this._playerTeamData);
+            }
+            if (enemyTeam.length === 0) {
+                console.error('BattleScene: No enemy units after enrichment. Raw data:', this._enemyTeamData);
+            }
+
+            this._battleManager.startBattle(
+                playerTeam,
+                enemyTeam,
+                config
+            );
+
+            this._addLogEntry('Battle started!');
+        } catch (err) {
+            console.error('BattleScene._startBattle() error:', err);
+            this._addLogEntry('Error starting battle. Check console.');
         }
-        if (this.engine.data && this.engine.data.statusDb) {
-            config.statusDb = this.engine.data.statusDb;
-        }
-
-        this._battleManager.startBattle(
-            this._playerTeamData,
-            this._enemyTeamData,
-            config
-        );
-
-        this._addLogEntry('Battle started!');
     }
 
     _advanceTurn() {
         if (!this._battleManager.isBattleActive) return;
 
-        // Let BattleManager process the next turn
+        // Let BattleManager process the next turn (synchronous)
         this._battleManager.processTurn();
+
+        // Battle may have ended during processTurn
+        if (!this._battleManager.isBattleActive) return;
 
         // After processTurn, check what state we are in
         if (this._battleManager.awaitingPlayerInput && !this._autoBattle) {
             this._phase = PHASE_PLAYER_SELECT_ABILITY;
             this._showAbilityBar();
+        } else if (this._animQueue.length > 0) {
+            // AI or auto-battle turn queued animations via ABILITY_USED event.
+            // Enter animation phase; _updateAnimations will advance to next turn after.
+            this._phase = PHASE_ANIMATING;
         } else {
-            // AI or auto-battle turn was processed; the _endCurrentTurn in
-            // BattleManager will call processTurn again via setTimeout.
-            // We just keep the phase in TURNS and let event listeners drive animations.
+            // AI turn with no visual animation (e.g. skip or status-prevented).
+            // Add a brief delay so the player can read log entries.
             this._phase = PHASE_TURNS;
+            this._turnAdvanceDelay = 0.4;
         }
 
         this._refreshTurnOrderUI();
@@ -673,8 +1072,24 @@ export class BattleScene extends Scene {
         if (this._autoBattle) {
             this._hideAbilityBar();
             this._addLogEntry('Auto-Battle enabled.');
+            // If we were in ability selection, the BattleManager just executed
+            // the AI turn for the current player unit. Transition to animation or next turn.
+            if (this._phase === PHASE_PLAYER_SELECT_ABILITY ||
+                this._phase === PHASE_PLAYER_SELECT_TARGET) {
+                if (this._animQueue.length > 0) {
+                    this._phase = PHASE_ANIMATING;
+                } else {
+                    this._phase = PHASE_TURNS;
+                    this._turnAdvanceDelay = 0.5;
+                }
+            }
         } else {
             this._addLogEntry('Auto-Battle disabled.');
+            // If it's still the player's turn and awaiting input, show ability bar
+            if (this._battleManager.awaitingPlayerInput && this._battleManager.currentUnit) {
+                this._phase = PHASE_PLAYER_SELECT_ABILITY;
+                this._showAbilityBar();
+            }
         }
     }
 
@@ -686,8 +1101,9 @@ export class BattleScene extends Scene {
             this._battleManager.endBattle('draw');
         } else {
             this._addLogEntry('Could not escape!');
-            // Skip player's turn as a penalty
+            // Skip player's turn as a penalty — properly end the turn
             this._battleManager.awaitingPlayerInput = false;
+            this._battleManager._endCurrentTurn();
             this._hideAbilityBar();
             this._phase = PHASE_TURNS;
             this._turnAdvanceDelay = 0.6;
@@ -698,21 +1114,14 @@ export class BattleScene extends Scene {
         this.engine.audio.stopMusic(400);
         const result = this._battleResult;
 
-        if (result === 'player_win') {
-            // Return to overworld (or caller) with victory data
-            this.engine.scenes.popScene().catch(() => {
-                this.engine.scenes.changeTo('overworld', {
-                    battleResult: result,
-                });
-            });
-        } else {
-            // Defeat or draw: return to overworld
-            this.engine.scenes.popScene().catch(() => {
-                this.engine.scenes.changeTo('overworld', {
-                    battleResult: result,
-                });
-            });
-        }
+        // The battle scene is reached via changeTo() (Overworld -> Deployment -> Battle),
+        // so the scene stack is empty and popScene() would silently resolve without
+        // transitioning. Use changeTo() directly to return to the overworld.
+        this.engine.scenes.changeTo('overworld', {
+            battleResult: result,
+            rewards: this._battleRewards || null,
+            returnData: this._returnData,
+        });
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -911,18 +1320,27 @@ export class BattleScene extends Scene {
     // ═══════════════════════════════════════════════════════════════════
 
     _queueAbilityAnimation(caster, ability, targetPos) {
+        // Play SFX immediately when the animation starts
+        this.engine.audio.playSFX(
+            this.engine.assets.resolvePath('Audio/Sounds/attack_hit.ogg'), 0.5
+        );
+
+        // Look up class-specific animation data for richer visuals
+        const spriteClass = caster.classType || caster.spriteClass || caster.class_type || '';
+        const classSpec = getClassSpecial(spriteClass) || {};
+
         this._animQueue.push({
             type: 'ability_use',
             caster,
             ability,
             targetPos,
-            duration: 0.5,
-            onComplete: () => {
-                // SFX for ability use
-                this.engine.audio.playSFX(
-                    this.engine.assets.resolvePath('Audio/Sounds/attack_hit.ogg'), 0.5
-                );
-            },
+            duration: classSpec.total_duration || 0.5,
+            startTime: this._time,
+            onComplete: null,
+            flashColor: classSpec.flash_color || null,
+            vfxStyle: classSpec.vfx_style || null,
+            shakeIntensity: classSpec.shake_intensity || 0.3,
+            strikeCount: classSpec.strike_count || 1,
         });
     }
 
@@ -1020,6 +1438,31 @@ export class BattleScene extends Scene {
                 const abilityName = ability ? (ability.abilityName || 'an ability') : 'an ability';
                 if (caster) {
                     this._addLogEntry(`${caster.getDisplayName()} used ${abilityName}!`);
+
+                    // Queue visual effect for AI turns (player turns already queue via _confirmTarget)
+                    if (caster.team === 1 || this._autoBattle) {
+                        // Find target position from the first target
+                        let targetPos = null;
+                        if (targetInsts && targetInsts.length > 0) {
+                            const targetUnit = this._findUnitByInstance(targetInsts[0]);
+                            if (targetUnit) {
+                                targetPos = { x: targetUnit.gridPosition.x, y: targetUnit.gridPosition.y };
+                            }
+                        }
+                        // Queue ability animation for visual feedback
+                        this._animQueue.push({
+                            type: 'ability_use',
+                            caster,
+                            ability,
+                            targetPos,
+                            duration: 0.5,
+                            startTime: this._time,
+                            onComplete: null,
+                        });
+                        this.engine.audio.playSFX(
+                            this.engine.assets.resolvePath('Audio/Sounds/attack_hit.ogg'), 0.4
+                        );
+                    }
                 }
             })
         );
@@ -1114,6 +1557,7 @@ export class BattleScene extends Scene {
         this._resultTimer = 0;
         this._phase = PHASE_BATTLE_END;
         this._hideAbilityBar();
+        this._hideUnitInspect();
 
         const isVictory = data.result === 'player_win';
         const label = isVictory ? 'VICTORY!' : data.result === 'draw' ? 'DRAW' : 'DEFEAT';
@@ -1148,7 +1592,7 @@ export class BattleScene extends Scene {
         title.style.cssText = `
             font-size:2rem;font-weight:900;margin-bottom:16px;
             color:${isVictory ? '#ffcc33' : data.result === 'draw' ? '#aaaacc' : '#ff4444'};
-            text-shadow:0 0 20px ${isVictory ? 'rgba(255,204,51,0.4)' : 'rgba(255,68,68,0.4)'};
+            /* flat cel-shaded — no text-shadow glow */
         `;
         title.textContent = isVictory ? 'VICTORY!' : data.result === 'draw' ? 'DRAW' : 'DEFEAT';
         container.appendChild(title);
@@ -1175,6 +1619,41 @@ export class BattleScene extends Scene {
             rewardsDiv.innerHTML += `<div>Gold: +${goldGained}</div>`;
 
             container.appendChild(rewardsDiv);
+
+            // -- Equipment Loot Drops -----------------------------------------
+            // Determine battle type, difficulty, player level, and element
+            const battleType = this._isBoss ? 'boss' : 'normal';
+            const difficulty = this._deriveDifficulty();
+            const playerLevel = this._getHighestPlayerLevel();
+            const battleElement = this._deriveBattleElement();
+
+            const loot = rollBattleLoot(battleType, difficulty, playerLevel, battleElement);
+            const lootDisplay = formatLootForDisplay(loot);
+
+            if (lootDisplay.length > 0) {
+                const lootDiv = document.createElement('div');
+                lootDiv.style.cssText = 'margin-top:8px;text-align:center;';
+                lootDiv.innerHTML = '<div style="color:#ffcc33;font-weight:700;font-size:0.8rem;margin-bottom:6px;">Equipment Found</div>';
+
+                for (const item of lootDisplay) {
+                    const itemEl = document.createElement('div');
+                    itemEl.style.cssText = `
+                        display:inline-flex;align-items:center;gap:6px;
+                        background:rgba(255,255,255,0.06);border:1px solid ${item.rarityColor}40;
+                        border-radius:6px;padding:4px 10px;margin:3px;font-size:0.75rem;
+                    `;
+                    itemEl.innerHTML = `
+                        <span style="color:${item.rarityColor};font-weight:700;">${item.name}</span>
+                        <span style="color:${item.rarityColor};font-size:0.65rem;opacity:0.8;">[${item.rarityLabel}]</span>
+                        <span style="color:#aaa;font-size:0.65rem;">${item.statSummary}</span>
+                    `;
+                    lootDiv.appendChild(itemEl);
+                }
+                container.appendChild(lootDiv);
+            }
+
+            // Store rewards so _exitBattle() can pass them back to the overworld
+            this._battleRewards = { xp: xpGained, gold: goldGained, loot: loot };
         }
 
         // Continue button
@@ -1189,6 +1668,81 @@ export class BattleScene extends Scene {
         container.appendChild(continueBtn);
 
         this._endScreenEl.appendChild(container);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // Loot Helpers
+    // ═══════════════════════════════════════════════════════════════════
+
+    /**
+     * Derive a 1-10 difficulty score from the enemy team data.
+     * Uses average enemy level relative to player level, boss flag, and team size.
+     * @returns {number}
+     */
+    _deriveDifficulty() {
+        const playerLevel = this._getHighestPlayerLevel();
+        let avgEnemyLevel = 1;
+
+        if (this._enemyTeamData.length > 0) {
+            let total = 0;
+            for (const e of this._enemyTeamData) {
+                const inst = e.instance || e;
+                total += inst.level || 1;
+            }
+            avgEnemyLevel = total / this._enemyTeamData.length;
+        }
+
+        // Base difficulty from level ratio (enemy vs player)
+        let diff = Math.round((avgEnemyLevel / Math.max(1, playerLevel)) * 5);
+
+        // Boss battles are harder
+        if (this._isBoss) diff += 2;
+
+        // More enemies = harder
+        if (this._enemyTeamData.length >= 5) diff += 1;
+
+        return Math.max(1, Math.min(10, diff));
+    }
+
+    /**
+     * Get the highest level among the player's team sprites.
+     * @returns {number}
+     */
+    _getHighestPlayerLevel() {
+        let highest = 1;
+        for (const p of this._playerTeamData) {
+            const inst = p.instance || p;
+            const level = inst.level || 1;
+            if (level > highest) highest = level;
+        }
+        return highest;
+    }
+
+    /**
+     * Derive the dominant element of the battle from enemy team composition.
+     * Returns the most common element type among enemies, or null if mixed.
+     * @returns {string|null}
+     */
+    _deriveBattleElement() {
+        const counts = {};
+        for (const e of this._enemyTeamData) {
+            const inst = e.instance || e;
+            const raceData = e.raceData;
+            const elems = (raceData && raceData.element_types) || inst.elementTypes || [];
+            for (const elem of elems) {
+                counts[elem] = (counts[elem] || 0) + 1;
+            }
+        }
+
+        let bestElem = null;
+        let bestCount = 0;
+        for (const [elem, count] of Object.entries(counts)) {
+            if (count > bestCount) {
+                bestCount = count;
+                bestElem = elem;
+            }
+        }
+        return bestElem;
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -1218,16 +1772,28 @@ export class BattleScene extends Scene {
                 min-width:36px;height:36px;border-radius:6px;
                 border:2px solid ${borderColor};background:${elemColor}33;
                 display:flex;align-items:center;justify-content:center;
-                flex-shrink:0;position:relative;
+                flex-shrink:0;position:relative;overflow:hidden;
                 ${isCurrent ? 'box-shadow:0 0 8px rgba(255,204,51,0.5);' : ''}
             `;
 
-            // Name initial or level
-            const label = document.createElement('span');
-            label.style.cssText = `color:#fff;font-size:0.6rem;font-weight:700;`;
-            const name = unit.getDisplayName();
-            label.textContent = name.substring(0, 3);
-            unitEl.appendChild(label);
+            // Mini canvas preview via UnitRenderer
+            const miniCanvas = document.createElement('canvas');
+            miniCanvas.width = 36;
+            miniCanvas.height = 36;
+            miniCanvas.style.cssText = 'width:36px;height:36px;border-radius:4px;';
+            const mCtx = miniCanvas.getContext('2d');
+            const inst = unit.spriteInstance || unit.spriteData || {};
+            UnitRenderer.draw(mCtx, inst, 18, 18, 30, {
+                time: this._time,
+                team: unit.team,
+                showHpBar: false,
+                showLevel: false,
+                showAura: false,
+                showWeapon: true,
+                showArmorGlow: true,
+                showElementBadge: false,
+            });
+            unitEl.appendChild(miniCanvas);
 
             // Mini HP bar at bottom
             const miniHp = document.createElement('div');
@@ -1350,6 +1916,41 @@ export class BattleScene extends Scene {
 
         this._domContainer.appendChild(this._battleLogEl);
 
+        // Unit inspection panel (hidden by default, slides up from bottom)
+        this._inspectPanelEl = document.createElement('div');
+        this._inspectPanelEl.id = 'unit-inspect-panel';
+        this._inspectPanelEl.style.cssText = `
+            position:absolute;bottom:0;left:0;width:100%;height:320px;
+            background:rgba(0,0,0,0.85);border-top:2px solid rgba(255,255,255,0.15);
+            border-radius:12px 12px 0 0;pointer-events:auto;display:none;
+            flex-direction:column;z-index:15;overflow:hidden;
+            box-sizing:border-box;padding:14px 16px 12px 16px;
+        `;
+
+        // Close button (X) in top-right
+        const inspectCloseBtn = document.createElement('div');
+        inspectCloseBtn.style.cssText = `
+            position:absolute;top:8px;right:12px;width:32px;height:32px;
+            display:flex;align-items:center;justify-content:center;
+            cursor:pointer;color:#aaa;font-size:1.2rem;font-weight:700;
+            border-radius:6px;background:rgba(255,255,255,0.08);
+            z-index:2;
+        `;
+        inspectCloseBtn.textContent = 'X';
+        inspectCloseBtn.addEventListener('click', () => this._hideUnitInspect());
+        this._inspectPanelEl.appendChild(inspectCloseBtn);
+
+        // Content area (populated dynamically by _showUnitInspect)
+        const inspectContent = document.createElement('div');
+        inspectContent.className = 'inspect-content';
+        inspectContent.style.cssText = `
+            width:100%;height:100%;overflow-y:auto;overflow-x:hidden;
+            padding-top:24px;box-sizing:border-box;
+        `;
+        this._inspectPanelEl.appendChild(inspectContent);
+
+        this._domContainer.appendChild(this._inspectPanelEl);
+
         // End screen overlay (hidden by default)
         this._endScreenEl = document.createElement('div');
         this._endScreenEl.id = 'battle-end-screen';
@@ -1366,77 +1967,204 @@ export class BattleScene extends Scene {
     }
 
     // ═══════════════════════════════════════════════════════════════════
-    // Helpers
+    // Unit Inspection
     // ═══════════════════════════════════════════════════════════════════
 
-    /**
-     * Resolve the sprite image path for a unit's instance using AssetRegistry.
-     * Falls back to FALLBACK_SPRITE if formId/raceId cannot be resolved.
-     * @param {object} inst - The spriteInstance on a BattleUnit, or the instance from team data.
-     * @returns {string|null} A path suitable for engine.assets.loadImage(), or null.
-     */
-    _getSpritePathForInstance(inst) {
-        if (!inst) return null;
+    _showUnitInspect(unit) {
+        if (!this._inspectPanelEl || !unit) return;
 
-        // If the instance already has a spriteAsset path, use it directly
-        if (inst.spriteAsset) return inst.spriteAsset;
+        this._inspectedUnit = unit;
 
-        // Look up from AssetRegistry using formId
-        const formId = inst.formId ?? inst.form_id ?? null;
-        if (formId != null) {
-            const registryPath = AssetRegistry.CHARACTER_SPRITES[formId];
-            if (registryPath) {
-                // Registry paths are relative from Web/js/data/ (e.g. "../Sprites/Monsters/Slime.png").
-                // AssetLoader.resolvePath prepends _basePath ("..") to non-absolute paths,
-                // so we need to strip the leading "../" to get "Sprites/Monsters/Slime.png"
-                // which resolves to "../Sprites/Monsters/Slime.png" after resolvePath.
-                if (registryPath.startsWith('../')) {
-                    return registryPath.slice(3);
-                }
-                return registryPath;
+        const content = this._inspectPanelEl.querySelector('.inspect-content');
+        if (!content) return;
+        content.innerHTML = '';
+
+        const isAlly = unit.team === 0;
+        const teamColor = isAlly ? '#3388cc' : '#cc3333';
+        const teamLabel = isAlly ? 'Ally' : 'Enemy';
+        const nameColor = isAlly ? '#ffcc33' : '#ff5555';
+
+        // ── Header row: name, team badge, level ──────────────────────
+        const header = document.createElement('div');
+        header.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:8px;';
+
+        const nameEl = document.createElement('span');
+        nameEl.style.cssText = `font-weight:700;font-size:1.05rem;color:${nameColor};`;
+        nameEl.textContent = unit.getDisplayName();
+        header.appendChild(nameEl);
+
+        const teamBadge = document.createElement('span');
+        teamBadge.style.cssText = `
+            font-size:0.7rem;font-weight:700;color:#fff;background:${teamColor};
+            border-radius:4px;padding:2px 8px;
+        `;
+        teamBadge.textContent = teamLabel;
+        header.appendChild(teamBadge);
+
+        const levelEl = document.createElement('span');
+        levelEl.style.cssText = 'font-size:0.85rem;color:#aaa;margin-left:auto;';
+        levelEl.textContent = `Lv. ${unit.level || '?'}`;
+        header.appendChild(levelEl);
+
+        content.appendChild(header);
+
+        // ── Element badges ───────────────────────────────────────────
+        if (unit.elementTypes && unit.elementTypes.length > 0) {
+            const elemRow = document.createElement('div');
+            elemRow.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;';
+            for (const elem of unit.elementTypes) {
+                const badge = document.createElement('span');
+                const elemColor = ELEMENT_COLORS[elem] || '#666';
+                badge.style.cssText = `
+                    display:flex;align-items:center;gap:4px;
+                    font-size:0.75rem;color:#ddd;
+                `;
+                const dot = document.createElement('span');
+                dot.style.cssText = `
+                    display:inline-block;width:10px;height:10px;border-radius:50%;
+                    background:${elemColor};
+                `;
+                badge.appendChild(dot);
+                badge.appendChild(document.createTextNode(elem));
+                elemRow.appendChild(badge);
             }
+            content.appendChild(elemRow);
         }
 
-        // Try computing formId from raceId (default to stage 1)
-        const raceId = inst.raceId ?? inst.race_id ?? null;
-        if (raceId != null) {
-            const computedFormId = raceId * 3 - 2; // Stage 1 form
-            const registryPath = AssetRegistry.CHARACTER_SPRITES[computedFormId];
-            if (registryPath) {
-                if (registryPath.startsWith('../')) {
-                    return registryPath.slice(3);
-                }
-                return registryPath;
+        // ── HP bar ───────────────────────────────────────────────────
+        const hpFrac = unit.getHpFraction ? unit.getHpFraction() : (unit.currentHp / unit.maxHp);
+        const hpColor = hpFrac > 0.5 ? COLOR_HP_GREEN : hpFrac > 0.25 ? COLOR_HP_YELLOW : COLOR_HP_RED;
+
+        const hpRow = document.createElement('div');
+        hpRow.style.cssText = 'margin-bottom:8px;';
+
+        const hpLabel = document.createElement('div');
+        hpLabel.style.cssText = 'font-size:0.75rem;color:#aaa;margin-bottom:3px;';
+        hpLabel.textContent = `HP: ${unit.currentHp}/${unit.maxHp}`;
+        hpRow.appendChild(hpLabel);
+
+        const hpBarOuter = document.createElement('div');
+        hpBarOuter.style.cssText = `
+            width:100%;height:8px;background:#1a1a2e;border-radius:4px;overflow:hidden;
+        `;
+        const hpBarInner = document.createElement('div');
+        hpBarInner.style.cssText = `
+            width:${Math.max(0, Math.min(100, hpFrac * 100))}%;height:100%;
+            background:${hpColor};border-radius:3px;
+            transition:width 0.3s ease;
+        `;
+        hpBarOuter.appendChild(hpBarInner);
+        hpRow.appendChild(hpBarOuter);
+        content.appendChild(hpRow);
+
+        // ── Stats grid (2 columns) ──────────────────────────────────
+        const statsGrid = document.createElement('div');
+        statsGrid.style.cssText = `
+            display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;
+            margin-bottom:8px;font-size:0.75rem;
+        `;
+
+        const stats = unit.stats || {};
+        const statEntries = [
+            { label: 'ATK', value: stats.atk },
+            { label: 'DEF', value: stats.def },
+            { label: 'SPD', value: stats.spd },
+            { label: 'SP.ATK', value: stats.sp_atk },
+            { label: 'SP.DEF', value: stats.sp_def },
+        ];
+
+        for (const entry of statEntries) {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;justify-content:space-between;';
+            const labelEl = document.createElement('span');
+            labelEl.style.cssText = 'color:#888;';
+            labelEl.textContent = entry.label;
+            const valueEl = document.createElement('span');
+            valueEl.style.cssText = 'color:#ddd;font-weight:600;';
+            valueEl.textContent = entry.value != null ? entry.value : '?';
+            row.appendChild(labelEl);
+            row.appendChild(valueEl);
+            statsGrid.appendChild(row);
+        }
+        content.appendChild(statsGrid);
+
+        // ── Abilities list ───────────────────────────────────────────
+        const abilityDb = this._battleManager._abilityDb;
+        if (unit.equippedAbilities && unit.equippedAbilities.length > 0 && abilityDb) {
+            const abilitiesLabel = document.createElement('div');
+            abilitiesLabel.style.cssText = 'font-size:0.75rem;color:#888;margin-bottom:4px;font-weight:700;';
+            abilitiesLabel.textContent = 'Abilities';
+            content.appendChild(abilitiesLabel);
+
+            const abilitiesList = document.createElement('div');
+            abilitiesList.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;';
+
+            for (const abilityId of unit.equippedAbilities) {
+                const ability = abilityDb[abilityId];
+                if (!ability) continue;
+
+                const elemColor = ELEMENT_COLORS[ability.elementType] || '#666';
+                const pp = unit.abilityPp ? (unit.abilityPp[abilityId] || 0) : '?';
+                const ppMax = ability.ppMax || '?';
+
+                const abEl = document.createElement('div');
+                abEl.style.cssText = `
+                    border:1px solid ${elemColor};border-radius:5px;
+                    padding:4px 8px;font-size:0.7rem;color:#ddd;
+                    background:rgba(0,0,0,0.4);
+                `;
+
+                const abName = document.createElement('div');
+                abName.style.cssText = 'font-weight:600;';
+                abName.textContent = ability.abilityName || `Ability ${abilityId}`;
+                abEl.appendChild(abName);
+
+                const abInfo = document.createElement('div');
+                abInfo.style.cssText = 'color:#999;';
+                abInfo.textContent = `Pwr:${ability.basePower || 0} PP:${pp}/${ppMax}`;
+                abEl.appendChild(abInfo);
+
+                abilitiesList.appendChild(abEl);
             }
+            content.appendChild(abilitiesList);
         }
 
-        // Last resort: use the fallback sprite
-        const fallback = AssetRegistry.FALLBACK_SPRITE;
-        if (fallback && fallback.startsWith('../')) {
-            return fallback.slice(3);
+        // ── Active status effects ────────────────────────────────────
+        if (unit.activeStatusEffects && unit.activeStatusEffects.length > 0) {
+            const statusLabel = document.createElement('div');
+            statusLabel.style.cssText = 'font-size:0.75rem;color:#888;margin-bottom:4px;font-weight:700;';
+            statusLabel.textContent = 'Status Effects';
+            content.appendChild(statusLabel);
+
+            const statusRow = document.createElement('div');
+            statusRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
+
+            for (const effect of unit.activeStatusEffects) {
+                const tag = document.createElement('span');
+                tag.style.cssText = `
+                    font-size:0.7rem;color:#ffaa33;background:rgba(255,170,51,0.15);
+                    border:1px solid rgba(255,170,51,0.3);border-radius:4px;padding:2px 8px;
+                `;
+                tag.textContent = effect.effectName || effect.name || 'Unknown';
+                statusRow.appendChild(tag);
+            }
+            content.appendChild(statusRow);
         }
-        return fallback || null;
+
+        // Show the panel
+        this._inspectPanelEl.style.display = 'flex';
     }
 
-    /**
-     * Preload sprite images for all units that will be in the battle.
-     * Called during enter() so images are cached before the first render frame.
-     * @param {object[]} teamDataEntries - Array of team data objects with instance property.
-     */
-    _preloadUnitSprites(teamDataEntries) {
-        const pathsToLoad = new Set();
-        for (const data of teamDataEntries) {
-            const inst = data.instance || data;
-            const path = this._getSpritePathForInstance(inst);
-            if (path) {
-                pathsToLoad.add(path);
-            }
-        }
-        // Fire off all loads in parallel; they will be cached by AssetLoader
-        for (const path of pathsToLoad) {
-            this.engine.assets.loadImage(path).catch(() => {});
+    _hideUnitInspect() {
+        this._inspectedUnit = null;
+        if (this._inspectPanelEl) {
+            this._inspectPanelEl.style.display = 'none';
         }
     }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // Helpers
+    // ═══════════════════════════════════════════════════════════════════
 
     _screenToGrid(px, py) {
         const gx = this._gridOriginX;
@@ -1457,15 +2185,4 @@ export class BattleScene extends Scene {
         return { x: gridX, y: gridY };
     }
 
-    _getStatusColor(effectData) {
-        if (!effectData) return '#666';
-        const name = (effectData.effectName || '').toLowerCase();
-        const map = {
-            burn: '#ff5533', freeze: '#88ccff', poison: '#aa33aa',
-            stun: '#ffcc00', sleep: '#9999cc', paralysis: '#ffee33',
-            regen: '#33cc66', shield: '#6699ff', haste: '#66ffcc',
-            slow: '#996633', bleed: '#cc0000', confuse: '#cc66ff',
-        };
-        return map[name] || '#888888';
-    }
 }

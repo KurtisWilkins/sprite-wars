@@ -1,0 +1,203 @@
+{
+  "schemaVersion": "1.0.0",
+  "tileset": {
+    "filename": "icon_star_full.png",
+    "tileWidth": 16,
+    "tileHeight": 16,
+    "columns": 4,
+    "rows": 4,
+    "totalTiles": 16,
+    "themeTags": [],
+    "notes": "Auto-generated metadata for icon_star_full.png. Review and correct in Tile Admin."
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "Empty 0",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Prop Overlay 1",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Prop Overlay 2",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Empty 3",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 4,
+      "name": "Prop Overlay 4",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 5,
+      "name": "Prop 5",
+      "description": "Prop tile from icon_star_full",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "prop"
+      ]
+    },
+    {
+      "index": 6,
+      "name": "Prop 6",
+      "description": "Prop tile from icon_star_full",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "prop"
+      ]
+    },
+    {
+      "index": 7,
+      "name": "Prop Right 7",
+      "description": "Prop tile from icon_star_full (right region)",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "prop"
+      ]
+    },
+    {
+      "index": 8,
+      "name": "Prop Overlay 8",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 9,
+      "name": "Prop 9",
+      "description": "Prop tile from icon_star_full",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "prop"
+      ]
+    },
+    {
+      "index": 10,
+      "name": "Prop 10",
+      "description": "Prop tile from icon_star_full",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "prop"
+      ]
+    },
+    {
+      "index": 11,
+      "name": "Prop Overlay 11",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 12,
+      "name": "Empty 12",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 13,
+      "name": "Prop Overlay 13",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 14,
+      "name": "Prop Overlay 14",
+      "description": "Mostly transparent prop element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 15,
+      "name": "Empty 15",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    }
+  ],
+  "structures": []
+}

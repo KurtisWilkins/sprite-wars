@@ -10,31 +10,62 @@
  * designed for mobile-first layout. Screens are registered with ScreenManager.
  */
 import { eventBus, GameEvents } from '../../core/EventBus.js';
+import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
+import { EQUIPMENT, SLOT_TYPES, RARITY_TIERS } from '../../data/EquipmentData.js';
 
 // -- Shared Style Constants ------------------------------------------------------
 
+// Clean cel-shaded art style: vibrant saturated colors, flat fills, black outlines
 const COLORS = {
-    bgDark:     '#0d0d1a',
-    bgPanel:    '#13131f',
-    bgCard:     '#1e1e2e',
-    bgCardDim:  'rgba(20,20,30,0.5)',
-    border:     'rgba(50,50,75,0.6)',
-    borderHi:   'rgba(100,160,255,1)',
-    textPrimary:'#ffffff',
-    textSecondary:'rgba(180,180,200,0.9)',
-    textDim:    'rgba(120,120,140,0.6)',
-    accent:     '#3380e6',
-    success:    '#33a64c',
-    danger:     '#d93333',
-    gold:       '#f2c94c',
+    bgDark:     '#1A1230',
+    bgPanel:    '#221A3D',
+    bgCard:     '#2A2050',
+    bgCardDim:  'rgba(42,32,80,0.6)',
+    border:     '#1A1A1A',
+    borderHi:   '#4A90D9',
+    textPrimary:'#FFFFFF',
+    textSecondary:'#B0B8CC',
+    textDim:    'rgba(140,148,170,0.6)',
+    accent:     '#4A90D9',
+    success:    '#44CC66',
+    danger:     '#DD4444',
+    gold:       '#FFAA33',
 };
 
 const ELEMENT_COLORS = {
-    Fire:     '#ff6633', Water:    '#4d99ff', Earth:    '#997740',
-    Air:      '#b3e6ff', Light:    '#ffff99', Dark:     '#804dbb',
-    Nature:   '#4dcc4d', Electric: '#ffe633', Ice:      '#99e6ff',
-    Metal:    '#b3b3bf', Poison:   '#b34dcc', Psychic:  '#ff80cc',
-    Spirit:   '#99cce6', Chaos:    '#e63366',
+    Fire:     '#ff5533', Water:    '#3399ff', Plant:    '#33aa33',
+    Ice:      '#99ddff', Wind:     '#88ccaa', Earth:    '#996633',
+    Electric: '#ffcc00', Dark:     '#8844aa', Light:    '#ffee99',
+    Fairy:    '#ff66aa', Solar:    '#ffaa33', Lunar:    '#8899cc',
+    Metal:    '#aaaacc', Poison:   '#aa33aa',
+};
+
+const RARITY_COLORS = {
+    common:    '#888888',
+    uncommon:  '#33cc66',
+    rare:      '#3399ff',
+    epic:      '#aa44ff',
+    legendary: '#ffaa00',
+};
+
+const RARITY_STARS = {
+    common: 1, uncommon: 2, rare: 3, epic: 4, legendary: 5,
+};
+
+const SLOT_ICONS = {
+    helmet: '\u26D1', weapon: '\u2694', chest: '\uD83D\uDEE1',
+    gloves: '\uD83E\uDDE4', legs: '\uD83D\uDC56', boots: '\uD83D\uDC62',
+    ring: '\uD83D\uDC8D', amulet: '\uD83D\uDCFF', crystal: '\uD83D\uDC8E',
+};
+
+const STAT_LABELS = {
+    hp: 'HP', atk: 'ATK', def: 'DEF',
+    sp_atk: 'SP.ATK', sp_def: 'SP.DEF', spd: 'SPD',
+};
+
+const STAT_COLORS = {
+    hp:     '#33cc66', atk:    '#ff6644', def:    '#4488ff',
+    sp_atk: '#ff66aa', sp_def: '#66aaff', spd:    '#66ffcc',
 };
 
 // -- Helper: Create styled button -----------------------------------------------
@@ -42,35 +73,36 @@ const ELEMENT_COLORS = {
 function createButton(text, bgColor, opts = {}) {
     const btn = document.createElement('button');
     btn.textContent = text;
+    // Clean cel-shaded button: uniform black outline, flat color fill, rounded corners
     Object.assign(btn.style, {
         padding: opts.padding || '10px 20px',
         background: bgColor,
-        color: COLORS.textPrimary,
-        border: 'none',
-        borderRadius: '12px',
+        color: '#FFFFFF',
+        border: '3px solid #1A1A1A',
+        borderRadius: '8px',
         fontSize: opts.fontSize || '16px',
         fontWeight: 'bold',
+        fontFamily: "Arial, Helvetica, sans-serif",
         cursor: 'pointer',
         minWidth: opts.minWidth || '0',
         textAlign: 'center',
-        transition: 'background 0.15s, transform 0.1s',
+        transition: 'background 0.15s, transform 0.15s',
         userSelect: 'none',
         WebkitTapHighlightColor: 'transparent',
     });
 
-    // Hover and active states
-    const originalBg = bgColor;
+    // Hover and active states — clean
     btn.addEventListener('mouseenter', () => { btn.style.filter = 'brightness(1.15)'; });
-    btn.addEventListener('mouseleave', () => { btn.style.filter = ''; });
+    btn.addEventListener('mouseleave', () => { btn.style.filter = ''; btn.style.transform = ''; });
     btn.addEventListener('mousedown', () => { btn.style.transform = 'scale(0.97)'; });
     btn.addEventListener('mouseup', () => { btn.style.transform = ''; });
-    btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
 
     if (opts.disabled) {
         btn.disabled = true;
-        btn.style.background = 'rgba(50,50,60,0.5)';
+        btn.style.background = '#333344';
         btn.style.color = 'rgba(120,120,120,0.5)';
         btn.style.cursor = 'default';
+        btn.style.borderColor = '#555';
     }
 
     return btn;
@@ -81,20 +113,22 @@ function createButton(text, bgColor, opts = {}) {
 function createTopBar(title, onBack) {
     const bar = document.createElement('div');
     bar.className = 'screen-top-bar';
+    // Clean cel-shaded top bar: flat color, black outline border
     Object.assign(bar.style, {
         display: 'flex',
         alignItems: 'center',
         gap: '16px',
         padding: '12px 16px',
-        background: 'rgba(20,20,35,1)',
-        borderBottom: '2px solid rgba(50,50,75,0.6)',
+        background: '#221A3D',
+        borderBottom: '3px solid #1A1A1A',
         minHeight: '60px',
         boxSizing: 'border-box',
         flexShrink: '0',
+        fontFamily: "Arial, Helvetica, sans-serif",
     });
 
     if (onBack) {
-        const backBtn = createButton('<  Back', 'rgba(35,35,55,1)', { fontSize: '14px', padding: '8px 14px' });
+        const backBtn = createButton('<  Back', '#3D3060', { fontSize: '14px', padding: '8px 14px' });
         backBtn.addEventListener('click', onBack);
         bar.appendChild(backBtn);
     }
@@ -139,6 +173,7 @@ export class MainMenuScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'main-menu-screen';
+        // Clean cel-shaded style: vibrant saturated colors, flat fills
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -148,29 +183,32 @@ export class MainMenuScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: 'sans-serif',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
-        // Title section
+        // Title section — clean cel-shaded style
         const titleSection = document.createElement('div');
         titleSection.style.cssText = 'text-align:center;margin-bottom:40px;';
 
         const title = document.createElement('div');
         title.textContent = 'SPRITE WARS';
         Object.assign(title.style, {
-            fontSize: '42px',
+            fontSize: '46px',
             fontWeight: 'bold',
-            color: '#f2d966',
+            color: '#FFCC33',
             marginBottom: '8px',
-            letterSpacing: '2px',
+            letterSpacing: '3px',
+            fontFamily: "Arial, Helvetica, sans-serif",
+            textShadow: '3px 3px 0 #1A1A1A',
         });
         titleSection.appendChild(title);
 
         const subtitle = document.createElement('div');
         subtitle.textContent = 'Legends of the Shattered Grid';
         Object.assign(subtitle.style, {
-            fontSize: '16px',
-            color: 'rgba(180,180,200,0.8)',
+            fontSize: '17px',
+            color: '#B0B8CC',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
         titleSection.appendChild(subtitle);
 
@@ -298,7 +336,7 @@ export class TeamScreen {
         this._gameManager = deps.gameManager || null;
         this._screenManager = deps.screenManager || null;
 
-        this.MAX_TEAM_SIZE = 10;
+        this.MAX_TEAM_SIZE = 14;
         this._selectedIndex = -1;
         this._detailButton = null;
     }
@@ -311,6 +349,7 @@ export class TeamScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'team-screen';
+        // Clean cel-shaded style
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -318,7 +357,7 @@ export class TeamScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: 'sans-serif',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         // Top bar
@@ -354,6 +393,7 @@ export class TeamScreen {
     _createTeamSlot(index, spriteData) {
         const isEmpty = !spriteData;
 
+        // Clean cel-shaded slot with uniform outline
         const slot = document.createElement('div');
         slot.className = 'team-slot';
         Object.assign(slot.style, {
@@ -362,11 +402,12 @@ export class TeamScreen {
             gap: '12px',
             padding: '10px 12px',
             background: isEmpty ? COLORS.bgCardDim : COLORS.bgCard,
-            borderRadius: '12px',
-            border: `2px solid ${COLORS.border}`,
+            borderRadius: '8px',
+            border: `3px solid ${COLORS.border}`,
             cursor: 'pointer',
             minHeight: '80px',
             transition: 'border-color 0.15s',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         if (isEmpty) {
@@ -386,14 +427,24 @@ export class TeamScreen {
             numLabel.style.cssText = 'color:rgba(130,130,140,0.7);font-size:14px;min-width:30px;';
             slot.appendChild(numLabel);
 
-            // Portrait placeholder
-            const portrait = document.createElement('div');
+            // Portrait with equipment rendering
+            const portrait = document.createElement('canvas');
+            portrait.width = 56;
+            portrait.height = 56;
             Object.assign(portrait.style, {
                 width: '56px', height: '56px',
-                background: 'rgba(35,35,55,1)',
                 borderRadius: '8px',
                 flexShrink: '0',
+                imageRendering: 'crisp-edges',
+                background: 'rgba(35,35,55,1)',
             });
+            const pCtx = portrait.getContext('2d');
+            const sRaceId = spriteData.raceId || spriteData.race_id || 1;
+            const sStage = spriteData.evolutionStage || spriteData.evolution_stage || 1;
+            const sEquip = spriteData.equipment || {};
+            HumanoidSpriteSystem.drawWithEquipment(
+                pCtx, sRaceId, sStage, 0, 0, 28, 48, 50, { equipment: sEquip }
+            );
             slot.appendChild(portrait);
 
             // Info column
@@ -404,21 +455,21 @@ export class TeamScreen {
             const displayName = spriteData.nickname || `Sprite #${spriteData.raceId || '?'}`;
             const nameEl = document.createElement('div');
             nameEl.textContent = displayName;
-            nameEl.style.cssText = 'color:#fff;font-size:16px;font-weight:bold;';
+            nameEl.style.cssText = "color:#FFFFFF;font-size:16px;font-weight:bold;font-family:Arial,Helvetica,sans-serif;";
             info.appendChild(nameEl);
 
             // Level
             const levelEl = document.createElement('div');
             levelEl.textContent = `Lv. ${spriteData.level || 1}`;
-            levelEl.style.cssText = 'color:rgba(180,200,255,0.9);font-size:14px;';
+            levelEl.style.cssText = "color:#B0B8CC;font-size:14px;font-family:Arial,Helvetica,sans-serif;";
             info.appendChild(levelEl);
 
-            // HP bar
+            // HP bar — clean flat rectangle with black outline
             const hpBar = document.createElement('div');
-            hpBar.style.cssText = 'width:100%;height:8px;background:rgba(35,35,50,1);border-radius:4px;overflow:hidden;';
+            hpBar.style.cssText = 'width:100%;height:8px;background:#1A1A2E;border-radius:4px;overflow:hidden;border:2px solid #1A1A1A;position:relative;';
             const hpFill = document.createElement('div');
             const hpPct = spriteData.maxHp > 0 ? (spriteData.currentHp / spriteData.maxHp) * 100 : 100;
-            hpFill.style.cssText = `width:${hpPct}%;height:100%;background:#33cc55;border-radius:4px;`;
+            hpFill.style.cssText = `width:${hpPct}%;height:100%;background:#33CC55;border-radius:2px;position:relative;z-index:1;`;
             hpBar.appendChild(hpFill);
             info.appendChild(hpBar);
 
@@ -447,16 +498,18 @@ export class TeamScreen {
     _buildBottomBar() {
         const bar = document.createElement('div');
         bar.className = 'screen-bottom-bar';
+        // Clean cel-shaded bottom bar: flat color, black outline border
         Object.assign(bar.style, {
             display: 'flex',
             justifyContent: 'center',
             gap: '20px',
             padding: '12px 16px',
-            background: 'rgba(20,20,35,1)',
-            borderTop: '2px solid rgba(50,50,75,0.6)',
+            background: '#221A3D',
+            borderTop: '3px solid #1A1A1A',
             minHeight: '60px',
             boxSizing: 'border-box',
             flexShrink: '0',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         this._detailButton = createButton('Details', COLORS.accent, { disabled: true, padding: '10px 28px' });
@@ -543,13 +596,24 @@ export class InventoryScreen {
         this.TAB_KEYS  = ['consumables', 'crystals', 'equipment', 'key_items', 'materials'];
         this.GRID_COLUMNS = 5;
         this.CELL_SIZE = 80;
+        this.EQUIPMENT_CAPACITY = 100;
 
         this._currentTab = 'consumables';
         this._selectedItemId = -1;
 
+        // Equipment tab state
+        this._eqSlotFilter = 'all';
+        this._eqRarityFilter = 'all';
+        this._eqElementFilter = 'all';
+        this._eqSortMode = 'rarity';
+
         /** @private DOM refs */
+        this._screenEl = null;
         this._tabBar = null;
         this._itemGrid = null;
+        this._sortRow = null;
+        this._eqFilterRow = null;
+        this._eqCountHeader = null;
         this._detailOverlay = null;
         this._detailName = null;
         this._detailDesc = null;
@@ -566,6 +630,7 @@ export class InventoryScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'inventory-screen';
+        // Clean cel-shaded style
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -573,8 +638,9 @@ export class InventoryScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: 'sans-serif',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
+        this._screenEl = screen;
 
         // Top bar
         screen.appendChild(createTopBar('Inventory', () => this._onBackPressed()));
@@ -583,8 +649,23 @@ export class InventoryScreen {
         this._tabBar = this._buildTabBar();
         screen.appendChild(this._tabBar);
 
-        // Sort row
-        screen.appendChild(this._buildSortRow());
+        // Sort row (for non-equipment tabs)
+        this._sortRow = this._buildSortRow();
+        screen.appendChild(this._sortRow);
+
+        // Equipment filter row (hidden by default, shown for equipment tab)
+        this._eqFilterRow = this._buildEquipmentFilterRow();
+        this._eqFilterRow.style.display = 'none';
+        screen.appendChild(this._eqFilterRow);
+
+        // Equipment count header (hidden by default)
+        this._eqCountHeader = document.createElement('div');
+        this._eqCountHeader.style.cssText = `
+            display: none; padding: 4px 24px 0;
+            font-size: 14px; font-weight: 600; color: ${COLORS.textSecondary};
+            flex-shrink: 0;
+        `;
+        screen.appendChild(this._eqCountHeader);
 
         // Item grid (scrollable)
         const scrollArea = document.createElement('div');
@@ -603,6 +684,9 @@ export class InventoryScreen {
         // Detail popup overlay
         this._buildDetailPopup(screen);
 
+        // Sprite selection overlay (for equip flow)
+        this._buildSpriteSelectionOverlay(screen);
+
         // Populate initial tab
         this._populateItems(this._currentTab);
 
@@ -613,12 +697,14 @@ export class InventoryScreen {
     _buildTabBar() {
         const bar = document.createElement('div');
         bar.className = 'inventory-tab-bar';
+        // Clean cel-shaded tab bar
         Object.assign(bar.style, {
             display: 'flex',
             overflow: 'auto',
-            background: 'rgba(18,18,30,1)',
-            borderBottom: '1px solid rgba(50,50,75,0.4)',
+            background: '#221A3D',
+            borderBottom: '3px solid #1A1A1A',
             flexShrink: '0',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         for (let i = 0; i < this.TAB_NAMES.length; i++) {
@@ -636,6 +722,7 @@ export class InventoryScreen {
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 transition: 'color 0.15s, border-color 0.15s',
+                minHeight: '44px',
             });
 
             tab.addEventListener('click', () => {
@@ -667,11 +754,12 @@ export class InventoryScreen {
         }
         Object.assign(select.style, {
             padding: '6px 10px',
-            background: 'rgba(25,25,40,1)',
+            background: '#2A2050',
             color: COLORS.textSecondary,
-            border: `1px solid ${COLORS.border}`,
+            border: `2px solid ${COLORS.border}`,
             borderRadius: '6px',
             fontSize: '14px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
         });
         select.addEventListener('change', () => {
             this._populateItems(this._currentTab);
@@ -679,6 +767,103 @@ export class InventoryScreen {
         row.appendChild(select);
 
         return row;
+    }
+
+    /** @private Build the equipment-specific sort/filter bar */
+    _buildEquipmentFilterRow() {
+        const row = document.createElement('div');
+        row.style.cssText = `
+            display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+            padding: 8px 24px; flex-shrink: 0;
+            background: rgba(18, 18, 30, 0.6);
+            border-bottom: 1px solid rgba(50,50,75,0.3);
+        `;
+
+        // Slot filter
+        const slotLabel = document.createElement('span');
+        slotLabel.textContent = 'Slot:';
+        slotLabel.style.cssText = `color:${COLORS.textDim};font-size:13px;`;
+        row.appendChild(slotLabel);
+
+        const slotSelect = document.createElement('select');
+        slotSelect.style.cssText = this._filterSelectStyle();
+        const slotOpts = [{ value: 'all', label: 'All Slots' }];
+        for (const st of SLOT_TYPES) {
+            slotOpts.push({ value: st, label: `${SLOT_ICONS[st] || ''} ${st.charAt(0).toUpperCase() + st.slice(1)}` });
+        }
+        for (const so of slotOpts) {
+            const o = document.createElement('option');
+            o.value = so.value;
+            o.textContent = so.label;
+            slotSelect.appendChild(o);
+        }
+        slotSelect.addEventListener('change', () => {
+            this._eqSlotFilter = slotSelect.value;
+            this._populateEquipmentTab();
+        });
+        row.appendChild(slotSelect);
+
+        // Rarity filter
+        const rarLabel = document.createElement('span');
+        rarLabel.textContent = 'Rarity:';
+        rarLabel.style.cssText = `color:${COLORS.textDim};font-size:13px;margin-left:4px;`;
+        row.appendChild(rarLabel);
+
+        const rarSelect = document.createElement('select');
+        rarSelect.style.cssText = this._filterSelectStyle();
+        const rarOpts = [{ value: 'all', label: 'All' }];
+        for (const rt of RARITY_TIERS) {
+            rarOpts.push({ value: rt, label: rt.charAt(0).toUpperCase() + rt.slice(1) });
+        }
+        for (const ro of rarOpts) {
+            const o = document.createElement('option');
+            o.value = ro.value;
+            o.textContent = ro.label;
+            rarSelect.appendChild(o);
+        }
+        rarSelect.addEventListener('change', () => {
+            this._eqRarityFilter = rarSelect.value;
+            this._populateEquipmentTab();
+        });
+        row.appendChild(rarSelect);
+
+        // Sort
+        const sortLabel = document.createElement('span');
+        sortLabel.textContent = 'Sort:';
+        sortLabel.style.cssText = `color:${COLORS.textDim};font-size:13px;margin-left:4px;`;
+        row.appendChild(sortLabel);
+
+        const sortSelect = document.createElement('select');
+        sortSelect.style.cssText = this._filterSelectStyle();
+        const sortOpts = [
+            { value: 'rarity', label: 'Rarity' },
+            { value: 'slot', label: 'Slot Type' },
+            { value: 'name', label: 'Name A-Z' },
+            { value: 'level', label: 'Level Req' },
+        ];
+        for (const srt of sortOpts) {
+            const o = document.createElement('option');
+            o.value = srt.value;
+            o.textContent = srt.label;
+            sortSelect.appendChild(o);
+        }
+        sortSelect.addEventListener('change', () => {
+            this._eqSortMode = sortSelect.value;
+            this._populateEquipmentTab();
+        });
+        row.appendChild(sortSelect);
+
+        return row;
+    }
+
+    /** @private Shared style for filter/sort selects */
+    _filterSelectStyle() {
+        return `
+            padding: 5px 8px; background: #2A2050;
+            color: ${COLORS.textSecondary}; border: 2px solid ${COLORS.border};
+            border-radius: 6px; font-size: 13px; min-height: 36px;
+            font-family: Arial, Helvetica, sans-serif;
+        `;
     }
 
     /** @private */
@@ -702,16 +887,17 @@ export class InventoryScreen {
             if (e.target === this._detailOverlay) this._closeDetail();
         });
 
-        // Popup panel
+        // Popup panel — clean cel-shaded: flat color, uniform black outline
         const popup = document.createElement('div');
         popup.className = 'item-detail-popup';
         Object.assign(popup.style, {
             background: COLORS.bgPanel,
-            borderRadius: '16px',
-            border: `2px solid rgba(70,70,100,0.6)`,
+            borderRadius: '8px',
+            border: `3px solid #1A1A1A`,
             padding: '24px 28px',
             minWidth: '280px',
             maxWidth: '90%',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         this._detailName = document.createElement('div');
@@ -751,6 +937,54 @@ export class InventoryScreen {
         parent.appendChild(this._detailOverlay);
     }
 
+    /** @private Build sprite selection overlay for equip flow */
+    _buildSpriteSelectionOverlay(parent) {
+        this._spriteSelectOverlay = document.createElement('div');
+        Object.assign(this._spriteSelectOverlay.style, {
+            position: 'absolute',
+            top: '0', left: '0',
+            width: '100%', height: '100%',
+            background: 'rgba(0,0,0,0.6)',
+            display: 'none',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: '550',
+        });
+        this._spriteSelectOverlay.addEventListener('click', (e) => {
+            if (e.target === this._spriteSelectOverlay) {
+                this._spriteSelectOverlay.style.display = 'none';
+            }
+        });
+
+        const panel = document.createElement('div');
+        panel.style.cssText = `
+            background: ${COLORS.bgPanel}; border-radius: 8px;
+            border: 3px solid #1A1A1A;
+            padding: 20px 24px; min-width: 300px; max-width: 90%;
+            max-height: 80%; overflow-y: auto;
+            font-family: Arial, Helvetica, sans-serif;
+        `;
+
+        const panelTitle = document.createElement('div');
+        panelTitle.style.cssText = 'font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 12px; text-align: center;';
+        panelTitle.textContent = 'Select Sprite to Equip';
+        panel.appendChild(panelTitle);
+
+        this._spriteListContainer = document.createElement('div');
+        this._spriteListContainer.style.cssText = 'display: flex; flex-direction: column; gap: 8px;';
+        panel.appendChild(this._spriteListContainer);
+
+        const cancelBtn = createButton('Cancel', 'rgba(70,70,90,1)', { padding: '10px 24px', minWidth: '100%' });
+        cancelBtn.style.marginTop = '12px';
+        cancelBtn.addEventListener('click', () => {
+            this._spriteSelectOverlay.style.display = 'none';
+        });
+        panel.appendChild(cancelBtn);
+
+        this._spriteSelectOverlay.appendChild(panel);
+        parent.appendChild(this._spriteSelectOverlay);
+    }
+
     /** @private */
     _switchTab(tabKey, tabBarEl) {
         this._currentTab = tabKey;
@@ -763,13 +997,37 @@ export class InventoryScreen {
             t.style.borderBottom = isActive ? `2px solid ${COLORS.accent}` : '2px solid transparent';
         }
 
-        this._populateItems(tabKey);
+        // Toggle filter rows and grid layout based on tab
+        const isEquipment = tabKey === 'equipment';
+        this._sortRow.style.display = isEquipment ? 'none' : 'flex';
+        this._eqFilterRow.style.display = isEquipment ? 'flex' : 'none';
+        this._eqCountHeader.style.display = isEquipment ? 'block' : 'none';
+
+        if (isEquipment) {
+            // Equipment uses a vertical card list, not a grid
+            this._itemGrid.style.display = 'flex';
+            this._itemGrid.style.flexDirection = 'column';
+            this._itemGrid.style.gap = '8px';
+            this._itemGrid.style.gridTemplateColumns = '';
+            this._populateEquipmentTab();
+        } else {
+            this._itemGrid.style.display = 'grid';
+            this._itemGrid.style.flexDirection = '';
+            this._itemGrid.style.gridTemplateColumns = `repeat(${this.GRID_COLUMNS}, 1fr)`;
+            this._itemGrid.style.gap = '8px';
+            this._populateItems(tabKey);
+        }
     }
 
     /** @private */
     _populateItems(category) {
         if (!this._itemGrid) return;
         this._itemGrid.innerHTML = '';
+
+        if (category === 'equipment') {
+            this._populateEquipmentTab();
+            return;
+        }
 
         // Get inventory items for this category
         const inventory = (this._gameManager && this._gameManager.playerData)
@@ -786,14 +1044,15 @@ export class InventoryScreen {
         }
 
         for (const item of items) {
+            // Clean cel-shaded item cell with uniform outline
             const cell = document.createElement('div');
             cell.className = 'item-cell';
             Object.assign(cell.style, {
                 width: '100%',
                 aspectRatio: '1',
                 background: COLORS.bgCard,
-                borderRadius: '10px',
-                border: `1px solid ${COLORS.border}`,
+                borderRadius: '8px',
+                border: `3px solid ${COLORS.border}`,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -803,11 +1062,15 @@ export class InventoryScreen {
                 color: COLORS.textSecondary,
                 padding: '4px',
                 boxSizing: 'border-box',
+                fontFamily: "Arial, Helvetica, sans-serif",
+                transition: 'background 0.15s',
             });
 
-            // Item icon or placeholder
+            // Item icon with category-specific emoji
             const iconArea = document.createElement('div');
-            iconArea.style.cssText = 'width:48px;height:48px;background:rgba(40,40,60,1);border-radius:6px;margin-bottom:4px;';
+            iconArea.style.cssText = 'width:48px;height:48px;background:rgba(40,40,60,1);border-radius:6px;margin-bottom:4px;display:flex;align-items:center;justify-content:center;font-size:22px;';
+            const catIcons = { consumables: '\u{1F9EA}', crystals: '\u{1F48E}', equipment: '\u2694\uFE0F', key_items: '\u{1F511}', materials: '\u{1F9F1}' };
+            iconArea.textContent = catIcons[category] || '\u{1F4E6}';
             cell.appendChild(iconArea);
 
             // Quantity badge
@@ -824,6 +1087,435 @@ export class InventoryScreen {
 
             this._itemGrid.appendChild(cell);
         }
+    }
+
+    // ── Equipment Tab ─────────────────────────────────────────────────────
+
+    /** @private Populate the equipment tab with rich equipment cards */
+    _populateEquipmentTab() {
+        if (!this._itemGrid) return;
+        this._itemGrid.innerHTML = '';
+
+        // Get unequipped equipment from player data
+        const playerData = (this._gameManager && this._gameManager.playerData)
+            ? this._gameManager.playerData
+            : {};
+        let equipmentList = playerData.equipmentInventory || [];
+
+        // Also check generic inventory.equipment for backwards compatibility
+        if (equipmentList.length === 0 && playerData.inventory && playerData.inventory.equipment) {
+            equipmentList = playerData.inventory.equipment;
+        }
+
+        // Resolve equipment data: items might be IDs or full objects
+        let resolvedItems = equipmentList.map(item => {
+            if (typeof item === 'number') {
+                const found = EQUIPMENT.find(e => e.equipment_id === item);
+                return found || null;
+            }
+            if (item && (item.equipment_id || item.equipmentId)) {
+                // If it's a partial object, try to enrich with static data
+                const eqId = item.equipment_id || item.equipmentId;
+                const staticData = EQUIPMENT.find(e => e.equipment_id === eqId);
+                return staticData || item;
+            }
+            return item;
+        }).filter(Boolean);
+
+        // Apply slot filter
+        if (this._eqSlotFilter !== 'all') {
+            resolvedItems = resolvedItems.filter(e =>
+                (e.slot_type || e.slotType) === this._eqSlotFilter
+            );
+        }
+
+        // Apply rarity filter
+        if (this._eqRarityFilter !== 'all') {
+            resolvedItems = resolvedItems.filter(e =>
+                (e.rarity || 'common') === this._eqRarityFilter
+            );
+        }
+
+        // Apply sorting
+        resolvedItems = this._sortEquipmentList(resolvedItems, this._eqSortMode);
+
+        // Update count header
+        const totalCount = (playerData.equipmentInventory || []).length;
+        this._eqCountHeader.textContent = `Equipment (${totalCount}/${this.EQUIPMENT_CAPACITY})`;
+        this._eqCountHeader.style.display = 'block';
+
+        if (resolvedItems.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.textContent = this._eqSlotFilter !== 'all' || this._eqRarityFilter !== 'all'
+                ? 'No equipment matches the current filters.'
+                : 'No unequipped equipment in inventory.';
+            emptyMsg.style.cssText = `
+                color: ${COLORS.textDim}; font-size: 15px;
+                text-align: center; padding: 40px 0;
+            `;
+            this._itemGrid.appendChild(emptyMsg);
+            return;
+        }
+
+        for (const eqData of resolvedItems) {
+            this._itemGrid.appendChild(this._createEquipmentCard(eqData));
+        }
+    }
+
+    /** @private Sort the equipment list */
+    _sortEquipmentList(items, mode) {
+        const rarityOrder = { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4 };
+        const slotOrder = {};
+        SLOT_TYPES.forEach((s, i) => { slotOrder[s] = i; });
+
+        const sorted = [...items];
+        switch (mode) {
+            case 'rarity':
+                sorted.sort((a, b) => {
+                    const ra = rarityOrder[a.rarity || 'common'] || 0;
+                    const rb = rarityOrder[b.rarity || 'common'] || 0;
+                    return rb - ra; // Higher rarity first
+                });
+                break;
+            case 'slot':
+                sorted.sort((a, b) => {
+                    const sa = slotOrder[a.slot_type || a.slotType || ''] || 0;
+                    const sb = slotOrder[b.slot_type || b.slotType || ''] || 0;
+                    return sa - sb;
+                });
+                break;
+            case 'name':
+                sorted.sort((a, b) => {
+                    const na = (a.equipment_name || a.equipmentName || '').toLowerCase();
+                    const nb = (b.equipment_name || b.equipmentName || '').toLowerCase();
+                    return na < nb ? -1 : na > nb ? 1 : 0;
+                });
+                break;
+            case 'level':
+                sorted.sort((a, b) => {
+                    const la = a.level_requirement || a.levelRequirement || 0;
+                    const lb = b.level_requirement || b.levelRequirement || 0;
+                    return lb - la; // Higher level first
+                });
+                break;
+        }
+        return sorted;
+    }
+
+    /**
+     * @private Create a rich equipment card for the inventory.
+     * @param {object} eqData
+     * @returns {HTMLElement}
+     */
+    _createEquipmentCard(eqData) {
+        const rarityColor = RARITY_COLORS[eqData.rarity] || '#888';
+        const rarity = eqData.rarity || 'common';
+        const rarityLabel = rarity.charAt(0).toUpperCase() + rarity.slice(1);
+        const stars = RARITY_STARS[rarity] || 1;
+        const slotType = eqData.slot_type || eqData.slotType || 'weapon';
+        const slotIcon = SLOT_ICONS[slotType] || '\u2B24';
+        const slotLabel = slotType.charAt(0).toUpperCase() + slotType.slice(1);
+        const name = eqData.equipment_name || eqData.equipmentName || 'Unknown';
+        const levelReq = eqData.level_requirement || eqData.levelRequirement || 1;
+        const description = eqData.description || '';
+
+        // Clean cel-shaded equipment card: flat color, uniform outline
+        const card = document.createElement('div');
+        card.style.cssText = `
+            display: flex; flex-direction: column;
+            padding: 12px 14px;
+            background: ${COLORS.bgCard};
+            border-radius: 8px;
+            border: 3px solid ${COLORS.border};
+            border-left: 5px solid ${rarityColor};
+            cursor: pointer;
+            transition: background 0.15s;
+            min-height: 44px;
+            font-family: Arial, Helvetica, sans-serif;
+        `;
+        card.addEventListener('mouseenter', () => {
+            card.style.background = '#332855';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.background = COLORS.bgCard;
+        });
+
+        // ── Top row: name + rarity stars ──
+        const topRow = document.createElement('div');
+        topRow.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 4px;';
+
+        // Slot icon
+        const iconEl = document.createElement('span');
+        iconEl.style.cssText = `
+            font-size: 1.2rem; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(40,40,60,0.8); border-radius: 6px;
+            border: 1px solid ${rarityColor}44; flex-shrink: 0;
+        `;
+        iconEl.textContent = slotIcon;
+        topRow.appendChild(iconEl);
+
+        // Name + stars column
+        const nameCol = document.createElement('div');
+        nameCol.style.cssText = 'flex: 1; min-width: 0;';
+
+        const nameEl = document.createElement('div');
+        nameEl.style.cssText = `
+            font-size: 15px; font-weight: 700; color: ${rarityColor};
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        `;
+        nameEl.textContent = name;
+        nameCol.appendChild(nameEl);
+
+        const starsRow = document.createElement('div');
+        starsRow.style.cssText = 'font-size: 12px; margin-top: 1px;';
+        starsRow.innerHTML = `<span style="color:${rarityColor};">${'\u2605'.repeat(stars)}</span><span style="color:#333;">${'\u2605'.repeat(5 - stars)}</span>`;
+        nameCol.appendChild(starsRow);
+
+        topRow.appendChild(nameCol);
+
+        // Equip button
+        const equipBtn = createButton('Equip', COLORS.accent, { padding: '6px 14px', fontSize: '13px' });
+        equipBtn.style.minHeight = '36px';
+        equipBtn.style.minWidth = '60px';
+        equipBtn.style.flexShrink = '0';
+        equipBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this._showSpriteSelectionForEquip(eqData);
+        });
+        topRow.appendChild(equipBtn);
+
+        card.appendChild(topRow);
+
+        // ── Meta row: slot + level req ──
+        const metaRow = document.createElement('div');
+        metaRow.style.cssText = 'display: flex; align-items: center; gap: 10px; font-size: 12px; color: rgba(150,150,170,0.8); margin-bottom: 6px;';
+        metaRow.innerHTML = `
+            <span>${slotIcon} ${slotLabel}</span>
+            <span style="color:${COLORS.textDim};">&middot;</span>
+            <span>${rarityLabel}</span>
+            <span style="color:${COLORS.textDim};">&middot;</span>
+            <span>Lv. ${levelReq}+</span>
+        `;
+        card.appendChild(metaRow);
+
+        // ── Stat bonuses grid ──
+        const statBonuses = eqData.stat_bonuses || eqData.statBonuses || {};
+        const statsRow = document.createElement('div');
+        statsRow.style.cssText = 'display: flex; flex-wrap: wrap; gap: 4px 6px; margin-bottom: 4px;';
+
+        for (const [statKey, val] of Object.entries(statBonuses)) {
+            if (val && val !== 0) {
+                const statColor = STAT_COLORS[statKey] || '#888';
+                const label = STAT_LABELS[statKey] || statKey;
+                const sign = val > 0 ? '+' : '';
+                const badge = document.createElement('span');
+                badge.style.cssText = `
+                    font-size: 11px; font-weight: 600;
+                    color: ${statColor};
+                    background: ${statColor}15;
+                    padding: 2px 6px; border-radius: 4px;
+                    border: 1px solid ${statColor}30;
+                `;
+                badge.textContent = `${label} ${sign}${val}`;
+                statsRow.appendChild(badge);
+            }
+        }
+        if (statsRow.children.length > 0) {
+            card.appendChild(statsRow);
+        }
+
+        // ── Synergy tags ──
+        const elemSynergy = eqData.element_synergy || eqData.elementSynergy || '';
+        const classSynergy = eqData.class_synergy || eqData.classSynergy || '';
+        if (elemSynergy || classSynergy) {
+            const synergyRow = document.createElement('div');
+            synergyRow.style.cssText = 'display: flex; gap: 6px; margin-bottom: 4px;';
+
+            if (elemSynergy) {
+                const elemColor = ELEMENT_COLORS[elemSynergy] || '#888';
+                const elemBadge = document.createElement('span');
+                elemBadge.style.cssText = `
+                    font-size: 11px; font-weight: 600;
+                    color: ${elemColor}; background: ${elemColor}18;
+                    padding: 2px 7px; border-radius: 4px;
+                    border: 1px solid ${elemColor}40;
+                `;
+                const mult = eqData.element_synergy_multiplier || eqData.elementSynergyMultiplier || 1;
+                elemBadge.textContent = `${elemSynergy} Synergy x${mult}`;
+                synergyRow.appendChild(elemBadge);
+            }
+            if (classSynergy) {
+                const classBadge = document.createElement('span');
+                classBadge.style.cssText = `
+                    font-size: 11px; font-weight: 600;
+                    color: #ccaa66; background: rgba(204,170,102,0.1);
+                    padding: 2px 7px; border-radius: 4px;
+                    border: 1px solid rgba(204,170,102,0.3);
+                `;
+                const classMult = eqData.class_synergy_multiplier || eqData.classSynergyMultiplier || 1;
+                classBadge.textContent = `${classSynergy} x${classMult}`;
+                synergyRow.appendChild(classBadge);
+            }
+
+            card.appendChild(synergyRow);
+        }
+
+        // ── Description ──
+        if (description) {
+            const descEl = document.createElement('div');
+            descEl.style.cssText = 'font-size: 12px; color: rgba(150,150,170,0.7); font-style: italic; line-height: 1.4;';
+            descEl.textContent = description;
+            card.appendChild(descEl);
+        }
+
+        return card;
+    }
+
+    /**
+     * @private Show the sprite selection flow for equipping an item.
+     * @param {object} eqData - The equipment data to equip
+     */
+    _showSpriteSelectionForEquip(eqData) {
+        if (!this._spriteListContainer) return;
+        this._spriteListContainer.innerHTML = '';
+
+        const team = (this._gameManager && this._gameManager.playerData)
+            ? this._gameManager.playerData.team || []
+            : [];
+
+        if (team.length === 0) {
+            const noSprites = document.createElement('div');
+            noSprites.style.cssText = `color:${COLORS.textDim}; text-align:center; padding:20px 0; font-size:14px;`;
+            noSprites.textContent = 'No sprites in your team.';
+            this._spriteListContainer.appendChild(noSprites);
+        }
+
+        const slotType = eqData.slot_type || eqData.slotType || 'weapon';
+        const levelReq = eqData.level_requirement || eqData.levelRequirement || 0;
+
+        for (let i = 0; i < team.length; i++) {
+            const sprite = team[i];
+            if (!sprite) continue;
+
+            const spriteLevel = sprite.level || 1;
+            const meetsLevel = spriteLevel >= levelReq;
+            const displayName = sprite.nickname || `Sprite #${sprite.raceId || sprite.race_id || '?'}`;
+            const currentEquip = sprite.equipment ? sprite.equipment[slotType] : null;
+            const currentEqName = currentEquip
+                ? (EQUIPMENT.find(e => e.equipment_id === currentEquip) || {}).equipment_name || `Item #${currentEquip}`
+                : 'Empty';
+
+            const row = document.createElement('div');
+            row.style.cssText = `
+                display: flex; align-items: center; gap: 10px;
+                padding: 10px 12px; border-radius: 10px;
+                background: ${COLORS.bgCard};
+                border: 1px solid ${COLORS.border};
+                cursor: ${meetsLevel ? 'pointer' : 'default'};
+                opacity: ${meetsLevel ? '1' : '0.5'};
+                transition: background 0.15s;
+                min-height: 54px;
+            `;
+
+            if (meetsLevel) {
+                row.addEventListener('mouseenter', () => { row.style.background = 'rgba(35,35,55,1)'; });
+                row.addEventListener('mouseleave', () => { row.style.background = COLORS.bgCard; });
+                row.addEventListener('click', () => {
+                    this._performEquip(sprite, eqData, i);
+                    this._spriteSelectOverlay.style.display = 'none';
+                });
+            }
+
+            // Portrait
+            const portrait = document.createElement('canvas');
+            portrait.width = 44;
+            portrait.height = 44;
+            Object.assign(portrait.style, {
+                width: '44px', height: '44px',
+                borderRadius: '6px', flexShrink: '0',
+                imageRendering: 'crisp-edges',
+                background: 'rgba(35,35,55,1)',
+            });
+            const pCtx = portrait.getContext('2d');
+            const sRaceId = sprite.raceId || sprite.race_id || 1;
+            const sStage = sprite.evolutionStage || sprite.evolution_stage || 1;
+            HumanoidSpriteSystem.drawWithEquipment(
+                pCtx, sRaceId, sStage, 0, 0, 22, 36, 40, { equipment: sprite.equipment || {} }
+            );
+            row.appendChild(portrait);
+
+            // Info
+            const info = document.createElement('div');
+            info.style.cssText = 'flex: 1; min-width: 0;';
+
+            const nameEl = document.createElement('div');
+            nameEl.style.cssText = 'font-size: 14px; font-weight: bold; color: #fff;';
+            nameEl.textContent = `${displayName} (Lv.${spriteLevel})`;
+            info.appendChild(nameEl);
+
+            const currentSlotEl = document.createElement('div');
+            currentSlotEl.style.cssText = 'font-size: 12px; color: rgba(150,150,170,0.8);';
+            currentSlotEl.textContent = `${SLOT_ICONS[slotType] || ''} ${slotType}: ${currentEqName}`;
+            info.appendChild(currentSlotEl);
+
+            if (!meetsLevel) {
+                const reqEl = document.createElement('div');
+                reqEl.style.cssText = 'font-size: 11px; color: #cc4444;';
+                reqEl.textContent = `Requires Lv.${levelReq}`;
+                info.appendChild(reqEl);
+            }
+
+            row.appendChild(info);
+            this._spriteListContainer.appendChild(row);
+        }
+
+        this._spriteSelectOverlay.style.display = 'flex';
+    }
+
+    /**
+     * @private Perform the equip action and emit events.
+     * @param {object} sprite
+     * @param {object} eqData
+     * @param {number} spriteIndex
+     */
+    _performEquip(sprite, eqData, spriteIndex) {
+        const eqId = eqData.equipment_id || eqData.equipmentId;
+        const slotType = eqData.slot_type || eqData.slotType || 'weapon';
+
+        eventBus.emit(GameEvents.EQUIPMENT_CHANGED, {
+            itemId: eqId,
+            equipmentData: eqData,
+            spriteIndex,
+            slotType,
+        });
+
+        // Optimistic UI update
+        if (!sprite.equipment) sprite.equipment = {};
+        const oldEquipId = sprite.equipment[slotType];
+        sprite.equipment[slotType] = eqId;
+
+        // Remove from player inventory and add back old item
+        const playerData = this._gameManager && this._gameManager.playerData;
+        if (playerData && playerData.equipmentInventory) {
+            const removeIdx = playerData.equipmentInventory.findIndex(e => {
+                const eid = e.equipment_id || e.equipmentId;
+                return eid === eqId;
+            });
+            if (removeIdx >= 0) {
+                playerData.equipmentInventory.splice(removeIdx, 1);
+            }
+            // Return old item to inventory
+            if (oldEquipId) {
+                const oldEqData = EQUIPMENT.find(e => e.equipment_id === oldEquipId);
+                if (oldEqData) {
+                    playerData.equipmentInventory.push(oldEqData);
+                }
+            }
+        }
+
+        // Refresh equipment display
+        this._populateEquipmentTab();
     }
 
     /** @private */
@@ -896,6 +1588,7 @@ export class SettingsScreen {
     build(params = {}) {
         const screen = document.createElement('div');
         screen.className = 'settings-screen';
+        // Clean cel-shaded style
         Object.assign(screen.style, {
             display: 'flex',
             flexDirection: 'column',
@@ -903,7 +1596,7 @@ export class SettingsScreen {
             height: '100%',
             background: COLORS.bgDark,
             color: COLORS.textPrimary,
-            fontFamily: 'sans-serif',
+            fontFamily: "Arial, Helvetica, sans-serif",
         });
 
         // Top bar
@@ -929,7 +1622,7 @@ export class SettingsScreen {
         content.appendChild(musicSlider.row);
 
         const musicMute = this._createCheckRow('Mute Music', settings.musicMuted, (checked) => {
-            if (this._audioEngine && checked) this._audioEngine.toggleMute();
+            if (this._audioEngine) this._audioEngine.toggleMute();
             this._autoSave();
         });
         content.appendChild(musicMute);
@@ -940,12 +1633,14 @@ export class SettingsScreen {
         });
         content.appendChild(sfxSlider.row);
 
-        const sfxMute = this._createCheckRow('Mute SFX', settings.sfxMuted, (_checked) => {
+        const sfxMute = this._createCheckRow('Mute SFX', settings.sfxMuted, (checked) => {
+            if (this._audioEngine) this._audioEngine.setSfxMuted(checked);
             this._autoSave();
         });
         content.appendChild(sfxMute);
 
-        const ambientSlider = this._createSliderRow('Ambient Volume', 0, 1, settings.ambientVolume, (_val) => {
+        const ambientSlider = this._createSliderRow('Ambient Volume', 0, 1, settings.ambientVolume, (val) => {
+            if (this._audioEngine) this._audioEngine.setAmbientVolume(val);
             this._autoSave();
         });
         content.appendChild(ambientSlider.row);
@@ -1085,12 +1780,13 @@ export class SettingsScreen {
         select.selectedIndex = selectedIndex || 0;
         Object.assign(select.style, {
             padding: '8px 12px',
-            background: 'rgba(25,25,40,1)',
+            background: '#2A2050',
             color: COLORS.textSecondary,
-            border: `1px solid ${COLORS.border}`,
+            border: `2px solid ${COLORS.border}`,
             borderRadius: '8px',
             fontSize: '14px',
             minWidth: '120px',
+            fontFamily: 'Arial, Helvetica, sans-serif',
         });
         select.addEventListener('change', () => {
             if (onChange) onChange(select.selectedIndex);

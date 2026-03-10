@@ -15,7 +15,7 @@ extends RefCounted
 static func get_all_forms() -> Dictionary:
 	return {
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 1 — Emberpaw → Infernoclaw → Blazerath (Fire / Berserker)
+		# RACE 1 — Bug Man Larva → Bug Man Warrior → Bug Man Champion (Fire / Barbarian)
 		# ══════════════════════════════════════════════════════════════════════
 		1: {
 			"form_id": 1, "race_id": 1, "stage_number": 1,
@@ -49,7 +49,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 2 — Tidalfin → Torrentscale → Abyssguard (Water / Guardian)
+		# RACE 2 — Bear Man Cub → Bear Man Warrior → Bear Man Champion (Water / Fighter)
 		# ══════════════════════════════════════════════════════════════════════
 		4: {
 			"form_id": 4, "race_id": 2, "stage_number": 1,
@@ -83,7 +83,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 3 — Thornvine → Briarwarden → Sylvanguard (Nature / Ranger)
+		# RACE 3 — Bird Man Fledgling → Bird Man Warrior → Bird Man Champion (Plant / Archer)
 		# ══════════════════════════════════════════════════════════════════════
 		7: {
 			"form_id": 7, "race_id": 3, "stage_number": 1,
@@ -117,7 +117,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 4 — Frostfang → Glacierclaw → Blizzarbane (Ice / Assassin)
+		# RACE 4 — Demon Imp → Demon Warrior → Demon Champion (Ice / Assassin)
 		# ══════════════════════════════════════════════════════════════════════
 		10: {
 			"form_id": 10, "race_id": 4, "stage_number": 1,
@@ -151,7 +151,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 5 — Galecrest → Stormwing → Tempestlord (Air / Archer)
+		# RACE 5 — Devil Hatchling → Devil Warrior → Devil Champion (Wind / Archer)
 		# ══════════════════════════════════════════════════════════════════════
 		13: {
 			"form_id": 13, "race_id": 5, "stage_number": 1,
@@ -185,7 +185,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 6 — Terraclaw → Boulderknee → Monolithion (Earth / Knight)
+		# RACE 6 — Cat Man Kitten → Cat Man Warrior → Cat Man Champion (Earth / Spearman)
 		# ══════════════════════════════════════════════════════════════════════
 		16: {
 			"form_id": 16, "race_id": 6, "stage_number": 1,
@@ -219,7 +219,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 7 — Voltail → Arcstrike → Thunderlord (Electric / Wizard)
+		# RACE 7 — Elf Apprentice → Elf Warrior → Elf Champion (Electric / Wizard)
 		# ══════════════════════════════════════════════════════════════════════
 		19: {
 			"form_id": 19, "race_id": 7, "stage_number": 1,
@@ -253,7 +253,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 8 — Gloomshade → Nightfang → Voidreaver (Dark / Assassin)
+		# RACE 8 — Ent Sapling → Ent Warrior → Ent Champion (Dark / Assassin)
 		# ══════════════════════════════════════════════════════════════════════
 		22: {
 			"form_id": 22, "race_id": 8, "stage_number": 1,
@@ -287,7 +287,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 9 — Luminos → Radiancewing → Dawnkeeper (Light / Cleric)
+		# RACE 9 — Fish Man Spawn → Fish Man Warrior → Fish Man Champion (Light / Cleric)
 		# ══════════════════════════════════════════════════════════════════════
 		25: {
 			"form_id": 25, "race_id": 9, "stage_number": 1,
@@ -321,7 +321,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 10 — Glimmerwing → Prismoth → Mindweaver (Psychic / Summoner)
+		# RACE 10 — Ghost Wisp → Ghost Warrior → Ghost Champion (Fairy / Alchemist)
 		# ══════════════════════════════════════════════════════════════════════
 		28: {
 			"form_id": 28, "race_id": 10, "stage_number": 1,
@@ -355,7 +355,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 11 — Spectrail → Phantomcoil → Ethereon (Spirit / Wizard)
+		# RACE 11 — Golem Fragment → Golem Warrior → Golem Champion (Solar / Wizard)
 		# ══════════════════════════════════════════════════════════════════════
 		31: {
 			"form_id": 31, "race_id": 11, "stage_number": 1,
@@ -389,7 +389,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 12 — Ignisurge → Chaosflame → Entropyrex (Chaos / Berserker)
+		# RACE 12 — Human Recruit → Human Warrior → Human Champion (Lunar / Barbarian)
 		# ══════════════════════════════════════════════════════════════════════
 		34: {
 			"form_id": 34, "race_id": 12, "stage_number": 1,
@@ -423,7 +423,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 13 — Ironhusk → Steelshell → Titanforge (Metal / Knight)
+		# RACE 13 — Lizard Man Hatchling → Lizard Man Warrior → Lizard Man Champion (Metal / Spearman)
 		# ══════════════════════════════════════════════════════════════════════
 		37: {
 			"form_id": 37, "race_id": 13, "stage_number": 1,
@@ -457,7 +457,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 14 — Venomire → Toxicscale → Plaguestalker (Poison / Ranger)
+		# RACE 14 — Minotaur Youth → Minotaur Warrior → Minotaur Champion (Poison / Archer)
 		# ══════════════════════════════════════════════════════════════════════
 		40: {
 			"form_id": 40, "race_id": 14, "stage_number": 1,
@@ -491,7 +491,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 15 — Blazeguard → Infernowall → Magmashield (Fire / Guardian)
+		# RACE 15 — Monkey Man Youth → Monkey Man Warrior → Monkey Man Champion (Fire / Fighter)
 		# ══════════════════════════════════════════════════════════════════════
 		43: {
 			"form_id": 43, "race_id": 15, "stage_number": 1,
@@ -525,7 +525,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 16 — Aquashot → Torrentbow → Tidesurfer (Water / Archer)
+		# RACE 16 — Mummy Risen → Mummy Warrior → Mummy Champion (Water / Archer)
 		# ══════════════════════════════════════════════════════════════════════
 		46: {
 			"form_id": 46, "race_id": 16, "stage_number": 1,
@@ -559,7 +559,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 17 — Pyrovolt → Plasmaflare → Thunderblaze (Fire+Electric / Wizard)
+		# RACE 17 — Ork Grunt → Ork Warrior → Ork Champion (Fire+Electric / Wizard)
 		# ══════════════════════════════════════════════════════════════════════
 		49: {
 			"form_id": 49, "race_id": 17, "stage_number": 1,
@@ -593,7 +593,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 18 — Venomthorn → Blightstinger → Plaguebramble (Poison+Nature / Spearman)
+		# RACE 18 — Rat Man Pup → Rat Man Warrior → Rat Man Champion (Poison+Plant / Spearman)
 		# ══════════════════════════════════════════════════════════════════════
 		52: {
 			"form_id": 52, "race_id": 18, "stage_number": 1,
@@ -627,7 +627,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 19 — Shadowflare → Duskblade → Eclipsefire (Dark+Fire / Spearman)
+		# RACE 19 — Robot Mk-I → Robot Mk-II → Robot Mk-III (Dark+Fire / Spearman)
 		# ══════════════════════════════════════════════════════════════════════
 		55: {
 			"form_id": 55, "race_id": 19, "stage_number": 1,
@@ -661,7 +661,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 20 — Crystalmist → Frostveil → Glacialpsych (Ice+Psychic / Cleric)
+		# RACE 20 — Shark Man Pup → Shark Man Warrior → Shark Man Champion (Ice+Fairy / Cleric)
 		# ══════════════════════════════════════════════════════════════════════
 		58: {
 			"form_id": 58, "race_id": 20, "stage_number": 1,
@@ -695,7 +695,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 21 — Ironstorm → Steelgale → Titanwing (Metal+Air / Berserker)
+		# RACE 21 — Skeleton Bones → Skeleton Warrior → Skeleton Champion (Metal+Wind / Barbarian)
 		# ══════════════════════════════════════════════════════════════════════
 		61: {
 			"form_id": 61, "race_id": 21, "stage_number": 1,
@@ -729,7 +729,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 22 — Spiritbloom → Ancestralgrove → Worldtree (Spirit+Nature / Summoner)
+		# RACE 22 — Turtle Man Hatchling → Turtle Man Warrior → Turtle Man Champion (Solar+Plant / Alchemist)
 		# ══════════════════════════════════════════════════════════════════════
 		64: {
 			"form_id": 64, "race_id": 22, "stage_number": 1,
@@ -763,7 +763,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 23 — Solarius → Novaflare → Cosmosguard (Light+Chaos / Guardian) [LEGENDARY]
+		# RACE 23 — Wolf Man Pup → Wolf Man Warrior → Wolf Man Champion (Light+Lunar / Fighter) [LEGENDARY]
 		# ══════════════════════════════════════════════════════════════════════
 		67: {
 			"form_id": 67, "race_id": 23, "stage_number": 1,
@@ -797,7 +797,7 @@ static func get_all_forms() -> Dictionary:
 		},
 
 		# ══════════════════════════════════════════════════════════════════════
-		# RACE 24 — Eclipsar → Twilightmaw → Voidemperor (Dark+Spirit / Summoner) [LEGENDARY]
+		# RACE 24 — Zombie Risen → Zombie Warrior → Zombie Champion (Dark+Solar / Alchemist) [LEGENDARY]
 		# ══════════════════════════════════════════════════════════════════════
 		70: {
 			"form_id": 70, "race_id": 24, "stage_number": 1,

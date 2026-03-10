@@ -351,6 +351,62 @@ func _total_stat_value(equip: EquipmentData) -> int:
 	return total
 
 
+## Add battle loot equipment drops to the player's inventory.
+## Converts raw loot dictionaries from BattleLootSystem into EquipmentData
+## resources and appends them to the player's equipment_inventory.
+##
+## Parameters:
+##   loot_array  — Array[Dictionary] from BattleLootSystem.roll_battle_loot()
+##   player_data — the PlayerData Resource
+##
+## Returns: Array[EquipmentData] of newly added items.
+func add_loot_to_inventory(
+	loot_array: Array,
+	player_data: Resource,
+) -> Array:
+	var added_items: Array = []
+
+	if player_data == null or not (player_data is PlayerData):
+		push_warning("EquipmentInventorySystem: Invalid player data for loot.")
+		return added_items
+
+	for loot in loot_array:
+		if not (loot is Dictionary):
+			continue
+
+		var equip := EquipmentData.new()
+		equip.equipment_id = int(loot.get("equipment_id", 0))
+		equip.equipment_name = str(loot.get("equipment_name", "Unknown"))
+		equip.slot_type = str(loot.get("slot_type", "weapon"))
+		equip.rarity = str(loot.get("rarity", "common"))
+		equip.level_requirement = int(loot.get("level_requirement", 1))
+		equip.description = str(loot.get("description", ""))
+		equip.element_synergy = str(loot.get("element_synergy", ""))
+		equip.element_synergy_multiplier = float(loot.get("element_synergy_multiplier", 1.0))
+		equip.class_synergy = str(loot.get("class_synergy", ""))
+		equip.class_synergy_multiplier = float(loot.get("class_synergy_multiplier", 1.0))
+		equip.source = str(loot.get("source", "battle_drop"))
+
+		var bonuses: Dictionary = loot.get("stat_bonuses", {})
+		equip.stat_bonuses = {
+			"hp": int(bonuses.get("hp", 0)),
+			"atk": int(bonuses.get("atk", 0)),
+			"def": int(bonuses.get("def", 0)),
+			"spd": int(bonuses.get("spd", 0)),
+			"sp_atk": int(bonuses.get("sp_atk", 0)),
+			"sp_def": int(bonuses.get("sp_def", 0)),
+		}
+
+		player_data.equipment_inventory.append(equip)
+		added_items.append(equip)
+
+		# Emit acquisition signal.
+		if has_method("emit_signal"):
+			pass  # EventBus handles this externally.
+
+	return added_items
+
+
 ## Attempt to determine a Sprite's element types from race data.
 func _get_sprite_elements(sprite: SpriteInstance, _player_data: PlayerData) -> Array[String]:
 	# In the full game, this would look up SpriteRaceData via a database.

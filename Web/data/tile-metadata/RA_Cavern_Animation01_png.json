@@ -1,0 +1,6102 @@
+{
+  "schemaVersion": "1.0.0",
+  "tileset": {
+    "filename": "RA_Cavern_Animation01.png",
+    "tileWidth": 16,
+    "tileHeight": 16,
+    "columns": 19,
+    "rows": 24,
+    "totalTiles": 456,
+    "themeTags": [
+      "cave",
+      "rogue",
+      "rogueadventure"
+    ],
+    "notes": "Auto-generated metadata for RA_Cavern_Animation01.png. Review and correct in Tile Admin."
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "Empty 0",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Wall Overlay 1",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Empty 2",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Wall Overlay 3",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 4,
+      "name": "Roof Top 4",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 5,
+      "name": "Empty 5",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 6,
+      "name": "Wall Overlay 6",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 7,
+      "name": "Empty 7",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 8,
+      "name": "Wall Overlay 8",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 9,
+      "name": "Roof Top 9",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 10,
+      "name": "Empty 10",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 11,
+      "name": "Empty 11",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 12,
+      "name": "Empty 12",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 13,
+      "name": "Empty 13",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 14,
+      "name": "Roof Top 14",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 15,
+      "name": "Empty 15",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 16,
+      "name": "Empty 16",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 17,
+      "name": "Empty 17",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 18,
+      "name": "Empty 18",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 19,
+      "name": "Roof Top Left 19",
+      "description": "Roof tile from RA_Cavern_Animation01 (top left region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 20,
+      "name": "Roof Top Left 20",
+      "description": "Roof tile from RA_Cavern_Animation01 (top left region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 21,
+      "name": "Roof Top 21",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 22,
+      "name": "Roof Top 22",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 23,
+      "name": "Roof Top 23",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 24,
+      "name": "Roof Top 24",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 25,
+      "name": "Roof Top 25",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 26,
+      "name": "Roof Top 26",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 27,
+      "name": "Roof Top 27",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 28,
+      "name": "Roof Top 28",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 29,
+      "name": "Roof Top 29",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 30,
+      "name": "Roof Top 30",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 31,
+      "name": "Roof Top 31",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 32,
+      "name": "Roof Top 32",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 33,
+      "name": "Roof Top 33",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 34,
+      "name": "Roof Top 34",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 35,
+      "name": "Roof Top 35",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 36,
+      "name": "Roof Top Right 36",
+      "description": "Roof tile from RA_Cavern_Animation01 (top right region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 37,
+      "name": "Roof Top Right 37",
+      "description": "Roof tile from RA_Cavern_Animation01 (top right region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 38,
+      "name": "Wall Overlay 38",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 39,
+      "name": "Wall Overlay 39",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 40,
+      "name": "Wall Overlay 40",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 41,
+      "name": "Wall Overlay 41",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 42,
+      "name": "Roof Top 42",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 43,
+      "name": "Wall Overlay 43",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 44,
+      "name": "Wall Overlay 44",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 45,
+      "name": "Wall Overlay 45",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 46,
+      "name": "Wall Overlay 46",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 47,
+      "name": "Roof Top 47",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 48,
+      "name": "Wall Overlay 48",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 49,
+      "name": "Wall Overlay 49",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 50,
+      "name": "Wall Overlay 50",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 51,
+      "name": "Wall Overlay 51",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 52,
+      "name": "Roof Top 52",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 53,
+      "name": "Wall Overlay 53",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 54,
+      "name": "Wall Overlay 54",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 55,
+      "name": "Wall Overlay 55",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 56,
+      "name": "Wall Overlay 56",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 57,
+      "name": "Roof Top Left 57",
+      "description": "Roof tile from RA_Cavern_Animation01 (top left region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 58,
+      "name": "Roof Top Left 58",
+      "description": "Roof tile from RA_Cavern_Animation01 (top left region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 59,
+      "name": "Roof Top 59",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 60,
+      "name": "Roof Top 60",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 61,
+      "name": "Roof Top 61",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 62,
+      "name": "Roof Top 62",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 63,
+      "name": "Roof Top 63",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 64,
+      "name": "Roof Top 64",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 65,
+      "name": "Roof Top 65",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 66,
+      "name": "Roof Top 66",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 67,
+      "name": "Roof Top 67",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 68,
+      "name": "Roof Top 68",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 69,
+      "name": "Roof Top 69",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 70,
+      "name": "Roof Top 70",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 71,
+      "name": "Roof Top 71",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 72,
+      "name": "Roof Top 72",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 73,
+      "name": "Roof Top 73",
+      "description": "Roof tile from RA_Cavern_Animation01 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 74,
+      "name": "Roof Top Right 74",
+      "description": "Roof tile from RA_Cavern_Animation01 (top right region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 75,
+      "name": "Roof Top Right 75",
+      "description": "Roof tile from RA_Cavern_Animation01 (top right region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 76,
+      "name": "Roof Left 76",
+      "description": "Roof tile from RA_Cavern_Animation01 (left region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 77,
+      "name": "Roof Left 77",
+      "description": "Roof tile from RA_Cavern_Animation01 (left region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 78,
+      "name": "Roof 78",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 79,
+      "name": "Roof 79",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 80,
+      "name": "Roof 80",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 81,
+      "name": "Roof 81",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 82,
+      "name": "Roof 82",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 83,
+      "name": "Roof 83",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 84,
+      "name": "Roof 84",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 85,
+      "name": "Roof 85",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 86,
+      "name": "Roof 86",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 87,
+      "name": "Roof 87",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 88,
+      "name": "Roof 88",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 89,
+      "name": "Roof 89",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 90,
+      "name": "Roof 90",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 91,
+      "name": "Roof 91",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 92,
+      "name": "Roof 92",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 93,
+      "name": "Roof Right 93",
+      "description": "Roof tile from RA_Cavern_Animation01 (right region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 94,
+      "name": "Roof Right 94",
+      "description": "Roof tile from RA_Cavern_Animation01 (right region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 95,
+      "name": "Roof Left 95",
+      "description": "Roof tile from RA_Cavern_Animation01 (left region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 96,
+      "name": "Roof Left 96",
+      "description": "Roof tile from RA_Cavern_Animation01 (left region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 97,
+      "name": "Roof 97",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 98,
+      "name": "Roof 98",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 99,
+      "name": "Roof 99",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 100,
+      "name": "Roof 100",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 101,
+      "name": "Roof 101",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 102,
+      "name": "Roof 102",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 103,
+      "name": "Roof 103",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 104,
+      "name": "Roof 104",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 105,
+      "name": "Roof 105",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 106,
+      "name": "Roof 106",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 107,
+      "name": "Roof 107",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 108,
+      "name": "Roof 108",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 109,
+      "name": "Roof 109",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 110,
+      "name": "Roof 110",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 111,
+      "name": "Roof 111",
+      "description": "Roof tile from RA_Cavern_Animation01",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 112,
+      "name": "Roof Right 112",
+      "description": "Roof tile from RA_Cavern_Animation01 (right region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 113,
+      "name": "Roof Right 113",
+      "description": "Roof tile from RA_Cavern_Animation01 (right region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "roof"
+      ]
+    },
+    {
+      "index": 114,
+      "name": "Wall Left 114",
+      "description": "Wall tile from RA_Cavern_Animation01 (left region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 115,
+      "name": "Wall Left 115",
+      "description": "Wall tile from RA_Cavern_Animation01 (left region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 116,
+      "name": "Wall 116",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 117,
+      "name": "Wall 117",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 118,
+      "name": "Wall 118",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 119,
+      "name": "Wall 119",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 120,
+      "name": "Wall 120",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 121,
+      "name": "Wall 121",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 122,
+      "name": "Wall 122",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 123,
+      "name": "Wall 123",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 124,
+      "name": "Empty 124",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 125,
+      "name": "Empty 125",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 126,
+      "name": "Empty 126",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 127,
+      "name": "Empty 127",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 128,
+      "name": "Empty 128",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 129,
+      "name": "Empty 129",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 130,
+      "name": "Empty 130",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 131,
+      "name": "Empty 131",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 132,
+      "name": "Empty 132",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 133,
+      "name": "Wall Left 133",
+      "description": "Wall tile from RA_Cavern_Animation01 (left region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 134,
+      "name": "Wall Left 134",
+      "description": "Wall tile from RA_Cavern_Animation01 (left region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 135,
+      "name": "Wall 135",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 136,
+      "name": "Wall 136",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 137,
+      "name": "Wall 137",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 138,
+      "name": "Wall 138",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 139,
+      "name": "Wall 139",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 140,
+      "name": "Wall 140",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 141,
+      "name": "Wall 141",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 142,
+      "name": "Wall 142",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 143,
+      "name": "Empty 143",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 144,
+      "name": "Empty 144",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 145,
+      "name": "Empty 145",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 146,
+      "name": "Empty 146",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 147,
+      "name": "Empty 147",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 148,
+      "name": "Empty 148",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 149,
+      "name": "Empty 149",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 150,
+      "name": "Empty 150",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 151,
+      "name": "Empty 151",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 152,
+      "name": "Wall Overlay 152",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 153,
+      "name": "Wall Overlay 153",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 154,
+      "name": "Wall Overlay 154",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 155,
+      "name": "Empty 155",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 156,
+      "name": "Wall 156",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 157,
+      "name": "Wall Overlay 157",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 158,
+      "name": "Wall Overlay 158",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 159,
+      "name": "Wall Overlay 159",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 160,
+      "name": "Empty 160",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 161,
+      "name": "Wall 161",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 162,
+      "name": "Wall 162",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 163,
+      "name": "Wall 163",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 164,
+      "name": "Wall 164",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 165,
+      "name": "Wall 165",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 166,
+      "name": "Wall 166",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 167,
+      "name": "Empty 167",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 168,
+      "name": "Wall Overlay 168",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 169,
+      "name": "Wall Right 169",
+      "description": "Wall tile from RA_Cavern_Animation01 (right region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 170,
+      "name": "Empty 170",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 171,
+      "name": "Wall Left 171",
+      "description": "Wall tile from RA_Cavern_Animation01 (left region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 172,
+      "name": "Wall Left 172",
+      "description": "Wall tile from RA_Cavern_Animation01 (left region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 173,
+      "name": "Wall 173",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 174,
+      "name": "Wall 174",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 175,
+      "name": "Wall 175",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 176,
+      "name": "Wall 176",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 177,
+      "name": "Wall 177",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 178,
+      "name": "Wall 178",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 179,
+      "name": "Wall 179",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 180,
+      "name": "Wall 180",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 181,
+      "name": "Wall 181",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 182,
+      "name": "Wall 182",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 183,
+      "name": "Wall 183",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 184,
+      "name": "Wall 184",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 185,
+      "name": "Wall 185",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 186,
+      "name": "Wall 186",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 187,
+      "name": "Wall 187",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 188,
+      "name": "Wall Right 188",
+      "description": "Wall tile from RA_Cavern_Animation01 (right region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 189,
+      "name": "Wall Right 189",
+      "description": "Wall tile from RA_Cavern_Animation01 (right region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 190,
+      "name": "Empty 190",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 191,
+      "name": "Wall Overlay 191",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 192,
+      "name": "Wall 192",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 193,
+      "name": "Empty 193",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 194,
+      "name": "Wall 194",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 195,
+      "name": "Empty 195",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 196,
+      "name": "Wall Overlay 196",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 197,
+      "name": "Wall 197",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 198,
+      "name": "Empty 198",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 199,
+      "name": "Wall 199",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 200,
+      "name": "Empty 200",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 201,
+      "name": "Wall Overlay 201",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 202,
+      "name": "Wall Overlay 202",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 203,
+      "name": "Empty 203",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 204,
+      "name": "Wall 204",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 205,
+      "name": "Wall Overlay 205",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 206,
+      "name": "Wall Overlay 206",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 207,
+      "name": "Empty 207",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 208,
+      "name": "Empty 208",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 209,
+      "name": "Wall Left 209",
+      "description": "Wall tile from RA_Cavern_Animation01 (left region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 210,
+      "name": "Wall Left 210",
+      "description": "Wall tile from RA_Cavern_Animation01 (left region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 211,
+      "name": "Wall 211",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 212,
+      "name": "Wall 212",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 213,
+      "name": "Wall 213",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 214,
+      "name": "Wall 214",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 215,
+      "name": "Wall 215",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 216,
+      "name": "Wall 216",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 217,
+      "name": "Wall 217",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 218,
+      "name": "Wall 218",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 219,
+      "name": "Wall 219",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 220,
+      "name": "Wall 220",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 221,
+      "name": "Wall 221",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 222,
+      "name": "Wall 222",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 223,
+      "name": "Wall 223",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 224,
+      "name": "Wall 224",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 225,
+      "name": "Wall 225",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 226,
+      "name": "Wall Right 226",
+      "description": "Wall tile from RA_Cavern_Animation01 (right region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 227,
+      "name": "Wall Right 227",
+      "description": "Wall tile from RA_Cavern_Animation01 (right region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 228,
+      "name": "Wall Overlay 228",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 229,
+      "name": "Wall Left 229",
+      "description": "Wall tile from RA_Cavern_Animation01 (left region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 230,
+      "name": "Empty 230",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 231,
+      "name": "Empty 231",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 232,
+      "name": "Wall 232",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 233,
+      "name": "Wall 233",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 234,
+      "name": "Wall 234",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 235,
+      "name": "Empty 235",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 236,
+      "name": "Wall Overlay 236",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 237,
+      "name": "Wall 237",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 238,
+      "name": "Wall Overlay 238",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 239,
+      "name": "Wall Overlay 239",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 240,
+      "name": "Empty 240",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 241,
+      "name": "Wall Overlay 241",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 242,
+      "name": "Wall 242",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 243,
+      "name": "Wall Overlay 243",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 244,
+      "name": "Wall 244",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 245,
+      "name": "Empty 245",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 246,
+      "name": "Wall Overlay 246",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 247,
+      "name": "Door Left 247",
+      "description": "Door tile from RA_Cavern_Animation01 (left region)",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 248,
+      "name": "Door Left 248",
+      "description": "Door tile from RA_Cavern_Animation01 (left region)",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 249,
+      "name": "Door 249",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 250,
+      "name": "Door 250",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 251,
+      "name": "Door 251",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 252,
+      "name": "Door 252",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 253,
+      "name": "Door 253",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 254,
+      "name": "Door 254",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 255,
+      "name": "Wall 255",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 256,
+      "name": "Wall 256",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 257,
+      "name": "Wall 257",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 258,
+      "name": "Wall 258",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 259,
+      "name": "Wall 259",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 260,
+      "name": "Wall 260",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 261,
+      "name": "Wall 261",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 262,
+      "name": "Wall 262",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 263,
+      "name": "Wall 263",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 264,
+      "name": "Wall Right 264",
+      "description": "Wall tile from RA_Cavern_Animation01 (right region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 265,
+      "name": "Wall Right 265",
+      "description": "Wall tile from RA_Cavern_Animation01 (right region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 266,
+      "name": "Door Left 266",
+      "description": "Door tile from RA_Cavern_Animation01 (left region)",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 267,
+      "name": "Empty 267",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 268,
+      "name": "Wall Overlay 268",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 269,
+      "name": "Door 269",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 270,
+      "name": "Door 270",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 271,
+      "name": "Wall Overlay 271",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 272,
+      "name": "Wall Overlay 272",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 273,
+      "name": "Empty 273",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 274,
+      "name": "Empty 274",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 275,
+      "name": "Wall 275",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 276,
+      "name": "Wall 276",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 277,
+      "name": "Wall 277",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 278,
+      "name": "Wall 278",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 279,
+      "name": "Wall 279",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 280,
+      "name": "Wall 280",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 281,
+      "name": "Empty 281",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 282,
+      "name": "Empty 282",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 283,
+      "name": "Empty 283",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 284,
+      "name": "Empty 284",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 285,
+      "name": "Door Left 285",
+      "description": "Door tile from RA_Cavern_Animation01 (left region)",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 286,
+      "name": "Door Left 286",
+      "description": "Door tile from RA_Cavern_Animation01 (left region)",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 287,
+      "name": "Door 287",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 288,
+      "name": "Door 288",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 289,
+      "name": "Door 289",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 290,
+      "name": "Door 290",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 291,
+      "name": "Door 291",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 292,
+      "name": "Door 292",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 293,
+      "name": "Wall 293",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 294,
+      "name": "Wall 294",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 295,
+      "name": "Wall 295",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 296,
+      "name": "Wall 296",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 297,
+      "name": "Wall 297",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 298,
+      "name": "Wall 298",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 299,
+      "name": "Wall 299",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 300,
+      "name": "Empty 300",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 301,
+      "name": "Empty 301",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 302,
+      "name": "Empty 302",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 303,
+      "name": "Empty 303",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 304,
+      "name": "Empty 304",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 305,
+      "name": "Wall Overlay 305",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 306,
+      "name": "Empty 306",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 307,
+      "name": "Wall Overlay 307",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 308,
+      "name": "Door 308",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 309,
+      "name": "Empty 309",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 310,
+      "name": "Wall Overlay 310",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 311,
+      "name": "Empty 311",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 312,
+      "name": "Wall Overlay 312",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 313,
+      "name": "Wall 313",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 314,
+      "name": "Empty 314",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 315,
+      "name": "Empty 315",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 316,
+      "name": "Empty 316",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 317,
+      "name": "Empty 317",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 318,
+      "name": "Wall 318",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 319,
+      "name": "Empty 319",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 320,
+      "name": "Empty 320",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 321,
+      "name": "Empty 321",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 322,
+      "name": "Empty 322",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 323,
+      "name": "Door Left 323",
+      "description": "Door tile from RA_Cavern_Animation01 (left region)",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 324,
+      "name": "Door Left 324",
+      "description": "Door tile from RA_Cavern_Animation01 (left region)",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 325,
+      "name": "Door 325",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 326,
+      "name": "Door 326",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 327,
+      "name": "Door 327",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 328,
+      "name": "Door 328",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 329,
+      "name": "Door 329",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 330,
+      "name": "Door 330",
+      "description": "Door tile from RA_Cavern_Animation01",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "door"
+      ]
+    },
+    {
+      "index": 331,
+      "name": "Wall 331",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 332,
+      "name": "Wall 332",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 333,
+      "name": "Wall 333",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 334,
+      "name": "Wall 334",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 335,
+      "name": "Wall 335",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 336,
+      "name": "Wall 336",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 337,
+      "name": "Wall 337",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 338,
+      "name": "Wall 338",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 339,
+      "name": "Wall 339",
+      "description": "Wall tile from RA_Cavern_Animation01",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 340,
+      "name": "Wall Right 340",
+      "description": "Wall tile from RA_Cavern_Animation01 (right region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 341,
+      "name": "Wall Right 341",
+      "description": "Wall tile from RA_Cavern_Animation01 (right region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "wall"
+      ]
+    },
+    {
+      "index": 342,
+      "name": "Wall Overlay 342",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 343,
+      "name": "Wall Overlay 343",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 344,
+      "name": "Wall Overlay 344",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 345,
+      "name": "Wall Overlay 345",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 346,
+      "name": "Floor 346",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 347,
+      "name": "Wall Overlay 347",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 348,
+      "name": "Wall Overlay 348",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 349,
+      "name": "Wall Overlay 349",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 350,
+      "name": "Wall Overlay 350",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 351,
+      "name": "Floor 351",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 352,
+      "name": "Wall Overlay 352",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 353,
+      "name": "Wall Overlay 353",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 354,
+      "name": "Wall Overlay 354",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 355,
+      "name": "Wall Overlay 355",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 356,
+      "name": "Floor 356",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 357,
+      "name": "Wall Overlay 357",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 358,
+      "name": "Wall Overlay 358",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 359,
+      "name": "Wall Overlay 359",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 360,
+      "name": "Wall Overlay 360",
+      "description": "Mostly transparent wall element, suitable as overlay",
+      "category": "decoration",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "overlay",
+        "transparent"
+      ]
+    },
+    {
+      "index": 361,
+      "name": "Floor Left 361",
+      "description": "Floor tile from RA_Cavern_Animation01 (left region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 362,
+      "name": "Floor Left 362",
+      "description": "Floor tile from RA_Cavern_Animation01 (left region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 363,
+      "name": "Floor 363",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 364,
+      "name": "Floor 364",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 365,
+      "name": "Floor 365",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 366,
+      "name": "Floor 366",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 367,
+      "name": "Floor 367",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 368,
+      "name": "Floor 368",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 369,
+      "name": "Floor 369",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 370,
+      "name": "Floor 370",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 371,
+      "name": "Floor 371",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 372,
+      "name": "Floor 372",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 373,
+      "name": "Floor 373",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 374,
+      "name": "Floor 374",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 375,
+      "name": "Floor 375",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 376,
+      "name": "Floor 376",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 377,
+      "name": "Floor 377",
+      "description": "Floor tile from RA_Cavern_Animation01",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 378,
+      "name": "Floor Right 378",
+      "description": "Floor tile from RA_Cavern_Animation01 (right region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 379,
+      "name": "Floor Right 379",
+      "description": "Floor tile from RA_Cavern_Animation01 (right region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 380,
+      "name": "Floor Bottom Left 380",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom left region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 381,
+      "name": "Floor Bottom Left 381",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom left region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 382,
+      "name": "Floor Bottom 382",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 383,
+      "name": "Floor Bottom 383",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 384,
+      "name": "Floor Bottom 384",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 385,
+      "name": "Floor Bottom 385",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 386,
+      "name": "Floor Bottom 386",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 387,
+      "name": "Floor Bottom 387",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 388,
+      "name": "Floor Bottom 388",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 389,
+      "name": "Floor Bottom 389",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 390,
+      "name": "Floor Bottom 390",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 391,
+      "name": "Floor Bottom 391",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 392,
+      "name": "Floor Bottom 392",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 393,
+      "name": "Floor Bottom 393",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 394,
+      "name": "Floor Bottom 394",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 395,
+      "name": "Floor Bottom 395",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 396,
+      "name": "Floor Bottom 396",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 397,
+      "name": "Floor Bottom Right 397",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom right region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 398,
+      "name": "Floor Bottom Right 398",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom right region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 399,
+      "name": "Floor Bottom Left 399",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom left region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 400,
+      "name": "Floor Bottom Left 400",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom left region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 401,
+      "name": "Floor Bottom 401",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 402,
+      "name": "Floor Bottom 402",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 403,
+      "name": "Floor Bottom 403",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 404,
+      "name": "Floor Bottom 404",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 405,
+      "name": "Floor Bottom 405",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 406,
+      "name": "Floor Bottom 406",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 407,
+      "name": "Floor Bottom 407",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 408,
+      "name": "Floor Bottom 408",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 409,
+      "name": "Floor Bottom 409",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 410,
+      "name": "Floor Bottom 410",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 411,
+      "name": "Floor Bottom 411",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 412,
+      "name": "Floor Bottom 412",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 413,
+      "name": "Floor Bottom 413",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 414,
+      "name": "Floor Bottom 414",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 415,
+      "name": "Floor Bottom 415",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 416,
+      "name": "Floor Bottom Right 416",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom right region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 417,
+      "name": "Floor Bottom Right 417",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom right region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 418,
+      "name": "Floor Bottom Left 418",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom left region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 419,
+      "name": "Floor Bottom Left 419",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom left region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 420,
+      "name": "Floor Bottom 420",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 421,
+      "name": "Floor Bottom 421",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 422,
+      "name": "Floor Bottom 422",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 423,
+      "name": "Floor Bottom 423",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 424,
+      "name": "Floor Bottom 424",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 425,
+      "name": "Floor Bottom 425",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 426,
+      "name": "Floor Bottom 426",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 427,
+      "name": "Floor Bottom 427",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 428,
+      "name": "Empty 428",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 429,
+      "name": "Empty 429",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 430,
+      "name": "Empty 430",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 431,
+      "name": "Empty 431",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 432,
+      "name": "Empty 432",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 433,
+      "name": "Empty 433",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 434,
+      "name": "Empty 434",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 435,
+      "name": "Empty 435",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 436,
+      "name": "Empty 436",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 437,
+      "name": "Floor Bottom Left 437",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom left region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 438,
+      "name": "Floor Bottom Left 438",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom left region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 439,
+      "name": "Floor Bottom 439",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 440,
+      "name": "Floor Bottom 440",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 441,
+      "name": "Floor Bottom 441",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 442,
+      "name": "Floor Bottom 442",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 443,
+      "name": "Floor Bottom 443",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 444,
+      "name": "Floor Bottom 444",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 445,
+      "name": "Floor Bottom 445",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 446,
+      "name": "Floor Bottom 446",
+      "description": "Floor tile from RA_Cavern_Animation01 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "cave",
+        "rogue",
+        "rogueadventure",
+        "floor"
+      ]
+    },
+    {
+      "index": 447,
+      "name": "Empty 447",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 448,
+      "name": "Empty 448",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 449,
+      "name": "Empty 449",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 450,
+      "name": "Empty 450",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 451,
+      "name": "Empty 451",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 452,
+      "name": "Empty 452",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 453,
+      "name": "Empty 453",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 454,
+      "name": "Empty 454",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    },
+    {
+      "index": 455,
+      "name": "Empty 455",
+      "description": "Fully transparent / unused tile",
+      "category": "empty",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "empty",
+        "transparent"
+      ]
+    }
+  ],
+  "structures": []
+}

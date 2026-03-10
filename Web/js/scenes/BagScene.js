@@ -16,12 +16,13 @@ import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { CONSUMABLES, CRYSTALS } from '../data/ItemData.js';
 import { EQUIPMENT } from '../data/EquipmentData.js';
+import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
 
 // ── Constants ───────────────────────────────────────────────────────────────
 const TABS = ['items', 'equipment', 'keyitems'];
 const TAB_LABELS = { items: 'Items', equipment: 'Equipment', keyitems: 'Key Items' };
 
-const COLOR_BG = '#0b0b1a';
+const COLOR_BG = '#1a2a3a';  // Medieval fantasy flat dark blue
 
 const RARITY_COLORS = {
     common: '#aaaaaa',
@@ -487,19 +488,22 @@ export class BagScene extends Scene {
             transition:background 0.15s;margin-bottom:3px;
         `;
 
-        // Icon placeholder (colored circle by category)
+        // Category icon using emoji
+        const CATEGORY_ICONS = {
+            potion: '\u{1F9EA}',
+            status_cure: '\u{1F48A}',
+            battle_item: '\u2694\uFE0F',
+            utility: '\u{1F527}',
+            crystal: '\u{1F48E}',
+        };
         const icon = document.createElement('div');
         icon.style.cssText = `
-            width:28px;height:28px;border-radius:50%;background:${catColor};
+            width:28px;height:28px;border-radius:6px;background:${catColor}22;
             display:flex;align-items:center;justify-content:center;
-            font-size:0.55rem;font-weight:700;color:#fff;flex-shrink:0;
-            opacity:0.85;
+            font-size:0.9rem;flex-shrink:0;
+            border:1px solid ${catColor}44;
         `;
-        // Show first letter of the effect_type or category as icon text
-        const iconLetter = def.effect_type
-            ? def.effect_type.charAt(0).toUpperCase()
-            : (def.catch_multiplier !== undefined ? 'C' : '?');
-        icon.textContent = iconLetter;
+        icon.textContent = CATEGORY_ICONS[cat] || '\u2753';
         row.appendChild(icon);
 
         // Info block
@@ -805,6 +809,20 @@ export class BagScene extends Scene {
             border-left:3px solid ${rarityColor};
         `;
 
+        // Equipment sprite preview (28x28 canvas)
+        const previewCanvas = document.createElement('canvas');
+        previewCanvas.width = 28;
+        previewCanvas.height = 36;
+        previewCanvas.style.cssText = 'flex-shrink:0;';
+        const pCtx = previewCanvas.getContext('2d');
+        // Build equipment object with just this one piece
+        const previewEquip = {};
+        previewEquip[def.slot_type] = def.equipment_id;
+        HumanoidSpriteSystem.drawWithEquipment(
+            pCtx, 1, 1, 0, 0, 16, 32, 30, { equipment: previewEquip }
+        );
+        row.appendChild(previewCanvas);
+
         // Info block
         const info = document.createElement('div');
         info.style.cssText = 'flex:1;min-width:0;';
@@ -911,6 +929,19 @@ export class BagScene extends Scene {
             this._highlightEquipRow(-1);
         });
         this._detailPanelEl.appendChild(closeBtn);
+
+        // Larger equipment sprite preview (48x48 canvas)
+        const detailPreviewCanvas = document.createElement('canvas');
+        detailPreviewCanvas.width = 56;
+        detailPreviewCanvas.height = 56;
+        detailPreviewCanvas.style.cssText = 'display:block;margin:0 auto 8px auto;';
+        const dpCtx = detailPreviewCanvas.getContext('2d');
+        const detailPreviewEquip = {};
+        detailPreviewEquip[def.slot_type] = def.equipment_id;
+        HumanoidSpriteSystem.drawWithEquipment(
+            dpCtx, 1, 1, 0, 0, 28, 50, 48, { equipment: detailPreviewEquip }
+        );
+        this._detailPanelEl.appendChild(detailPreviewCanvas);
 
         // Equipment name
         const nameEl = document.createElement('div');

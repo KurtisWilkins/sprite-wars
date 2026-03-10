@@ -18,7 +18,7 @@ extends Resource
 ## The primary element for elemental temples (e.g. "Fire"). Empty for class_based.
 @export var dominant_element: String = ""
 
-## The primary class for class_based temples (e.g. "Knight"). Empty for elemental.
+## The primary class for class_based temples (e.g. "Fighter"). Empty for elemental.
 @export var dominant_class: String = ""
 
 ## Additional elements present in encounter tables and environmental hazards.

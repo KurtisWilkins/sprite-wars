@@ -140,6 +140,11 @@ static func generate_boss_encounter(
 		"ability_ids": boss_abilities,
 		"ai_profile": ai_profile,
 		"is_boss": true,
+		"equipment": {
+			"weapon": -1, "helmet": -1, "chest": -1,
+			"legs": -1, "boots": -1, "gloves": -1,
+			"ring": -1, "amulet": -1, "crystal": -1,
+		},
 	}
 
 	# Boss may have 1-2 minions.
@@ -224,6 +229,19 @@ static func _build_enemy(race_id: int, level: int, difficulty: int) -> Dictionar
 	var base_stats: Dictionary = _get_stats_at_level(race_data, level)
 	var scaled_stats: Dictionary = _scale_enemy_stats(base_stats, level)
 
+	# Each enemy gets its own fresh equipment dictionary to avoid shared-reference bugs.
+	var enemy_equipment: Dictionary = {
+		"weapon": -1,
+		"helmet": -1,
+		"chest": -1,
+		"legs": -1,
+		"boots": -1,
+		"gloves": -1,
+		"ring": -1,
+		"amulet": -1,
+		"crystal": -1,
+	}
+
 	return {
 		"race_id": race_id,
 		"form_id": form_id,
@@ -232,6 +250,7 @@ static func _build_enemy(race_id: int, level: int, difficulty: int) -> Dictionar
 		"ability_ids": [],  # Populated by the battle system from race/stage data.
 		"ai_profile": "balanced",
 		"is_boss": false,
+		"equipment": enemy_equipment,
 	}
 
 

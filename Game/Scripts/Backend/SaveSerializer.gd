@@ -138,6 +138,7 @@ static func serialize_sprite_instance(sprite: Resource) -> Dictionary:
 		"race_id": int(_safe_get(sprite, "race_id", 0)),
 		"form_id": int(_safe_get(sprite, "form_id", 0)),
 		"nickname": str(_safe_get(sprite, "nickname", "")),
+		"class_type": str(_safe_get(sprite, "class_type", "")),
 		"level": int(_safe_get(sprite, "level", 1)),
 		"current_xp": int(_safe_get(sprite, "current_xp", 0)),
 		"current_hp": int(_safe_get(sprite, "current_hp", 0)),
@@ -159,6 +160,7 @@ static func deserialize_sprite_instance(data: Dictionary) -> Resource:
 	sprite.race_id = int(data.get("race_id", 0))
 	sprite.form_id = int(data.get("form_id", 0))
 	sprite.nickname = str(data.get("nickname", ""))
+	sprite.class_type = str(data.get("class_type", ""))
 	sprite.level = clampi(int(data.get("level", 1)), 1, SpriteInstance.MAX_LEVEL)
 	sprite.current_xp = maxi(0, int(data.get("current_xp", 0)))
 	sprite.current_hp = maxi(0, int(data.get("current_hp", 0)))

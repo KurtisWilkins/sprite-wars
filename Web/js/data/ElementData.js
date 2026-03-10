@@ -3,9 +3,9 @@
  * Ported from ElementChart.gd.
  *
  * Element IDs:
- *   1=Fire, 2=Water, 3=Earth, 4=Air, 5=Light, 6=Dark,
- *   7=Nature, 8=Electric, 9=Ice, 10=Metal, 11=Poison,
- *   12=Psychic, 13=Spirit, 14=Chaos
+ *   1=Fire, 2=Water, 3=Wind, 4=Earth, 5=Plant, 6=Metal,
+ *   7=Electric, 8=Dark, 9=Light, 10=Solar, 11=Lunar,
+ *   12=Fairy, 13=Poison, 14=Ice
  *
  * Only non-1.0 multipliers are stored; missing keys default to 1.0 (neutral).
  * Super effective = 2.0, not very effective = 0.5, immune = 0.0
@@ -16,18 +16,18 @@
 
 /** @type {{ [name: string]: number }} */
 export const ELEMENT_IDS = {
-	Fire: 1, Water: 2, Earth: 3, Air: 4,
-	Light: 5, Dark: 6, Nature: 7, Electric: 8,
-	Ice: 9, Metal: 10, Poison: 11, Psychic: 12,
-	Spirit: 13, Chaos: 14,
+	Fire: 1, Water: 2, Wind: 3, Earth: 4,
+	Plant: 5, Metal: 6, Electric: 7, Dark: 8,
+	Light: 9, Solar: 10, Lunar: 11, Fairy: 12,
+	Poison: 13, Ice: 14,
 };
 
 /** @type {{ [id: number]: string }} */
 export const ELEMENT_NAMES = {
-	1: "Fire", 2: "Water", 3: "Earth", 4: "Air",
-	5: "Light", 6: "Dark", 7: "Nature", 8: "Electric",
-	9: "Ice", 10: "Metal", 11: "Poison", 12: "Psychic",
-	13: "Spirit", 14: "Chaos",
+	1: "Fire", 2: "Water", 3: "Wind", 4: "Earth",
+	5: "Plant", 6: "Metal", 7: "Electric", 8: "Dark",
+	9: "Light", 10: "Solar", 11: "Lunar", 12: "Fairy",
+	13: "Poison", 14: "Ice",
 };
 
 /**
@@ -36,132 +36,130 @@ export const ELEMENT_NAMES = {
  * @type {EffectivenessChart}
  */
 export const EFFECTIVENESS_CHART = {
-	// Fire (1) — Strong vs: Nature, Ice, Metal | Weak vs: Water, Earth, Fire
+	// Fire (1) — Strong vs: Plant, Ice, Metal | Weak vs: Water, Earth
 	1: {
-		7: 2.0,   // Fire > Nature
-		9: 2.0,   // Fire > Ice
-		10: 2.0,  // Fire > Metal
+		5: 2.0,   // Fire > Plant
+		14: 2.0,  // Fire > Ice
+		6: 2.0,   // Fire > Metal
 		2: 0.5,   // Fire < Water
-		3: 0.5,   // Fire < Earth
-		1: 0.5,   // Fire < Fire (resistance)
+		4: 0.5,   // Fire < Earth
 	},
 
-	// Water (2) — Strong vs: Fire, Earth | Weak vs: Nature, Electric, Poison
+	// Water (2) — Strong vs: Fire, Earth | Weak vs: Plant, Electric, Poison
 	2: {
 		1: 2.0,   // Water > Fire
-		3: 2.0,   // Water > Earth
-		7: 0.5,   // Water < Nature
-		8: 0.5,   // Water < Electric
-		11: 0.5,  // Water < Poison
+		4: 2.0,   // Water > Earth
+		5: 0.5,   // Water < Plant
+		7: 0.5,   // Water < Electric
+		13: 0.5,  // Water < Poison
 	},
 
-	// Earth (3) — Strong vs: Fire, Electric, Metal, Poison | Weak vs: Water, Nature, Ice
+	// Wind (3) — Strong vs: Plant, Poison | Weak vs: Electric, Ice, Earth
 	3: {
-		1: 2.0,   // Earth > Fire
-		8: 2.0,   // Earth > Electric
-		10: 2.0,  // Earth > Metal
-		11: 2.0,  // Earth > Poison
-		2: 0.5,   // Earth < Water
-		7: 0.5,   // Earth < Nature
-		9: 0.5,   // Earth < Ice
+		5: 2.0,   // Wind > Plant
+		13: 2.0,  // Wind > Poison
+		7: 0.5,   // Wind < Electric
+		14: 0.5,  // Wind < Ice
+		4: 0.5,   // Wind < Earth
 	},
 
-	// Air (4) — Strong vs: Nature, Poison | Weak vs: Electric, Ice, Earth
+	// Earth (4) — Strong vs: Fire, Electric, Metal, Poison | Weak vs: Water, Plant, Ice
 	4: {
-		7: 2.0,   // Air > Nature
-		11: 2.0,  // Air > Poison
-		8: 0.5,   // Air < Electric
-		9: 0.5,   // Air < Ice
-		3: 0.5,   // Air < Earth
+		1: 2.0,   // Earth > Fire
+		7: 2.0,   // Earth > Electric
+		6: 2.0,   // Earth > Metal
+		13: 2.0,  // Earth > Poison
+		2: 0.5,   // Earth < Water
+		5: 0.5,   // Earth < Plant
+		14: 0.5,  // Earth < Ice
 	},
 
-	// Light (5) — Strong vs: Dark, Poison, Spirit | Weak vs: Chaos, Light
+	// Plant (5) — Strong vs: Water, Earth | Weak vs: Fire, Ice, Poison
 	5: {
-		6: 2.0,   // Light > Dark
-		11: 2.0,  // Light > Poison
-		13: 2.0,  // Light > Spirit
-		14: 0.5,  // Light < Chaos
-		5: 0.5,   // Light < Light (resistance)
+		2: 2.0,   // Plant > Water
+		4: 2.0,   // Plant > Earth
+		1: 0.5,   // Plant < Fire
+		14: 0.5,  // Plant < Ice
+		13: 0.5,  // Plant < Poison
 	},
 
-	// Dark (6) — Strong vs: Light, Psychic, Spirit | Weak vs: Chaos, Dark
+	// Metal (6) — Strong vs: Ice, Fairy, Earth | Weak vs: Fire, Electric
 	6: {
-		5: 2.0,   // Dark > Light
-		12: 2.0,  // Dark > Psychic
-		13: 2.0,  // Dark > Spirit
-		14: 0.5,  // Dark < Chaos
-		6: 0.5,   // Dark < Dark (resistance)
-	},
-
-	// Nature (7) — Strong vs: Water, Earth | Weak vs: Fire, Ice, Poison
-	7: {
-		2: 2.0,   // Nature > Water
-		3: 2.0,   // Nature > Earth
-		1: 0.5,   // Nature < Fire
-		9: 0.5,   // Nature < Ice
-		11: 0.5,  // Nature < Poison
-	},
-
-	// Electric (8) — Strong vs: Water, Air | Weak vs: Earth | Immune to: Electric
-	8: {
-		2: 2.0,   // Electric > Water
-		4: 2.0,   // Electric > Air
-		3: 0.5,   // Electric < Earth
-		8: 0.0,   // Electric immune to Electric
-	},
-
-	// Ice (9) — Strong vs: Nature, Air, Psychic, Earth | Weak vs: Fire, Metal
-	9: {
-		7: 2.0,   // Ice > Nature
-		4: 2.0,   // Ice > Air
-		12: 2.0,  // Ice > Psychic
-		3: 2.0,   // Ice > Earth
-		1: 0.5,   // Ice < Fire
-		10: 0.5,  // Ice < Metal
-	},
-
-	// Metal (10) — Strong vs: Ice, Psychic, Earth | Weak vs: Fire, Electric
-	10: {
-		9: 2.0,   // Metal > Ice
-		12: 2.0,  // Metal > Psychic
-		3: 2.0,   // Metal > Earth
+		14: 2.0,  // Metal > Ice
+		12: 2.0,  // Metal > Fairy
+		4: 2.0,   // Metal > Earth
 		1: 0.5,   // Metal < Fire
-		8: 0.5,   // Metal < Electric
+		7: 0.5,   // Metal < Electric
 	},
 
-	// Poison (11) — Strong vs: Nature, Psychic, Water | Weak vs: Earth, Metal, Light
+	// Electric (7) — Strong vs: Water, Wind | Weak vs: Earth | Immune to: Electric
+	7: {
+		2: 2.0,   // Electric > Water
+		3: 2.0,   // Electric > Wind
+		4: 0.5,   // Electric < Earth
+		7: 0.0,   // Electric immune to Electric
+	},
+
+	// Dark (8) — Strong vs: Light, Fairy, Solar | Resisted by: Lunar
+	8: {
+		9: 2.0,   // Dark > Light
+		12: 2.0,  // Dark > Fairy
+		10: 2.0,  // Dark > Solar
+		11: 0.5,  // Dark < Lunar
+	},
+
+	// Light (9) — Strong vs: Dark, Poison, Lunar | Resisted by: Solar
+	9: {
+		8: 2.0,   // Light > Dark
+		13: 2.0,  // Light > Poison
+		11: 2.0,  // Light > Lunar
+		10: 0.5,  // Light < Solar
+	},
+
+	// Solar (10) — Strong vs: Plant, Ice, Lunar | Weak vs: Dark, Light
+	10: {
+		5: 2.0,   // Solar > Plant
+		14: 2.0,  // Solar > Ice
+		11: 2.0,  // Solar > Lunar
+		8: 0.5,   // Solar < Dark
+		9: 0.5,   // Solar < Light
+	},
+
+	// Lunar (11) — Strong vs: Light, Dark, Fairy | Weak vs: Solar, Poison
 	11: {
-		7: 2.0,   // Poison > Nature
-		12: 2.0,  // Poison > Psychic
-		2: 2.0,   // Poison > Water
-		3: 0.5,   // Poison < Earth
-		10: 0.5,  // Poison < Metal
-		5: 0.5,   // Poison < Light
+		9: 2.0,   // Lunar > Light
+		8: 2.0,   // Lunar > Dark
+		12: 2.0,  // Lunar > Fairy
+		10: 0.5,  // Lunar < Solar
+		13: 0.5,  // Lunar < Poison
 	},
 
-	// Psychic (12) — Strong vs: Poison, Air | Weak vs: Dark, Metal, Ice
+	// Fairy (12) — Strong vs: Dark, Poison, Wind | Weak vs: Metal, Ice
 	12: {
-		11: 2.0,  // Psychic > Poison
-		4: 2.0,   // Psychic > Air
-		6: 0.5,   // Psychic < Dark
-		10: 0.5,  // Psychic < Metal
-		9: 0.5,   // Psychic < Ice
+		8: 2.0,   // Fairy > Dark
+		13: 2.0,  // Fairy > Poison
+		3: 2.0,   // Fairy > Wind
+		6: 0.5,   // Fairy < Metal
+		14: 0.5,  // Fairy < Ice
 	},
 
-	// Spirit (13) — Strong vs: Light, Chaos | Weak vs: Dark, Spirit
+	// Poison (13) — Strong vs: Plant, Fairy, Water | Weak vs: Earth, Metal, Light
 	13: {
-		5: 2.0,   // Spirit > Light
-		14: 2.0,  // Spirit > Chaos
-		6: 0.5,   // Spirit < Dark
-		13: 0.5,  // Spirit < Spirit (resistance)
+		5: 2.0,   // Poison > Plant
+		12: 2.0,  // Poison > Fairy
+		2: 2.0,   // Poison > Water
+		4: 0.5,   // Poison < Earth
+		6: 0.5,   // Poison < Metal
+		9: 0.5,   // Poison < Light
 	},
 
-	// Chaos (14) — Strong vs: Dark, Light, Ice | Weak vs: Spirit, Earth
+	// Ice (14) — Strong vs: Plant, Wind, Earth, Fairy | Weak vs: Fire, Metal
 	14: {
-		6: 2.0,   // Chaos > Dark
-		5: 2.0,   // Chaos > Light
-		9: 2.0,   // Chaos > Ice
-		13: 0.5,  // Chaos < Spirit
-		3: 0.5,   // Chaos < Earth
+		5: 2.0,   // Ice > Plant
+		3: 2.0,   // Ice > Wind
+		4: 2.0,   // Ice > Earth
+		12: 2.0,  // Ice > Fairy
+		1: 0.5,   // Ice < Fire
+		6: 0.5,   // Ice < Metal
 	},
 };

@@ -63,7 +63,7 @@ extends Resource
 ## ── Acquisition ───────────────────────────────────────────────────────────────
 
 ## Where this equipment can be obtained.
-@export_enum("shop", "temple_drop", "quest_reward", "boss_drop") var source: String = "shop"
+@export_enum("shop", "temple_drop", "quest_reward", "boss_drop", "dungeon_drop", "legendary_quest", "battle_drop") var source: String = "shop"
 
 
 ## ── Constants ─────────────────────────────────────────────────────────────────
@@ -79,6 +79,7 @@ const VALID_RARITIES: PackedStringArray = PackedStringArray([
 
 const VALID_SOURCES: PackedStringArray = PackedStringArray([
 	"shop", "temple_drop", "quest_reward", "boss_drop",
+	"dungeon_drop", "legendary_quest", "battle_drop",
 ])
 
 const STAT_KEYS := ["hp", "atk", "def", "spd", "sp_atk", "sp_def"]
@@ -91,6 +92,18 @@ const RARITY_SELL_MULTIPLIER: Dictionary = {
 	"epic": 12.0,
 	"legendary": 30.0,
 }
+
+
+## ── Visual Config ────────────────────────────────────────────────────────────
+
+## Get the unique visual rendering config for this equipment piece.
+## Returns a Dictionary with slot-specific visual properties (colors, shapes,
+## styles, etc.) used by the sprite compositor to draw unique equipment overlays.
+func get_visual_config() -> Dictionary:
+	var config: Dictionary = EquipmentVisualDatabase.get_visual_config(equipment_id)
+	if config.is_empty():
+		config = EquipmentVisualDatabase.get_slot_defaults(slot_type)
+	return config
 
 
 ## ── Helpers ───────────────────────────────────────────────────────────────────

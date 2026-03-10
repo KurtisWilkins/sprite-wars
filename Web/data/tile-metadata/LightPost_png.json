@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0.0",
+  "tileset": {
+    "filename": "LightPost.png",
+    "tileWidth": 16,
+    "tileHeight": 16,
+    "columns": 1,
+    "rows": 2,
+    "totalTiles": 2,
+    "themeTags": [],
+    "notes": "Auto-generated metadata for LightPost.png. Review and correct in Tile Admin."
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "Prop 0",
+      "description": "Prop tile from LightPost",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "prop"
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Prop 1",
+      "description": "Prop tile from LightPost",
+      "category": "prop",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "prop"
+      ]
+    }
+  ],
+  "structures": []
+}

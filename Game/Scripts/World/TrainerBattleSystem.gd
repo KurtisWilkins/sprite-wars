@@ -271,11 +271,13 @@ func _generate_default_team(npc_id: String) -> Array[Dictionary]:
 	var avg_level: float = GameManager.get_top_10_average_level()
 	var trainer_level: int = maxi(1, roundi(avg_level * 0.9))
 
+	var random_class: String = SpriteRaceData.VALID_CLASSES[randi() % SpriteRaceData.VALID_CLASSES.size()]
 	return [{
 		"race_id": 1,
 		"level": trainer_level,
 		"nickname": "",
 		"ability_ids": [],
+		"class_type": random_class,
 	}]
 
 

@@ -1,8 +1,8 @@
 /**
  * DeploymentScene -- Pre-battle team deployment screen for Sprite Wars.
- * Allows the player to select 7 sprites from their party and position them
- * on the player's side (left 3 columns) of the 7x9 grid before entering
- * battle. Player occupies rows 0-4 (5 rows), enemy rows 5-8 (4 rows).
+ * Allows the player to select up to 7 sprites from their party and position
+ * them on a 9x9 player grid. The enemy 9x9 grid is displayed side-by-side
+ * to the right. Player occupies rows 0-8, enemy rows 9-17.
  *
  * Uses Canvas for the grid preview and DOM panels for the roster/detail UI.
  *
@@ -13,32 +13,44 @@
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { BattleGrid } from '../systems/battle/BattleGrid.js';
+import { SPRITE_RACES } from '../data/SpriteData.js';
+import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
+import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { SpriteInspectPanel } from '../systems/ui/SpriteInspectPanel.js';
+
+function _getSpriteName(inst) {
+    if (!inst) return '???';
+    if (inst.nickname) return inst.nickname;
+    const race = SPRITE_RACES.find(r => r.race_id === inst.raceId);
+    return race ? race.race_name : `Sprite #${inst.raceId || '?'}`;
+}
 
 // ── Layout Constants ────────────────────────────────────────────────────────
-const GRID_CELL_SIZE = 36;
+const GRID_CELL_SIZE = 32;
 const GRID_GAP = 2;
-const GRID_ORIGIN_X = 20;
-const GRID_ORIGIN_Y = 40;
+const GRID_ORIGIN_X = 12;
+const GRID_ORIGIN_Y = 76;
+const GRID_SPACING = 16;      // horizontal gap between player and enemy grids
 const ROSTER_PANEL_WIDTH = 180;
 const DETAIL_PANEL_HEIGHT = 160;
 const MAX_DEPLOY_UNITS = 7;
-const PLAYER_DEPLOY_COLS = 3; // columns 0-2 on the player side (rows 0-4)
+const PLAYER_DEPLOY_COLS = 9; // all 9 columns are deployable
 
 // ── Colors ──────────────────────────────────────────────────────────────────
-const COLOR_BG = '#0e0e20';
+const COLOR_BG = '#1a2a3a';  // Medieval fantasy flat dark blue
 const COLOR_GRID_EMPTY = 'rgba(60, 80, 120, 0.15)';
 const COLOR_GRID_DEPLOY = 'rgba(50, 150, 255, 0.20)';
 const COLOR_GRID_ENEMY = 'rgba(200, 50, 50, 0.12)';
 const COLOR_GRID_PLACED = 'rgba(50, 200, 100, 0.35)';
 const COLOR_GRID_HOVER = 'rgba(255, 255, 100, 0.30)';
 const COLOR_GRID_INVALID = 'rgba(255, 80, 80, 0.20)';
-const COLOR_GRID_LINES = 'rgba(255,255,255,0.08)';
+const COLOR_GRID_LINES = '#222222';  // Clean black outlines
 
 const ELEMENT_COLORS = {
-    Fire: '#ff5533', Water: '#3399ff', Earth: '#996633', Wind: '#88ccaa',
-    Electric: '#ffcc00', Ice: '#99ddff', Nature: '#33aa33', Poison: '#aa33aa',
-    Light: '#ffee99', Dark: '#553366', Metal: '#aaaacc', Psychic: '#ff66aa',
-    Dragon: '#6633cc', Spirit: '#ccccff',
+    Fire: '#ff5533', Water: '#3399ff', Plant: '#33aa33', Ice: '#99ddff',
+    Wind: '#88ccaa', Earth: '#996633', Electric: '#ffcc00', Dark: '#8844aa',
+    Light: '#ffee99', Fairy: '#ff66aa', Solar: '#ffaa33', Lunar: '#8899cc',
+    Metal: '#aaaacc', Poison: '#aa33aa',
 };
 
 export class DeploymentScene extends Scene {
@@ -69,12 +81,16 @@ export class DeploymentScene extends Scene {
 
         // ── Detail panel data ─────────────────────────────────────────
         this._detailSprite = null;
+        this._inspectPanel = new SpriteInspectPanel();
 
         // ── DOM references ────────────────────────────────────────────
         this._domContainer = null;
         this._rosterPanelEl = null;
         this._detailPanelEl = null;
         this._startBtnEl = null;
+
+        // ── Animation time tracker ──────────────────────────────────────
+        this._time = 0;
 
         // ── Event cleanup ─────────────────────────────────────────────
         this._unsubs = [];
@@ -85,13 +101,18 @@ export class DeploymentScene extends Scene {
     // ═══════════════════════════════════════════════════════════════════
 
     async init() {
+        await HumanoidSpriteSystem.preloadAssets(this.engine.assets).catch(() => {});
         this.initialized = true;
     }
 
     enter(data) {
-        this._availableSprites = data.availableSprites || [];
-        this._enemyTeamData = data.enemyTeam || [];
+        // Pull player team from passed data, gameData, or engine's GameManager
+        const gm = this.engine.gameManager;
+        const pd = (gm && gm.playerData) ? gm.playerData : {};
+        this._availableSprites = data.availableSprites || (data.gameData && data.gameData.team) || pd.team || [];
+        this._enemyTeamData = data.enemyTeam || data.enemies || [];
         this._templeId = data.templeId || 0;
+        this._encounterData = data;
 
         // Reset state
         this._deployedUnits = [];
@@ -102,12 +123,12 @@ export class DeploymentScene extends Scene {
         this._hoveredCell = null;
         this._detailSprite = null;
 
-        // Preload fallback character sprite sheets (Characters ASAI: 128x128, 4x4, 32x32 frames)
-        this._charSheets = {};
-        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/NoviceWizard1.png')
-            .then(img => { this._charSheets.player = img; }).catch(() => {});
-        this.engine.assets.loadImage('Sprites/Tiles Sprites/Characters ASAI/Skeleton1.png')
-            .then(img => { this._charSheets.enemy = img; }).catch(() => {});
+        // Reset animation time
+        this._time = 0;
+
+        // Preload unit assets via UnitRenderer for rich composite rendering
+        UnitRenderer.preloadTeam(this.engine, this._availableSprites).catch(() => {});
+        UnitRenderer.preloadTeam(this.engine, this._enemyTeamData).catch(() => {});
 
         // Auto-deploy first 7 sprites in default positions
         this._autoDeployDefault();
@@ -131,6 +152,8 @@ export class DeploymentScene extends Scene {
         }
         this._unsubs = [];
 
+        this._inspectPanel.hide();
+
         if (this._domContainer && this._domContainer.parentNode) {
             this._domContainer.parentNode.removeChild(this._domContainer);
         }
@@ -148,6 +171,7 @@ export class DeploymentScene extends Scene {
 
     update(dt) {
         super.update(dt);
+        this._time += dt;
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -175,10 +199,10 @@ export class DeploymentScene extends Scene {
             baseline: 'top',
         });
 
-        // Draw the deployment grid (player side only for placement)
+        // Draw player grid (left, 9x9) and enemy grid (right, 9x9)
         this._renderDeploymentGrid(ctx, renderer);
 
-        // Draw enemy preview grid
+        // Draw enemy units on the enemy grid (right side)
         this._renderEnemyPreview(ctx, renderer);
 
         // Draw dragged sprite
@@ -192,8 +216,10 @@ export class DeploymentScene extends Scene {
     _renderDeploymentGrid(ctx, renderer) {
         const gx = GRID_ORIGIN_X;
         const gy = GRID_ORIGIN_Y;
+        const cellStep = GRID_CELL_SIZE + GRID_GAP;
+        const gridPixelW = BattleGrid.GRID_WIDTH * cellStep - GRID_GAP;
 
-        // Label
+        // ── Player Grid (left) ──────────────────────────────────────────
         renderer.drawText('Your Formation', gx, gy - 14, {
             color: '#6688cc',
             font: 'bold 10px sans-serif',
@@ -201,20 +227,13 @@ export class DeploymentScene extends Scene {
             baseline: 'bottom',
         });
 
-        // Draw the player-side grid (rows 0-4, all 7 columns, but only cols 0-2 are deployable)
         for (let y = 0; y < BattleGrid.GRID_HEIGHT_PER_SIDE; y++) {
             for (let x = 0; x < BattleGrid.GRID_WIDTH; x++) {
-                const cellX = gx + x * (GRID_CELL_SIZE + GRID_GAP);
-                const cellY = gy + y * (GRID_CELL_SIZE + GRID_GAP);
+                const cellX = gx + x * cellStep;
+                const cellY = gy + y * cellStep;
 
-                const isDeployable = x < PLAYER_DEPLOY_COLS;
-
-                // Cell background
-                if (isDeployable) {
-                    ctx.fillStyle = COLOR_GRID_DEPLOY;
-                } else {
-                    ctx.fillStyle = COLOR_GRID_EMPTY;
-                }
+                // All player cells are deployable
+                ctx.fillStyle = COLOR_GRID_DEPLOY;
                 ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
 
                 // Check if a deployed unit is at this position
@@ -222,26 +241,22 @@ export class DeploymentScene extends Scene {
                 if (deployedIdx >= 0) {
                     ctx.fillStyle = COLOR_GRID_PLACED;
                     ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
-                    this._renderUnitInCell(ctx, renderer, this._deployedUnits[deployedIdx].spriteData, cellX, cellY);
+                    this._renderUnitInCell(ctx, renderer, this._deployedUnits[deployedIdx].spriteData, cellX, cellY, deployedIdx);
                 }
 
                 // Hover highlight
                 if (this._hoveredCell && this._hoveredCell.x === x && this._hoveredCell.y === y) {
-                    if (isDeployable) {
-                        ctx.fillStyle = COLOR_GRID_HOVER;
-                    } else {
-                        ctx.fillStyle = COLOR_GRID_INVALID;
-                    }
+                    ctx.fillStyle = COLOR_GRID_HOVER;
                     ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
                 }
 
                 // Cell border
                 ctx.strokeStyle = COLOR_GRID_LINES;
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 2;
                 ctx.strokeRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
 
-                // Deployment zone label
-                if (isDeployable && deployedIdx < 0) {
+                // Empty cell marker
+                if (deployedIdx < 0) {
                     ctx.fillStyle = 'rgba(255,255,255,0.1)';
                     ctx.font = '8px sans-serif';
                     ctx.textAlign = 'center';
@@ -250,137 +265,146 @@ export class DeploymentScene extends Scene {
                 }
             }
         }
-    }
 
-    _renderEnemyPreview(ctx, renderer) {
-        const gx = GRID_ORIGIN_X;
-        const gy = GRID_ORIGIN_Y;
+        // ── Enemy Grid (right, directly beside player grid) ─────────────
+        const enemyGridX = gx + gridPixelW + GRID_SPACING;
 
-        // Enemy preview label (above the right-side columns)
-        const enemyColStart = PLAYER_DEPLOY_COLS + 1; // column 4
-        const enemyLabelX = gx + enemyColStart * (GRID_CELL_SIZE + GRID_GAP);
-        renderer.drawText('Enemy Preview', enemyLabelX, gy - 14, {
+        renderer.drawText('Enemy Territory', enemyGridX, gy - 14, {
             color: '#cc5555',
             font: 'bold 10px sans-serif',
             align: 'left',
             baseline: 'bottom',
         });
 
-        // Draw enemy units scattered across right-side columns (4-6) within the main grid
+        for (let y = 0; y < BattleGrid.GRID_HEIGHT_PER_SIDE; y++) {
+            for (let x = 0; x < BattleGrid.GRID_WIDTH; x++) {
+                const cellX = enemyGridX + x * cellStep;
+                const cellY = gy + y * cellStep;
+
+                ctx.fillStyle = COLOR_GRID_ENEMY;
+                ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
+
+                // Cell border
+                ctx.strokeStyle = COLOR_GRID_LINES;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
+            }
+        }
+    }
+
+    _renderEnemyPreview(ctx, renderer) {
+        const gx = GRID_ORIGIN_X;
+        const gy = GRID_ORIGIN_Y;
+        const cellStep = GRID_CELL_SIZE + GRID_GAP;
+        const gridPixelW = BattleGrid.GRID_WIDTH * cellStep - GRID_GAP;
+        const enemyGridX = gx + gridPixelW + GRID_SPACING;
+
+        // Place each enemy on the enemy grid (right side)
         for (let i = 0; i < this._enemyTeamData.length; i++) {
             const enemy = this._enemyTeamData[i];
-            // Scatter enemies across columns 4-6 and available rows
-            const enemyCols = BattleGrid.GRID_WIDTH - enemyColStart; // 3 columns (4, 5, 6)
-            const previewX = enemyColStart + (i % enemyCols);
-            const previewY = Math.floor(i / enemyCols);
-            if (previewY >= BattleGrid.GRID_HEIGHT_PER_SIDE) continue;
 
-            const cellX = gx + previewX * (GRID_CELL_SIZE + GRID_GAP);
-            const cellY = gy + previewY * (GRID_CELL_SIZE + GRID_GAP);
+            // Use the enemy's position mapped to 0-based enemy grid coords
+            let ex, ey;
+            if (enemy.position) {
+                ex = enemy.position.x;
+                ey = enemy.position.y >= BattleGrid.ENEMY_ROW_MIN
+                    ? enemy.position.y - BattleGrid.ENEMY_ROW_MIN
+                    : enemy.position.y;
+            } else {
+                ex = i % BattleGrid.GRID_WIDTH;
+                ey = Math.floor(i / BattleGrid.GRID_WIDTH);
+            }
 
-            // Enemy cell background tint
-            ctx.fillStyle = COLOR_GRID_ENEMY;
-            ctx.fillRect(cellX, cellY, GRID_CELL_SIZE, GRID_CELL_SIZE);
+            // Clamp to enemy grid bounds
+            if (ey < 0 || ey >= BattleGrid.GRID_HEIGHT_PER_SIDE) continue;
+            if (ex < 0 || ex >= BattleGrid.GRID_WIDTH) continue;
+
+            const cellX = enemyGridX + ex * cellStep;
+            const cellY = gy + ey * cellStep;
 
             this._renderEnemyInCell(ctx, renderer, enemy, cellX, cellY);
         }
     }
 
-    _renderUnitInCell(ctx, renderer, spriteData, cellX, cellY) {
-        const inst = spriteData.instance;
-        const raceData = spriteData.raceData;
-        if (!inst && !raceData) return;
+    _renderUnitInCell(ctx, renderer, spriteData, cellX, cellY, deployedIdx) {
+        const inst = spriteData.instance || spriteData;
+        if (!inst && !spriteData.raceData) return;
 
         const centerX = cellX + GRID_CELL_SIZE / 2;
-        const centerY = cellY + GRID_CELL_SIZE / 2;
-        const size = GRID_CELL_SIZE - 8;
+        const centerY = cellY + GRID_CELL_SIZE - 4;
+        const size = GRID_CELL_SIZE - 2; // chibi sprites fill more cell space
+        const isSelected = deployedIdx !== undefined && deployedIdx === this._selectedDeployedIndex;
 
-        // Try to draw character sprite
-        const sheet = this._charSheets && this._charSheets.player;
-        if (sheet && sheet.complete) {
-            // Characters ASAI: 128x128, 4 cols x 4 rows, each frame 32x32
-            const fw = 32, fh = 32;
-            const col = 0; // idle frame
-            ctx.drawImage(sheet, col * fw, 0, fw, fh,
-                cellX + 4, cellY + 2, size, size);
-        } else {
-            // Fallback: colored circle with element
-            const elemTypes = raceData ? (raceData.elementTypes || []) : [];
-            const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#6688cc';
-            ctx.fillStyle = elemColor;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-            ctx.fill();
+        // Draw humanoid sprite with equipment
+        const raceId = inst.raceId || inst.race_id || 1;
+        const stage = inst.evolutionStage || inst.evolution_stage || 1;
+        const equipment = inst.equipment || {};
+        const animFrame = Math.floor(this._time * 2) % 4;
+
+        HumanoidSpriteSystem.drawWithEquipment(
+            ctx, raceId, stage, 0, animFrame,
+            centerX, centerY, size,
+            { equipment }
+        );
+
+        // Selection highlight
+        if (isSelected) {
+            ctx.strokeStyle = 'rgba(255, 220, 60, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(cellX + 1, cellY + 1, GRID_CELL_SIZE - 2, GRID_CELL_SIZE - 2);
         }
 
-        ctx.strokeStyle = '#3399ff';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Name/Level
-        const name = inst ? (inst.nickname || `Lv${inst.level || 1}`) : '?';
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 8px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(name.substring(0, 5), centerX, centerY - 2);
-
-        // Level below
-        const level = inst ? (inst.level || 1) : 1;
-        ctx.fillStyle = '#aaaacc';
+        // Level badge
+        const level = inst.level || 1;
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(cellX, cellY, 14, 10);
+        ctx.fillStyle = '#fff';
         ctx.font = '7px sans-serif';
-        ctx.fillText(`Lv${level}`, centerX, cellY + GRID_CELL_SIZE - 6);
+        ctx.textAlign = 'center';
+        ctx.fillText(`${level}`, cellX + 7, cellY + 8);
+        ctx.textAlign = 'left';
+
+        // Element badge (bottom-right)
+        const raceData = SPRITE_RACES.find(r => r.race_id === raceId);
+        const elemArr = raceData && (raceData.element_types || raceData.elementTypes);
+        if (elemArr && elemArr[0]) {
+            const elem = elemArr[0];
+            const ec = ELEMENT_COLORS[elem] || '#888';
+            ctx.fillStyle = ec;
+            ctx.beginPath();
+            ctx.arc(cellX + GRID_CELL_SIZE - 5, cellY + GRID_CELL_SIZE - 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 
     _renderEnemyInCell(ctx, renderer, enemyData, cellX, cellY) {
-        const inst = enemyData.instance;
-        const raceData = enemyData.raceData;
+        const inst = enemyData.instance || enemyData;
         const centerX = cellX + GRID_CELL_SIZE / 2;
-        const centerY = cellY + GRID_CELL_SIZE / 2;
-        const size = GRID_CELL_SIZE - 8;
+        const centerY = cellY + GRID_CELL_SIZE - 4;
+        const size = GRID_CELL_SIZE - 2; // chibi sprites fill more cell space
 
-        // Try to draw character sprite
-        const sheet = this._charSheets && this._charSheets.enemy;
-        if (sheet && sheet.complete) {
-            // Characters ASAI: 128x128, 4 cols x 4 rows, each frame 32x32
-            const fw = 32, fh = 32;
-            const col = 0; // idle frame
-            ctx.globalAlpha = 0.7;
-            ctx.drawImage(sheet, col * fw, 0, fw, fh,
-                cellX + 4, cellY + 2, size, size);
-            ctx.globalAlpha = 1.0;
-        } else {
-            // Fallback: colored circle with element
-            const elemTypes = raceData ? (raceData.elementTypes || []) : [];
-            const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#cc5555';
-            ctx.fillStyle = elemColor;
-            ctx.globalAlpha = 0.7;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 1.0;
-        }
+        const raceId = inst.raceId || inst.race_id || 1;
+        const stage = inst.evolutionStage || inst.evolution_stage || 1;
+        const equipment = inst.equipment || {};
+        const animFrame = Math.floor(this._time * 2) % 4;
 
-        ctx.strokeStyle = '#cc3333';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY - 2, size / 2 - 2, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.globalAlpha = 0.75;
+        HumanoidSpriteSystem.drawWithEquipment(
+            ctx, raceId, stage, 0, animFrame,
+            centerX, centerY, size,
+            { equipment }
+        );
+        ctx.globalAlpha = 1;
 
-        // Show a "?" or the name if scouted
-        const name = inst ? (inst.nickname || '???') : '???';
-        ctx.fillStyle = '#ffaaaa';
-        ctx.font = 'bold 8px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(name.substring(0, 5), centerX, centerY - 2);
-
-        const level = inst ? (inst.level || '?') : '?';
-        ctx.fillStyle = '#cc8888';
+        // Level badge
+        const level = inst.level || enemyData.level || 1;
+        ctx.fillStyle = 'rgba(100,20,20,0.7)';
+        ctx.fillRect(cellX, cellY, 14, 10);
+        ctx.fillStyle = '#ff8888';
         ctx.font = '7px sans-serif';
-        ctx.fillText(`Lv${level}`, centerX, cellY + GRID_CELL_SIZE - 6);
+        ctx.textAlign = 'center';
+        ctx.fillText(`${level}`, cellX + 7, cellY + 8);
+        ctx.textAlign = 'left';
     }
 
     _renderDragSprite(ctx, renderer) {
@@ -390,12 +414,22 @@ export class DeploymentScene extends Scene {
         const drawX = this._dragScreenX - GRID_CELL_SIZE / 2;
         const drawY = this._dragScreenY - GRID_CELL_SIZE / 2;
 
-        ctx.globalAlpha = 0.7;
         ctx.fillStyle = 'rgba(50, 150, 255, 0.3)';
         ctx.fillRect(drawX, drawY, GRID_CELL_SIZE, GRID_CELL_SIZE);
 
-        this._renderUnitInCell(ctx, renderer, spriteData, drawX, drawY);
-        ctx.globalAlpha = 1.0;
+        const inst = spriteData.instance || spriteData;
+        const raceId = inst.raceId || inst.race_id || 1;
+        const stage = inst.evolutionStage || inst.evolution_stage || 1;
+        const equipment = inst.equipment || {};
+        const animFrame = Math.floor(this._time * 2) % 4;
+
+        ctx.globalAlpha = 0.75;
+        HumanoidSpriteSystem.drawWithEquipment(
+            ctx, raceId, stage, 0, animFrame,
+            this._dragScreenX, this._dragScreenY + 4, GRID_CELL_SIZE - 2,
+            { equipment }
+        );
+        ctx.globalAlpha = 1;
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -423,16 +457,31 @@ export class DeploymentScene extends Scene {
 
         // Handle taps
         if (input.isTap()) {
-            // Check if tap is on the deployment grid
+            // Check if tap is on the player deployment grid
             const cell = this._screenToDeployGrid(px, py);
             if (cell) {
                 this._handleGridTap(cell);
                 return;
             }
+
+            // Check if tap is on the enemy grid (right side)
+            const enemyCell = this._screenToEnemyGrid(px, py);
+            if (enemyCell) {
+                const enemy = this._getEnemyAtPosition(enemyCell.x, enemyCell.y);
+                if (enemy) {
+                    this._detailSprite = enemy;
+                    this._selectedDeployedIndex = -1;
+                    this._refreshDetailPanel();
+                    this.engine.audio.playSFX(
+                        this.engine.assets.resolvePath('Audio/Sounds/ui_click.ogg'), 0.4
+                    );
+                    return;
+                }
+            }
         }
 
         // Handle pointer down for drag start from grid
-        if (input.isJustPressed && input.isJustPressed()) {
+        if (input.justPressed && input.justPressed()) {
             const cell = this._screenToDeployGrid(px, py);
             if (cell) {
                 const deployIdx = this._getDeployedAtPosition(cell.x, cell.y);
@@ -461,14 +510,14 @@ export class DeploymentScene extends Scene {
         this._deployedUnits = [];
         const count = Math.min(MAX_DEPLOY_UNITS, this._availableSprites.length);
 
-        // Default positions: fill columns 0-2 from top to bottom
+        // Default positions: center units in the 9x9 grid
         const defaultPositions = [];
-        for (let x = 0; x < PLAYER_DEPLOY_COLS; x++) {
-            for (let y = 0; y < BattleGrid.GRID_HEIGHT_PER_SIDE; y++) {
-                defaultPositions.push({ x, y });
-                if (defaultPositions.length >= count) break;
-            }
-            if (defaultPositions.length >= count) break;
+        const startCol = Math.floor((BattleGrid.GRID_WIDTH - Math.min(count, 3)) / 2);
+        const startRow = Math.floor((BattleGrid.GRID_HEIGHT_PER_SIDE - Math.ceil(count / 3)) / 2);
+        for (let i = 0; i < count; i++) {
+            const col = startCol + (i % 3);
+            const row = startRow + Math.floor(i / 3);
+            defaultPositions.push({ x: col, y: row });
         }
 
         for (let i = 0; i < count; i++) {
@@ -480,7 +529,7 @@ export class DeploymentScene extends Scene {
     }
 
     _isDeployablePosition(x, y) {
-        return x >= 0 && x < PLAYER_DEPLOY_COLS &&
+        return x >= 0 && x < BattleGrid.GRID_WIDTH &&
                y >= 0 && y < BattleGrid.GRID_HEIGHT_PER_SIDE;
     }
 
@@ -630,7 +679,7 @@ export class DeploymentScene extends Scene {
         return this._deployedUnits.length >= 1 && this._deployedUnits.length <= MAX_DEPLOY_UNITS;
     }
 
-    _startBattle() {
+    async _startBattle() {
         if (!this._canStartBattle()) return;
 
         this.engine.audio.playSFX(
@@ -643,31 +692,42 @@ export class DeploymentScene extends Scene {
             position: { x: d.position.x, y: d.position.y },
         }));
 
-        // Assign enemy positions to enemy side of the grid
+        // Assign enemy positions to enemy side of the grid (rows 9-17)
         const enemyTeam = this._enemyTeamData.map((e, i) => {
             if (!e.position) {
                 const defaultX = i % BattleGrid.GRID_WIDTH;
                 const defaultY = BattleGrid.ENEMY_ROW_MIN + Math.floor(i / BattleGrid.GRID_WIDTH);
                 return { ...e, position: { x: defaultX, y: defaultY } };
             }
-            return e;
+            // Ensure existing positions are mapped to enemy row range
+            const ey = e.position.y < BattleGrid.ENEMY_ROW_MIN
+                ? e.position.y + BattleGrid.ENEMY_ROW_MIN
+                : e.position.y;
+            return { ...e, position: { x: e.position.x, y: ey } };
         });
 
         this.engine.audio.stopMusic(300);
 
-        // Transition to BattleScene
-        this.engine.scenes.changeTo('battle', {
-            playerTeam,
-            enemyTeam,
-            background: `Sprites/Battle Backgrounds/temple_${this._templeId || 1}.png`,
-            isBoss: this._enemyTeamData.some(e => e.isBoss),
-        });
+        // Transition to RTSBattleScene (Hero's Hour-style real-time combat)
+        try {
+            await this.engine.scenes.changeTo('rts_battle', {
+                playerTeam,
+                enemyTeam,
+                background: `Sprites/Battle Backgrounds/temple_${this._templeId || 1}.png`,
+                isBoss: this._enemyTeamData.some(e => e.isBoss),
+                returnData: this._encounterData.returnData || null,
+            });
+        } catch (err) {
+            console.error('DeploymentScene: Failed to transition to battle:', err);
+        }
     }
 
     _goBack() {
         this.engine.audio.stopMusic(300);
-        this.engine.scenes.popScene().catch(() => {
-            this.engine.scenes.changeTo('overworld', {});
+        const returnData = this._encounterData?.returnData || {};
+        this.engine.scenes.changeTo('overworld', {
+            spawnPoint: returnData.spawnPoint || null,
+            gameData: returnData.gameData || null,
         });
     }
 
@@ -705,10 +765,9 @@ export class DeploymentScene extends Scene {
         this._detailPanelEl.id = 'deployment-detail';
         this._detailPanelEl.style.cssText = `
             position:absolute;bottom:52px;right:4px;
-            width:${ROSTER_PANEL_WIDTH}px;height:${DETAIL_PANEL_HEIGHT}px;
-            background:rgba(0,0,0,0.7);border-radius:8px;
-            border:1px solid rgba(255,255,255,0.1);
-            pointer-events:auto;overflow-y:auto;padding:8px;
+            width:280px;
+            max-height:${this.engine.designHeight - 120}px;
+            pointer-events:auto;overflow-y:auto;
         `;
         this._domContainer.appendChild(this._detailPanelEl);
 
@@ -760,161 +819,55 @@ export class DeploymentScene extends Scene {
         header.textContent = `Party (${this._deployedUnits.length}/${MAX_DEPLOY_UNITS} deployed)`;
         this._rosterPanelEl.appendChild(header);
 
-        // List of available sprites
+        // List of available sprites — rendered via UnitRenderer.createUnitCard()
         for (let i = 0; i < this._availableSprites.length; i++) {
             const sprite = this._availableSprites[i];
-            const inst = sprite.instance;
-            const raceData = sprite.raceData;
+            const spriteInst = sprite.instance || sprite;
             const isDeployed = this._deployedUnits.some(d => d.spriteData === sprite);
-            const isSelected = this._selectedRosterIndex === i;
 
-            const row = document.createElement('div');
-            row.style.cssText = `
-                display:flex;align-items:center;gap:8px;padding:6px 8px;
-                cursor:pointer;
-                border-bottom:1px solid rgba(255,255,255,0.04);
-                background:${isSelected ? 'rgba(50,150,255,0.15)' : isDeployed ? 'rgba(50,200,100,0.08)' : 'transparent'};
-                transition:background 0.15s;
-            `;
-
-            // Element dot
-            const elemTypes = raceData ? (raceData.elementTypes || []) : [];
-            const elemColor = ELEMENT_COLORS[elemTypes[0]] || '#888';
-            const dot = document.createElement('div');
-            dot.style.cssText = `width:12px;height:12px;border-radius:50%;background:${elemColor};flex-shrink:0;`;
-            row.appendChild(dot);
-
-            // Name + level
-            const nameDiv = document.createElement('div');
-            nameDiv.style.cssText = 'flex:1;';
-
-            const nameSpan = document.createElement('div');
-            nameSpan.style.cssText = `font-size:0.7rem;font-weight:600;color:${isDeployed ? '#66cc88' : '#ccccdd'};`;
-            nameSpan.textContent = inst ? (inst.nickname || `Sprite #${inst.raceId}`) : '???';
-            nameDiv.appendChild(nameSpan);
-
-            const levelSpan = document.createElement('div');
-            levelSpan.style.cssText = 'font-size:0.6rem;color:#888;';
-            const level = inst ? (inst.level || 1) : '?';
-            const elemLabel = elemTypes.join('/') || '???';
-            levelSpan.textContent = `Lv${level} | ${elemLabel}`;
-            nameDiv.appendChild(levelSpan);
-
-            row.appendChild(nameDiv);
-
-            // Deploy status indicator
-            const statusSpan = document.createElement('span');
-            statusSpan.style.cssText = `font-size:0.6rem;color:${isDeployed ? '#66cc88' : '#666'};`;
-            statusSpan.textContent = isDeployed ? 'ON' : '';
-            row.appendChild(statusSpan);
-
-            // Click handler
-            const idx = i;
-            row.addEventListener('click', () => this._selectRosterSprite(idx));
-            row.addEventListener('mouseenter', () => {
-                if (!isSelected) row.style.background = 'rgba(255,255,255,0.05)';
+            const card = UnitRenderer.createUnitCard(spriteInst, {
+                cardWidth: ROSTER_PANEL_WIDTH - 12,
+                cardHeight: 52,
+                previewSize: 42,
+                showEquipment: true,
+                showHpBar: false,
+                isSelected: isDeployed,
+                onClick: () => this._selectRosterSprite(i),
             });
-            row.addEventListener('mouseleave', () => {
-                row.style.background = isSelected ? 'rgba(50,150,255,0.15)' : isDeployed ? 'rgba(50,200,100,0.08)' : 'transparent';
-            });
+            card.style.margin = '2px 4px';
 
-            this._rosterPanelEl.appendChild(row);
+            this._rosterPanelEl.appendChild(card);
         }
     }
 
     _refreshDetailPanel() {
         if (!this._detailPanelEl) return;
-        this._detailPanelEl.innerHTML = '';
 
         const sprite = this._detailSprite;
         if (!sprite) {
-            const placeholder = document.createElement('div');
-            placeholder.style.cssText = 'color:#666;font-size:0.7rem;text-align:center;padding-top:40px;';
-            placeholder.textContent = 'Tap a sprite to view details';
-            this._detailPanelEl.appendChild(placeholder);
+            this._inspectPanel.hide();
             return;
         }
 
-        const inst = sprite.instance;
-        const raceData = sprite.raceData;
-        const stageData = sprite.stageData;
-        const abilities = sprite.abilities || [];
+        const isEnemy = this._enemyTeamData.includes(sprite);
+        const isDeployed = !isEnemy && this._deployedUnits.some(d => d.spriteData === sprite);
 
-        // Name
-        const name = document.createElement('div');
-        name.style.cssText = 'font-size:0.85rem;font-weight:700;color:#ffcc33;margin-bottom:4px;';
-        name.textContent = inst ? (inst.nickname || `Sprite #${inst.raceId}`) : '???';
-        this._detailPanelEl.appendChild(name);
-
-        // Level + Elements
-        const elemTypes = raceData ? (raceData.elementTypes || []) : [];
-        const infoLine = document.createElement('div');
-        infoLine.style.cssText = 'font-size:0.65rem;color:#aaa;margin-bottom:6px;';
-        infoLine.textContent = `Lv${inst ? inst.level || 1 : '?'} | ${elemTypes.join(' / ') || '???'}`;
-        this._detailPanelEl.appendChild(infoLine);
-
-        // Stats (if calculable)
-        if (inst && raceData && stageData && inst.calculateAllEffectiveStats) {
-            const stats = inst.calculateAllEffectiveStats(raceData, stageData);
-            const statsDiv = document.createElement('div');
-            statsDiv.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:0.6rem;margin-bottom:6px;';
-            const statKeys = [
-                { key: 'hp', label: 'HP' }, { key: 'atk', label: 'ATK' },
-                { key: 'def', label: 'DEF' }, { key: 'spd', label: 'SPD' },
-                { key: 'sp_atk', label: 'SP.ATK' }, { key: 'sp_def', label: 'SP.DEF' },
-            ];
-            for (const s of statKeys) {
-                const statRow = document.createElement('div');
-                statRow.style.cssText = 'display:flex;justify-content:space-between;';
-                const label = document.createElement('span');
-                label.style.color = '#888';
-                label.textContent = s.label;
-                const value = document.createElement('span');
-                value.style.cssText = 'color:#ccddee;font-weight:600;';
-                value.textContent = `${Math.floor(stats[s.key] || 0)}`;
-                statRow.appendChild(label);
-                statRow.appendChild(value);
-                statsDiv.appendChild(statRow);
-            }
-            this._detailPanelEl.appendChild(statsDiv);
-        }
-
-        // Abilities list
-        if (abilities.length > 0) {
-            const abHeader = document.createElement('div');
-            abHeader.style.cssText = 'font-size:0.6rem;font-weight:700;color:#aaa;margin-bottom:3px;';
-            abHeader.textContent = 'Abilities';
-            this._detailPanelEl.appendChild(abHeader);
-
-            for (const ability of abilities) {
-                if (!ability) continue;
-                const elemColor = ELEMENT_COLORS[ability.elementType] || '#666';
-                const abRow = document.createElement('div');
-                abRow.style.cssText = `font-size:0.6rem;color:#ccccdd;padding:1px 0;border-left:2px solid ${elemColor};padding-left:4px;margin-bottom:1px;`;
-                const abilityName = ability.abilityName || `Ability #${ability.abilityId}`;
-                const power = ability.basePower ? ` Pwr:${ability.basePower}` : '';
-                abRow.textContent = `${abilityName}${power}`;
-                this._detailPanelEl.appendChild(abRow);
-            }
-        }
-
-        // Remove from deployment button (if deployed)
-        const isDeployed = this._deployedUnits.some(d => d.spriteData === sprite);
-        if (isDeployed) {
-            const removeBtn = document.createElement('button');
-            removeBtn.style.cssText = `
-                margin-top:6px;padding:4px 10px;font-size:0.6rem;
-                border:1px solid #aa4444;border-radius:4px;
-                background:rgba(120,30,30,0.5);color:#ffaaaa;
-                cursor:pointer;width:100%;
-            `;
-            removeBtn.textContent = 'Remove from Formation';
-            removeBtn.addEventListener('click', () => {
+        this._inspectPanel.show(this._detailPanelEl, sprite, {
+            position: 'right',
+            isEnemy,
+            isDeployed,
+            onClose: () => {
+                this._detailSprite = null;
+                this._selectedDeployedIndex = -1;
+                this._selectedRosterIndex = -1;
+                this._refreshRosterPanel();
+            },
+            onRemove: isDeployed ? () => {
                 const idx = this._deployedUnits.findIndex(d => d.spriteData === sprite);
                 if (idx >= 0) this._removeDeployedUnit(idx);
-            });
-            this._detailPanelEl.appendChild(removeBtn);
-        }
+            } : null,
+            onDeposit: null,
+        });
     }
 
     _refreshStartButton() {
@@ -929,6 +882,10 @@ export class DeploymentScene extends Scene {
     // Helpers
     // ═══════════════════════════════════════════════════════════════════
 
+    /**
+     * Maps screen coordinates to a cell on the player grid (left side, 9x9).
+     * Returns null if the position is outside the player grid.
+     */
     _screenToDeployGrid(px, py) {
         const gx = GRID_ORIGIN_X;
         const gy = GRID_ORIGIN_Y;
@@ -940,10 +897,56 @@ export class DeploymentScene extends Scene {
         if (gridX < 0 || gridX >= BattleGrid.GRID_WIDTH) return null;
         if (gridY < 0 || gridY >= BattleGrid.GRID_HEIGHT_PER_SIDE) return null;
 
+        // Check we're inside the cell, not in the gap
         const localX = px - gx - gridX * cellStep;
         const localY = py - gy - gridY * cellStep;
         if (localX > GRID_CELL_SIZE || localY > GRID_CELL_SIZE) return null;
 
         return { x: gridX, y: gridY };
+    }
+
+    /**
+     * Maps screen coordinates to a cell on the enemy grid (right side, 9x9).
+     * Returns { x, y } in enemy-local coordinates (0-8), or null if outside.
+     */
+    _screenToEnemyGrid(px, py) {
+        const cellStep = GRID_CELL_SIZE + GRID_GAP;
+        const gridPixelW = BattleGrid.GRID_WIDTH * cellStep - GRID_GAP;
+        const enemyGridX = GRID_ORIGIN_X + gridPixelW + GRID_SPACING;
+        const gy = GRID_ORIGIN_Y;
+
+        const gridX = Math.floor((px - enemyGridX) / cellStep);
+        const gridY = Math.floor((py - gy) / cellStep);
+
+        if (gridX < 0 || gridX >= BattleGrid.GRID_WIDTH) return null;
+        if (gridY < 0 || gridY >= BattleGrid.GRID_HEIGHT_PER_SIDE) return null;
+
+        const localX = px - enemyGridX - gridX * cellStep;
+        const localY = py - gy - gridY * cellStep;
+        if (localX > GRID_CELL_SIZE || localY > GRID_CELL_SIZE) return null;
+
+        return { x: gridX, y: gridY };
+    }
+
+    /**
+     * Find the enemy data at a given enemy-grid-local position (0-8, 0-8).
+     * Returns the enemy object or null.
+     */
+    _getEnemyAtPosition(x, y) {
+        for (let i = 0; i < this._enemyTeamData.length; i++) {
+            const enemy = this._enemyTeamData[i];
+            let ex, ey;
+            if (enemy.position) {
+                ex = enemy.position.x;
+                ey = enemy.position.y >= BattleGrid.ENEMY_ROW_MIN
+                    ? enemy.position.y - BattleGrid.ENEMY_ROW_MIN
+                    : enemy.position.y;
+            } else {
+                ex = i % BattleGrid.GRID_WIDTH;
+                ey = Math.floor(i / BattleGrid.GRID_WIDTH);
+            }
+            if (ex === x && ey === y) return enemy;
+        }
+        return null;
     }
 }

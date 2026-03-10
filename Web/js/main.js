@@ -14,6 +14,7 @@ import { AudioManager } from './systems/audio/AudioManager.js';
 // ============================================================
 let engine = null;
 let audioManager = null;
+let _gameStarting = false;
 
 // ============================================================
 // Authentication UI
@@ -123,7 +124,7 @@ function showAuthError(message) {
 
     const err = document.createElement('p');
     err.className = 'auth-error';
-    err.style.cssText = 'color: #cc4444; text-align: center; font-size: 0.85rem; margin-top: 8px;';
+    err.style.cssText = 'color: #FF6655; text-align: center; font-size: 0.85rem; margin-top: 8px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);';
     err.textContent = message;
 
     const activeForm = document.querySelector('.auth-form:not(.hidden)');
@@ -136,6 +137,9 @@ function showAuthError(message) {
 // Game Initialization
 // ============================================================
 async function startGame(user) {
+    if (_gameStarting) return;
+    _gameStarting = true;
+
     const loginScreen = document.getElementById('login-screen');
     const gameContainer = document.getElementById('game-container');
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -162,16 +166,16 @@ async function startGame(user) {
         // Load core data modules
         loadingText.textContent = 'Loading element data...';
         loadingBar.style.width = '5%';
-        const { ELEMENTS, EFFECTIVENESS_MATRIX } = await import('./data/ElementData.js');
+        const { ELEMENT_IDS, ELEMENT_NAMES, EFFECTIVENESS_CHART } = await import('./data/ElementData.js');
         engine.data = engine.data || {};
-        engine.data.elements = ELEMENTS;
-        engine.data.effectivenessMatrix = EFFECTIVENESS_MATRIX;
+        engine.data.elements = { ids: ELEMENT_IDS, names: ELEMENT_NAMES };
+        engine.data.effectivenessMatrix = EFFECTIVENESS_CHART;
 
         loadingText.textContent = 'Loading sprite data...';
         loadingBar.style.width = '15%';
         const spriteDataModule = await import('./data/SpriteData.js');
-        engine.data.races = spriteDataModule.RACES;
-        engine.data.evolutionData = spriteDataModule.EVOLUTION_DATA;
+        engine.data.races = spriteDataModule.SPRITE_RACES;
+        engine.data.evolutionData = spriteDataModule.EVOLUTION_FORMS;
 
         loadingText.textContent = 'Loading ability data...';
         loadingBar.style.width = '25%';
@@ -181,7 +185,33 @@ async function startGame(user) {
         loadingText.textContent = 'Loading status effects...';
         loadingBar.style.width = '30%';
         const { STATUS_EFFECTS } = await import('./data/StatusEffectData.js');
-        engine.data.statusEffects = STATUS_EFFECTS;
+        const statusMap = {};
+        STATUS_EFFECTS.forEach(e => {
+            // Wrap raw snake_case data with camelCase getters and methods
+            // needed by StatusEffectSystem
+            statusMap[e.effect_id] = {
+                // Preserve raw data
+                ...e,
+                // camelCase aliases expected by StatusEffectSystem
+                effectId: e.effect_id,
+                effectName: e.effect_name,
+                effectType: e.effect_type,
+                durationTurns: e.duration_turns,
+                statModifiers: e.stat_modifiers || {},
+                damagePerTurn: e.damage_per_turn || 0,
+                preventsAction: !!e.prevents_action,
+                stackingRule: e.stacking_rule || 'none',
+                maxStacks: e.max_stacks || 1,
+                canBeCleansed: e.can_be_cleansed !== false,
+                breakFreeChance: e.break_free_chance || (e.effect_name === 'Freeze' ? 0.25 : (e.effect_name === 'Sleep' ? 0.33 : 0)),
+                forcesMovement: !!e.forces_movement,
+                // Methods expected by StatusEffectSystem
+                hasDot() { return this.damagePerTurn !== 0; },
+                getDotDamage(maxHp) { return Math.floor(this.damagePerTurn * maxHp); },
+                hasStatModifiers() { return Object.keys(this.statModifiers).length > 0; },
+            };
+        });
+        engine.data.statusEffects = statusMap;
 
         loadingText.textContent = 'Loading equipment data...';
         loadingBar.style.width = '35%';
@@ -193,6 +223,9 @@ async function startGame(user) {
         const itemDataModule = await import('./data/ItemData.js');
         engine.data.consumables = itemDataModule.CONSUMABLES;
         engine.data.crystals = itemDataModule.CRYSTALS;
+        engine.data.statusCures = itemDataModule.STATUS_CURES;
+        engine.data.evolutionItems = itemDataModule.EVOLUTION_ITEMS;
+        engine.data.keyItems = itemDataModule.KEY_ITEMS;
 
         loadingText.textContent = 'Loading temple data...';
         loadingBar.style.width = '45%';
@@ -265,6 +298,7 @@ async function startGame(user) {
         const { DeploymentScene } = await import('./scenes/DeploymentScene.js');
         const { SpriteCenterScene } = await import('./scenes/SpriteCenterScene.js');
         const { BagScene } = await import('./scenes/BagScene.js');
+        const { RTSBattleScene } = await import('./scenes/RTSBattleScene.js');
 
         engine.scenes.register('main_menu', MainMenuScene);
         engine.scenes.register('overworld', OverworldScene);
@@ -272,6 +306,7 @@ async function startGame(user) {
         engine.scenes.register('deployment', DeploymentScene);
         engine.scenes.register('sprite_center', SpriteCenterScene);
         engine.scenes.register('bag', BagScene);
+        engine.scenes.register('rts_battle', RTSBattleScene);
 
         // Initialize game state
         engine.gameManager.init(user);
@@ -300,6 +335,10 @@ async function startGame(user) {
         console.error('Failed to initialize game:', error);
         loadingText.textContent = `Error: ${error.message}. Check console for details.`;
         loadingBar.style.width = '0%';
+        if (engine) { engine.stop(); engine = null; }
+        _gameStarting = false;
+        loginScreen.classList.add('active');
+        gameContainer.classList.remove('active');
     }
 }
 

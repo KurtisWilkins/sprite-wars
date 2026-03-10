@@ -16,7 +16,7 @@ const MAX_STORAGE = 500;
 const MIN_TEAM_SIZE = 1;
 
 /** Maximum team size. */
-const MAX_TEAM_SIZE = 6;
+const MAX_TEAM_SIZE = 14;
 
 /** Valid sort keys for getSortedStorage(). */
 const VALID_SORT_KEYS = ['level', 'raceId', 'formId', 'instanceId', 'name'];

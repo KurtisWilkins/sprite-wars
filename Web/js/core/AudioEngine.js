@@ -21,6 +21,7 @@ export class AudioEngine {
         // Audio element pools for SFX
         this._sfxPool = {};
         this._musicElement = null;
+        this._unlockHandler = null;
     }
 
     init() {
@@ -52,11 +53,18 @@ export class AudioEngine {
         this._updateMusicVolume();
         this._musicElement.play().catch(() => {
             // Autoplay blocked; will play on next user interaction
+            // Remove any previously stacked unlock handlers
+            if (this._unlockHandler) {
+                document.removeEventListener('click', this._unlockHandler);
+                document.removeEventListener('touchstart', this._unlockHandler);
+            }
             const handler = () => {
                 this._musicElement.play().catch(() => {});
                 document.removeEventListener('click', handler);
                 document.removeEventListener('touchstart', handler);
+                this._unlockHandler = null;
             };
+            this._unlockHandler = handler;
             document.addEventListener('click', handler);
             document.addEventListener('touchstart', handler);
         });
@@ -102,6 +110,7 @@ export class AudioEngine {
     playSFX(src, volume = 1.0) {
         const audio = new Audio(src);
         audio.volume = this._getSfxVolume() * volume;
+        audio.addEventListener('ended', () => { audio.src = ''; audio.remove(); });
         audio.play().catch(() => {});
         return audio;
     }
@@ -129,6 +138,11 @@ export class AudioEngine {
         this._muted = !this._muted;
         this._updateMusicVolume();
         return this._muted;
+    }
+
+    setMuted(muted) {
+        this._muted = !!muted;
+        this._updateMusicVolume();
     }
 
     get masterVolume() { return this._masterVolume; }

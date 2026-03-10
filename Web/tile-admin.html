@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprite Wars - Tile Admin</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --bg-panel: #16213e;
+            --bg-card: #0f3460;
+            --accent: #e94560;
+            --accent2: #53c7f0;
+            --text: #eaeaea;
+            --text-dim: #8899aa;
+            --border: #2a3a5e;
+            --green: #4ade80;
+            --yellow: #facc15;
+            --orange: #fb923c;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── Left sidebar: Tileset list ── */
+        #sidebar {
+            width: 260px;
+            min-width: 260px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #sidebar h2 {
+            padding: 12px 16px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border);
+        }
+        #sidebar-search {
+            margin: 8px;
+            padding: 6px 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            font-size: 13px;
+        }
+        #tileset-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+        .tileset-item {
+            padding: 6px 16px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-left: 3px solid transparent;
+        }
+        .tileset-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+        .tileset-item.active { background: rgba(233,69,96,0.15); color: var(--accent); border-left-color: var(--accent); }
+        .tileset-item .badge {
+            display: inline-block;
+            background: var(--green);
+            color: #000;
+            font-size: 9px;
+            padding: 1px 5px;
+            border-radius: 8px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .tileset-group {
+            padding: 8px 12px 4px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Center: Tile grid ── */
+        #center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        #toolbar label { font-size: 12px; color: var(--text-dim); }
+        #toolbar input[type="range"] { width: 100px; }
+        #toolbar button {
+            padding: 4px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        #toolbar button:hover { background: var(--accent); }
+        #toolbar button.save-btn { background: var(--green); color: #000; font-weight: 700; }
+        #toolbar button.save-btn:hover { background: #22c55e; }
+        #toolbar .spacer { flex: 1; }
+        #toolbar .status {
+            font-size: 11px;
+            color: var(--text-dim);
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        #tileset-info {
+            font-size: 11px;
+            color: var(--text-dim);
+            padding: 4px 16px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        #grid-container {
+            flex: 1;
+            overflow: auto;
+            padding: 16px;
+            position: relative;
+        }
+        #tile-grid {
+            display: inline-grid;
+            gap: 1px;
+            background: rgba(255,255,255,0.05);
+            image-rendering: pixelated;
+            cursor: crosshair;
+        }
+        .tile-cell {
+            position: relative;
+            background: #111;
+            image-rendering: pixelated;
+            cursor: pointer;
+        }
+        .tile-cell canvas {
+            display: block;
+            image-rendering: pixelated;
+        }
+        .tile-cell .tile-index {
+            position: absolute;
+            bottom: 0; left: 0;
+            font-size: 9px;
+            color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.6);
+            padding: 0 3px;
+            pointer-events: none;
+            line-height: 1.3;
+        }
+        .tile-cell.selected { outline: 2px solid var(--accent); outline-offset: -1px; z-index: 2; }
+        .tile-cell.annotated::after {
+            content: '';
+            position: absolute;
+            top: 2px; right: 2px;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            pointer-events: none;
+        }
+        .tile-cell.in-structure::after {
+            background: var(--yellow);
+        }
+        .tile-cell.structure-selecting {
+            outline: 2px dashed var(--yellow);
+            outline-offset: -1px;
+        }
+
+        /* Category color overlays */
+        .tile-cell[data-cat="floor"]::before { background: rgba(45,90,30,0.3); }
+        .tile-cell[data-cat="wall"]::before { background: rgba(106,80,64,0.3); }
+        .tile-cell[data-cat="roof"]::before { background: rgba(138,48,48,0.3); }
+        .tile-cell[data-cat="door"]::before { background: rgba(90,48,32,0.3); }
+        .tile-cell[data-cat="water"]::before { background: rgba(34,68,170,0.3); }
+        .tile-cell[data-cat="nature"]::before { background: rgba(26,74,14,0.3); }
+        .tile-cell[data-cat="path"]::before { background: rgba(138,122,90,0.3); }
+        .tile-cell[data-cat="fence"]::before { background: rgba(122,106,80,0.3); }
+        .tile-cell[data-cat="prop"]::before { background: rgba(170,128,48,0.3); }
+        .tile-cell[data-cat]:not([data-cat=""])::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        /* ── Right panel: Annotation editor ── */
+        #right-panel {
+            width: 340px;
+            min-width: 340px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #right-panel h3 {
+            padding: 12px 16px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent2);
+            border-bottom: 1px solid var(--border);
+        }
+        #annotation-form {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 6px 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            font-size: 13px;
+        }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+        .form-group select { cursor: pointer; }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 16px; height: 16px;
+            cursor: pointer;
+        }
+        .checkbox-group label { margin-bottom: 0; font-size: 13px; color: var(--text); }
+
+        #tile-preview {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        #tile-preview canvas {
+            image-rendering: pixelated;
+            border: 1px solid var(--border);
+            background: repeating-conic-gradient(#333 0% 25%, #444 0% 50%) 50% / 8px 8px;
+        }
+        #tile-preview .info {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        #tile-preview .info .idx { color: var(--accent); font-weight: 700; }
+
+        /* ── Tab system for annotation vs structures ── */
+        .tab-bar {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+        .tab-bar button {
+            flex: 1;
+            padding: 8px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .tab-bar button.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+        .tab-content { display: none; flex: 1; overflow-y: auto; padding: 12px 16px; }
+        .tab-content.active { display: block; }
+
+        /* ── Structure builder panel ── */
+        #structure-list { list-style: none; }
+        #structure-list li {
+            padding: 8px;
+            margin-bottom: 6px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        #structure-list li:hover { border-color: var(--accent2); }
+        #structure-list li.active { border-color: var(--yellow); background: rgba(250,204,21,0.1); }
+        #structure-list li .struct-name { font-weight: 700; color: var(--text); }
+        #structure-list li .struct-size { color: var(--text-dim); font-size: 11px; }
+
+        #structure-preview {
+            margin-top: 12px;
+            padding: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+        #structure-preview canvas {
+            image-rendering: pixelated;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .btn-small {
+            padding: 4px 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+        .btn-small:hover { background: var(--accent); }
+        .btn-small.danger { border-color: var(--accent); color: var(--accent); }
+        .btn-small.danger:hover { background: var(--accent); color: #fff; }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+        .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+
+        /* ── Keyboard shortcut overlay ── */
+        #shortcuts-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        #shortcuts-overlay.visible { display: flex; }
+        #shortcuts-overlay .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+        }
+        #shortcuts-overlay h3 { padding: 0 0 12px; border: none; }
+        #shortcuts-overlay table { width: 100%; }
+        #shortcuts-overlay td { padding: 4px 8px; font-size: 13px; }
+        #shortcuts-overlay td:first-child { color: var(--accent2); font-family: monospace; font-weight: 700; }
+
+        /* ── Speech-to-text mic buttons ── */
+        .stt-wrap {
+            position: relative;
+            display: flex;
+            gap: 4px;
+            align-items: flex-start;
+        }
+        .stt-wrap input, .stt-wrap textarea {
+            flex: 1;
+            min-width: 0;
+        }
+        .mic-btn {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--bg);
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .mic-btn:hover { border-color: var(--accent2); color: var(--text); }
+        .mic-btn.recording {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            animation: mic-pulse 1s infinite;
+        }
+        .mic-btn.unsupported { display: none; }
+        @keyframes mic-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(233,69,96,0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(233,69,96,0); }
+        }
+        #stt-status {
+            font-size: 10px;
+            color: var(--text-dim);
+            padding: 2px 0;
+            min-height: 14px;
+        }
+        #stt-status.recording { color: var(--accent); }
+
+        /* ── Scrollbar styling ── */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+    </style>
+</head>
+<body>
+
+<!-- Left Sidebar: Tileset Browser -->
+<div id="sidebar">
+    <h2>Tilesets</h2>
+    <input type="text" id="sidebar-search" placeholder="Search tilesets...">
+    <div id="tileset-list">
+        <div class="empty-state">Loading tilesets...</div>
+    </div>
+</div>
+
+<!-- Center: Tile Grid -->
+<div id="center">
+    <div id="toolbar">
+        <label>Zoom:</label>
+        <input type="range" id="zoom-slider" min="1" max="6" value="3" step="1">
+        <span id="zoom-label">3x</span>
+        <label style="margin-left:12px">Show:</label>
+        <select id="overlay-mode" style="width:120px;padding:3px 6px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:4px;font-size:12px">
+            <option value="none">No overlay</option>
+            <option value="index">Tile index</option>
+            <option value="category">Category colors</option>
+            <option value="collision">Collision map</option>
+        </select>
+        <div class="spacer"></div>
+        <span class="status" id="status-text">Select a tileset to begin</span>
+        <button class="save-btn" id="save-btn" title="Ctrl+S">Save</button>
+        <button id="shortcuts-btn" title="?">?</button>
+    </div>
+    <div id="tileset-info"></div>
+    <div id="grid-container">
+        <div class="empty-state">
+            <div class="icon">&#x1F5BC;</div>
+            Select a tileset from the left panel to view its tiles
+        </div>
+    </div>
+</div>
+
+<!-- Right Panel: Annotation Editor -->
+<div id="right-panel">
+    <div class="tab-bar">
+        <button class="active" data-tab="annotate">Annotate Tile</button>
+        <button data-tab="structures">Structures</button>
+    </div>
+
+    <!-- Tile Preview -->
+    <div id="tile-preview" style="display:none">
+        <canvas id="preview-canvas" width="64" height="64"></canvas>
+        <div class="info">
+            <div>Index: <span class="idx" id="preview-index">—</span></div>
+            <div>Row: <span id="preview-row">—</span> Col: <span id="preview-col">—</span></div>
+            <div>Pos: <span id="preview-pos">—</span></div>
+        </div>
+    </div>
+
+    <!-- Tab: Annotate -->
+    <div class="tab-content active" id="tab-annotate">
+        <div id="annotation-form">
+            <div class="empty-state">Click a tile in the grid to annotate it</div>
+        </div>
+    </div>
+
+    <!-- Tab: Structures -->
+    <div class="tab-content" id="tab-structures">
+        <button class="btn-small" id="new-structure-btn">+ New Structure</button>
+        <button class="btn-small" id="select-tiles-btn" style="display:none">Select Tiles in Grid</button>
+        <ul id="structure-list"></ul>
+        <div id="structure-editor" style="display:none">
+            <div class="form-group">
+                <label>Structure ID</label>
+                <input type="text" id="struct-id" placeholder="cottage_brown">
+            </div>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="struct-name" placeholder="Brown Cottage">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="struct-desc" placeholder="Describe what this structure is and when to use it..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="struct-category">
+                    <option value="building">Building</option>
+                    <option value="vegetation">Vegetation</option>
+                    <option value="terrain_feature">Terrain Feature</option>
+                    <option value="furniture_group">Furniture Group</option>
+                    <option value="prop_group">Prop Group</option>
+                    <option value="fence_section">Fence Section</option>
+                    <option value="bridge">Bridge</option>
+                    <option value="ruin">Ruin</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Selected Tiles: <span id="struct-tile-count">0</span></label>
+            </div>
+            <div id="structure-preview"><canvas id="struct-preview-canvas"></canvas></div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+                <button class="btn-small" id="save-structure-btn">Save Structure</button>
+                <button class="btn-small danger" id="delete-structure-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Keyboard Shortcuts Overlay -->
+<div id="shortcuts-overlay">
+    <div class="panel">
+        <h3>Keyboard Shortcuts</h3>
+        <table>
+            <tr><td>Ctrl+S</td><td>Save annotations</td></tr>
+            <tr><td>Arrow keys</td><td>Navigate tiles</td></tr>
+            <tr><td>1-9</td><td>Quick-set category</td></tr>
+            <tr><td>C</td><td>Toggle collidable</td></tr>
+            <tr><td>L</td><td>Toggle layer (ground/object)</td></tr>
+            <tr><td>N</td><td>Focus name field</td></tr>
+            <tr><td>+/-</td><td>Zoom in/out</td></tr>
+            <tr><td>Esc</td><td>Deselect / close overlay</td></tr>
+            <tr><td>?</td><td>Show/hide this overlay</td></tr>
+        </table>
+        <button class="btn-small" onclick="document.getElementById('shortcuts-overlay').classList.remove('visible')" style="margin-top:16px">Close</button>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//  Sprite Wars — Tile Admin Application
+// ═══════════════════════════════════════════════════════════════════════
+
+const CATEGORIES = [
+    'floor', 'wall', 'roof', 'door', 'window', 'decoration', 'prop',
+    'nature', 'water', 'path', 'bridge', 'stairs', 'fence', 'sign',
+    'chest', 'furniture', 'structural', 'effect', 'empty'
+];
+
+const CATEGORY_KEYS = {
+    '1': 'floor', '2': 'wall', '3': 'roof', '4': 'nature', '5': 'water',
+    '6': 'path', '7': 'prop', '8': 'fence', '9': 'door'
+};
+
+const CATEGORY_COLORS = {
+    floor: '#2d5a1e', wall: '#6a5040', roof: '#8a3030', door: '#5a3020',
+    window: '#4488aa', decoration: '#aa88cc', prop: '#aa8030', nature: '#1a4a0e',
+    water: '#2244aa', path: '#8a7a5a', bridge: '#6a5a3a', stairs: '#3a3a3a',
+    fence: '#7a6a50', sign: '#8a8a50', chest: '#aa8030', furniture: '#7a5a40',
+    structural: '#5a5a6a', effect: '#cc88ff', empty: '#333'
+};
+
+// ── State ─────────────────────────────────────────────────────────────
+let allTilesets = [];
+let currentTileset = null;      // path string
+let tilesetImage = null;        // HTMLImageElement
+let tileSize = 16;              // source tile size in px
+let cols = 0, rows = 0, totalTiles = 0;
+let metadata = null;            // full metadata object for current tileset
+let selectedTileIndex = -1;
+let zoomLevel = 3;
+let overlayMode = 'index';
+let structureMode = false;      // are we selecting tiles for a structure?
+let structureSelection = new Set();
+let editingStructureIdx = -1;
+let savedMetadataFiles = new Set();
+
+// ── DOM refs ──────────────────────────────────────────────────────────
+const sidebarSearch = document.getElementById('sidebar-search');
+const tilesetListEl = document.getElementById('tileset-list');
+const gridContainer = document.getElementById('grid-container');
+const tilesetInfoEl = document.getElementById('tileset-info');
+const statusText = document.getElementById('status-text');
+const zoomSlider = document.getElementById('zoom-slider');
+const zoomLabel = document.getElementById('zoom-label');
+const overlaySelect = document.getElementById('overlay-mode');
+const previewCanvas = document.getElementById('preview-canvas');
+const previewCtx = previewCanvas.getContext('2d');
+const tilePreviewEl = document.getElementById('tile-preview');
+const annotationFormEl = document.getElementById('annotation-form');
+const structureListEl = document.getElementById('structure-list');
+const structureEditorEl = document.getElementById('structure-editor');
+
+// ── Init ──────────────────────────────────────────────────────────────
+async function init() {
+    await loadTilesetList();
+    await loadSavedMetadataList();
+    renderTilesetSidebar();
+    setupEventListeners();
+    overlaySelect.value = 'index';
+}
+
+async function loadTilesetList() {
+    // Try the API first, fall back to static manifest
+    try {
+        const res = await fetch('/api/tilesets/list');
+        if (res.ok) {
+            allTilesets = await res.json();
+            allTilesets.sort();
+            return;
+        }
+    } catch (e) { /* API unavailable, try manifest */ }
+
+    try {
+        const res = await fetch('data/tileset-manifest.json');
+        if (res.ok) {
+            allTilesets = await res.json();
+            allTilesets.sort();
+            return;
+        }
+    } catch (e) { /* manifest also unavailable */ }
+
+    console.error('Failed to load tileset list from API or manifest');
+    allTilesets = [];
+}
+
+async function loadSavedMetadataList() {
+    savedMetadataFiles = new Set();
+
+    // Try API
+    try {
+        const res = await fetch('/api/tile-metadata/list');
+        if (res.ok) {
+            const files = await res.json();
+            for (const f of files) savedMetadataFiles.add(f);
+        }
+    } catch (e) { /* API unavailable */ }
+
+    // Also check localStorage for any locally-saved metadata
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('tile-meta:')) {
+            const filename = key.replace('tile-meta:', '');
+            const metaKey = filename.replace(/[\/\\:*?"<>|.\x00]/g, '_') + '.json';
+            savedMetadataFiles.add(metaKey);
+        }
+    }
+}
+
+function renderTilesetSidebar(filter = '') {
+    const lf = filter.toLowerCase();
+    // Group by top-level folder
+    const groups = {};
+    for (const ts of allTilesets) {
+        if (lf && !ts.toLowerCase().includes(lf)) continue;
+        const parts = ts.replace(/\\/g, '/').split('/');
+        // Sprites/Tiles/Group/...
+        const group = parts.length > 3 ? parts[2] : 'Root';
+        if (!groups[group]) groups[group] = [];
+        groups[group].push(ts);
+    }
+    let html = '';
+    for (const [group, items] of Object.entries(groups)) {
+        html += `<div class="tileset-group">${group}</div>`;
+        for (const ts of items) {
+            const shortName = ts.replace(/\\/g, '/').split('/').pop();
+            const metaKey = shortName.replace(/[\/\\:*?"<>|.\x00]/g, '_') + '.json';
+            const hasMeta = savedMetadataFiles.has(metaKey);
+            const active = ts === currentTileset ? ' active' : '';
+            html += `<div class="tileset-item${active}" data-path="${ts}" title="${ts}">
+                ${shortName}${hasMeta ? '<span class="badge">annotated</span>' : ''}
+            </div>`;
+        }
+    }
+    tilesetListEl.innerHTML = html || '<div class="empty-state">No tilesets found</div>';
+}
+
+// ── Load a tileset ────────────────────────────────────────────────────
+async function loadTileset(tilesetPath) {
+    currentTileset = tilesetPath;
+    statusText.textContent = 'Loading ' + tilesetPath.split('/').pop() + '...';
+
+    // Load image — try absolute path first (Node server), then relative (static hosting)
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => {
+            // Fallback: try relative path from Web/ directory
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = '../' + tilesetPath;
+        };
+        img.src = '/' + tilesetPath;
+    });
+    tilesetImage = img;
+    tileSize = 16; // All our tilesets use 16px tiles
+    cols = Math.floor(img.width / tileSize);
+    rows = Math.floor(img.height / tileSize);
+    totalTiles = cols * rows;
+
+    tilesetInfoEl.textContent = `${tilesetPath.split('/').pop()} — ${img.width}x${img.height}px — ${cols} cols x ${rows} rows — ${totalTiles} tiles — Tile size: ${tileSize}px`;
+
+    // Load or create metadata
+    await loadMetadata(tilesetPath);
+
+    // Render grid
+    renderTileGrid();
+    selectedTileIndex = -1;
+    tilePreviewEl.style.display = 'none';
+    annotationFormEl.innerHTML = '<div class="empty-state">Click a tile in the grid to annotate it</div>';
+
+    // Update sidebar active state
+    renderTilesetSidebar(sidebarSearch.value);
+    statusText.textContent = `Loaded: ${totalTiles} tiles`;
+}
+
+async function loadMetadata(tilesetPath) {
+    const filename = tilesetPath.replace(/\\/g, '/').split('/').pop();
+
+    // Try API first
+    try {
+        const res = await fetch('/api/tile-metadata/load?tileset=' + encodeURIComponent(filename));
+        if (res.ok) {
+            metadata = await res.json();
+            return;
+        }
+    } catch (e) { /* API unavailable */ }
+
+    // Try static metadata file fallback
+    const sanitized = filename.replace(/[\/\\:*?"<>|.\x00]/g, '_');
+    try {
+        const res = await fetch('data/tile-metadata/' + encodeURIComponent(sanitized) + '.json');
+        if (res.ok) {
+            metadata = await res.json();
+            return;
+        }
+    } catch (e) { /* not available */ }
+
+    // Try localStorage fallback
+    const lsKey = 'tile-meta:' + filename;
+    const stored = localStorage.getItem(lsKey);
+    if (stored) {
+        try { metadata = JSON.parse(stored); return; } catch (e) { /* corrupt */ }
+    }
+
+    // Create fresh metadata
+    metadata = {
+        schemaVersion: '1.0.0',
+        tileset: {
+            filename: filename,
+            tileWidth: tileSize,
+            tileHeight: tileSize,
+            columns: cols,
+            rows: rows,
+            totalTiles: totalTiles,
+            themeTags: [],
+            notes: ''
+        },
+        tiles: [],
+        structures: []
+    };
+}
+
+// ── Save metadata ─────────────────────────────────────────────────────
+async function saveMetadata() {
+    if (!metadata) return;
+    statusText.textContent = 'Saving...';
+
+    // Always save to localStorage as backup
+    const filename = metadata.tileset.filename;
+    const lsKey = 'tile-meta:' + filename;
+    try { localStorage.setItem(lsKey, JSON.stringify(metadata)); } catch (e) { /* quota */ }
+
+    // Try API save
+    try {
+        const res = await fetch('/api/tile-metadata/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(metadata)
+        });
+        const result = await res.json();
+        if (result.success) {
+            statusText.textContent = 'Saved: ' + result.filename;
+            savedMetadataFiles.add(result.filename);
+            renderTilesetSidebar(sidebarSearch.value);
+            return;
+        }
+        statusText.textContent = 'API save failed, saved to browser storage';
+    } catch (e) {
+        statusText.textContent = 'Saved to browser storage (server unavailable)';
+    }
+
+    // Mark as saved in sidebar regardless
+    const metaKey = filename.replace(/[\/\\:*?"<>|.\x00]/g, '_') + '.json';
+    savedMetadataFiles.add(metaKey);
+    renderTilesetSidebar(sidebarSearch.value);
+}
+
+// ── Tile annotation helpers ───────────────────────────────────────────
+function getTileAnnotation(index) {
+    if (!metadata) return null;
+    return metadata.tiles.find(t => t.index === index) || null;
+}
+
+function setTileAnnotation(index, data) {
+    if (!metadata) return;
+    const existing = metadata.tiles.findIndex(t => t.index === index);
+    if (existing >= 0) {
+        metadata.tiles[existing] = { index, ...data };
+    } else {
+        metadata.tiles.push({ index, ...data });
+    }
+}
+
+function removeTileAnnotation(index) {
+    if (!metadata) return;
+    metadata.tiles = metadata.tiles.filter(t => t.index !== index);
+}
+
+// ── Render tile grid ──────────────────────────────────────────────────
+function renderTileGrid() {
+    if (!tilesetImage) return;
+    const displaySize = tileSize * zoomLevel;
+    const grid = document.createElement('div');
+    grid.id = 'tile-grid';
+    grid.style.gridTemplateColumns = `repeat(${cols}, ${displaySize}px)`;
+
+    for (let i = 0; i < totalTiles; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'tile-cell';
+        cell.dataset.index = i;
+        cell.style.width = displaySize + 'px';
+        cell.style.height = displaySize + 'px';
+
+        // Draw tile on a mini canvas
+        const cvs = document.createElement('canvas');
+        cvs.width = displaySize;
+        cvs.height = displaySize;
+        const ctx = cvs.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        const sx = (i % cols) * tileSize;
+        const sy = Math.floor(i / cols) * tileSize;
+        ctx.drawImage(tilesetImage, sx, sy, tileSize, tileSize, 0, 0, displaySize, displaySize);
+        cell.appendChild(cvs);
+
+        // Index label
+        if (overlayMode === 'index') {
+            const label = document.createElement('span');
+            label.className = 'tile-index';
+            label.textContent = i;
+            cell.appendChild(label);
+        }
+
+        // Annotation indicators
+        const ann = getTileAnnotation(i);
+        if (ann) {
+            cell.classList.add('annotated');
+            if (ann.category) cell.dataset.cat = ann.category;
+            if (ann.isPartOfStructure) cell.classList.add('in-structure');
+        }
+
+        // Category color overlay
+        if (overlayMode === 'category' && ann && ann.category && ann.category !== 'empty') {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position:absolute;inset:0;background:${CATEGORY_COLORS[ann.category] || 'transparent'};opacity:0.4;pointer-events:none;`;
+            cell.appendChild(overlay);
+        }
+
+        // Collision overlay
+        if (overlayMode === 'collision' && ann) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `position:absolute;inset:0;background:${ann.collidable ? 'rgba(255,0,0,0.35)' : 'rgba(0,255,0,0.15)'};pointer-events:none;`;
+            cell.appendChild(overlay);
+        }
+
+        // Selection
+        if (i === selectedTileIndex) cell.classList.add('selected');
+
+        // Structure selection
+        if (structureMode && structureSelection.has(i)) {
+            cell.classList.add('structure-selecting');
+        }
+
+        cell.addEventListener('click', () => onTileClick(i));
+
+        grid.appendChild(cell);
+    }
+
+    gridContainer.innerHTML = '';
+    gridContainer.appendChild(grid);
+}
+
+// ── Tile click handler ────────────────────────────────────────────────
+function onTileClick(index) {
+    if (structureMode) {
+        if (structureSelection.has(index)) {
+            structureSelection.delete(index);
+        } else {
+            structureSelection.add(index);
+        }
+        document.getElementById('struct-tile-count').textContent = structureSelection.size;
+        updateStructurePreview();
+        renderTileGrid();
+        return;
+    }
+
+    selectedTileIndex = index;
+
+    // Update preview
+    tilePreviewEl.style.display = 'flex';
+    previewCtx.imageSmoothingEnabled = false;
+    previewCtx.clearRect(0, 0, 64, 64);
+    const sx = (index % cols) * tileSize;
+    const sy = Math.floor(index / cols) * tileSize;
+    previewCtx.drawImage(tilesetImage, sx, sy, tileSize, tileSize, 0, 0, 64, 64);
+    document.getElementById('preview-index').textContent = index;
+    document.getElementById('preview-row').textContent = Math.floor(index / cols);
+    document.getElementById('preview-col').textContent = index % cols;
+    document.getElementById('preview-pos').textContent = `${sx},${sy}`;
+
+    // Render annotation form
+    renderAnnotationForm(index);
+    renderTileGrid();
+}
+
+function renderAnnotationForm(index) {
+    const ann = getTileAnnotation(index) || {};
+    const micClass = sttSupported ? 'mic-btn' : 'mic-btn unsupported';
+    annotationFormEl.innerHTML = `
+        <div id="stt-status"></div>
+        <div class="form-group">
+            <label>Name</label>
+            <div class="stt-wrap">
+                <input type="text" id="ann-name" value="${escHtml(ann.name || '')}" placeholder="e.g. Grass Base, Stone Wall Top">
+                <button class="${micClass}" data-target="ann-name" title="Dictate name">&#x1F3A4;</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description / Use Cases</label>
+            <div class="stt-wrap">
+                <textarea id="ann-desc" placeholder="Describe what this tile looks like and when to use it...">${escHtml(ann.description || '')}</textarea>
+                <button class="${micClass}" data-target="ann-desc" title="Dictate description">&#x1F3A4;</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Category <span style="color:var(--text-dim);font-size:10px">(keys 1-9 for quick set)</span></label>
+            <select id="ann-category">
+                <option value="">— Select —</option>
+                ${CATEGORIES.map(c => `<option value="${c}" ${ann.category===c?'selected':''}>${c}</option>`).join('')}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Layer</label>
+            <select id="ann-layer">
+                <option value="ground" ${ann.layer==='ground'||!ann.layer?'selected':''}>Ground (drawn first, base layer)</option>
+                <option value="object" ${ann.layer==='object'?'selected':''}>Object (drawn on top, may occlude)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="ann-collidable" ${ann.collidable?'checked':''}>
+                <label for="ann-collidable">Collidable (blocks player movement)</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Tags (comma-separated)</label>
+            <div class="stt-wrap">
+                <input type="text" id="ann-tags" value="${escHtml((ann.tags||[]).join(', '))}" placeholder="e.g. grass, outdoor, variant">
+                <button class="${micClass}" data-target="ann-tags" title="Dictate tags">&#x1F3A4;</button>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+            <button class="btn-small" id="apply-ann-btn" style="background:var(--green);color:#000;font-weight:700">Apply</button>
+            <button class="btn-small danger" id="clear-ann-btn">Clear</button>
+            <button class="btn-small" id="copy-ann-btn">Copy to Next</button>
+        </div>
+    `;
+
+    // Bind mic buttons
+    annotationFormEl.querySelectorAll('.mic-btn').forEach(btn => {
+        btn.addEventListener('click', () => toggleDictation(btn.dataset.target, btn));
+    });
+
+    // Bind events
+    document.getElementById('apply-ann-btn').addEventListener('click', () => applyAnnotation(index));
+    document.getElementById('clear-ann-btn').addEventListener('click', () => {
+        removeTileAnnotation(index);
+        renderAnnotationForm(index);
+        renderTileGrid();
+        statusText.textContent = `Cleared annotation for tile ${index}`;
+    });
+    document.getElementById('copy-ann-btn').addEventListener('click', () => {
+        applyAnnotation(index);
+        if (index + 1 < totalTiles) {
+            // Copy current annotation data to next tile
+            const current = getTileAnnotation(index);
+            if (current) {
+                const next = { ...current, index: index + 1 };
+                setTileAnnotation(index + 1, next);
+            }
+            onTileClick(index + 1);
+            statusText.textContent = `Copied annotation to tile ${index + 1}`;
+        }
+    });
+
+    // Auto-apply on change
+    const autoApply = () => applyAnnotation(index);
+    ['ann-category', 'ann-layer', 'ann-collidable'].forEach(id => {
+        document.getElementById(id).addEventListener('change', autoApply);
+    });
+}
+
+function applyAnnotation(index) {
+    const name = document.getElementById('ann-name').value.trim();
+    const description = document.getElementById('ann-desc').value.trim();
+    const category = document.getElementById('ann-category').value;
+    const layer = document.getElementById('ann-layer').value;
+    const collidable = document.getElementById('ann-collidable').checked;
+    const tagsStr = document.getElementById('ann-tags').value.trim();
+    const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+    if (!category) {
+        statusText.textContent = 'Please select a category';
+        return;
+    }
+
+    // Check if tile belongs to any structure
+    const structureIds = [];
+    let isPartOfStructure = false;
+    if (metadata && metadata.structures) {
+        for (const s of metadata.structures) {
+            if (s.tiles && s.tiles.some(t => t.tileIndex === index)) {
+                structureIds.push(s.structureId);
+                isPartOfStructure = true;
+            }
+        }
+    }
+
+    setTileAnnotation(index, {
+        name, description, category, layer, collidable, tags,
+        isPartOfStructure,
+        ...(structureIds.length > 0 ? { structureIds } : {})
+    });
+
+    renderTileGrid();
+    statusText.textContent = `Annotated tile ${index}: ${name || category}`;
+}
+
+// ── Structure management ──────────────────────────────────────────────
+function renderStructureList() {
+    if (!metadata || !metadata.structures || metadata.structures.length === 0) {
+        structureListEl.innerHTML = '<div class="empty-state" style="padding:12px;font-size:12px">No structures defined yet</div>';
+        return;
+    }
+    structureListEl.innerHTML = '';
+    for (let i = 0; i < metadata.structures.length; i++) {
+        const s = metadata.structures[i];
+        const li = document.createElement('li');
+        li.className = editingStructureIdx === i ? 'active' : '';
+        li.innerHTML = `<span class="struct-name">${escHtml(s.name || s.structureId)}</span>
+            <span class="struct-size">${s.gridWidth}x${s.gridHeight} — ${(s.tiles||[]).length} tiles — ${s.category || 'other'}</span>`;
+        li.addEventListener('click', () => editStructure(i));
+        structureListEl.appendChild(li);
+    }
+}
+
+document.getElementById('new-structure-btn').addEventListener('click', () => {
+    structureMode = true;
+    structureSelection.clear();
+    editingStructureIdx = -1;
+    structureEditorEl.style.display = 'block';
+    document.getElementById('struct-id').value = '';
+    document.getElementById('struct-name').value = '';
+    document.getElementById('struct-desc').value = '';
+    document.getElementById('struct-category').value = 'building';
+    document.getElementById('struct-tile-count').textContent = '0';
+    document.getElementById('select-tiles-btn').style.display = 'inline-block';
+    statusText.textContent = 'Structure mode: Click tiles in the grid to select them';
+    renderTileGrid();
+});
+
+document.getElementById('select-tiles-btn').addEventListener('click', () => {
+    structureMode = !structureMode;
+    document.getElementById('select-tiles-btn').textContent = structureMode ? 'Done Selecting' : 'Select Tiles in Grid';
+    statusText.textContent = structureMode ? 'Click tiles to add/remove from structure' : 'Selection paused';
+    renderTileGrid();
+});
+
+function editStructure(idx) {
+    editingStructureIdx = idx;
+    const s = metadata.structures[idx];
+    structureEditorEl.style.display = 'block';
+    document.getElementById('struct-id').value = s.structureId || '';
+    document.getElementById('struct-name').value = s.name || '';
+    document.getElementById('struct-desc').value = s.description || '';
+    document.getElementById('struct-category').value = s.category || 'other';
+    structureSelection = new Set((s.tiles || []).map(t => t.tileIndex));
+    document.getElementById('struct-tile-count').textContent = structureSelection.size;
+    document.getElementById('select-tiles-btn').style.display = 'inline-block';
+    structureMode = false;
+    updateStructurePreview();
+    renderStructureList();
+    renderTileGrid();
+}
+
+document.getElementById('save-structure-btn').addEventListener('click', () => {
+    const id = document.getElementById('struct-id').value.trim();
+    const name = document.getElementById('struct-name').value.trim();
+    const desc = document.getElementById('struct-desc').value.trim();
+    const cat = document.getElementById('struct-category').value;
+
+    if (!id || !name) {
+        statusText.textContent = 'Structure ID and Name are required';
+        return;
+    }
+
+    // Calculate grid bounds from selected tiles
+    const indices = [...structureSelection];
+    if (indices.length === 0) {
+        statusText.textContent = 'Select at least one tile';
+        return;
+    }
+
+    const positions = indices.map(i => ({ col: i % cols, row: Math.floor(i / cols) }));
+    const minCol = Math.min(...positions.map(p => p.col));
+    const minRow = Math.min(...positions.map(p => p.row));
+    const maxCol = Math.max(...positions.map(p => p.col));
+    const maxRow = Math.max(...positions.map(p => p.row));
+    const gridWidth = maxCol - minCol + 1;
+    const gridHeight = maxRow - minRow + 1;
+
+    const tiles = indices.map(i => {
+        const c = i % cols;
+        const r = Math.floor(i / cols);
+        const ann = getTileAnnotation(i);
+        return {
+            tileIndex: i,
+            x: c - minCol,
+            y: r - minRow,
+            layer: ann ? ann.layer : 'object',
+            collidable: ann ? !!ann.collidable : true
+        };
+    });
+
+    const structure = {
+        structureId: id,
+        name: name,
+        description: desc,
+        gridWidth, gridHeight,
+        tiles,
+        entryPoints: [],
+        category: cat,
+        tags: []
+    };
+
+    if (!metadata.structures) metadata.structures = [];
+    if (editingStructureIdx >= 0) {
+        metadata.structures[editingStructureIdx] = structure;
+    } else {
+        metadata.structures.push(structure);
+        editingStructureIdx = metadata.structures.length - 1;
+    }
+
+    // Mark tiles as part of structure
+    for (const i of indices) {
+        const ann = getTileAnnotation(i);
+        if (ann) {
+            ann.isPartOfStructure = true;
+            if (!ann.structureIds) ann.structureIds = [];
+            if (!ann.structureIds.includes(id)) ann.structureIds.push(id);
+            setTileAnnotation(i, ann);
+        }
+    }
+
+    structureMode = false;
+    renderStructureList();
+    renderTileGrid();
+    statusText.textContent = `Saved structure: ${name} (${gridWidth}x${gridHeight})`;
+});
+
+document.getElementById('delete-structure-btn').addEventListener('click', () => {
+    if (editingStructureIdx < 0) return;
+    const s = metadata.structures[editingStructureIdx];
+    if (!confirm(`Delete structure "${s.name}"?`)) return;
+
+    // Unmark tiles
+    if (s.tiles) {
+        for (const t of s.tiles) {
+            const ann = getTileAnnotation(t.tileIndex);
+            if (ann) {
+                ann.structureIds = (ann.structureIds || []).filter(sid => sid !== s.structureId);
+                ann.isPartOfStructure = ann.structureIds.length > 0;
+                setTileAnnotation(t.tileIndex, ann);
+            }
+        }
+    }
+
+    metadata.structures.splice(editingStructureIdx, 1);
+    editingStructureIdx = -1;
+    structureEditorEl.style.display = 'none';
+    structureSelection.clear();
+    structureMode = false;
+    renderStructureList();
+    renderTileGrid();
+    statusText.textContent = 'Structure deleted';
+});
+
+function updateStructurePreview() {
+    const canvas = document.getElementById('struct-preview-canvas');
+    const ctx = canvas.getContext('2d');
+    if (structureSelection.size === 0) {
+        canvas.width = 1; canvas.height = 1;
+        return;
+    }
+    const indices = [...structureSelection];
+    const positions = indices.map(i => ({ col: i % cols, row: Math.floor(i / cols), index: i }));
+    const minCol = Math.min(...positions.map(p => p.col));
+    const minRow = Math.min(...positions.map(p => p.row));
+    const maxCol = Math.max(...positions.map(p => p.col));
+    const maxRow = Math.max(...positions.map(p => p.row));
+    const gw = maxCol - minCol + 1;
+    const gh = maxRow - minRow + 1;
+    const scale = 3;
+    canvas.width = gw * tileSize * scale;
+    canvas.height = gh * tileSize * scale;
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    for (const p of positions) {
+        const sx = p.col * tileSize;
+        const sy = p.row * tileSize;
+        const dx = (p.col - minCol) * tileSize * scale;
+        const dy = (p.row - minRow) * tileSize * scale;
+        ctx.drawImage(tilesetImage, sx, sy, tileSize, tileSize, dx, dy, tileSize * scale, tileSize * scale);
+    }
+}
+
+// ── Event listeners ───────────────────────────────────────────────────
+function setupEventListeners() {
+    // Sidebar search
+    sidebarSearch.addEventListener('input', () => renderTilesetSidebar(sidebarSearch.value));
+
+    // Tileset click
+    tilesetListEl.addEventListener('click', (e) => {
+        const item = e.target.closest('.tileset-item');
+        if (item) loadTileset(item.dataset.path);
+    });
+
+    // Zoom
+    zoomSlider.addEventListener('input', () => {
+        zoomLevel = parseInt(zoomSlider.value);
+        zoomLabel.textContent = zoomLevel + 'x';
+        renderTileGrid();
+    });
+
+    // Overlay mode
+    overlaySelect.addEventListener('change', () => {
+        overlayMode = overlaySelect.value;
+        renderTileGrid();
+    });
+
+    // Save button
+    document.getElementById('save-btn').addEventListener('click', saveMetadata);
+
+    // Shortcuts button
+    document.getElementById('shortcuts-btn').addEventListener('click', () => {
+        document.getElementById('shortcuts-overlay').classList.toggle('visible');
+    });
+
+    // Tab switching
+    document.querySelectorAll('.tab-bar button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+            if (btn.dataset.tab === 'structures') renderStructureList();
+        });
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        // Ctrl+S: save
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            saveMetadata();
+            return;
+        }
+
+        // Ignore if typing in an input/textarea
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+        // ? toggle shortcuts
+        if (e.key === '?') {
+            document.getElementById('shortcuts-overlay').classList.toggle('visible');
+            return;
+        }
+
+        // Escape
+        if (e.key === 'Escape') {
+            if (document.getElementById('shortcuts-overlay').classList.contains('visible')) {
+                document.getElementById('shortcuts-overlay').classList.remove('visible');
+            } else if (structureMode) {
+                structureMode = false;
+                renderTileGrid();
+            } else {
+                selectedTileIndex = -1;
+                tilePreviewEl.style.display = 'none';
+                annotationFormEl.innerHTML = '<div class="empty-state">Click a tile in the grid to annotate it</div>';
+                renderTileGrid();
+            }
+            return;
+        }
+
+        // Arrow keys: navigate
+        if (selectedTileIndex >= 0 && !structureMode) {
+            let next = selectedTileIndex;
+            if (e.key === 'ArrowRight') next = Math.min(totalTiles - 1, next + 1);
+            else if (e.key === 'ArrowLeft') next = Math.max(0, next - 1);
+            else if (e.key === 'ArrowDown') next = Math.min(totalTiles - 1, next + cols);
+            else if (e.key === 'ArrowUp') next = Math.max(0, next - cols);
+            if (next !== selectedTileIndex) {
+                e.preventDefault();
+                onTileClick(next);
+                // Scroll into view
+                const cell = document.querySelector(`.tile-cell[data-index="${next}"]`);
+                if (cell) cell.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            }
+        }
+
+        // Number keys: quick category
+        if (CATEGORY_KEYS[e.key] && selectedTileIndex >= 0) {
+            const catSelect = document.getElementById('ann-category');
+            if (catSelect) {
+                catSelect.value = CATEGORY_KEYS[e.key];
+                catSelect.dispatchEvent(new Event('change'));
+            }
+        }
+
+        // C: toggle collidable
+        if (e.key === 'c' && selectedTileIndex >= 0) {
+            const cb = document.getElementById('ann-collidable');
+            if (cb) { cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); }
+        }
+
+        // L: toggle layer
+        if (e.key === 'l' && selectedTileIndex >= 0) {
+            const sel = document.getElementById('ann-layer');
+            if (sel) { sel.value = sel.value === 'ground' ? 'object' : 'ground'; sel.dispatchEvent(new Event('change')); }
+        }
+
+        // N: focus name
+        if (e.key === 'n' && selectedTileIndex >= 0) {
+            const nameInput = document.getElementById('ann-name');
+            if (nameInput) { e.preventDefault(); nameInput.focus(); }
+        }
+
+        // +/-: zoom
+        if (e.key === '+' || e.key === '=') {
+            zoomSlider.value = Math.min(6, zoomLevel + 1);
+            zoomSlider.dispatchEvent(new Event('input'));
+        }
+        if (e.key === '-') {
+            zoomSlider.value = Math.max(1, zoomLevel - 1);
+            zoomSlider.dispatchEvent(new Event('input'));
+        }
+    });
+}
+
+// ── Speech-to-Text (Web Speech API) ──────────────────────────────────
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const sttSupported = !!SpeechRecognition;
+let activeRecognition = null;   // current SpeechRecognition instance
+let activeMicBtn = null;        // currently active mic button element
+let activeTargetId = null;      // id of the field being dictated into
+
+function setSttStatus(msg, isRecording) {
+    const el = document.getElementById('stt-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = isRecording ? 'recording' : '';
+}
+
+function stopDictation() {
+    if (activeRecognition) {
+        activeRecognition.abort();
+        activeRecognition = null;
+    }
+    if (activeMicBtn) {
+        activeMicBtn.classList.remove('recording');
+        activeMicBtn = null;
+    }
+    activeTargetId = null;
+    setSttStatus('');
+}
+
+function toggleDictation(targetId, btn) {
+    if (!sttSupported) {
+        setSttStatus('Speech recognition not supported in this browser');
+        return;
+    }
+
+    // If already recording into this field, stop
+    if (activeRecognition && activeTargetId === targetId) {
+        stopDictation();
+        return;
+    }
+
+    // Stop any existing session first
+    stopDictation();
+
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = true;
+    recognition.continuous = true;
+    recognition.maxAlternatives = 1;
+
+    let finalTranscript = '';
+    const existingText = target.value;
+
+    activeRecognition = recognition;
+    activeMicBtn = btn;
+    activeTargetId = targetId;
+    btn.classList.add('recording');
+    setSttStatus('Listening...', true);
+
+    recognition.onresult = (event) => {
+        let interim = '';
+        finalTranscript = '';
+        for (let i = 0; i < event.results.length; i++) {
+            const result = event.results[i];
+            if (result.isFinal) {
+                finalTranscript += result[0].transcript;
+            } else {
+                interim += result[0].transcript;
+            }
+        }
+
+        // Append to existing text with a space separator
+        const separator = existingText && !existingText.endsWith(' ') ? ' ' : '';
+        if (interim) {
+            target.value = existingText + separator + finalTranscript + interim;
+            setSttStatus('Listening... (speaking)', true);
+        } else if (finalTranscript) {
+            target.value = existingText + separator + finalTranscript;
+            setSttStatus('Listening...', true);
+        }
+    };
+
+    recognition.onerror = (event) => {
+        if (event.error === 'no-speech') {
+            setSttStatus('No speech detected — try again');
+        } else if (event.error === 'not-allowed') {
+            setSttStatus('Microphone access denied — check browser permissions');
+        } else {
+            setSttStatus('Error: ' + event.error);
+        }
+        stopDictation();
+    };
+
+    recognition.onend = () => {
+        // Only clear if this is still the active session
+        if (activeRecognition === recognition) {
+            btn.classList.remove('recording');
+            activeMicBtn = null;
+            activeRecognition = null;
+            activeTargetId = null;
+            setSttStatus(finalTranscript ? 'Done' : '');
+        }
+    };
+
+    recognition.start();
+}
+
+function escHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

@@ -18,12 +18,12 @@ extends Resource
 ## For element bonuses: the required element name (e.g. "Fire").
 @export var required_element: String = ""
 
-## For class bonuses: the required class name (e.g. "Knight").
+## For class bonuses: the required class name (e.g. "Fighter").
 @export var required_class: String = ""
 
 ## For mixed bonuses: an array of specific requirements.
 ## Each entry: {type: String ("element" or "class"), value: String, count: int}
-## Example: [{type: "element", value: "Fire", count: 2}, {type: "class", value: "Knight", count: 1}]
+## Example: [{type: "element", value: "Fire", count: 2}, {type: "class", value: "Fighter", count: 1}]
 @export var mixed_requirements: Array[Dictionary] = []
 
 ## ── Tiers ─────────────────────────────────────────────────────────────────────

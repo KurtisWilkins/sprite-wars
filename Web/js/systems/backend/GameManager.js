@@ -22,7 +22,60 @@ function createDefaultPlayerData() {
             201: 10, // Basic Crystal x10
         },
         equipmentInventory: [
+            // Weapons (5)
             1001, // Iron Sword
+            1002, // Steel Blade
+            1003, // Flame Sword
+            1101, // Bone Dagger
+            1102, // Crystal Wand
+            // Helmets (5)
+            1011, // Leather Cap
+            1012, // Iron Helm
+            1013, // Flame Crest
+            1111, // Bone Visor
+            1112, // Mystic Hood
+            // Chest Armor (5)
+            1021, // Cloth Tunic
+            1022, // Chain Mail
+            1023, // Flame Plate
+            1121, // Bone Harness
+            1122, // Mystic Robe
+            // Legs (5)
+            1031, // Cloth Leggings
+            1032, // Chain Greaves
+            1033, // Flame Tassets
+            1034, // Storm Legguards
+            1035, // Shadow Cuisses
+            // Boots (5)
+            1041, // Leather Sandals
+            1042, // Iron Treads
+            1043, // Flame Stompers
+            1044, // Gale Runners
+            1045, // Shadow Striders
+            // Gloves (5)
+            1051, // Cloth Wraps
+            1052, // Iron Gauntlets
+            1053, // Flame Grips
+            1054, // Storm Bracers
+            1055, // Shadow Claws
+            // Rings (5)
+            1061, // Copper Band
+            1062, // Silver Ring
+            1063, // Ember Ring
+            1064, // Gale Loop
+            1161, // Bone Ring
+            // Amulets (5)
+            1071, // Wooden Charm
+            1072, // Stone Pendant
+            1073, // Flame Locket
+            1074, // Storm Talisman
+            1171, // Bone Fetish
+            // Crystals (5)
+            1081, // Dull Shard
+            1082, // Clear Crystal
+            1083, // Fire Prism
+            1084, // Storm Gem
+            1181, // Bone Fragment
         ],
         completedTempleIds: [],
         completedQuestIds: [],
@@ -44,8 +97,8 @@ function createStarterSprite() {
         maxHp: 50,
         elementTypes: ['Fire'],
         abilities: [
-            { abilityId: 1, name: 'Ember', element: 'Fire', power: 30, targetingType: 'single' },
-            { abilityId: 2, name: 'Tackle', element: 'Normal', power: 25, targetingType: 'single' },
+            { abilityId: 1, name: 'Ember Shot', element: 'Fire', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 12,
@@ -70,8 +123,8 @@ function _createWaterStarter() {
         maxHp: 55,
         elementTypes: ['Water'],
         abilities: [
-            { abilityId: 12, name: 'Water Burst', element: 'Water', power: 30, targetingType: 'single' },
-            { abilityId: 2, name: 'Tackle', element: 'Normal', power: 25, targetingType: 'single' },
+            { abilityId: 12, name: 'Aqua Jet', element: 'Water', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 9,
@@ -94,10 +147,10 @@ function _createNatureStarter() {
         xp: 0,
         currentHp: 52,
         maxHp: 52,
-        elementTypes: ['Nature'],
+        elementTypes: ['Plant'],
         abilities: [
-            { abilityId: 23, name: 'Vine Whip', element: 'Nature', power: 28, targetingType: 'single' },
-            { abilityId: 2, name: 'Tackle', element: 'Normal', power: 25, targetingType: 'single' },
+            { abilityId: 23, name: 'Vine Whip', element: 'Plant', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
         ],
         stats: {
             attack: 10,
@@ -105,6 +158,306 @@ function _createNatureStarter() {
             speed: 9,
             specialAttack: 13,
             specialDefense: 11,
+        },
+        equipment: {},
+    };
+}
+
+function _createIceStarter() {
+    return {
+        instanceId: 4,
+        raceId: 4,
+        formId: 10,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 48,
+        maxHp: 48,
+        elementTypes: ['Ice'],
+        abilities: [
+            { abilityId: 34, name: 'Frost Shard', element: 'Ice', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 13,
+            defense: 8,
+            speed: 14,
+            specialAttack: 12,
+            specialDefense: 9,
+        },
+        equipment: {},
+    };
+}
+
+function _createAirStarter() {
+    return {
+        instanceId: 5,
+        raceId: 5,
+        formId: 13,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 45,
+        maxHp: 45,
+        elementTypes: ['Wind'],
+        abilities: [
+            { abilityId: 45, name: 'Gust Slash', element: 'Wind', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 11,
+            defense: 7,
+            speed: 15,
+            specialAttack: 11,
+            specialDefense: 8,
+        },
+        equipment: {},
+    };
+}
+
+function _createEarthStarter() {
+    return {
+        instanceId: 6,
+        raceId: 6,
+        formId: 16,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 60,
+        maxHp: 60,
+        elementTypes: ['Earth'],
+        abilities: [
+            { abilityId: 56, name: 'Rock Throw', element: 'Earth', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 12,
+            defense: 14,
+            speed: 6,
+            specialAttack: 7,
+            specialDefense: 11,
+        },
+        equipment: {},
+    };
+}
+
+function _createElectricStarter() {
+    return {
+        instanceId: 7,
+        raceId: 7,
+        formId: 19,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 45,
+        maxHp: 45,
+        elementTypes: ['Electric'],
+        abilities: [
+            { abilityId: 67, name: 'Spark Bolt', element: 'Electric', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 7,
+            defense: 8,
+            speed: 13,
+            specialAttack: 15,
+            specialDefense: 10,
+        },
+        equipment: {},
+    };
+}
+
+function _createDarkStarter() {
+    return {
+        instanceId: 8,
+        raceId: 8,
+        formId: 22,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 48,
+        maxHp: 48,
+        elementTypes: ['Dark'],
+        abilities: [
+            { abilityId: 78, name: 'Shadow Strike', element: 'Dark', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 13,
+            defense: 8,
+            speed: 13,
+            specialAttack: 12,
+            specialDefense: 10,
+        },
+        equipment: {},
+    };
+}
+
+function _createLightStarter() {
+    return {
+        instanceId: 9,
+        raceId: 9,
+        formId: 25,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 55,
+        maxHp: 55,
+        elementTypes: ['Light'],
+        abilities: [
+            { abilityId: 89, name: 'Holy Beam', element: 'Light', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 7,
+            defense: 10,
+            speed: 9,
+            specialAttack: 13,
+            specialDefense: 14,
+        },
+        equipment: {},
+    };
+}
+
+function _createPoisonStarter() {
+    return {
+        instanceId: 10,
+        raceId: 14,
+        formId: 40,
+        nickname: '',
+        level: 5,
+        xp: 0,
+        currentHp: 50,
+        maxHp: 50,
+        elementTypes: ['Poison'],
+        abilities: [
+            { abilityId: 144, name: 'Toxic Spit', element: 'Poison', power: 35, targetingType: 'single_enemy' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 10,
+            defense: 9,
+            speed: 12,
+            specialAttack: 11,
+            specialDefense: 9,
+        },
+        equipment: {},
+    };
+}
+
+// -- Long-Range Attacker Starters -----------------------------------------------
+
+function _createArcherStarter() {
+    return {
+        instanceId: 11,
+        raceId: 13,     // Lizard Man — agile hunter
+        formId: 37,     // 13*3-2 = 37
+        nickname: 'Swift Arrow',
+        level: 8,
+        xp: 0,
+        currentHp: 52,
+        maxHp: 52,
+        classType: 'Archer',
+        elementTypes: ['Wind'],
+        abilities: [
+            { abilityId: 45, name: 'Gust Slash', element: 'Wind', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 46, name: 'Cyclone Cutter', element: 'Wind', power: 70, targetingType: 'single_enemy' },
+            { abilityId: 48, name: 'Gale Sweep', element: 'Wind', power: 50, targetingType: 'row' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 18,
+            defense: 9,
+            speed: 20,
+            specialAttack: 14,
+            specialDefense: 10,
+        },
+        equipment: { weapon: 1101 },  // Wraithcleaver
+    };
+}
+
+function _createWizardStarter() {
+    return {
+        instanceId: 12,
+        raceId: 17,     // Ork — mystical brute
+        formId: 49,     // 17*3-2 = 49
+        nickname: 'Arcane Fury',
+        level: 8,
+        xp: 0,
+        currentHp: 48,
+        maxHp: 48,
+        classType: 'Wizard',
+        elementTypes: ['Fire'],
+        abilities: [
+            { abilityId: 1, name: 'Ember Shot', element: 'Fire', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 2, name: 'Flame Lance', element: 'Fire', power: 70, targetingType: 'single_enemy' },
+            { abilityId: 3, name: 'Inferno Blast', element: 'Fire', power: 100, targetingType: 'single_enemy' },
+            { abilityId: 4, name: 'Heat Wave', element: 'Fire', power: 50, targetingType: 'row' },
+        ],
+        stats: {
+            attack: 10,
+            defense: 8,
+            speed: 14,
+            specialAttack: 24,
+            specialDefense: 12,
+        },
+        equipment: { weapon: 1003 },  // Flame Sword (sp_atk synergy for caster)
+    };
+}
+
+function _createCrossbowStarter() {
+    return {
+        instanceId: 13,
+        raceId: 19,     // Robot — mechanical precision
+        formId: 55,     // 19*3-2 = 55
+        nickname: 'Bolt Storm',
+        level: 8,
+        xp: 0,
+        currentHp: 46,
+        maxHp: 46,
+        classType: 'Crossbow',
+        elementTypes: ['Electric'],
+        abilities: [
+            { abilityId: 67, name: 'Spark Bolt', element: 'Electric', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 68, name: 'Thunder Strike', element: 'Electric', power: 70, targetingType: 'single_enemy' },
+            { abilityId: 70, name: 'Chain Lightning', element: 'Electric', power: 50, targetingType: 'row' },
+            { abilityId: 155, name: 'Tackle', element: '', power: 35, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 17,
+            defense: 10,
+            speed: 18,
+            specialAttack: 15,
+            specialDefense: 9,
+        },
+        equipment: {},
+    };
+}
+
+function _createHandgunnerStarter() {
+    return {
+        instanceId: 14,
+        raceId: 22,     // Turtle Man — armored gunslinger
+        formId: 64,     // 22*3-2 = 64
+        nickname: 'Black Powder',
+        level: 8,
+        xp: 0,
+        currentHp: 44,
+        maxHp: 44,
+        classType: 'Handgunner',
+        elementTypes: ['Dark'],
+        abilities: [
+            { abilityId: 78, name: 'Shadow Strike', element: 'Dark', power: 40, targetingType: 'single_enemy' },
+            { abilityId: 79, name: 'Dark Pulse', element: 'Dark', power: 65, targetingType: 'row' },
+            { abilityId: 83, name: 'Abyssal Blast', element: 'Dark', power: 90, targetingType: 'aoe_circle' },
+            { abilityId: 81, name: 'Void Fang', element: 'Dark', power: 80, targetingType: 'single_enemy' },
+        ],
+        stats: {
+            attack: 20,
+            defense: 7,
+            speed: 16,
+            specialAttack: 18,
+            specialDefense: 8,
         },
         equipment: {},
     };
@@ -191,7 +544,22 @@ export class GameManager {
     startNewGame() {
         this.playerData = createDefaultPlayerData();
         this.playerData.playerName = 'Trainer';
-        this.playerData.team = [createStarterSprite(), _createWaterStarter(), _createNatureStarter()];
+        this.playerData.team = [
+            createStarterSprite(),      // 1. Bug Man (Fire)
+            _createWaterStarter(),      // 2. Bear Man (Water)
+            _createNatureStarter(),     // 3. Bird Man (Plant)
+            _createIceStarter(),        // 4. Demon (Ice)
+            _createAirStarter(),        // 5. Devil (Wind)
+            _createEarthStarter(),      // 6. Cat Man (Earth)
+            _createElectricStarter(),   // 7. Elf (Electric)
+            _createDarkStarter(),       // 8. Ent (Dark)
+            _createLightStarter(),      // 9. Fish Man (Light)
+            _createPoisonStarter(),     // 10. Minotaur (Poison)
+            _createArcherStarter(),     // 11. Lizard Man Archer (Wind) — long-range
+            _createWizardStarter(),     // 12. Ork Wizard (Fire) — long-range
+            _createCrossbowStarter(),   // 13. Robot Crossbow (Electric) — long-range
+            _createHandgunnerStarter(), // 14. Turtle Man Handgunner (Dark) — long-range
+        ];
         this.currentAreaId = 'starter_town';
         this.gameTimeSeconds = 0;
         this.isInBattle = false;

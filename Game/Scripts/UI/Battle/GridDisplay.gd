@@ -2,6 +2,9 @@
 ## Draws grid lines, terrain highlights, and manages per-cell sprite visuals.
 ## Positions itself within the parent BattleUI, using cell_size to map between
 ## grid coordinates and screen space.
+##
+## Art style: flat cel-shaded -- clean straight lines, uniform 2px black outlines,
+## flat solid colors, no gradients, no wobble.
 extends Node2D
 
 ## -- Configuration ------------------------------------------------------------
@@ -29,10 +32,13 @@ var _move_tweens: Dictionary = {}
 
 ## -- Color Palette ------------------------------------------------------------
 
-const COLOR_GRID_LINE := Color(0.35, 0.4, 0.5, 0.6)
-const COLOR_PLAYER_CELL := Color(0.2, 0.35, 0.55, 0.15)
-const COLOR_ENEMY_CELL := Color(0.55, 0.2, 0.2, 0.15)
-const COLOR_DIVIDER := Color(0.9, 0.85, 0.6, 0.45)
+## Flat cel-shaded palette -- solid colors, no gradients.
+const COLOR_GRID_LINE := Color(0.0, 0.0, 0.0, 0.7)        # Clean black grid lines
+const COLOR_PLAYER_CELL := Color(0.2, 0.45, 0.7, 0.18)     # Flat blue tint
+const COLOR_ENEMY_CELL := Color(0.7, 0.2, 0.2, 0.18)       # Flat red tint
+const COLOR_DIVIDER := Color(1.0, 0.85, 0.15, 0.9)         # Vibrant gold divider
+const GRID_LINE_WIDTH: float = 2.0                          # Uniform 2px outlines
+const DIVIDER_LINE_WIDTH: float = 2.0                       # Uniform 2px outlines
 
 ## -- Initialization -----------------------------------------------------------
 
@@ -83,13 +89,13 @@ func _draw_grid_lines() -> void:
 	for y in range(grid_height + 1):
 		var start := Vector2(grid_origin.x, grid_origin.y + float(y) * cell_size.y)
 		var end := Vector2(grid_origin.x + total_w, start.y)
-		draw_line(start, end, COLOR_GRID_LINE, 1.0)
+		draw_line(start, end, COLOR_GRID_LINE, GRID_LINE_WIDTH)
 
 	# Vertical lines.
 	for x in range(grid_width + 1):
 		var start := Vector2(grid_origin.x + float(x) * cell_size.x, grid_origin.y)
 		var end := Vector2(start.x, grid_origin.y + total_h)
-		draw_line(start, end, COLOR_GRID_LINE, 1.0)
+		draw_line(start, end, COLOR_GRID_LINE, GRID_LINE_WIDTH)
 
 
 ## Draw the center divider between teams.
@@ -97,7 +103,7 @@ func _draw_divider() -> void:
 	var y_pos: float = grid_origin.y + 4.0 * cell_size.y
 	var start := Vector2(grid_origin.x, y_pos)
 	var end := Vector2(grid_origin.x + float(grid_width) * cell_size.x, y_pos)
-	draw_line(start, end, COLOR_DIVIDER, 3.0)
+	draw_line(start, end, COLOR_DIVIDER, DIVIDER_LINE_WIDTH)
 
 
 ## Draw all active cell highlights.
@@ -132,7 +138,7 @@ func clear_highlights() -> void:
 
 ## -- Public API: Unit Visuals -------------------------------------------------
 
-## Place a sprite visual at a grid position.
+## Place a sprite visual at a grid position (legacy texture-based).
 func place_sprite_visual(unit_id: int, pos: Vector2i, texture: Texture2D) -> void:
 	# Remove existing visual if present.
 	if _unit_visuals.has(unit_id):
@@ -154,13 +160,58 @@ func place_sprite_visual(unit_id: int, pos: Vector2i, texture: Texture2D) -> voi
 	_unit_visuals[unit_id] = {"sprite": sprite, "grid_pos": pos}
 
 
+## Place a chibi modular sprite at a grid position.
+## [chibi_root] is a Node2D assembled by ChibiSpriteAssembler with child parts:
+## Head, Body, FrontArm, BackArm, Weapon, Legs.
+func place_chibi_sprite(unit_id: int, pos: Vector2i, chibi_root: Node2D) -> void:
+	if chibi_root == null:
+		return
+
+	# Remove existing visual if present.
+	if _unit_visuals.has(unit_id):
+		remove_sprite_visual(unit_id)
+
+	# Scale the chibi sprite (64x64 canvas) to fit the grid cell.
+	var target_size: float = cell_size.x * 0.85
+	var chibi_canvas: float = 64.0
+	var s: float = target_size / chibi_canvas
+	chibi_root.scale = Vector2(s, s)
+
+	chibi_root.position = grid_to_screen(pos)
+	add_child(chibi_root)
+
+	# Store as "sprite" key for compatibility with existing animation code.
+	# The chibi_root Node2D acts as the sprite reference for tweens.
+	_unit_visuals[unit_id] = {"sprite": chibi_root, "grid_pos": pos, "is_chibi": true}
+
+
+## Check if a unit visual is a chibi modular sprite.
+func is_chibi_sprite(unit_id: int) -> bool:
+	if not _unit_visuals.has(unit_id):
+		return false
+	return _unit_visuals[unit_id].get("is_chibi", false)
+
+
+## Get the chibi sprite root node for a unit (for body part animation).
+func get_chibi_root(unit_id: int) -> Node2D:
+	if not _unit_visuals.has(unit_id):
+		return null
+	var data: Dictionary = _unit_visuals[unit_id]
+	if not data.get("is_chibi", false):
+		return null
+	var root: Node2D = data.get("sprite")
+	if root != null and is_instance_valid(root):
+		return root
+	return null
+
+
 ## Animate a sprite visual moving to a new grid position.
 func move_sprite_visual(unit_id: int, to_pos: Vector2i, duration: float) -> void:
 	if not _unit_visuals.has(unit_id):
 		return
 
 	var data: Dictionary = _unit_visuals[unit_id]
-	var sprite: Sprite2D = data["sprite"]
+	var sprite: Node2D = data["sprite"]
 	var target_screen: Vector2 = grid_to_screen(to_pos)
 
 	# Kill any existing move tween for this unit.
@@ -182,7 +233,7 @@ func remove_sprite_visual(unit_id: int) -> void:
 		return
 
 	var data: Dictionary = _unit_visuals[unit_id]
-	var sprite: Sprite2D = data["sprite"]
+	var sprite: Node2D = data.get("sprite")
 	if sprite != null and is_instance_valid(sprite):
 		sprite.queue_free()
 

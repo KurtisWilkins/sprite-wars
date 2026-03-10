@@ -9,6 +9,9 @@ extends RefCounted
 ## Default knockback distance for abilities that knock back.
 const DEFAULT_KNOCKBACK_DISTANCE: int = 2
 
+## Knockback distance for abilities explicitly tagged with knockback.
+const ENHANCED_KNOCKBACK_DISTANCE: int = 3
+
 ## -- Ability Execution Pipeline -----------------------------------------------
 
 ## Execute an ability from start to finish.
@@ -61,8 +64,41 @@ func execute_ability(
 	if targets.is_empty():
 		return results
 
+	# -- Step 1b: Check for Assassin teleport ---------------------------------
+	var teleport_result: Dictionary = {}
+	if targets.size() == 1 and AssassinTeleportSystem.can_teleport(caster, ability, targets[0]):
+		teleport_result = AssassinTeleportSystem.execute_teleport(caster, targets[0], grid)
+		if teleport_result.get("success", false):
+			EventBus.teleport_executed.emit(
+				caster.sprite_instance,
+				teleport_result["from_pos"],
+				teleport_result["to_pos"]
+			)
+
 	# -- Step 2: Consume PP and start cooldown --------------------------------
 	caster.consume_pp(ability)
+
+	# -- Emit attack animation signal -----------------------------------------
+	var weapon_type: String = _get_caster_weapon_type(caster)
+	if not targets.is_empty() and targets[0] != null:
+		# Check for class special animation (for ability uses, not auto-attacks).
+		var caster_class: String = ""
+		if caster.sprite_instance != null:
+			caster_class = caster.sprite_instance.class_type
+		var class_special: Dictionary = ClassSpecialAnimations.get_special(caster_class)
+		if not class_special.is_empty():
+			EventBus.special_animation_requested.emit(
+				caster.sprite_instance,
+				targets[0].sprite_instance if targets[0].sprite_instance else null,
+				caster_class
+			)
+		else:
+			EventBus.attack_animation_requested.emit(
+				caster.sprite_instance,
+				targets[0].sprite_instance if targets[0].sprite_instance else null,
+				weapon_type,
+				ability.element_type
+			)
 
 	# -- Process each target --------------------------------------------------
 	var target_count: int = targets.size()
@@ -105,6 +141,16 @@ func execute_ability(
 			if i > 0 and target_count > 1:
 				final_dmg = maxi(1, int(float(final_dmg) * 0.75))
 
+			# Apply teleport backstab bonus if applicable.
+			if teleport_result.get("success", false):
+				final_dmg = int(float(final_dmg) * teleport_result.get("damage_multiplier", 1.0))
+				# Teleport also grants crit bonus (applied to the result).
+				if not dmg_result["is_critical"]:
+					var extra_crit: float = teleport_result.get("crit_bonus", 0.0)
+					if randf() < extra_crit:
+						final_dmg = int(float(final_dmg) * 1.5)
+						dmg_result["is_critical"] = true
+
 			# Apply the damage to the target.
 			var take_result: Dictionary = target.take_damage(final_dmg)
 
@@ -114,7 +160,7 @@ func execute_ability(
 			result["effectiveness_label"] = dmg_result.get("effectiveness_label", "neutral")
 			result["is_fainted"] = take_result["is_fainted"]
 
-		elif ability.base_power <= 0 and _is_healing_ability(ability):
+		elif not ability.is_damaging() and _is_healing_ability(ability):
 			# Healing ability: heal the target.
 			var heal_amount: int = damage_calc.calculate_heal(caster, ability)
 			var actual_healed: int = target.heal(heal_amount)
@@ -131,13 +177,34 @@ func execute_ability(
 						if applied:
 							result["status_applied"].append(effect_data.effect_name)
 
+		# -- Step 5b: Emit hit impact signal ----------------------------------
+		if result["hit"] and result["damage"] > 0:
+			var atk_style: int = WeaponAnimationData.get_attack_style(weapon_type)
+			EventBus.hit_impact_requested.emit(
+				target.sprite_instance if target.sprite_instance else null,
+				result["damage"],
+				ability.element_type,
+				atk_style
+			)
+
 		# -- Step 6: Process knockback ----------------------------------------
 		if knockback_sys != null and _has_knockback(ability) and target.is_alive:
 			var kb_direction: Vector2i = _get_knockback_direction(caster, target)
+			var kb_distance: int = _get_knockback_distance(ability)
+			var from_pos: Vector2i = target.grid_position
 			var kb_result: Dictionary = knockback_sys.process_knockback(
-				target, kb_direction, DEFAULT_KNOCKBACK_DISTANCE, grid
+				target, kb_direction, kb_distance, grid
 			)
 			result["knockback"] = kb_result
+
+			# Emit knockback visual signal.
+			if kb_result.get("tiles_traveled", 0) > 0:
+				EventBus.knockback_visual_requested.emit(
+					target.sprite_instance if target.sprite_instance else null,
+					from_pos,
+					kb_result["final_position"],
+					kb_result["wall_collision"]
+				)
 
 		results.append(result)
 
@@ -241,3 +308,35 @@ func _has_knockback(ability: AbilityData) -> bool:
 ## Healing abilities target allies and have base_power > 0 used for heal formula.
 func _is_healing_ability(ability: AbilityData) -> bool:
 	return ability.targeting_type in ["self", "single_ally", "all_allies", "adjacent_allies"]
+
+
+## Get the equipped weapon type for a caster (for animation selection).
+## Uses the class-to-weapon mapping from WeaponThemeData, since equipment
+## slots store equipment_id ints (not weapon_type strings directly).
+func _get_caster_weapon_type(caster: BattleUnit) -> String:
+	if caster.sprite_instance == null:
+		return "sword"
+	# Look up default weapon from class_type string via WeaponThemeData.
+	var class_type: String = caster.sprite_instance.class_type
+	if not class_type.is_empty():
+		var class_weapon_map: Dictionary = WeaponThemeData.get_class_weapon_map()
+		var weapon_type: String = class_weapon_map.get(class_type, "")
+		if not weapon_type.is_empty():
+			return weapon_type
+	# Fallback: use race-to-theme default weapon.
+	var race_id: int = caster.sprite_instance.race_id
+	if race_id > 0:
+		var theme_data: Dictionary = WeaponThemeData.get_theme_for_race(race_id)
+		var weapon: String = theme_data.get("weapon", "")
+		if not weapon.is_empty():
+			return weapon
+	return "sword"
+
+
+## Get the knockback distance for an ability. Abilities with explicit knockback
+## targeting get enhanced distance; pierce/line get default.
+func _get_knockback_distance(ability: AbilityData) -> int:
+	# Future: could add a knockback_distance field to AbilityData.
+	if ability.targeting_type == "pierce":
+		return ENHANCED_KNOCKBACK_DISTANCE
+	return DEFAULT_KNOCKBACK_DISTANCE

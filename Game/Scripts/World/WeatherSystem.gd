@@ -1,6 +1,11 @@
 ## WeatherSystem — Manages overworld weather effects including particles,
 ## overlays, transitions, encounter rate modifiers, and battle conditions.
 ## [P5-017] Supports 9 weather types with smooth transitions between states.
+##
+## Art Style: Flat cel-shaded. All weather particles use clean geometric shapes
+## with uniform black outlines. No hand-drawn, scribbled, or wobbly shapes.
+## Rain: clean straight lines. Snow: clean hexagonal/circular snowflakes.
+## All overlay colors are flat/solid with no gradients.
 extends Node2D
 
 ## ── Configuration ───────────────────────────────────────────────────────────
@@ -22,8 +27,9 @@ var _previous_weather: String = "clear"
 ## ── Weather Type Definitions ────────────────────────────────────────────────
 
 ## Configuration for each weather type:
-##   particle_texture: String — res:// path to the particle texture
-##   color: Color — overlay tint color
+##   particle_texture: String — res:// path to the particle texture (cel-shaded:
+##       clean geometric shapes, uniform black outlines, flat solid colors)
+##   color: Color — overlay tint color (flat/solid, no gradients)
 ##   overlay_alpha: float — overlay opacity
 ##   intensity: float — particle emission rate multiplier
 ##   wind: Vector2 — wind direction affecting particle movement
@@ -40,6 +46,7 @@ var weather_configs: Dictionary = {
 		"particle_lifetime": 1.0,
 	},
 	"rain": {
+		## Clean straight-line rain drops — no wobbly or hand-drawn strokes.
 		"particle_texture": "res://Sprites/Weather/rain_drop.png",
 		"color": Color(0.3, 0.35, 0.5, 0.15),
 		"overlay_alpha": 0.15,
@@ -49,6 +56,7 @@ var weather_configs: Dictionary = {
 		"particle_lifetime": 1.5,
 	},
 	"snow": {
+		## Clean hexagonal/circular snowflakes — crisp geometric shapes.
 		"particle_texture": "res://Sprites/Weather/snowflake.png",
 		"color": Color(0.8, 0.85, 0.95, 0.1),
 		"overlay_alpha": 0.1,
@@ -58,6 +66,7 @@ var weather_configs: Dictionary = {
 		"particle_lifetime": 4.0,
 	},
 	"sandstorm": {
+		## Clean geometric sand particles — flat-colored with hard edges.
 		"particle_texture": "res://Sprites/Weather/sand_particle.png",
 		"color": Color(0.7, 0.55, 0.3, 0.3),
 		"overlay_alpha": 0.3,
@@ -76,6 +85,7 @@ var weather_configs: Dictionary = {
 		"particle_lifetime": 1.0,
 	},
 	"leaves": {
+		## Clean flat leaf shapes — solid fill with uniform black outline.
 		"particle_texture": "res://Sprites/Weather/leaf.png",
 		"color": Color(0.9, 0.85, 0.7, 0.05),
 		"overlay_alpha": 0.05,
@@ -85,6 +95,7 @@ var weather_configs: Dictionary = {
 		"particle_lifetime": 5.0,
 	},
 	"volcanic_ash": {
+		## Clean geometric ash particles — flat dark fills, hard edges.
 		"particle_texture": "res://Sprites/Weather/ash_particle.png",
 		"color": Color(0.3, 0.25, 0.2, 0.35),
 		"overlay_alpha": 0.35,
@@ -94,6 +105,7 @@ var weather_configs: Dictionary = {
 		"particle_lifetime": 3.0,
 	},
 	"fairy_sparkle": {
+		## Clean geometric sparkle shapes — flat star/diamond, no soft glow.
 		"particle_texture": "res://Sprites/Weather/sparkle.png",
 		"color": Color(0.9, 0.8, 1.0, 0.08),
 		"overlay_alpha": 0.08,
@@ -103,6 +115,7 @@ var weather_configs: Dictionary = {
 		"particle_lifetime": 3.5,
 	},
 	"shadow_mist": {
+		## Clean geometric wisp shapes — flat dark fill, hard-edged silhouette.
 		"particle_texture": "res://Sprites/Weather/shadow_wisp.png",
 		"color": Color(0.15, 0.1, 0.2, 0.45),
 		"overlay_alpha": 0.45,
@@ -143,7 +156,7 @@ var _battle_conditions: Dictionary = {
 	},
 	"snow": {
 		"element_boost": "Ice",
-		"element_nerf": "Nature",
+		"element_nerf": "Plant",
 		"speed_modifier": 0.9,
 	},
 	"sandstorm": {
@@ -158,7 +171,7 @@ var _battle_conditions: Dictionary = {
 	"leaves": {},
 	"volcanic_ash": {
 		"element_boost": "Fire",
-		"element_nerf": "Nature",
+		"element_nerf": "Plant",
 		"accuracy_modifier": 0.90,
 	},
 	"fairy_sparkle": {
@@ -298,11 +311,9 @@ func _configure_particles(config: Dictionary) -> void:
 	var texture_path: String = config.get("particle_texture", "")
 	if not texture_path.is_empty():
 		var tex := load(texture_path) as Texture2D
-		if tex and particle_emitter.process_material:
-			# GPUParticles2D uses a ParticleProcessMaterial; texture is set on the
-			# draw pass (mesh) or via the texture property on a CanvasItemMaterial.
-			# For simplicity, we configure via the process material's direction.
-			pass
+		if tex:
+			# Apply particle texture to the emitter's texture property.
+			particle_emitter.texture = tex
 
 	# Set wind / direction via process material
 	if particle_emitter.process_material and particle_emitter.process_material is ParticleProcessMaterial:

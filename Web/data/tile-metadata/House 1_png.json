@@ -1,0 +1,306 @@
+{
+  "schemaVersion": "1.0.0",
+  "tileset": {
+    "filename": "House 1.png",
+    "tileWidth": 16,
+    "tileHeight": 16,
+    "columns": 6,
+    "rows": 4,
+    "totalTiles": 24,
+    "themeTags": [
+      "buildings"
+    ],
+    "notes": "Auto-generated metadata for House 1.png. Review and correct in Tile Admin."
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "Roof Top Left 0",
+      "description": "Roof tile from House 1 (top left region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "roof"
+      ]
+    },
+    {
+      "index": 1,
+      "name": "Roof Top 1",
+      "description": "Roof tile from House 1 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "roof"
+      ]
+    },
+    {
+      "index": 2,
+      "name": "Roof Top 2",
+      "description": "Roof tile from House 1 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "roof"
+      ]
+    },
+    {
+      "index": 3,
+      "name": "Roof Top 3",
+      "description": "Roof tile from House 1 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "roof"
+      ]
+    },
+    {
+      "index": 4,
+      "name": "Roof Top 4",
+      "description": "Roof tile from House 1 (top region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "roof"
+      ]
+    },
+    {
+      "index": 5,
+      "name": "Roof Top Right 5",
+      "description": "Roof tile from House 1 (top right region)",
+      "category": "roof",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "roof"
+      ]
+    },
+    {
+      "index": 6,
+      "name": "Wall Left 6",
+      "description": "Wall tile from House 1 (left region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "buildings",
+        "wall"
+      ]
+    },
+    {
+      "index": 7,
+      "name": "Wall 7",
+      "description": "Wall tile from House 1",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "buildings",
+        "wall"
+      ]
+    },
+    {
+      "index": 8,
+      "name": "Wall 8",
+      "description": "Wall tile from House 1",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "buildings",
+        "wall"
+      ]
+    },
+    {
+      "index": 9,
+      "name": "Wall 9",
+      "description": "Wall tile from House 1",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "buildings",
+        "wall"
+      ]
+    },
+    {
+      "index": 10,
+      "name": "Wall 10",
+      "description": "Wall tile from House 1",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "buildings",
+        "wall"
+      ]
+    },
+    {
+      "index": 11,
+      "name": "Wall Right 11",
+      "description": "Wall tile from House 1 (right region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "buildings",
+        "wall"
+      ]
+    },
+    {
+      "index": 12,
+      "name": "Door Left 12",
+      "description": "Door tile from House 1 (left region)",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "door"
+      ]
+    },
+    {
+      "index": 13,
+      "name": "Door 13",
+      "description": "Door tile from House 1",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "door"
+      ]
+    },
+    {
+      "index": 14,
+      "name": "Door 14",
+      "description": "Door tile from House 1",
+      "category": "door",
+      "layer": "object",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "door"
+      ]
+    },
+    {
+      "index": 15,
+      "name": "Wall 15",
+      "description": "Wall tile from House 1",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "buildings",
+        "wall"
+      ]
+    },
+    {
+      "index": 16,
+      "name": "Wall 16",
+      "description": "Wall tile from House 1",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "buildings",
+        "wall"
+      ]
+    },
+    {
+      "index": 17,
+      "name": "Wall Right 17",
+      "description": "Wall tile from House 1 (right region)",
+      "category": "wall",
+      "layer": "object",
+      "collidable": true,
+      "tags": [
+        "buildings",
+        "wall"
+      ]
+    },
+    {
+      "index": 18,
+      "name": "Floor Bottom Left 18",
+      "description": "Floor tile from House 1 (bottom left region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "floor"
+      ]
+    },
+    {
+      "index": 19,
+      "name": "Floor Bottom 19",
+      "description": "Floor tile from House 1 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "floor"
+      ]
+    },
+    {
+      "index": 20,
+      "name": "Floor Bottom 20",
+      "description": "Floor tile from House 1 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "floor"
+      ]
+    },
+    {
+      "index": 21,
+      "name": "Floor Bottom 21",
+      "description": "Floor tile from House 1 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "floor"
+      ]
+    },
+    {
+      "index": 22,
+      "name": "Floor Bottom 22",
+      "description": "Floor tile from House 1 (bottom region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "floor"
+      ]
+    },
+    {
+      "index": 23,
+      "name": "Floor Bottom Right 23",
+      "description": "Floor tile from House 1 (bottom right region)",
+      "category": "floor",
+      "layer": "ground",
+      "collidable": false,
+      "tags": [
+        "buildings",
+        "floor"
+      ]
+    }
+  ],
+  "structures": []
+}

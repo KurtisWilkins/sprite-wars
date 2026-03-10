@@ -100,7 +100,7 @@ func _build_ui() -> void:
 	all_btn.pressed.connect(func() -> void: _apply_filter({}))
 	filter_buttons.add_child(all_btn)
 
-	for element in ["Fire", "Water", "Earth", "Air", "Nature", "Electric"]:
+	for element in ["Fire", "Water", "Earth", "Wind", "Plant", "Electric"]:
 		var chip := _create_filter_chip(element)
 		var elem := element
 		chip.pressed.connect(func() -> void: _apply_filter({"element": elem}))
@@ -351,7 +351,8 @@ func _create_sprite_cell(sprite_data: SpriteInstance) -> PanelContainer:
 
 	# Name.
 	var name_label := Label.new()
-	var display_name: String = sprite_data.nickname if not sprite_data.nickname.is_empty() else "Sprite #%d" % sprite_data.race_id
+	var storage_race_data: Dictionary = SpriteRaces.get_race(sprite_data.race_id)
+	var display_name: String = sprite_data.nickname if not sprite_data.nickname.is_empty() else storage_race_data.get("race_name", "Sprite #%d" % sprite_data.race_id)
 	name_label.text = display_name
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.add_theme_font_size_override("font_size", 14)
@@ -402,7 +403,10 @@ func _update_selection_ui() -> void:
 
 func _matches_filter(sprite_data: SpriteInstance, filter: Dictionary) -> bool:
 	if filter.has("element"):
-		if not sprite_data.has_element(filter["element"]):
+		# element_types and has_element live on SpriteRaceData, not SpriteInstance.
+		var race_info: Dictionary = SpriteRaces.get_race(sprite_data.race_id)
+		var race_elements: Array = race_info.get("element_types", [])
+		if filter["element"] not in race_elements:
 			return false
 	if filter.has("search"):
 		var query: String = (filter["search"] as String).to_lower()

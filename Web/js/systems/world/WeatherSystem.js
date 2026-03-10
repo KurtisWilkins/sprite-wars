@@ -5,6 +5,9 @@
  *
  * Ported from Game/Scripts/World/WeatherSystem.gd
  * Adapted from Godot GPUParticles2D/ColorRect to Canvas-based rendering.
+ *
+ * Cel-Shaded Art Style: clean rain lines, geometric snowflakes, smooth clouds,
+ * and clean weather effect marks with flat fills and black outlines.
  */
 import { eventBus, GameEvents } from '../../core/EventBus.js';
 
@@ -155,14 +158,14 @@ export class WeatherSystem {
             },
             snow: {
                 elementBoost: 'Ice',
-                elementNerf: 'Nature',
+                elementNerf: 'Plant',
                 speedModifier: 0.9,
             },
             sandstorm: {
                 elementBoost: 'Earth',
                 accuracyModifier: 0.85,
                 dotDamagePerTurn: 5,
-                dotImmuneElements: ['Earth', 'Steel', 'Rock'],
+                dotImmuneElements: ['Earth', 'Metal'],
             },
             fog: {
                 accuracyModifier: 0.80,
@@ -170,7 +173,7 @@ export class WeatherSystem {
             leaves: {},
             volcanic_ash: {
                 elementBoost: 'Fire',
-                elementNerf: 'Nature',
+                elementNerf: 'Plant',
                 accuracyModifier: 0.90,
             },
             fairy_sparkle: {
@@ -214,7 +217,7 @@ export class WeatherSystem {
 
         /**
          * Active particles for canvas-based simulation.
-         * Each: { x, y, vx, vy, life, maxLife, size, alpha }
+         * Each: { x, y, vx, vy, life, maxLife, size, alpha, phase, rotation }
          * @type {object[]}
          */
         this._particles = [];
@@ -227,6 +230,30 @@ export class WeatherSystem {
 
         /** Particle spawn accumulator. */
         this._spawnAccumulator = 0.0;
+
+        // ── Weather Effect Marks ──────────────────────────────────────
+
+        /**
+         * Weather effect marks (wind swirls, puddles, etc.).
+         * Each: { x, y, type, life, maxLife, size, rotation }
+         * @type {object[]}
+         */
+        this._weatherMarks = [];
+
+        /** Weather mark spawn accumulator. */
+        this._markSpawnAccumulator = 0.0;
+
+        // ── Cloud State ─────────────────────────────────────────────────
+
+        /**
+         * Clean cloud shapes for overcast weather types.
+         * Each: { x, y, speed, size, bobPhase }
+         * @type {object[]}
+         */
+        this._clouds = [];
+
+        /** Whether clouds have been initialized. */
+        this._cloudsInitialized = false;
 
         // Apply initial weather
         this._applyWeatherImmediate(this.currentWeather);
@@ -275,6 +302,9 @@ export class WeatherSystem {
 
         // Start configuring particles for the new weather
         this._configureParticles(config);
+
+        // Initialize clouds for cloud-based weather
+        this._initClouds(weatherType);
     }
 
     /**
@@ -341,6 +371,12 @@ export class WeatherSystem {
 
         // Update particle simulation
         this._updateParticles(delta);
+
+        // Update weather effect marks
+        this._updateWeatherMarks(delta);
+
+        // Update clouds
+        this._updateClouds(delta);
     }
 
     // ── Rendering ───────────────────────────────────────────────────────────
@@ -372,8 +408,14 @@ export class WeatherSystem {
             renderCtx.restore();
         }
 
-        // Draw particles
+        // Draw clean clouds (behind particles)
+        this._renderClouds(renderCtx, w, h);
+
+        // Draw particles (cel-shaded style)
         this._renderParticles(renderCtx);
+
+        // Draw weather effect marks
+        this._renderWeatherMarks(renderCtx);
     }
 
     /**
@@ -411,6 +453,9 @@ export class WeatherSystem {
             this._emitting = false;
             this._particles = [];
         }
+
+        // Initialize clouds
+        this._initClouds(weatherType);
     }
 
     // ── Internal: Particle Configuration ────────────────────────────────────
@@ -467,6 +512,10 @@ export class WeatherSystem {
             // Apply wind / velocity
             p.x += p.vx * delta;
             p.y += p.vy * delta;
+
+            // Update phase for animation
+            p.phase = (p.phase || 0) + delta * 3;
+            p.rotation = (p.rotation || 0) + delta * (p.rotSpeed || 0);
 
             // Calculate alpha based on remaining life
             const lifeRatio = p.life / p.maxLife;
@@ -528,11 +577,14 @@ export class WeatherSystem {
             maxLife: lifetime,
             size,
             alpha: 1.0,
+            phase: Math.random() * Math.PI * 2,
+            rotation: Math.random() * Math.PI * 2,
+            rotSpeed: (Math.random() - 0.5) * 2,
         });
     }
 
     /**
-     * Renders particles to the canvas context.
+     * Renders particles to the canvas context with clean cel-shaded style.
      * @param {CanvasRenderingContext2D} ctx
      */
     _renderParticles(ctx) {
@@ -542,24 +594,85 @@ export class WeatherSystem {
         if (!config) return;
 
         ctx.save();
+        ctx.lineCap = 'round';
 
         for (const p of this._particles) {
             ctx.globalAlpha = p.alpha * 0.6;
 
-            // Determine particle color based on weather type
             const weatherColor = this._getParticleColor();
-            ctx.fillStyle = weatherColor;
 
-            // For rain, draw lines; for everything else, draw circles/dots
             if (this.currentWeather === 'rain') {
+                // Clean rain: straight lines with uniform thickness
                 ctx.strokeStyle = weatherColor;
-                ctx.lineWidth = 1;
-                ctx.globalAlpha = p.alpha * 0.4;
+                ctx.lineWidth = 1.5;
+                ctx.globalAlpha = p.alpha * 0.5;
                 ctx.beginPath();
+                const rainLen = 0.025;
                 ctx.moveTo(p.x, p.y);
-                ctx.lineTo(p.x + p.vx * 0.02, p.y + p.vy * 0.02);
+                ctx.lineTo(p.x + p.vx * rainLen, p.y + p.vy * rainLen);
                 ctx.stroke();
+
+                // Clean splash circle at end of life
+                if (p.life < p.maxLife * 0.1) {
+                    ctx.globalAlpha = p.alpha * 0.3;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 2, 0, Math.PI, true);
+                    ctx.stroke();
+                }
+
+            } else if (this.currentWeather === 'snow') {
+                // Clean geometric snowflakes
+                ctx.strokeStyle = weatherColor;
+                ctx.fillStyle = weatherColor;
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = p.alpha * 0.7;
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation);
+
+                if (p.size > 3.5) {
+                    // Larger snowflakes: clean geometric crystal shape
+                    const arms = 6;
+                    const r = p.size * 0.6;
+                    for (let i = 0; i < arms; i++) {
+                        const angle = (Math.PI * 2 * i) / arms;
+                        ctx.beginPath();
+                        ctx.moveTo(0, 0);
+                        ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+                        ctx.stroke();
+                        // Clean branch on each arm
+                        const branchAngle = angle + 0.4;
+                        const branchR = r * 0.4;
+                        const branchStart = r * 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(
+                            Math.cos(angle) * branchStart,
+                            Math.sin(angle) * branchStart
+                        );
+                        ctx.lineTo(
+                            Math.cos(angle) * branchStart + Math.cos(branchAngle) * branchR,
+                            Math.sin(angle) * branchStart + Math.sin(branchAngle) * branchR
+                        );
+                        ctx.stroke();
+                    }
+                } else {
+                    // Smaller snowflakes: clean filled circle
+                    ctx.globalAlpha = p.alpha * 0.4;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, p.size * 0.4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = p.alpha * 0.7;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, p.size * 0.4, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+
             } else {
+                // Other weather: clean filled circles
+                ctx.fillStyle = weatherColor;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
                 ctx.fill();
@@ -584,6 +697,447 @@ export class WeatherSystem {
             case 'shadow_mist':  return 'rgba(40, 20, 60, 0.5)';
             default:             return 'rgba(200, 200, 200, 0.5)';
         }
+    }
+
+    // ── Clouds ───────────────────────────────────────────────────────────────
+
+    /**
+     * Initialize clean cloud shapes for the current weather.
+     */
+    _initClouds(weatherType) {
+        this._clouds = [];
+
+        // Only show clouds for certain weather types
+        const cloudWeathers = ['rain', 'snow', 'fog', 'sandstorm', 'volcanic_ash', 'shadow_mist'];
+        if (!cloudWeathers.includes(weatherType)) {
+            this._cloudsInitialized = false;
+            return;
+        }
+
+        const canvasW = this._canvas ? this._canvas.width : 800;
+        const cloudCount = weatherType === 'fog' ? 8 : 4;
+
+        for (let i = 0; i < cloudCount; i++) {
+            this._clouds.push({
+                x: Math.random() * canvasW * 1.3 - canvasW * 0.15,
+                y: 10 + Math.random() * 60,
+                speed: 5 + Math.random() * 15,
+                size: 20 + Math.random() * 30,
+                bobPhase: Math.random() * Math.PI * 2,
+                puffs: this._generateCloudPuffs(3 + Math.floor(Math.random() * 3)),
+            });
+        }
+        this._cloudsInitialized = true;
+    }
+
+    /**
+     * Generate smooth puff shapes for a single cloud.
+     */
+    _generateCloudPuffs(count) {
+        const puffs = [];
+        for (let i = 0; i < count; i++) {
+            puffs.push({
+                ox: (i - count / 2) * 12 + (Math.random() - 0.5) * 6,
+                oy: (Math.random() - 0.5) * 8,
+                radius: 8 + Math.random() * 8,
+            });
+        }
+        return puffs;
+    }
+
+    /**
+     * Update cloud positions.
+     */
+    _updateClouds(delta) {
+        if (this._clouds.length === 0) return;
+
+        const canvasW = this._canvas ? this._canvas.width : 800;
+
+        for (const cloud of this._clouds) {
+            cloud.x += cloud.speed * delta;
+            cloud.bobPhase += delta * 1.5;
+
+            // Wrap around screen
+            if (cloud.x > canvasW + cloud.size * 2) {
+                cloud.x = -cloud.size * 2;
+            }
+        }
+    }
+
+    /**
+     * Render clean smooth clouds with flat fill and uniform outlines.
+     */
+    _renderClouds(ctx, canvasWidth, canvasHeight) {
+        if (this._clouds.length === 0) return;
+
+        ctx.save();
+
+        for (const cloud of this._clouds) {
+            const bobY = Math.sin(cloud.bobPhase) * 2;
+
+            ctx.globalAlpha = 0.18;
+            ctx.fillStyle = 'rgba(220, 220, 235, 0.6)';
+            ctx.strokeStyle = 'rgba(100, 100, 120, 0.3)';
+            ctx.lineWidth = 1.5;
+
+            // Draw each puff as a clean circle with flat fill
+            for (const puff of cloud.puffs) {
+                const px = cloud.x + puff.ox;
+                const py = cloud.y + puff.oy + bobY;
+                const r = puff.radius;
+
+                ctx.beginPath();
+                ctx.arc(px, py, r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+
+        ctx.restore();
+    }
+
+    // ── Weather Effect Marks ─────────────────────────────────────────────────
+
+    /**
+     * Update and spawn weather effect marks.
+     */
+    _updateWeatherMarks(delta) {
+        const canvasW = this._canvas ? this._canvas.width : 800;
+        const canvasH = this._canvas ? this._canvas.height : 600;
+
+        // Spawn new marks based on weather type
+        const markRate = this._getMarkSpawnRate();
+        if (markRate > 0) {
+            this._markSpawnAccumulator += markRate * delta;
+            while (this._markSpawnAccumulator >= 1.0 && this._weatherMarks.length < 20) {
+                this._spawnWeatherMark(canvasW, canvasH);
+                this._markSpawnAccumulator -= 1.0;
+            }
+        }
+
+        // Update existing marks
+        for (let i = this._weatherMarks.length - 1; i >= 0; i--) {
+            const mark = this._weatherMarks[i];
+            mark.life -= delta;
+            if (mark.life <= 0) {
+                this._weatherMarks.splice(i, 1);
+                continue;
+            }
+            mark.rotation += delta * (mark.rotSpeed || 0);
+        }
+    }
+
+    /**
+     * Returns the spawn rate for weather marks based on current weather.
+     */
+    _getMarkSpawnRate() {
+        switch (this.currentWeather) {
+            case 'rain':       return 2.0;   // puddle ripples
+            case 'snow':       return 0.5;   // snowdrift marks
+            case 'sandstorm':  return 3.0;   // wind swirls
+            case 'fog':        return 1.0;   // wavy lines
+            case 'leaves':     return 0.8;   // leaf swirl marks
+            case 'volcanic_ash': return 1.5; // ash piles
+            case 'fairy_sparkle': return 1.0; // sparkle annotations
+            case 'shadow_mist':  return 1.2; // shadow wisps
+            default:           return 0;
+        }
+    }
+
+    /**
+     * Spawn a single weather annotation mark.
+     */
+    _spawnWeatherMark(canvasW, canvasH) {
+        const type = this._getMarkType();
+        const lifetime = 2.0 + Math.random() * 2.0;
+
+        this._weatherMarks.push({
+            x: Math.random() * canvasW,
+            y: canvasH * 0.5 + Math.random() * canvasH * 0.5, // Bottom half of screen
+            type: type,
+            life: lifetime,
+            maxLife: lifetime,
+            size: 4 + Math.random() * 8,
+            rotation: Math.random() * Math.PI * 2,
+            rotSpeed: (Math.random() - 0.5) * 0.5,
+        });
+    }
+
+    /**
+     * Returns the annotation mark type for the current weather.
+     */
+    _getMarkType() {
+        switch (this.currentWeather) {
+            case 'rain':        return Math.random() < 0.5 ? 'puddle' : 'splash';
+            case 'snow':        return Math.random() < 0.5 ? 'snowdrift' : 'icecrystal';
+            case 'sandstorm':   return Math.random() < 0.6 ? 'windswirl' : 'dustpile';
+            case 'fog':         return 'wavyline';
+            case 'leaves':      return 'leafswirl';
+            case 'volcanic_ash': return Math.random() < 0.5 ? 'ashpile' : 'emberglow';
+            case 'fairy_sparkle': return 'sparklenote';
+            case 'shadow_mist':  return 'shadowwisp';
+            default:            return 'windswirl';
+        }
+    }
+
+    /**
+     * Render clean weather effect marks.
+     */
+    _renderWeatherMarks(ctx) {
+        if (this._weatherMarks.length === 0) return;
+
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        for (const mark of this._weatherMarks) {
+            const alpha = Math.min(1, mark.life / (mark.maxLife * 0.3)) * 0.3;
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = '#000000';
+            ctx.fillStyle = 'rgba(80, 80, 100, 0.25)';
+            ctx.lineWidth = 1.5;
+
+            ctx.save();
+            ctx.translate(mark.x, mark.y);
+            ctx.rotate(mark.rotation);
+
+            switch (mark.type) {
+                case 'puddle':
+                    this._drawPuddle(ctx, mark.size);
+                    break;
+                case 'splash':
+                    this._drawSplash(ctx, mark.size);
+                    break;
+                case 'snowdrift':
+                    this._drawSnowdrift(ctx, mark.size);
+                    break;
+                case 'icecrystal':
+                    this._drawIceCrystal(ctx, mark.size);
+                    break;
+                case 'windswirl':
+                    this._drawWindSwirl(ctx, mark.size);
+                    break;
+                case 'dustpile':
+                    this._drawDustPile(ctx, mark.size);
+                    break;
+                case 'wavyline':
+                    this._drawWavyLine(ctx, mark.size);
+                    break;
+                case 'leafswirl':
+                    this._drawLeafSwirl(ctx, mark.size);
+                    break;
+                case 'ashpile':
+                    this._drawAshPile(ctx, mark.size);
+                    break;
+                case 'emberglow':
+                    this._drawEmberGlow(ctx, mark.size);
+                    break;
+                case 'sparklenote':
+                    this._drawSparkleNote(ctx, mark.size);
+                    break;
+                case 'shadowwisp':
+                    this._drawShadowWisp(ctx, mark.size);
+                    break;
+            }
+
+            ctx.restore();
+        }
+
+        ctx.restore();
+    }
+
+    // ── Clean Mark Drawing Methods ──────────────────────────────────────────
+
+    _drawPuddle(ctx, size) {
+        // Clean ellipse puddle with flat fill and outline
+        ctx.fillStyle = 'rgba(120, 150, 200, 0.2)';
+        ctx.strokeStyle = 'rgba(80, 100, 150, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, size * 1.2, size * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Internal ripple (clean ellipse)
+        ctx.beginPath();
+        ctx.ellipse(0, 0, size * 0.5, size * 0.2, 0, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    _drawSplash(ctx, size) {
+        // Clean radiating lines from center
+        ctx.strokeStyle = 'rgba(100, 130, 180, 0.4)';
+        const arms = 5;
+        for (let i = 0; i < arms; i++) {
+            const angle = (Math.PI * 2 * i) / arms;
+            const len = size * 0.7;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(angle) * len, Math.sin(angle) * len);
+            ctx.stroke();
+        }
+    }
+
+    _drawSnowdrift(ctx, size) {
+        // Clean smooth mound shape with flat fill
+        ctx.fillStyle = 'rgba(230, 240, 255, 0.3)';
+        ctx.strokeStyle = 'rgba(180, 190, 210, 0.4)';
+        ctx.beginPath();
+        ctx.moveTo(-size, 0);
+        ctx.quadraticCurveTo(-size * 0.3, -size * 0.6, 0, -size * 0.4);
+        ctx.quadraticCurveTo(size * 0.3, -size * 0.6, size, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+    }
+
+    _drawIceCrystal(ctx, size) {
+        // Clean six-armed crystal with uniform lines
+        ctx.strokeStyle = 'rgba(160, 200, 240, 0.5)';
+        for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI * 2 * i) / 6;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(angle) * size, Math.sin(angle) * size);
+            ctx.stroke();
+        }
+    }
+
+    _drawWindSwirl(ctx, size) {
+        // Clean spiral arc
+        ctx.strokeStyle = 'rgba(120, 120, 140, 0.4)';
+        ctx.beginPath();
+        const turns = 1.5;
+        const steps = 20;
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const angle = t * Math.PI * 2 * turns;
+            const r = t * size;
+            const px = Math.cos(angle) * r;
+            const py = Math.sin(angle) * r;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+    }
+
+    _drawDustPile(ctx, size) {
+        // Clean cluster of uniform dots
+        ctx.fillStyle = 'rgba(160, 140, 100, 0.3)';
+        const positions = [
+            { x: 0, y: 0 },
+            { x: size * 0.3, y: -size * 0.15 },
+            { x: -size * 0.3, y: size * 0.1 },
+            { x: size * 0.15, y: size * 0.2 },
+            { x: -size * 0.15, y: -size * 0.2 },
+        ];
+        for (const pos of positions) {
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 1, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    _drawWavyLine(ctx, size) {
+        // Clean smooth sine wave line
+        ctx.strokeStyle = 'rgba(120, 130, 150, 0.3)';
+        ctx.beginPath();
+        const segments = 8;
+        for (let i = 0; i <= segments; i++) {
+            const px = (i / segments - 0.5) * size * 3;
+            const py = Math.sin(i * 1.2) * size * 0.4;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+    }
+
+    _drawLeafSwirl(ctx, size) {
+        // Clean curved arc with leaf shape
+        ctx.strokeStyle = 'rgba(80, 140, 60, 0.4)';
+        ctx.beginPath();
+        const steps = 12;
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const angle = t * Math.PI * 1.5;
+            const r = t * size;
+            const px = Math.cos(angle) * r;
+            const py = Math.sin(angle) * r;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        // Clean leaf at end
+        const endAngle = Math.PI * 1.5;
+        const endR = size;
+        const lx = Math.cos(endAngle) * endR;
+        const ly = Math.sin(endAngle) * endR;
+        ctx.fillStyle = 'rgba(80, 160, 60, 0.3)';
+        ctx.beginPath();
+        ctx.ellipse(lx, ly, size * 0.3, size * 0.15, endAngle, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+    }
+
+    _drawAshPile(ctx, size) {
+        // Clean geometric mound with flat fill
+        ctx.fillStyle = 'rgba(80, 70, 60, 0.2)';
+        ctx.strokeStyle = 'rgba(60, 50, 40, 0.3)';
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.8, 0);
+        ctx.lineTo(-size * 0.4, -size * 0.3);
+        ctx.lineTo(0, -size * 0.4);
+        ctx.lineTo(size * 0.4, -size * 0.2);
+        ctx.lineTo(size * 0.8, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+    }
+
+    _drawEmberGlow(ctx, size) {
+        // Clean four-pointed star with flat fill
+        ctx.strokeStyle = 'rgba(200, 100, 30, 0.5)';
+        ctx.fillStyle = 'rgba(255, 150, 50, 0.3)';
+        const arms = 4;
+        for (let i = 0; i < arms; i++) {
+            const angle = (Math.PI * 2 * i) / arms;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(angle) * size * 0.5, Math.sin(angle) * size * 0.5);
+            ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+    }
+
+    _drawSparkleNote(ctx, size) {
+        // Clean four-pointed sparkle
+        ctx.strokeStyle = 'rgba(200, 170, 255, 0.5)';
+        for (let i = 0; i < 4; i++) {
+            const angle = (Math.PI / 2) * i + Math.PI / 4;
+            const len = i % 2 === 0 ? size : size * 0.5;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(angle) * len, Math.sin(angle) * len);
+            ctx.stroke();
+        }
+    }
+
+    _drawShadowWisp(ctx, size) {
+        // Clean smooth dark arc
+        ctx.strokeStyle = 'rgba(30, 15, 50, 0.35)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        const segments = 10;
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const px = t * size * 2 - size;
+            const py = Math.sin(t * Math.PI * 2) * size * 0.4;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
     }
 
     // ── Utility ─────────────────────────────────────────────────────────────

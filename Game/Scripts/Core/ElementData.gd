@@ -27,10 +27,10 @@ extends Resource
 
 ## The 14 canonical element names used across the game.
 const ELEMENT_NAMES: PackedStringArray = PackedStringArray([
-	"Fire", "Water", "Earth", "Air",
-	"Light", "Dark", "Nature", "Electric",
-	"Ice", "Metal", "Poison", "Psychic",
-	"Spirit", "Chaos",
+	"Fire", "Water", "Wind", "Earth",
+	"Plant", "Metal", "Electric", "Dark",
+	"Light", "Solar", "Lunar", "Fairy",
+	"Poison", "Ice",
 ])
 
 const SUPER_EFFECTIVE_THRESHOLD: float = 1.5

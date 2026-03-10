@@ -8,6 +8,9 @@
 ##   BattleManager.toggle_auto_battle()
 extends Node
 
+## Preload the EquipmentDatabase so we can resolve equipment IDs to data.
+const _EquipmentDatabase = preload("res://Game/Data/Equipment/EquipmentDatabase.gd")
+
 ## -- Subsystem Instances ------------------------------------------------------
 
 var grid: BattleGrid = null
@@ -303,12 +306,33 @@ func end_battle(result: String) -> void:
 		"rounds": _round_number,
 	})
 
+	# Roll equipment loot on victory.
+	var equipment_loot: Array[Dictionary] = []
+	if result == "player_win":
+		var battle_type: String = "normal"
+		if _battle_config.get("is_boss", false):
+			battle_type = "boss"
+		elif _battle_config.get("is_temple", false):
+			battle_type = "temple"
+
+		var difficulty: int = int(_battle_config.get("difficulty", 3))
+		var player_level: int = _get_highest_player_level()
+		var battle_element: String = str(_battle_config.get("dominant_element", ""))
+		equipment_loot = BattleLootSystem.roll_battle_loot(
+			battle_type, difficulty, player_level, battle_element
+		)
+
 	# Emit signal for GameManager and UI.
 	EventBus.battle_ended.emit({
 		"result": result,
 		"rounds": _round_number,
 		"event_log": event_log.get_full_log(),
+		"equipment": BattleLootSystem.format_loot_for_display(equipment_loot),
 	})
+
+	# Emit separate loot signal if any equipment was found.
+	if equipment_loot.size() > 0:
+		EventBus.equipment_looted.emit(equipment_loot)
 
 ## -- Private: Round Management ------------------------------------------------
 
@@ -487,6 +511,7 @@ func _execute_ability_and_process(
 	for fainted in fainted_units:
 		var defeat_result: Dictionary = defeat_system.process_defeat(fainted, grid, turn_order)
 		event_log.log_faint(defeat_result.get("display_name", "???"))
+		EventBus.faint_animation_requested.emit(fainted.sprite_instance)
 		EventBus.unit_fainted.emit(fainted.sprite_instance)
 
 	# -- Check win/loss conditions --------------------------------------------
@@ -523,6 +548,7 @@ func _check_battle_conditions() -> void:
 func _handle_status_faint(unit: BattleUnit) -> void:
 	var defeat_result: Dictionary = defeat_system.process_defeat(unit, grid, turn_order)
 	event_log.log_faint(defeat_result.get("display_name", "???"))
+	EventBus.faint_animation_requested.emit(unit.sprite_instance)
 	EventBus.unit_fainted.emit(unit.sprite_instance)
 	_check_battle_conditions()
 
@@ -539,11 +565,19 @@ func _create_battle_unit(data: Dictionary, team_id: int) -> BattleUnit:
 		push_warning("BattleManager: Incomplete unit data, skipping.")
 		return null
 
-	# Calculate full stats.
-	var stats: Dictionary = instance.calculate_all_effective_stats(race_data, stage_data)
+	# Resolve equipped EquipmentData resources from the instance's equipment IDs.
+	var equipment_list: Array = _resolve_equipment_list(instance)
+
+	# Gather element types and class for synergy calculations.
 	var elem_types: Array[String] = []
 	for e in race_data.element_types:
 		elem_types.append(e)
+	var sprite_class: String = instance.class_type if instance.class_type else ""
+
+	# Calculate full stats including equipment bonuses and synergies.
+	var stats: Dictionary = instance.calculate_all_effective_stats(
+		race_data, stage_data, equipment_list, elem_types, sprite_class
+	)
 
 	var unit := BattleUnit.new()
 	unit.initialize(instance, stats, team_id, abilities, elem_types)
@@ -587,3 +621,36 @@ func _generate_default_positions(team: int, count: int) -> Array[Vector2i]:
 		current_row += row_dir
 
 	return positions
+
+
+## Resolve a SpriteInstance's equipment IDs into an Array of EquipmentData resources.
+## Uses the EquipmentDatabase to look up each equipped item by ID.
+func _resolve_equipment_list(instance: SpriteInstance) -> Array:
+	var result: Array = []
+	var all_equipment: Array = _EquipmentDatabase.get_all_equipment()
+	var equipped_ids: Array[int] = instance.get_equipped_item_ids()
+	for eid in equipped_ids:
+		for eq_entry in all_equipment:
+			if int(eq_entry.get("equipment_id", -1)) == eid:
+				var equip_data := EquipmentData.new()
+				equip_data.equipment_id = eid
+				equip_data.equipment_name = eq_entry.get("equipment_name", "")
+				equip_data.slot_type = eq_entry.get("slot_type", "")
+				equip_data.rarity = eq_entry.get("rarity", "common")
+				equip_data.stat_bonuses = eq_entry.get("stat_bonuses", {})
+				equip_data.element_synergy = eq_entry.get("element_synergy", "")
+				equip_data.element_synergy_multiplier = float(eq_entry.get("element_synergy_multiplier", 1.0))
+				equip_data.class_synergy = eq_entry.get("class_synergy", "")
+				equip_data.class_synergy_multiplier = float(eq_entry.get("class_synergy_multiplier", 1.0))
+				result.append(equip_data)
+				break
+	return result
+
+
+## Get the highest level among player team units for loot filtering.
+func _get_highest_player_level() -> int:
+	var highest: int = 1
+	for unit in grid.get_all_units(0):
+		if unit.get_level() > highest:
+			highest = unit.get_level()
+	return highest

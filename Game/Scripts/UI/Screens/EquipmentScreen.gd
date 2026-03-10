@@ -7,9 +7,9 @@ extends Control
 ## ── Constants ────────────────────────────────────────────────────────────────
 
 const EQUIPMENT_SLOT_TYPES: PackedStringArray = PackedStringArray([
-	"weapon", "armor", "accessory",
-	"helmet", "boots", "shield",
-	"ring_1", "ring_2", "amulet",
+	"weapon", "helmet", "chest",
+	"legs", "boots", "gloves",
+	"ring", "amulet", "crystal",
 ])
 
 const SLOT_SIZE: Vector2 = Vector2(100.0, 100.0)
@@ -356,14 +356,59 @@ func unequip_item(slot_type: String) -> void:
 
 func show_comparison(current: Resource, candidate: Resource) -> void:
 	comparison_panel.visible = true
-	# In a full implementation, this would read stat bonuses from the item resources.
-	# For now, show placeholder comparison.
+	# Use stat_bonuses from EquipmentData to show comparison.
 	for stat_key in _comparison_labels:
 		var labels: Dictionary = _comparison_labels[stat_key]
-		(labels["current"] as Label).text = "--"
-		(labels["candidate"] as Label).text = "--"
-		(labels["diff"] as Label).text = "--"
-		(labels["diff"] as Label).add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+		var current_val: int = 0
+		var candidate_val: int = 0
+
+		if current != null and current is EquipmentData:
+			var bonuses: Dictionary = current.stat_bonuses
+			current_val = int(bonuses.get(stat_key, 0))
+
+		if candidate != null and candidate is EquipmentData:
+			var bonuses: Dictionary = candidate.stat_bonuses
+			candidate_val = int(bonuses.get(stat_key, 0))
+
+		(labels["current"] as Label).text = "%+d" % current_val if current_val != 0 else "--"
+		(labels["candidate"] as Label).text = "%+d" % candidate_val if candidate_val != 0 else "--"
+
+		var diff_val: int = candidate_val - current_val
+		if diff_val > 0:
+			(labels["diff"] as Label).text = "+%d" % diff_val
+			(labels["diff"] as Label).add_theme_color_override("font_color", Color(0.3, 0.85, 0.4))
+		elif diff_val < 0:
+			(labels["diff"] as Label).text = "%d" % diff_val
+			(labels["diff"] as Label).add_theme_color_override("font_color", Color(0.85, 0.3, 0.3))
+		else:
+			(labels["diff"] as Label).text = "0"
+			(labels["diff"] as Label).add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+
+
+## ── Rarity Colors ────────────────────────────────────────────────────────────
+
+const RARITY_COLORS: Dictionary = {
+	"common": Color(0.55, 0.55, 0.55),
+	"uncommon": Color(0.2, 0.8, 0.38),
+	"rare": Color(0.2, 0.6, 1.0),
+	"epic": Color(0.67, 0.27, 1.0),
+	"legendary": Color(1.0, 0.67, 0.0),
+}
+
+const SLOT_EMOJIS: Dictionary = {
+	"weapon": "Weapon", "helmet": "Helmet", "chest": "Chest",
+	"legs": "Legs", "boots": "Boots", "gloves": "Gloves",
+	"ring": "Ring", "amulet": "Amulet", "crystal": "Crystal",
+}
+
+
+## Look up equipment data by ID from the EquipmentDatabase.
+func _lookup_equipment(equipment_id: int) -> Dictionary:
+	var all_equip: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+	for equip in all_equip:
+		if int(equip.get("equipment_id", -1)) == equipment_id:
+			return equip
+	return {}
 
 
 ## ── Display ──────────────────────────────────────────────────────────────────
@@ -385,9 +430,26 @@ func _refresh_display() -> void:
 
 		var item_id: int = _sprite_instance.equipment.get(slot_type, -1)
 		if item_id > 0:
-			item_label.text = "Item #%d" % item_id
+			var equip_data: Dictionary = _lookup_equipment(item_id)
+			if not equip_data.is_empty():
+				var equip_name: String = str(equip_data.get("equipment_name", "Unknown"))
+				var rarity: String = str(equip_data.get("rarity", "common"))
+				var rarity_color: Color = RARITY_COLORS.get(rarity, RARITY_COLORS["common"])
+				item_label.text = equip_name
+				item_label.add_theme_color_override("font_color", rarity_color)
+
+				# Update slot border to rarity color.
+				var style := panel.get_theme_stylebox("panel") as StyleBoxFlat
+				if style:
+					var new_style := style.duplicate() as StyleBoxFlat
+					new_style.border_color = rarity_color
+					panel.add_theme_stylebox_override("panel", new_style)
+			else:
+				item_label.text = "Item #%d" % item_id
+				item_label.add_theme_color_override("font_color", Color.WHITE)
 		else:
 			item_label.text = "--"
+			item_label.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
 
 		_highlight_slot(slot_type, slot_type == _selected_slot_type)
 

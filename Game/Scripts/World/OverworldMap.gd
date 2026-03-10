@@ -1,6 +1,11 @@
 ## OverworldMap — Manages the tile-based overworld map, collision, encounter zones,
 ## area transitions, and placed objects.
 ## [P5-001] Core map system for all overworld navigation.
+##
+## Art Style: Flat cel-shaded. All tile art uses flat saturated colors with clean
+## black outlines of uniform thickness. No gradients or pixel-art tilemap textures.
+## Shading is hard-edged (two-tone light/shadow per surface). Tiles use clean
+## geometric shapes — no hand-drawn or sketchy edges.
 extends Node2D
 
 ## ── Node References ─────────────────────────────────────────────────────────
@@ -44,7 +49,8 @@ signal object_placed(object: Node, grid_pos: Vector2i)
 
 ## Loads tileset, map layers, transitions, and placed objects from a data dict.
 ## Expected keys:
-##   tileset_path: String - res:// path to the TileSet resource
+##   tileset_path: String - res:// path to the TileSet resource (cel-shaded tiles:
+##       flat colors, clean black outlines, hard-edged shading, no gradients)
 ##   layers: Array[Dictionary] - per-layer tile data {layer_index, cells: [{pos: Vector2i, source_id, atlas_coords, alternative}]}
 ##   transitions: Dictionary {area_id: {x, y, w, h}}
 ##   objects: Array[Dictionary] - see place_objects()
@@ -53,7 +59,8 @@ signal object_placed(object: Node, grid_pos: Vector2i)
 func load_map(map_data: Dictionary) -> void:
 	_clear_map()
 
-	# Load tileset
+	# Load tileset — expects cel-shaded tile art: flat colors with clean uniform
+	# black outlines, hard-edged shading, no gradients or pixel-art textures.
 	var tileset_path: String = map_data.get("tileset_path", "")
 	if not tileset_path.is_empty():
 		var tileset := load(tileset_path) as TileSet
@@ -90,6 +97,10 @@ func load_map(map_data: Dictionary) -> void:
 	# Place objects (chests, signs, etc.)
 	var objects: Array = map_data.get("objects", [])
 	place_objects(objects)
+
+	# Spawn NPCs from map data
+	var npcs: Array = map_data.get("npcs", [])
+	_spawn_npcs(npcs)
 
 	# Cache map bounds
 	_update_map_bounds()
@@ -180,6 +191,56 @@ func place_objects(objects: Array) -> void:
 		object_placed.emit(instance, grid_pos)
 
 
+## ── NPC Spawning ──────────────────────────────────────────────────────────
+
+## Spawns NPCs from map data into the NPCContainer.
+## Each entry: {scene_path: String, grid_pos: Vector2i, npc_id: String,
+##   npc_name: String, npc_type: String, dialogue_data: Array, ...}
+func _spawn_npcs(npcs: Array) -> void:
+	var container: Node2D = null
+	if has_node("NPCContainer"):
+		container = $NPCContainer
+	else:
+		container = Node2D.new()
+		container.name = "NPCContainer"
+		add_child(container)
+
+	for npc_data: Dictionary in npcs:
+		var scene_path: String = npc_data.get("scene_path", "")
+		var grid_pos: Vector2i = npc_data.get("grid_pos", Vector2i.ZERO)
+
+		if scene_path.is_empty():
+			push_warning("OverworldMap: NPC missing scene_path at %s" % str(grid_pos))
+			continue
+
+		var scene := load(scene_path) as PackedScene
+		if not scene:
+			push_warning("OverworldMap: failed to load NPC scene '%s'" % scene_path)
+			continue
+
+		var instance := scene.instantiate()
+		instance.position = Vector2(grid_pos) * float(grid_size) + Vector2(grid_size, grid_size) * 0.5
+
+		# Configure NPC properties if available
+		if npc_data.has("npc_id"):
+			instance.set("npc_id", npc_data["npc_id"])
+		if npc_data.has("npc_name"):
+			instance.set("npc_name", npc_data["npc_name"])
+		if npc_data.has("npc_type"):
+			instance.set("npc_type", npc_data["npc_type"])
+		if npc_data.has("dialogue_data"):
+			instance.set("dialogue_data", npc_data["dialogue_data"])
+		if npc_data.has("patrol_path"):
+			instance.set("patrol_path", npc_data["patrol_path"])
+		if npc_data.has("vision_range"):
+			instance.set("vision_range", npc_data["vision_range"])
+		if npc_data.has("vision_direction"):
+			instance.set("vision_direction", npc_data["vision_direction"])
+
+		container.add_child(instance)
+		register_npc(instance, grid_pos)
+
+
 ## ── NPC Registration ────────────────────────────────────────────────────────
 
 ## Registers an NPC at a grid position for lookup. Called by NPCController on
@@ -222,6 +283,10 @@ func _clear_map() -> void:
 		if is_instance_valid(obj):
 			obj.queue_free()
 	_object_lookup.clear()
+	# Remove spawned NPCs from container
+	if has_node("NPCContainer"):
+		for child in $NPCContainer.get_children():
+			child.queue_free()
 	_npc_lookup.clear()
 	transition_zones.clear()
 	# Clear all tile layers

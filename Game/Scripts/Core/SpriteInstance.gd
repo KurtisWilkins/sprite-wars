@@ -20,6 +20,9 @@ extends Resource
 ## Player-given nickname. Empty string means use the race name.
 @export var nickname: String = ""
 
+## Combat class archetype. Must be one of SpriteRaceData.VALID_CLASSES.
+@export var class_type: String = ""
+
 ## ── Progression ───────────────────────────────────────────────────────────────
 
 @export_range(1, 100) var level: int = 1
@@ -40,29 +43,44 @@ extends Resource
 
 ## Maps slot_type → equipment_id. -1 means slot is empty.
 ## The 9 canonical slots mirror EquipmentData.VALID_SLOTS.
-@export var equipment: Dictionary = {
-	"weapon": -1,
-	"helmet": -1,
-	"chest": -1,
-	"legs": -1,
-	"boots": -1,
-	"gloves": -1,
-	"ring": -1,
-	"amulet": -1,
-	"crystal": -1,
-}
+## NOTE: Initialized in _init() to avoid Godot's shared-default-Dictionary bug
+## where all instances would reference the same Dictionary object.
+@export var equipment: Dictionary = {}
+
+
+## ── Init (per-instance equipment) ────────────────────────────────────────────
+
+func _init() -> void:
+	# Each SpriteInstance MUST get its own mutable collections.
+	# Godot 4 shares default Dictionary/Array values across Resource instances,
+	# which causes all sprites to share the same data (e.g. same equipped armor).
+	equipment = {
+		"weapon": -1,
+		"helmet": -1,
+		"chest": -1,
+		"legs": -1,
+		"boots": -1,
+		"gloves": -1,
+		"ring": -1,
+		"amulet": -1,
+		"crystal": -1,
+	}
+	iv_stats = {
+		"hp": 0,
+		"atk": 0,
+		"def": 0,
+		"spd": 0,
+		"sp_atk": 0,
+		"sp_def": 0,
+	}
+	equipped_abilities = []
+	learned_abilities = []
 
 ## ── Individual Variance (IVs) ─────────────────────────────────────────────────
 
 ## Random per-instance stat bonuses (0-31 per stat), determined at catch/hatch.
-@export var iv_stats: Dictionary = {
-	"hp": 0,
-	"atk": 0,
-	"def": 0,
-	"spd": 0,
-	"sp_atk": 0,
-	"sp_def": 0,
-}
+## NOTE: Initialized in _init() to avoid Godot's shared-default-Dictionary bug.
+@export var iv_stats: Dictionary = {}
 
 
 ## ── Constants ─────────────────────────────────────────────────────────────────

@@ -320,7 +320,7 @@ Examples: `Menu_Confirm.ogg`, `Hit.ogg`, `Item_Use.ogg`
 ```
 {RaceName}_S{Stage}_Cry.ogg
 ```
-Examples: `Emberpaw_S1_Cry.ogg`, `Blazefang_S2_Cry.ogg`, `Infernowolf_S3_Cry.ogg`
+Examples: `BugMan_S1_Cry.ogg`, `BugMan_S2_Cry.ogg`, `BugMan_S3_Cry.ogg`
 
 ### Ability SFX
 ```

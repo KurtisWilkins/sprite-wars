@@ -56,7 +56,7 @@ export class ScreenManager {
             // Create the container if it does not exist
             this._container = document.createElement('div');
             this._container.id = this._containerId;
-            this._container.style.cssText = 'position:relative;width:100%;height:100%;overflow:hidden;';
+            this._container.style.cssText = 'position:relative;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;';
             document.body.appendChild(this._container);
         }
 

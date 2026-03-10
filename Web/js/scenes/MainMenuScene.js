@@ -1,6 +1,7 @@
 /**
  * MainMenuScene - Title screen with Continue, New Game, Settings, Credits.
- * Ported from Game/Scripts/UI/Screens/MainMenuScreen.gd
+ * Adventure Quest (AQ) fantasy RPG art style — dark medieval atmosphere
+ * with gold accents, twinkling stars, and bold fantasy buttons.
  *
  * Uses Canvas rendering for the animated background (particle stars, logo)
  * and DOM buttons from the #screen-panel overlay for the menu actions.
@@ -14,16 +15,16 @@ const TITLE_Y = 170;
 const SUBTITLE_Y = 200;
 const VERSION_TEXT = 'v0.1.0 Web';
 
-const BG_COLOR = '#0d0d1e';
-const STAR_COUNT = 80;
-const STAR_SPEED_MIN = 4;
-const STAR_SPEED_MAX = 20;
+const BG_COLOR = '#0F0F1E';  // AQ dark medieval night sky
+const STAR_COUNT = 50;       // More stars for fantasy atmosphere
+const STAR_SPEED_MIN = 1;
+const STAR_SPEED_MAX = 5;
 
 const BUTTON_DEFS = [
-    { id: 'continue', label: 'Continue',  color: '#339966', hoverColor: '#3db87a' },
-    { id: 'new_game', label: 'New Game',  color: '#3380e6', hoverColor: '#4a96ff' },
-    { id: 'settings', label: 'Settings',  color: '#5a5a73', hoverColor: '#6e6e8c' },
-    { id: 'credits',  label: 'Credits',   color: '#5a5a73', hoverColor: '#6e6e8c' },
+    { id: 'continue', label: 'Continue',  color: '#2A7A3A', hoverColor: '#33AA55', borderColor: '#1A5A2A' },
+    { id: 'new_game', label: 'New Game',  color: '#B8860B', hoverColor: '#D4A017', borderColor: '#8B6914' },
+    { id: 'settings', label: 'Settings',  color: '#3A506E', hoverColor: '#4E6A8E', borderColor: '#2A3A50' },
+    { id: 'credits',  label: 'Credits',   color: '#3A506E', hoverColor: '#4E6A8E', borderColor: '#2A3A50' },
 ];
 
 const BUTTON_WIDTH = 240;
@@ -143,6 +144,10 @@ export class MainMenuScene extends Scene {
             this._domContainer = null;
         }
 
+        // Hide screen panel (settings/credits) so it doesn't leak into the next scene
+        const screenPanel = document.getElementById('screen-panel');
+        if (screenPanel) { screenPanel.classList.add('hidden'); screenPanel.innerHTML = ''; }
+
         eventBus.emit(GameEvents.SCREEN_CLOSED, 'main_menu');
     }
 
@@ -186,19 +191,32 @@ export class MainMenuScene extends Scene {
 
     render(renderer) {
         const ctx = renderer.ctx;
+        const W = this.engine.designWidth;
+        const H = this.engine.designHeight;
 
-        // Background
+        // AQ-style dark fantasy gradient background
         renderer.clear(BG_COLOR);
+        const bgGrad = ctx.createRadialGradient(W / 2, H * 0.3, 0, W / 2, H * 0.3, H * 0.9);
+        bgGrad.addColorStop(0, '#1A1A3A');
+        bgGrad.addColorStop(0.5, '#12122A');
+        bgGrad.addColorStop(1, '#0A0A18');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
 
         // Save/restore for global alpha
         renderer.save();
         renderer.setAlpha(this._fadeAlpha);
 
-        // Draw stars
+        // Draw stars — twinkling fantasy dots with golden tinge
         for (const star of this._stars) {
-            const flicker = 0.5 + 0.5 * Math.sin(star.twinkle);
+            const flicker = Math.sin(star.twinkle) * 0.3 + 0.7;
             const alpha = star.baseAlpha * flicker * this._fadeAlpha;
-            ctx.fillStyle = `rgba(200, 210, 255, ${alpha})`;
+            // Mix warm gold with cool blue-white for fantasy feel
+            const warm = Math.sin(star.twinkle * 0.5) > 0;
+            const r = warm ? 255 : 220;
+            const g = warm ? 240 : 230;
+            const b = warm ? 200 : 255;
+            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
             ctx.beginPath();
             ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
             ctx.fill();
@@ -208,29 +226,37 @@ export class MainMenuScene extends Scene {
         if (this._logoImg && this._logoImg.complete) {
             const logoW = 200;
             const logoH = 100;
-            const logoX = (this.engine.designWidth - logoW) / 2;
+            const logoX = (W - logoW) / 2;
             renderer.drawImageRaw(this._logoImg, logoX, LOGO_Y, logoW, logoH);
         }
 
-        // Title text (always drawn, acts as fallback if logo missing)
-        renderer.drawText('SPRITE WARS', this.engine.designWidth / 2, TITLE_Y, {
-            color: '#f2d966',
-            font: 'bold 32px sans-serif',
-            align: 'center',
-            baseline: 'middle',
-            shadow: true,
-            shadowColor: 'rgba(242, 217, 102, 0.3)',
-        });
+        // Title text — AQ gold with dark outline effect
+        ctx.save();
+        ctx.font = 'bold 32px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        // Dark outline pass
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 4;
+        ctx.strokeText('SPRITE WARS', W / 2, TITLE_Y);
+        // Gold fill
+        const titleGrad = ctx.createLinearGradient(0, TITLE_Y - 16, 0, TITLE_Y + 16);
+        titleGrad.addColorStop(0, '#F0D060');
+        titleGrad.addColorStop(0.5, '#D4A017');
+        titleGrad.addColorStop(1, '#B8860B');
+        ctx.fillStyle = titleGrad;
+        ctx.fillText('SPRITE WARS', W / 2, TITLE_Y);
+        ctx.restore();
 
         // Subtitle
-        renderer.drawText('Legends of the Shattered Grid', this.engine.designWidth / 2, SUBTITLE_Y, {
-            color: '#b0b0c8',
+        renderer.drawText('Legends of the Shattered Grid', W / 2, SUBTITLE_Y, {
+            color: '#A0A0B8',
             font: '14px sans-serif',
             align: 'center',
             baseline: 'middle',
         });
 
-        // Draw buttons
+        // Draw buttons — AQ-style with gold borders and gradient fills
         for (const btn of this._buttons) {
             if (btn.visible === false) continue;
             if (btn.alpha <= 0) continue;
@@ -243,28 +269,51 @@ export class MainMenuScene extends Scene {
             const bgColor = isHovered ? btn.hoverColor : btn.color;
 
             // Button background with rounded corners
-            this._drawRoundedRect(ctx, btn.x, drawY, btn.w, btn.h, 10, bgColor);
+            this._drawRoundedRect(ctx, btn.x, drawY, btn.w, btn.h, 8, bgColor);
+
+            // Top highlight strip (AQ-style cel-shading)
+            ctx.save();
+            ctx.globalAlpha = 0.15;
+            ctx.fillStyle = '#FFFFFF';
+            this._fillRoundedRect(ctx, btn.x, drawY, btn.w, btn.h / 2, 8);
+            ctx.restore();
+
+            // Gold border outline (AQ signature look)
+            ctx.strokeStyle = btn.borderColor || '#8B6914';
+            ctx.lineWidth = 2;
+            this._fillRoundedRect(ctx, btn.x, drawY, btn.w, btn.h, 8);
+            ctx.stroke();
+
+            // Outer black outline
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 1;
+            this._fillRoundedRect(ctx, btn.x - 1, drawY - 1, btn.w + 2, btn.h + 2, 9);
+            ctx.stroke();
 
             // Pressed darkening
             if (isHovered && this.engine.input.isPressed()) {
-                ctx.fillStyle = 'rgba(0,0,0,0.15)';
-                this._fillRoundedRect(ctx, btn.x, drawY, btn.w, btn.h, 10);
+                ctx.fillStyle = 'rgba(0,0,0,0.25)';
+                this._fillRoundedRect(ctx, btn.x, drawY, btn.w, btn.h, 8);
             }
 
-            // Button label
-            renderer.drawText(btn.label, btn.x + btn.w / 2, drawY + btn.h / 2, {
-                color: '#ffffff',
-                font: 'bold 16px sans-serif',
-                align: 'center',
-                baseline: 'middle',
-            });
+            // Button label with text outline
+            ctx.save();
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+            ctx.lineWidth = 3;
+            ctx.strokeText(btn.label, btn.x + btn.w / 2, drawY + btn.h / 2);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText(btn.label, btn.x + btn.w / 2, drawY + btn.h / 2);
+            ctx.restore();
 
             renderer.restore();
         }
 
         // Version label at bottom
-        renderer.drawText(VERSION_TEXT, this.engine.designWidth / 2, this.engine.designHeight - 24, {
-            color: '#80808c',
+        renderer.drawText(VERSION_TEXT, W / 2, H - 24, {
+            color: '#60607A',
             font: '10px sans-serif',
             align: 'center',
             baseline: 'bottom',

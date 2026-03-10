@@ -39,13 +39,13 @@ const ELEMENT_COLORS: Dictionary = {
 	"Wind": Color(0.5, 0.9, 0.6),
 	"Ice": Color(0.6, 0.85, 1.0),
 	"Electric": Color(1.0, 0.9, 0.2),
-	"Nature": Color(0.3, 0.75, 0.2),
+	"Plant": Color(0.3, 0.75, 0.2),
 	"Poison": Color(0.65, 0.2, 0.8),
 	"Light": Color(1.0, 0.95, 0.7),
 	"Dark": Color(0.35, 0.15, 0.5),
 	"Metal": Color(0.7, 0.7, 0.75),
-	"Psychic": Color(1.0, 0.45, 0.7),
-	"Spirit": Color(0.5, 0.3, 0.8),
+	"Fairy": Color(1.0, 0.45, 0.7),
+	"Solar": Color(0.5, 0.3, 0.8),
 	"Void": Color(0.2, 0.1, 0.3),
 }
 
