@@ -1,13 +1,12 @@
 /**
- * RaceBodyRendererExt.js — Realistic-style race-specific humanoid body rendering (Races 13-24).
- * Each race has a unique body shape with realistic proportions, natural eyes,
- * and distinguishing characteristics drawn in 64×64 logical space,
- * rendered at 256×256 via 4× supersampling.
+ * RaceBodyRendererExt.js — Adventure-Quest-style race-specific body rendering (Races 13-24).
+ * Each race has a unique body shape, head features, and distinguishing characteristics
+ * drawn in 64×64 logical space, rendered at 256×256 via 4× supersampling.
  *
- * Art style: Semi-realistic fantasy — bold outlines, realistic proportions
- * (head ~25% of height, ~5 heads tall), smaller natural eyes with iris detail,
- * taller torso and longer limbs, anatomical muscle/joint definition,
- * cel-shaded with hard-edged shading, detailed race features, visible necks.
+ * Art style: Adventure Quest / heroic fantasy — thick 2px black outlines,
+ * heroic proportions (~4.5 heads tall), broader shoulders, defined hands,
+ * tall detailed boots, cel-shaded with hard shadows + specular highlights,
+ * rich equipment/armor detail, expressive race-specific features.
  *
  * Race mappings:
  *   13=Lizard man, 14=Minotaur, 15=Monkey man, 16=Mummy, 17=Ork, 18=Rat man,
@@ -36,12 +35,12 @@ export const RACE_BODY_TYPES_EXT = {
     24: 'zombie',
 };
 
-// Walk animation cycles (4 frames) — natural realistic stride
+// Walk animation cycles (4 frames) — heroic stride with pronounced arm swing
 const WALK_CYCLES = [
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: -4, armR: 4,  legL: 4,  legR: -3, bob: -1 },
+    { armL: -5, armR: 5,  legL: 5,  legR: -4, bob: -1 },
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: 4,  armR: -4, legL: -3, legR: 4,  bob: -1 },
+    { armL: 5,  armR: -5, legL: -4, legR: 5,  bob: -1 },
 ];
 
 // ── roundRect polyfill for older mobile WebViews ────────────────────────────
@@ -63,10 +62,10 @@ if (typeof CanvasRenderingContext2D !== 'undefined' &&
     };
 }
 
-// ── Clean Cel-Shaded Helpers ─────────────────────────────────────────────
+// ── AQ-Style Rendering Helpers ──────────────────────────────────────────────
 
-/** Clean uniform-thickness outline around a rounded rectangle */
-function _drawCleanRectOutline(ctx, x, y, w, h, color = '#111111', lineWidth = 1.5) {
+/** Thick clean outline around a rounded rectangle (AQ-style 2px black outline) */
+function _drawCleanRectOutline(ctx, x, y, w, h, color = '#000000', lineWidth = 2) {
     const fx = Math.floor(x);
     const fy = Math.floor(y);
     const r = Math.min(2, w / 4, h / 4);
@@ -88,8 +87,8 @@ function _drawOutlinedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     ctx.beginPath();
     ctx.roundRect(fx, fy, w, h, r);
     ctx.fill();
-    ctx.strokeStyle = '#111111';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
     ctx.lineJoin = 'round';
     ctx.stroke();
 }
@@ -102,158 +101,268 @@ function _drawRoundedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     ctx.beginPath();
     ctx.roundRect(fx, fy, w, h, r);
     ctx.fill();
-    ctx.strokeStyle = '#111111';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
     ctx.lineJoin = 'round';
     ctx.stroke();
 }
 
-/** Hard-edged shadow zone on the right side (flat fill, no gradient, rounded edges) */
+/** AQ-style cel-shading: hard shadow on right + specular highlight on left */
 function _drawShading(ctx, x, y, w, h, midColor) {
-    const sx = Math.floor(x) + Math.floor(w * 0.55);
-    const sy = Math.floor(y) + 1;
-    const sw = Math.ceil(w * 0.45) - 1;
-    const sh = h - 2;
-    if (sw <= 0 || sh <= 0) return;
-    const r = Math.min(2, sw / 4, sh / 4);
-    ctx.fillStyle = midColor;
-    ctx.globalAlpha = 0.85;
-    ctx.beginPath();
-    ctx.roundRect(sx, sy, sw, sh, r);
-    ctx.fill();
-    ctx.globalAlpha = 1.0;
+    const fx = Math.floor(x);
+    const fy = Math.floor(y);
+    const sx = fx + Math.floor(w * 0.6);
+    const sy = fy + 2;
+    const sw = Math.ceil(w * 0.35);
+    const sh = h - 4;
+    if (sw > 0 && sh > 0) {
+        const r = Math.min(2, sw / 4, sh / 4);
+        ctx.fillStyle = midColor;
+        ctx.globalAlpha = 0.7;
+        ctx.beginPath();
+        ctx.roundRect(sx, sy, sw, sh, r);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+    }
+    const hlW = Math.max(1, Math.floor(w * 0.15));
+    const hlH = Math.max(1, h - 6);
+    if (hlH > 0) {
+        ctx.fillStyle = '#ffffff';
+        ctx.globalAlpha = 0.2;
+        ctx.fillRect(fx + 2, fy + 3, hlW, hlH);
+        ctx.globalAlpha = 1.0;
+    }
 }
 
-/** Hard-edged cel-shade shadow on right half (flat fill, no gradient, rounded edges) */
+/** AQ-style cel-shading with softer highlight */
 function _drawSoftShading(ctx, x, y, w, h, midColor) {
-    const sx = Math.floor(x) + Math.floor(w * 0.55);
-    const sy = Math.floor(y) + 1;
-    const sw = Math.ceil(w * 0.45) - 1;
-    const sh = h - 2;
-    if (sw <= 0 || sh <= 0) return;
-    const r = Math.min(2, sw / 4, sh / 4);
-    ctx.fillStyle = midColor;
-    ctx.globalAlpha = 0.85;
-    ctx.beginPath();
-    ctx.roundRect(sx, sy, sw, sh, r);
-    ctx.fill();
-    ctx.globalAlpha = 1.0;
+    const fx = Math.floor(x);
+    const fy = Math.floor(y);
+    const sx = fx + Math.floor(w * 0.6);
+    const sy = fy + 2;
+    const sw = Math.ceil(w * 0.35);
+    const sh = h - 4;
+    if (sw > 0 && sh > 0) {
+        const r = Math.min(2, sw / 4, sh / 4);
+        ctx.fillStyle = midColor;
+        ctx.globalAlpha = 0.6;
+        ctx.beginPath();
+        ctx.roundRect(sx, sy, sw, sh, r);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+    }
+    const hlW = Math.max(1, Math.floor(w * 0.12));
+    const hlH = Math.max(1, h - 6);
+    if (hlH > 0) {
+        ctx.fillStyle = '#ffffff';
+        ctx.globalAlpha = 0.15;
+        ctx.fillRect(fx + 2, fy + 3, hlW, hlH);
+        ctx.globalAlpha = 1.0;
+    }
 }
 
-// ── Realistic almond-shaped eyes with iris detail ───────────────────────
+// ── AQ-Style Eyes — expressive with thick lids ──────────────────────────
 function _drawEyes(ctx, cx, eyeY, dir, colors, spacing) {
     const sp = spacing || 5;
     const eyeColor = colors.eye || '#4488cc';
     if (dir === DIR_DOWN) {
-        // Upper eyelid
-        ctx.fillStyle = '#111111';
-        ctx.fillRect(cx - sp - 2, eyeY, 5, 1);
-        ctx.fillRect(cx + sp - 2, eyeY, 5, 1);
-        // Sclera (4×3 almond)
-        ctx.fillStyle = '#f0ece8';
-        ctx.fillRect(cx - sp - 1, eyeY + 1, 4, 3);
-        ctx.fillRect(cx + sp - 2, eyeY + 1, 4, 3);
-        // Iris (2×2)
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx - sp - 3, eyeY - 1, 6, 2);
+        ctx.fillRect(cx + sp - 2, eyeY - 1, 6, 2);
+        ctx.fillStyle = '#f8f4f0';
+        ctx.fillRect(cx - sp - 2, eyeY + 1, 5, 4);
+        ctx.fillRect(cx + sp - 2, eyeY + 1, 5, 4);
         ctx.fillStyle = eyeColor;
-        ctx.fillRect(cx - sp, eyeY + 1, 2, 2);
-        ctx.fillRect(cx + sp - 1, eyeY + 1, 2, 2);
-        // Pupil
-        ctx.fillStyle = '#111111';
-        ctx.fillRect(cx - sp, eyeY + 2, 1, 1);
-        ctx.fillRect(cx + sp, eyeY + 2, 1, 1);
-        // Highlight
+        ctx.fillRect(cx - sp - 1, eyeY + 1, 3, 3);
+        ctx.fillRect(cx + sp - 1, eyeY + 1, 3, 3);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx - sp, eyeY + 2, 2, 2);
+        ctx.fillRect(cx + sp, eyeY + 2, 2, 2);
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(cx - sp + 1, eyeY + 1, 1, 1);
         ctx.fillRect(cx + sp + 1, eyeY + 1, 1, 1);
-        // Lower lid
-        ctx.fillStyle = '#444444';
-        ctx.fillRect(cx - sp - 1, eyeY + 4, 3, 1);
-        ctx.fillRect(cx + sp - 1, eyeY + 4, 3, 1);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx - sp - 2, eyeY + 5, 5, 1);
+        ctx.fillRect(cx + sp - 2, eyeY + 5, 5, 1);
     } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
-        const ex = dir === DIR_RIGHT ? cx + 2 : cx - 5;
-        ctx.fillStyle = '#111111';
-        ctx.fillRect(ex, eyeY, 4, 1);
-        ctx.fillStyle = '#f0ece8';
-        ctx.fillRect(ex, eyeY + 1, 3, 3);
+        const ex = dir === DIR_RIGHT ? cx + 2 : cx - 6;
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(ex, eyeY - 1, 5, 2);
+        ctx.fillStyle = '#f8f4f0';
+        ctx.fillRect(ex, eyeY + 1, 4, 4);
         ctx.fillStyle = eyeColor;
-        ctx.fillRect(ex + 1, eyeY + 1, 2, 2);
-        ctx.fillStyle = '#111111';
-        ctx.fillRect(ex + 1, eyeY + 2, 1, 1);
+        ctx.fillRect(ex + 1, eyeY + 1, 3, 3);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(ex + 1, eyeY + 2, 2, 2);
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(ex + 2, eyeY + 1, 1, 1);
-        ctx.fillStyle = '#444444';
-        ctx.fillRect(ex, eyeY + 4, 3, 1);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(ex, eyeY + 5, 4, 1);
     }
 }
 
-// ── Realistic mouth with lip definition ──────────────────────────────────
+// ── AQ-Style Nose ────────────────────────────────────────────────────────
+function _drawNose(ctx, cx, y, dir) {
+    if (dir === DIR_DOWN) {
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx - 1, y, 2, 2);
+        ctx.fillRect(cx, y + 2, 1, 1);
+    } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
+        const nx = dir === DIR_RIGHT ? cx + 3 : cx - 4;
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(nx, y, 2, 2);
+    }
+}
+
+// ── AQ-Style Mouth — defined lips ───────────────────────────────────────
 function _drawMouth(ctx, cx, y, dir, color) {
     if (dir === DIR_DOWN) {
-        ctx.fillStyle = '#332222';
-        ctx.fillRect(cx - 2, y, 5, 1);
-        ctx.fillStyle = '#554444';
-        ctx.fillRect(cx - 1, y + 1, 3, 1);
+        ctx.fillStyle = '#221111';
+        ctx.fillRect(cx - 3, y, 6, 1);
+        ctx.fillStyle = '#443333';
+        ctx.fillRect(cx - 2, y + 1, 4, 1);
+        ctx.fillStyle = '#665555';
+        ctx.fillRect(cx - 1, y + 1, 2, 1);
     } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
-        const mx = dir === DIR_RIGHT ? cx + 2 : cx - 3;
-        ctx.fillStyle = '#332222';
+        const mx = dir === DIR_RIGHT ? cx + 2 : cx - 4;
+        ctx.fillStyle = '#221111';
         ctx.fillRect(mx, y, 3, 1);
+        ctx.fillStyle = '#443333';
+        ctx.fillRect(mx, y + 1, 2, 1);
     }
 }
 
-// ── Clean blush marks — no-op in cel-shaded style ──────────────────────
+// ── Blush (no-op in AQ style) ───────────────────────────────────────────
 function _drawBlush(ctx, cx, blushY, dir, spacing) {
-    // No blush in clean cel-shaded style — keeping function as no-op for compatibility
+    // AQ style does not use blush marks
 }
 
+// ── AQ-Style Hair — voluminous with defined strands ─────────────────────
 function _drawHairTop(ctx, x, y, w, dir, hairColor) {
     if (dir !== DIR_UP) {
+        const r = parseInt(hairColor.slice(1,3),16), g = parseInt(hairColor.slice(3,5),16), b = parseInt(hairColor.slice(5,7),16);
+        const shadowColor = `rgb(${Math.max(0,r-40)},${Math.max(0,g-40)},${Math.max(0,b-40)})`;
         ctx.fillStyle = hairColor;
-        ctx.fillRect(x - 2, y - 3, w + 4, 6);
-        ctx.fillRect(x - 1, y - 5, w + 2, 3);
-        if (dir === DIR_DOWN || dir === DIR_LEFT) ctx.fillRect(x - 3, y + 1, 4, 7);
-        if (dir === DIR_DOWN || dir === DIR_RIGHT) ctx.fillRect(x + w - 1, y + 1, 4, 7);
-        ctx.fillRect(x + Math.floor(w / 2) - 2, y - 7, 4, 3);
+        ctx.fillRect(x - 3, y - 4, w + 6, 7);
+        ctx.fillRect(x - 2, y - 6, w + 4, 3);
+        ctx.fillRect(x + Math.floor(w / 2) - 2, y - 8, 5, 3);
+        ctx.fillRect(x + Math.floor(w / 2) - 1, y - 9, 3, 2);
+        if (dir === DIR_DOWN || dir === DIR_LEFT) {
+            ctx.fillRect(x - 4, y + 1, 5, 8);
+            ctx.fillStyle = shadowColor;
+            ctx.fillRect(x - 3, y + 4, 3, 5);
+        }
+        ctx.fillStyle = hairColor;
+        if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+            ctx.fillRect(x + w - 1, y + 1, 5, 8);
+            ctx.fillStyle = shadowColor;
+            ctx.fillRect(x + w, y + 4, 3, 5);
+        }
+        ctx.fillStyle = '#ffffff';
+        ctx.globalAlpha = 0.15;
+        ctx.fillRect(x + 1, y - 5, 3, 4);
+        ctx.globalAlpha = 1.0;
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(x - 3, y - 4, w + 6, 1);
+        ctx.fillRect(x - 2, y - 6, w + 4, 1);
     }
 }
 
 function _drawHairBack(ctx, x, y, w, h, colors) {
     ctx.fillStyle = colors.hair;
-    ctx.fillRect(x - 2, y, w + 4, h);
-    ctx.fillStyle = colors.outline;
-    ctx.fillRect(x - 2, y - 1, w + 4, 2);
-    ctx.fillRect(x - 3, y, 2, h - 2);
-    ctx.fillRect(x + w + 1, y, 2, h - 2);
+    ctx.fillRect(x - 3, y, w + 6, h);
+    const r = parseInt(colors.hair.slice(1,3),16), g = parseInt(colors.hair.slice(3,5),16), b = parseInt(colors.hair.slice(5,7),16);
+    ctx.fillStyle = `rgb(${Math.max(0,r-40)},${Math.max(0,g-40)},${Math.max(0,b-40)})`;
+    ctx.fillRect(x + w, y + 2, 3, h - 4);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(x - 3, y - 1, w + 6, 2);
+    ctx.fillRect(x - 4, y, 2, h - 2);
+    ctx.fillRect(x + w + 2, y, 2, h - 2);
 }
 
 function _drawLeg(ctx, x, y, w, h, colors) {
     _drawRoundedRect(ctx, x, y, w, h, colors.skin, colors.outline);
     _drawSoftShading(ctx, x, y, w, h, colors.mid);
+    const kneeY = y + Math.floor(h * 0.45);
+    ctx.fillStyle = colors.mid || colors.outline;
+    ctx.globalAlpha = 0.3;
+    ctx.fillRect(x + 1, kneeY, w - 2, 1);
+    ctx.globalAlpha = 1.0;
 }
 
 function _drawArm(ctx, x, y, w, h, colors, side) {
     _drawRoundedRect(ctx, x, y, w, h, colors.skin, colors.outline);
     if (side === 'right') _drawSoftShading(ctx, x, y, w, h, colors.mid);
+    const elbowY = y + Math.floor(h * 0.45);
+    ctx.fillStyle = colors.mid || colors.outline;
+    ctx.globalAlpha = 0.25;
+    ctx.fillRect(x + 1, elbowY, w - 2, 1);
+    ctx.globalAlpha = 1.0;
+    _drawHand(ctx, x, y + h - 1, w, colors);
+}
+
+function _drawHand(ctx, x, y, armW, colors) {
+    const hw = armW + 2;
+    const hx = x - 1;
+    ctx.fillStyle = colors.skin;
+    ctx.fillRect(hx, y, hw, 3);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(hx, y, hw, 1);
+    ctx.fillRect(hx, y + 3, hw, 1);
+    ctx.fillRect(hx + Math.floor(hw / 2), y + 1, 1, 2);
 }
 
 function _drawShoes(ctx, lx, ly, rx, ry, legW, colors) {
-    // Realistic fitted boots with sole detail
-    const bootH = 4;
-    // Boot body
-    ctx.fillStyle = '#553322';
-    ctx.fillRect(lx - 1, ly, legW + 2, bootH);
-    ctx.fillRect(rx - 1, ry, legW + 2, bootH);
-    // Boot toe cap
-    ctx.fillStyle = '#442211';
-    ctx.fillRect(lx - 1, ly + bootH - 1, legW + 2, 1);
-    ctx.fillRect(rx - 1, ry + bootH - 1, legW + 2, 1);
-    // Boot cuff highlight
-    ctx.fillStyle = '#775544';
-    ctx.fillRect(lx, ly, legW, 1);
-    ctx.fillRect(rx, ry, legW, 1);
-    // Sole
-    ctx.fillStyle = '#332211';
-    ctx.fillRect(lx - 2, ly + bootH, legW + 3, 2);
-    ctx.fillRect(rx - 1, ry + bootH, legW + 3, 2);
+    const bootH = 6;
+    const bootW = legW + 3;
+    ctx.fillStyle = '#4a3020';
+    ctx.fillRect(lx - 1, ly - 2, bootW, bootH);
+    ctx.fillRect(rx - 1, ry - 2, bootW, bootH);
+    ctx.fillStyle = '#5a3828';
+    ctx.fillRect(lx - 1, ly - 2, bootW, 2);
+    ctx.fillRect(rx - 1, ry - 2, bootW, 2);
+    ctx.fillStyle = '#3a2015';
+    ctx.fillRect(lx - 2, ly + bootH - 4, bootW + 1, 2);
+    ctx.fillRect(rx - 1, ry + bootH - 4, bootW + 1, 2);
+    ctx.fillStyle = '#1a1008';
+    ctx.fillRect(lx - 2, ly + bootH - 2, bootW + 2, 2);
+    ctx.fillRect(rx - 2, ry + bootH - 2, bootW + 2, 2);
+    ctx.fillStyle = '#c0a040';
+    ctx.fillRect(lx + 1, ly, 2, 2);
+    ctx.fillRect(rx + 1, ry, 2, 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = 0.12;
+    ctx.fillRect(lx, ly - 1, 2, bootH - 2);
+    ctx.fillRect(rx, ry - 1, 2, bootH - 2);
+    ctx.globalAlpha = 1.0;
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(lx - 2, ly - 2, 1, bootH + 2);
+    ctx.fillRect(lx + bootW - 1, ly - 2, 1, bootH + 2);
+    ctx.fillRect(rx - 2, ry - 2, 1, bootH + 2);
+    ctx.fillRect(rx + bootW - 1, ry - 2, 1, bootH + 2);
+}
+
+function _drawShoulders(ctx, a, dir, colors) {
+    const pW = a.armW + 4;
+    const pH = 5;
+    if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        const px = a.rightArmX - 2;
+        const py = a.shoulderY + a.walk.armR - 2;
+        _drawRoundedRect(ctx, px, py, pW, pH, colors.skin, '#000000');
+        ctx.fillStyle = '#ffffff';
+        ctx.globalAlpha = 0.2;
+        ctx.fillRect(px + 1, py + 1, pW - 2, 1);
+        ctx.globalAlpha = 1.0;
+    }
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        const px = a.leftArmX - 2;
+        const py = a.shoulderY + a.walk.armL - 2;
+        _drawRoundedRect(ctx, px, py, pW, pH, colors.skin, '#000000');
+        ctx.fillStyle = '#ffffff';
+        ctx.globalAlpha = 0.2;
+        ctx.fillRect(px + 1, py + 1, pW - 2, 1);
+        ctx.globalAlpha = 1.0;
+    }
 }
 
 function _drawTunic(ctx, x, y, w, h, skinColor) {
@@ -262,8 +371,12 @@ function _drawTunic(ctx, x, y, w, h, skinColor) {
     const b = parseInt(skinColor.slice(5, 7), 16) - 30;
     ctx.fillStyle = `rgb(${Math.max(0, r)},${Math.max(0, g)},${Math.max(0, b)})`;
     ctx.fillRect(x + 1, y + 1, w - 2, h - 1);
-    ctx.fillStyle = `rgb(${Math.max(0, r - 20)},${Math.max(0, g - 20)},${Math.max(0, b - 20)})`;
-    ctx.fillRect(x + 2, y + h - 3, w - 4, 2);
+    ctx.fillStyle = `rgb(${Math.max(0, r - 40)},${Math.max(0, g - 40)},${Math.max(0, b - 40)})`;
+    ctx.fillRect(x + 2, y + 1, w - 4, 2);
+    ctx.fillStyle = '#3a2818';
+    ctx.fillRect(x + 1, y + h - 4, w - 2, 3);
+    ctx.fillStyle = '#c0a040';
+    ctx.fillRect(x + Math.floor(w / 2) - 1, y + h - 4, 3, 3);
 }
 
 function _buildAnchors(cx, groundY, scale, walk, dims) {
@@ -276,10 +389,11 @@ function _buildAnchors(cx, groundY, scale, walk, dims) {
     const legW = Math.round(dims.legW * scale);
     const legH = Math.round(dims.legH * scale);
 
+    // AQ-style heroic proportions: broader shoulders, smaller head, defined neck
     const feetY = groundY;
     const legsTopY = feetY - legH;
     const torsoTopY = legsTopY - torsoH + 1;
-    const neckGap = 3; // Visible neck between head and torso (realistic style)
+    const neckGap = 2; // Shorter neck — AQ style has head close to broad shoulders
     const headTopY = torsoTopY - headH - neckGap + walk.bob;
     const shoulderY = torsoTopY + 2 + walk.bob;
 
@@ -307,27 +421,40 @@ function _drawGenericBody(ctx, a, dir, colors, hasTunic) {
             leftLegX, rightLegX, legW, legH, legsTopY, walk } = a;
     const cx = Math.floor(torsoX + torsoW / 2);
 
+    // Back arms
     if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, rightArmX, shoulderY + walk.armR, armW, armH, colors, 'right');
     if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, leftArmX, shoulderY + walk.armL, armW, armH, colors, 'left');
 
+    // Legs with joints
     _drawLeg(ctx, leftLegX, legsTopY + walk.legL, legW, legH, colors);
     _drawLeg(ctx, rightLegX, legsTopY + walk.legR, legW, legH, colors);
-    _drawShoes(ctx, leftLegX, legsTopY + walk.legL + legH - 3, rightLegX, legsTopY + walk.legR + legH - 3, legW);
+    _drawShoes(ctx, leftLegX, legsTopY + walk.legL + legH - 4, rightLegX, legsTopY + walk.legR + legH - 4, legW);
 
+    // Broad torso
     _drawRoundedRect(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.skin, colors.outline);
     _drawSoftShading(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.mid);
     if (hasTunic) _drawTunic(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.skin);
 
+    // Neck
+    ctx.fillStyle = colors.skin;
+    ctx.fillRect(cx - 2, torsoY + walk.bob - 2, 4, 3);
+
+    // Head
     if (dir === DIR_UP) _drawHairBack(ctx, headX, headY, headW, headH, colors);
     _drawRoundedRect(ctx, headX, headY, headW, headH, colors.skin, colors.outline);
     _drawSoftShading(ctx, headX, headY, headW, headH, colors.mid);
 
-    const eyeY = headY + Math.floor(headH * 0.3);
+    // Face — AQ-style
+    const eyeY = headY + Math.floor(headH * 0.25);
     _drawEyes(ctx, cx, eyeY, dir, colors);
-    _drawMouth(ctx, cx, headY + headH - 4, dir, colors.outline);
-    _drawBlush(ctx, cx, eyeY + Math.floor(headH * 0.45), dir);
+    _drawNose(ctx, cx, headY + Math.floor(headH * 0.55), dir);
+    _drawMouth(ctx, cx, headY + Math.floor(headH * 0.72), dir, colors.outline);
     _drawHairTop(ctx, headX, headY, headW, dir, colors.hair);
 
+    // Shoulder pauldrons
+    _drawShoulders(ctx, a, dir, colors);
+
+    // Front arms
     if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, rightArmX, shoulderY + walk.armR, armW, armH, colors, 'right');
     if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, leftArmX, shoulderY + walk.armL, armW, armH, colors, 'left');
 }
@@ -1944,12 +2071,12 @@ const RACE_RENDERERS_EXT = {
 export function drawRaceBodyExt(ctx, raceId, cx, groundY, dir, frame, scale, colors) {
     const walk = WALK_CYCLES[frame % 4];
 
-    // Realistic proportions: smaller head, taller torso, longer limbs (~5 heads tall)
+    // AQ-style heroic proportions: broad shoulders, smaller head, thick limbs (~4.5 heads tall)
     const dims = {
-        headW: 18, headH: 14,
-        torsoW: 16, torsoH: 18,
-        armW: 5, armH: 16,
-        legW: 6, legH: 16,
+        headW: 16, headH: 13,
+        torsoW: 20, torsoH: 20,
+        armW: 6, armH: 18,
+        legW: 7, legH: 18,
     };
 
     const a = _buildAnchors(cx, groundY, scale, walk, dims);
