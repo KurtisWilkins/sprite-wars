@@ -2093,46 +2093,93 @@ function _drawSharkman(ctx, a, dir, colors) {
     _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, '#000000');
     _drawShading(ctx, a.headX, a.headY, a.headW, a.headH, colors.mid);
 
-    // Small predator eyes on sides + jaw/teeth
+    // Black soulless eyes
     if (dir !== DIR_UP) {
-        const eyeY = a.headY + Math.floor(a.headH * 0.3);
+        const eyeY = a.headY + Math.floor(a.headH * 0.25);
         if (dir === DIR_DOWN) {
-            ctx.fillStyle = '#111';
-            ctx.fillRect(a.headX + 2, eyeY, 3, 3);
-            ctx.fillRect(a.headX + a.headW - 5, eyeY, 3, 3);
-            ctx.fillStyle = colors.eye;
-            ctx.fillRect(a.headX + 3, eyeY + 1, 1, 1);
-            ctx.fillRect(a.headX + a.headW - 4, eyeY + 1, 1, 1);
-            // Rows of teeth
-            ctx.fillStyle = '#fff';
-            for (let tx = cx - 4; tx <= cx + 3; tx += 2) {
-                ctx.fillRect(tx, a.headY + a.headH - 3, 1, 2);
-            }
+            ctx.fillStyle = '#111111';
+            ctx.fillRect(a.headX + 1, eyeY, 4, 3);
+            ctx.fillRect(a.headX + a.headW - 5, eyeY, 4, 3);
+            ctx.fillStyle = '#444444';
+            ctx.fillRect(a.headX + 2, eyeY, 1, 1);
+            ctx.fillRect(a.headX + a.headW - 4, eyeY, 1, 1);
         } else {
-            // Side view eye (positioned far forward on wide head)
-            const ex = dir === DIR_RIGHT ? a.headX + a.headW - 5 : a.headX + 2;
-            ctx.fillStyle = '#111';
-            ctx.fillRect(ex, eyeY, 3, 3);
-            ctx.fillStyle = colors.eye;
-            ctx.fillRect(ex + 1, eyeY + 1, 1, 1);
-            // Side jaw/snout with teeth
-            const jawX = dir === DIR_RIGHT ? a.headX + a.headW - 1 : a.headX - 3;
-            ctx.fillStyle = colors.mid;
-            ctx.fillRect(jawX, a.headY + Math.floor(a.headH * 0.5), 4, 5);
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(jawX + (dir === DIR_RIGHT ? 1 : 0), a.headY + Math.floor(a.headH * 0.5) + 3, 1, 2);
-            ctx.fillRect(jawX + (dir === DIR_RIGHT ? 2 : 1), a.headY + Math.floor(a.headH * 0.5) + 2, 1, 2);
+            const ex = dir === DIR_RIGHT ? a.headX + a.headW - 5 : a.headX + 1;
+            ctx.fillStyle = '#111111';
+            ctx.fillRect(ex, eyeY, 4, 3);
+            ctx.fillStyle = '#444444';
+            ctx.fillRect(ex + 1, eyeY, 1, 1);
         }
     }
 
-    // Webbed fingers hint
-    ctx.fillStyle = colors.mid;
-    ctx.fillRect(a.leftArmX - 1, a.shoulderY + a.walk.armL + a.armH - 3, a.armW + 2, 3);
-    ctx.fillRect(a.rightArmX - 1, a.shoulderY + a.walk.armR + a.armH - 3, a.armW + 2, 3);
+    // Rows of sharp teeth
+    if (dir !== DIR_UP) {
+        if (dir === DIR_DOWN) {
+            ctx.fillStyle = colors.mid;
+            ctx.fillRect(a.headX + 2, a.headY + a.headH - 2, a.headW - 4, 3);
+            ctx.fillStyle = '#ffffff';
+            for (let tx = a.headX + 3; tx < a.headX + a.headW - 3; tx += 2) {
+                ctx.fillRect(tx, a.headY + a.headH - 2, 1, 2);
+            }
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(a.headX + 2, a.headY + a.headH, a.headW - 4, 1);
+        } else {
+            const jawX = dir === DIR_RIGHT ? a.headX + a.headW - 1 : a.headX - 4;
+            ctx.fillStyle = colors.skin;
+            ctx.fillRect(jawX, a.headY + Math.floor(a.headH * 0.45), 5, 5);
+            ctx.fillStyle = colors.mid;
+            ctx.fillRect(jawX + (dir === DIR_RIGHT ? 0 : 1), a.headY + Math.floor(a.headH * 0.5), 4, 4);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(jawX + (dir === DIR_RIGHT ? 1 : 0), a.headY + Math.floor(a.headH * 0.55), 1, 2);
+            ctx.fillRect(jawX + (dir === DIR_RIGHT ? 3 : 2), a.headY + Math.floor(a.headH * 0.5), 1, 2);
+            ctx.fillStyle = '#884444';
+            ctx.fillRect(jawX + 2, a.headY + Math.floor(a.headH * 0.45), 1, 1);
+        }
+    }
 
-    // Front arms
-    if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, cx + sTorsoW / 2, a.shoulderY + a.walk.armR, a.armW + 1, a.armH, colors, 'right');
-    if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, cx - sTorsoW / 2 - a.armW - 1, a.shoulderY + a.walk.armL, a.armW + 1, a.armH, colors, 'left');
+    // Flat broad nose
+    if (dir === DIR_DOWN) {
+        ctx.fillStyle = '#222222';
+        ctx.fillRect(cx - 2, a.headY + Math.floor(a.headH * 0.55), 1, 1);
+        ctx.fillRect(cx + 2, a.headY + Math.floor(a.headH * 0.55), 1, 1);
+    }
+
+    // --- Webbed clawed hands on back arms ---
+    ctx.fillStyle = colors.mid;
+    if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        ctx.fillRect(rArmX - 1, a.shoulderY + a.walk.armR + a.armH - 2, sArmW + 2, 3);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(rArmX - 1, a.shoulderY + a.walk.armR + a.armH, 1, 2);
+        ctx.fillRect(rArmX + sArmW, a.shoulderY + a.walk.armR + a.armH, 1, 2);
+        ctx.fillRect(rArmX + Math.floor(sArmW / 2), a.shoulderY + a.walk.armR + a.armH, 1, 2);
+    }
+    ctx.fillStyle = colors.mid;
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        ctx.fillRect(lArmX - 1, a.shoulderY + a.walk.armL + a.armH - 2, sArmW + 2, 3);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(lArmX - 1, a.shoulderY + a.walk.armL + a.armH, 1, 2);
+        ctx.fillRect(lArmX + sArmW, a.shoulderY + a.walk.armL + a.armH, 1, 2);
+        ctx.fillRect(lArmX + Math.floor(sArmW / 2), a.shoulderY + a.walk.armL + a.armH, 1, 2);
+    }
+
+    // --- Front arms ---
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, rArmX, a.shoulderY + a.walk.armR, sArmW, a.armH, colors, 'right');
+    if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, lArmX, a.shoulderY + a.walk.armL, sArmW, a.armH, colors, 'left');
+    // Re-draw webbed hands on front arms
+    ctx.fillStyle = colors.mid;
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        ctx.fillRect(rArmX - 1, a.shoulderY + a.walk.armR + a.armH - 2, sArmW + 2, 3);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(rArmX - 1, a.shoulderY + a.walk.armR + a.armH, 1, 2);
+        ctx.fillRect(rArmX + sArmW, a.shoulderY + a.walk.armR + a.armH, 1, 2);
+    }
+    ctx.fillStyle = colors.mid;
+    if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        ctx.fillRect(lArmX - 1, a.shoulderY + a.walk.armL + a.armH - 2, sArmW + 2, 3);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(lArmX - 1, a.shoulderY + a.walk.armL + a.armH, 1, 2);
+        ctx.fillRect(lArmX + sArmW, a.shoulderY + a.walk.armL + a.armH, 1, 2);
+    }
 }
 
 // ── Race 21: Skeleton ───────────────────────────────────────────────────────
