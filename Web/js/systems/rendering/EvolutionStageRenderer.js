@@ -4,8 +4,8 @@
  * Applies cel-shaded visual effects on top of the base race body to differentiate
  * evolution stages. Called AFTER the base race body is drawn, BEFORE equipment.
  *
- * Art style: Adventure Quest / Flash-RPG cartoon style, 64x64 canvas, bold black
- * outlines, cel-shaded with hard-edged two-tone shading, expressive eyes, vibrant colors.
+ * Art style: Realistic fantasy, 64x64 canvas, bold black outlines,
+ * cel-shaded with hard-edged two-tone shading, realistic eyes, vibrant colors.
  *
  * Stage 0 (Base):  No modifications — base race body is sufficient
  * Stage 1 (Mid):   Element aura marks, shoulder accents, intensified eye highlights

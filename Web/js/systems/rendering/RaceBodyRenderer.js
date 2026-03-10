@@ -1,13 +1,12 @@
 /**
- * RaceBodyRenderer.js — AQ-style race-specific humanoid body rendering (Races 1-12).
+ * RaceBodyRenderer.js — Realistic-style race-specific humanoid body rendering (Races 1-12).
  * Each race has a unique body shape, head features, and distinguishing characteristics
  * drawn in 64×64 logical space, rendered at 256×256 via 4× supersampling.
  *
- * Art style: Adventure Quest / Flash-RPG cartoon style — bold black outlines,
- * semi-proportional heroic builds (head ~30% of height), expressive anime-cartoon
- * eyes with iris/pupil/highlight, vibrant saturated fantasy palette, cel-shaded
- * with hard-edged two-tone shading, detailed race features, visible necks,
- * longer limbs, dynamic poses. Clean digital cartoon illustration, no pixel art.
+ * Art style: Semi-realistic fantasy — bold outlines, realistic proportions
+ * (head ~25% of height, ~5 heads tall), smaller natural eyes with iris detail,
+ * taller torso and longer limbs, anatomical muscle/joint definition,
+ * cel-shaded with hard-edged shading, detailed race features, visible necks.
  *
  * Race mappings:
  *   1=Bug man, 2=Bear man, 3=Bird man, 4=Demon, 5=Devil, 6=Cat man,
@@ -36,12 +35,12 @@ export const RACE_BODY_TYPES = {
     12: 'human',
 };
 
-// Walk animation cycles (4 frames) — AQ-style smooth stride
+// Walk animation cycles (4 frames) — natural realistic stride
 const WALK_CYCLES = [
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: -3, armR: 3,  legL: 3,  legR: -2, bob: -1 },
+    { armL: -4, armR: 4,  legL: 4,  legR: -3, bob: -1 },
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: 3,  armR: -3, legL: -2, legR: 3,  bob: -1 },
+    { armL: 4,  armR: -4, legL: -3, legR: 4,  bob: -1 },
 ];
 
 // ── roundRect polyfill for older mobile WebViews ────────────────────────────
@@ -142,59 +141,73 @@ function _drawSoftShading(ctx, x, y, w, h, midColor) {
     ctx.globalAlpha = 1.0;
 }
 
-// ── Expressive AQ-style anime-cartoon eyes with iris/pupil/highlight ───────
+// ── Realistic almond-shaped eyes with iris detail ───────────────────────
 function _drawEyes(ctx, cx, eyeY, dir, colors, spacing) {
-    const sp = spacing || 7;
+    const sp = spacing || 5;
     const eyeColor = colors.eye || '#4488cc';
     if (dir === DIR_DOWN) {
-        // White sclera
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(cx - sp - 2, eyeY + 1, 5, 5);
-        ctx.fillRect(cx + sp - 2, eyeY + 1, 5, 5);
-        // Colored iris
-        ctx.fillStyle = eyeColor;
-        ctx.fillRect(cx - sp - 1, eyeY + 2, 3, 3);
-        ctx.fillRect(cx + sp - 1, eyeY + 2, 3, 3);
-        // Black pupil
-        ctx.fillStyle = '#111111';
-        ctx.fillRect(cx - sp, eyeY + 3, 1, 1);
-        ctx.fillRect(cx + sp, eyeY + 3, 1, 1);
-        // White highlight
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(cx - sp + 1, eyeY + 2, 1, 1);
-        ctx.fillRect(cx + sp + 1, eyeY + 2, 1, 1);
-        // Outline
+        // Realistic almond-shaped eyes — smaller and more natural
+        // Upper eyelid (dark outline)
         ctx.fillStyle = '#111111';
         ctx.fillRect(cx - sp - 2, eyeY, 5, 1);
         ctx.fillRect(cx + sp - 2, eyeY, 5, 1);
-    } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
-        const ex = dir === DIR_RIGHT ? cx + 3 : cx - 6;
-        // White sclera
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(ex, eyeY + 1, 4, 5);
-        // Colored iris
+        // White sclera (4×3 — more narrow/almond)
+        ctx.fillStyle = '#f0ece8';
+        ctx.fillRect(cx - sp - 1, eyeY + 1, 4, 3);
+        ctx.fillRect(cx + sp - 2, eyeY + 1, 4, 3);
+        // Colored iris (2×2 — realistic proportion)
         ctx.fillStyle = eyeColor;
-        ctx.fillRect(ex + 1, eyeY + 2, 2, 3);
+        ctx.fillRect(cx - sp, eyeY + 1, 2, 2);
+        ctx.fillRect(cx + sp - 1, eyeY + 1, 2, 2);
         // Black pupil
         ctx.fillStyle = '#111111';
-        ctx.fillRect(ex + 1, eyeY + 3, 1, 1);
-        // White highlight
+        ctx.fillRect(cx - sp, eyeY + 2, 1, 1);
+        ctx.fillRect(cx + sp, eyeY + 2, 1, 1);
+        // Subtle highlight
         ctx.fillStyle = '#ffffff';
-        ctx.fillRect(ex + 2, eyeY + 2, 1, 1);
-        // Outline
+        ctx.fillRect(cx - sp + 1, eyeY + 1, 1, 1);
+        ctx.fillRect(cx + sp + 1, eyeY + 1, 1, 1);
+        // Lower eyelid line
+        ctx.fillStyle = '#444444';
+        ctx.fillRect(cx - sp - 1, eyeY + 4, 3, 1);
+        ctx.fillRect(cx + sp - 1, eyeY + 4, 3, 1);
+    } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
+        const ex = dir === DIR_RIGHT ? cx + 2 : cx - 5;
+        // Upper eyelid
         ctx.fillStyle = '#111111';
         ctx.fillRect(ex, eyeY, 4, 1);
+        // Sclera
+        ctx.fillStyle = '#f0ece8';
+        ctx.fillRect(ex, eyeY + 1, 3, 3);
+        // Iris
+        ctx.fillStyle = eyeColor;
+        ctx.fillRect(ex + 1, eyeY + 1, 2, 2);
+        // Pupil
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(ex + 1, eyeY + 2, 1, 1);
+        // Highlight
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(ex + 2, eyeY + 1, 1, 1);
+        // Lower lid
+        ctx.fillStyle = '#444444';
+        ctx.fillRect(ex, eyeY + 4, 3, 1);
     }
 }
 
-// ── Expressive AQ-style mouth ──────────────────────────────────────────
+// ── Realistic mouth with lip definition ──────────────────────────────────
 function _drawMouth(ctx, cx, y, dir, outlineColor) {
     if (dir === DIR_DOWN) {
-        ctx.fillStyle = '#111111';
-        // Expressive AQ-style curved mouth
+        // Upper lip line
+        ctx.fillStyle = '#332222';
         ctx.fillRect(cx - 2, y, 5, 1);
-        ctx.fillRect(cx - 3, y - 1, 1, 1);
-        ctx.fillRect(cx + 3, y - 1, 1, 1);
+        // Lower lip (slightly lighter, fuller)
+        ctx.fillStyle = '#554444';
+        ctx.fillRect(cx - 1, y + 1, 3, 1);
+    } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
+        // Side profile mouth
+        const mx = dir === DIR_RIGHT ? cx + 2 : cx - 3;
+        ctx.fillStyle = '#332222';
+        ctx.fillRect(mx, y, 3, 1);
     }
 }
 
@@ -203,11 +216,11 @@ function _drawBlush(ctx, cx, blushY, dir, spacing) {
     // No blush in clean cel-shaded style — keeping function as no-op for compatibility
 }
 
-// ── Styled AQ hair ──────────────────────────────────────────────────────
+// ── Styled hair ─────────────────────────────────────────────────────────
 function _drawHairTop(ctx, x, y, w, dir, hairColor) {
     if (dir !== DIR_UP) {
         ctx.fillStyle = hairColor;
-        // Dynamic AQ-style hair
+        // Dynamic hair
         ctx.fillRect(x - 2, y - 3, w + 4, 6);
         ctx.fillRect(x - 1, y - 5, w + 2, 3);
         // Side bangs
@@ -241,16 +254,18 @@ function _drawArm(ctx, x, y, w, h, colors, side) {
     if (side === 'right') _drawSoftShading(ctx, x, y, w, h, colors.mid);
 }
 
-// ── AQ-style boots ──────────────────────────────────────────────────────
+// ── Realistic boots/shoes ──────────────────────────────────────────────────
 function _drawShoes(ctx, lx, ly, rx, ry, legW, colors) {
-    ctx.fillStyle = '#553322';
-    // Heroic AQ-style boots
+    ctx.fillStyle = '#3a2818';
+    // Realistic fitted boots
     ctx.fillRect(lx - 1, ly, legW + 2, 3);
-    ctx.fillRect(lx, ly + 3, legW, 1);
     ctx.fillRect(rx - 1, ry, legW + 2, 3);
-    ctx.fillRect(rx, ry + 3, legW, 1);
+    // Sole
+    ctx.fillStyle = '#221810';
+    ctx.fillRect(lx - 1, ly + 2, legW + 2, 1);
+    ctx.fillRect(rx - 1, ry + 2, legW + 2, 1);
     // Shoe highlight
-    ctx.fillStyle = '#775544';
+    ctx.fillStyle = '#5a4030';
     ctx.fillRect(lx, ly, legW, 1);
     ctx.fillRect(rx, ry, legW, 1);
 }
@@ -278,11 +293,11 @@ function _buildAnchors(cx, groundY, scale, walk, dims) {
     const legW = Math.round(dims.legW * scale);
     const legH = Math.round(dims.legH * scale);
 
-    // AQ-style proportions: proportional head with visible neck gap
+    // Realistic proportions: smaller head with visible neck gap
     const feetY = groundY;
     const legsTopY = feetY - legH;
     const torsoTopY = legsTopY - torsoH + 1;
-    const neckGap = 2; // Visible neck between head and torso (AQ style)
+    const neckGap = 3; // Visible neck between head and torso (realistic style)
     const headTopY = torsoTopY - headH - neckGap + walk.bob;
     const shoulderY = torsoTopY + 2 + walk.bob;
 
@@ -340,8 +355,8 @@ function _drawGenericBody(ctx, a, dir, colors, hasTunic) {
     // Face — large anime eyes, small mouth, blush marks
     const eyeY = headY + Math.floor(headH * 0.3);
     _drawEyes(ctx, cx, eyeY, dir, colors);
-    _drawMouth(ctx, cx, headY + headH - 5, dir, colors.outline);
-    _drawBlush(ctx, cx, eyeY + 9, dir);
+    _drawMouth(ctx, cx, headY + headH - 4, dir, colors.outline);
+    _drawBlush(ctx, cx, eyeY + Math.floor(headH * 0.45), dir);
     _drawHairTop(ctx, headX, headY, headW, dir, colors.hair);
 
     // Front arms
@@ -3092,12 +3107,12 @@ const RACE_RENDERERS = {
 export function drawRaceBody(ctx, raceId, cx, groundY, dir, frame, scale, colors) {
     const walk = WALK_CYCLES[frame % 4];
 
-    // AQ-style proportions: proportional head, heroic torso, longer limbs
+    // Realistic proportions: smaller head, taller torso, longer limbs (~5 heads tall)
     const dims = {
-        headW: 22, headH: 18,
-        torsoW: 18, torsoH: 14,
-        armW: 5, armH: 13,
-        legW: 7, legH: 11,
+        headW: 18, headH: 14,
+        torsoW: 16, torsoH: 18,
+        armW: 5, armH: 16,
+        legW: 6, legH: 16,
     };
 
     const a = _buildAnchors(cx, groundY, scale, walk, dims);

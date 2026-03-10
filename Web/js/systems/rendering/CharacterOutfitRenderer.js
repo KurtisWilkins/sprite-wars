@@ -3,8 +3,8 @@
  * hair, accessories) on top of a base humanoid body for trainers, the player,
  * and NPCs.
  *
- * Art style: Adventure Quest / Flash-RPG cartoon style — 64×64 canvas, bold black
- * outlines, cel-shaded with hard-edged two-tone shading, expressive features,
+ * Art style: Realistic fantasy — 64×64 canvas, bold black outlines,
+ * cel-shaded with hard-edged two-tone shading, realistic proportional features,
  * vibrant saturated fantasy palette, no pixel art.
  *
  * Called after body rendering, before equipment rendering.
@@ -412,7 +412,7 @@ function _drawHairFront(ctx, anchors, dir, appearance) {
     const shadow = _darkenColor(hc, 30);
     const style = appearance.hairStyle || 'short';
 
-    // Top hair — AQ-style dynamic volume
+    // Top hair — dynamic volume
     const topY = Math.floor(headY - 3);
 
     switch (style) {
