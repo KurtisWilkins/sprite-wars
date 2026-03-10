@@ -467,187 +467,234 @@ function _drawGenericBody(ctx, a, dir, colors, hasTunic) {
 function _drawLizardman(ctx, a, dir, colors) {
     const cx = Math.floor(a.torsoX + a.torsoW / 2);
     const bob = a.walk.bob;
-    const lTorsoW = a.torsoW + 2;
+    // Thick muscular build — wider torso
+    const lTorsoW = a.torsoW + 4;
     const lTorsoX = Math.floor(cx - lTorsoW / 2);
     const lTorsoY = a.torsoY + bob;
+    const snoutLen = Math.floor(a.headH * 0.55);
+    const frillH = Math.floor(a.headH * 0.5);
 
-    // --- Thick tail (behind body for front/side views) ---
-    if (dir !== DIR_UP) {
-        const tailBaseX = dir === DIR_LEFT ? lTorsoX + lTorsoW - 2 : (dir === DIR_RIGHT ? lTorsoX - 2 : cx - 2);
-        const tailBaseY = lTorsoY + a.torsoH - 2;
-        const td = dir === DIR_DOWN ? 0 : (dir === DIR_LEFT ? 1 : -1);
-        ctx.fillStyle = colors.skin;
-        ctx.fillRect(tailBaseX + td * 0, tailBaseY, 5, 4);
-        ctx.fillRect(tailBaseX + td * 4, tailBaseY + 2, 4, 3);
-        ctx.fillRect(tailBaseX + td * 7, tailBaseY + 4, 3, 3);
-        ctx.fillRect(tailBaseX + td * 9, tailBaseY + 6, 2, 2);
-        ctx.fillRect(tailBaseX + td * 10, tailBaseY + 7, 2, 2);
-        // Scale plates on tail
-        ctx.fillStyle = colors.mid;
-        ctx.fillRect(tailBaseX + td * 1, tailBaseY + 1, 3, 1);
-        ctx.fillRect(tailBaseX + td * 5, tailBaseY + 3, 2, 1);
-        // Outline tip
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(tailBaseX + td * 11, tailBaseY + 8, 1, 1);
-    }
+    // --- Thick muscular tail (behind body) ---
     if (dir === DIR_UP) {
-        // Tail visible from behind, going down
         ctx.fillStyle = colors.skin;
-        ctx.fillRect(cx - 2, lTorsoY + a.torsoH - 1, 5, 4);
-        ctx.fillRect(cx - 1, lTorsoY + a.torsoH + 3, 3, 3);
-        ctx.fillRect(cx, lTorsoY + a.torsoH + 5, 2, 2);
+        ctx.fillRect(cx - 2, lTorsoY + a.torsoH - 1, 5, 5);
+        ctx.fillRect(cx - 1, lTorsoY + a.torsoH + 4, 4, 4);
+        ctx.fillRect(cx, lTorsoY + a.torsoH + 7, 3, 3);
+        ctx.fillRect(cx + 1, lTorsoY + a.torsoH + 9, 2, 2);
         ctx.fillStyle = colors.mid;
         ctx.fillRect(cx - 1, lTorsoY + a.torsoH, 3, 1);
+        ctx.fillRect(cx, lTorsoY + a.torsoH + 5, 2, 1);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx + 2, lTorsoY + a.torsoH + 10, 1, 1);
+    } else {
+        const td = dir === DIR_DOWN ? 0 : (dir === DIR_LEFT ? 1 : -1);
+        const tailBaseX = dir === DIR_LEFT ? lTorsoX + lTorsoW - 2 : (dir === DIR_RIGHT ? lTorsoX - 2 : cx - 3);
+        const tailBaseY = lTorsoY + a.torsoH - 3;
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(tailBaseX + td * 0, tailBaseY, 6, 5);
+        ctx.fillRect(tailBaseX + td * 5, tailBaseY + 2, 5, 4);
+        ctx.fillRect(tailBaseX + td * 9, tailBaseY + 4, 4, 3);
+        ctx.fillRect(tailBaseX + td * 12, tailBaseY + 6, 3, 2);
+        ctx.fillRect(tailBaseX + td * 14, tailBaseY + 7, 2, 2);
+        // Diamond scale pattern on tail
+        ctx.fillStyle = colors.mid;
+        ctx.fillRect(tailBaseX + td * 1, tailBaseY + 1, 2, 2);
+        ctx.fillRect(tailBaseX + td * 4, tailBaseY + 1, 2, 2);
+        ctx.fillRect(tailBaseX + td * 6, tailBaseY + 3, 2, 2);
+        ctx.fillRect(tailBaseX + td * 10, tailBaseY + 5, 2, 1);
+        // Tail outline
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(tailBaseX + td * 15, tailBaseY + 8, 1, 1);
+    }
+
+    // --- Spinal ridge/crest down back (visible from back and sides) ---
+    if (dir === DIR_UP || dir === DIR_LEFT || dir === DIR_RIGHT) {
+        ctx.fillStyle = colors.hair;
+        for (let i = 0; i < 5; i++) {
+            const spY = a.headY + a.headH + i * Math.floor(a.torsoH / 4);
+            ctx.fillRect(cx - 1, spY, 3, 3);
+            ctx.fillRect(cx, spY - 1, 1, 1);
+        }
     }
 
     // --- Back arms ---
     if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH, colors, 'right');
     if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH, colors, 'left');
 
-    // --- Legs with 3-clawed feet ---
+    // --- Legs with clawed feet (no boots) ---
     _drawLeg(ctx, a.leftLegX, a.legsTopY + a.walk.legL, a.legW, a.legH, colors);
     _drawLeg(ctx, a.rightLegX, a.legsTopY + a.walk.legR, a.legW, a.legH, colors);
     // 3 clawed toes per foot
-    ctx.fillStyle = '#443322';
+    const clawColor = '#443322';
     const fLY = a.legsTopY + a.walk.legL + a.legH - 1;
     const fRY = a.legsTopY + a.walk.legR + a.legH - 1;
-    ctx.fillRect(a.leftLegX - 2, fLY, 2, 3);
-    ctx.fillRect(a.leftLegX + Math.floor(a.legW / 2) - 1, fLY, 2, 4);
-    ctx.fillRect(a.leftLegX + a.legW, fLY, 2, 3);
-    ctx.fillRect(a.rightLegX - 2, fRY, 2, 3);
-    ctx.fillRect(a.rightLegX + Math.floor(a.legW / 2) - 1, fRY, 2, 4);
-    ctx.fillRect(a.rightLegX + a.legW, fRY, 2, 3);
+    ctx.fillStyle = clawColor;
+    ctx.fillRect(a.leftLegX - 2, fLY, 2, 4);
+    ctx.fillRect(a.leftLegX + Math.floor(a.legW / 2) - 1, fLY, 2, 5);
+    ctx.fillRect(a.leftLegX + a.legW, fLY, 2, 4);
+    ctx.fillRect(a.rightLegX - 2, fRY, 2, 4);
+    ctx.fillRect(a.rightLegX + Math.floor(a.legW / 2) - 1, fRY, 2, 5);
+    ctx.fillRect(a.rightLegX + a.legW, fRY, 2, 4);
+    // Claw tips
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(a.leftLegX - 2, fLY + 3, 1, 1);
+    ctx.fillRect(a.leftLegX + a.legW + 1, fLY + 3, 1, 1);
+    ctx.fillRect(a.rightLegX - 2, fRY + 3, 1, 1);
+    ctx.fillRect(a.rightLegX + a.legW + 1, fRY + 3, 1, 1);
 
-    // --- Muscular torso with overlapping scale armor plates ---
-    _drawOutlinedRect(ctx, lTorsoX, lTorsoY, lTorsoW, a.torsoH, colors.skin, colors.outline);
+    // --- Thick muscular torso with diamond scale texture ---
+    _drawOutlinedRect(ctx, lTorsoX, lTorsoY, lTorsoW, a.torsoH, colors.skin, '#000000');
     _drawShading(ctx, lTorsoX, lTorsoY, lTorsoW, a.torsoH, colors.mid);
-    // Scale armor plate rows (overlapping chevrons)
+    // Diamond scale pattern rows
     ctx.fillStyle = colors.mid;
-    for (let row = 0; row < 3; row++) {
-        const sy = lTorsoY + 2 + row * 3;
+    ctx.globalAlpha = 0.6;
+    for (let row = 0; row < Math.floor(a.torsoH / 4); row++) {
+        const sy = lTorsoY + 2 + row * 4;
         for (let col = 0; col < Math.floor(lTorsoW / 4); col++) {
-            const sx = lTorsoX + 2 + col * 4;
-            ctx.fillRect(sx, sy, 3, 2);
-            ctx.fillRect(sx + 1, sy + 1, 2, 1);
+            const sx = lTorsoX + 2 + col * 4 + (row % 2 === 1 ? 2 : 0);
+            ctx.fillRect(sx, sy, 1, 1);
+            ctx.fillRect(sx - 1, sy + 1, 3, 1);
+            ctx.fillRect(sx, sy + 2, 1, 1);
         }
     }
-    // Lighter belly plate (ventral)
+    ctx.globalAlpha = 1.0;
+    // Lighter ventral belly plate
     if (dir === DIR_DOWN) {
         ctx.fillStyle = colors.hair;
         ctx.globalAlpha = 0.4;
-        ctx.fillRect(lTorsoX + 3, lTorsoY + 2, lTorsoW - 6, a.torsoH - 3);
+        ctx.fillRect(lTorsoX + Math.floor(lTorsoW * 0.2), lTorsoY + 2, Math.floor(lTorsoW * 0.6), a.torsoH - 3);
         ctx.globalAlpha = 1.0;
     }
 
     // --- Thick neck ---
     ctx.fillStyle = colors.skin;
-    ctx.fillRect(cx - 3, a.headY + a.headH - 1, 6, 5);
+    ctx.fillRect(cx - 3, a.headY + a.headH - 1, 7, 4);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(cx - 4, a.headY + a.headH + 2, 1, 1);
+    ctx.fillRect(cx + 4, a.headY + a.headH + 2, 1, 1);
 
     // --- Head ---
-    _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, colors.outline);
+    _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, '#000000');
     _drawShading(ctx, a.headX, a.headY, a.headW, a.headH, colors.mid);
 
-    // Neck frill (flared sides of head)
+    // --- Neck frill that flares out ---
     ctx.fillStyle = colors.hair;
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        ctx.fillRect(a.headX - 3, a.headY + a.headH - 6, 4, 6);
-        ctx.fillRect(a.headX - 4, a.headY + a.headH - 4, 3, 3);
+        ctx.fillRect(a.headX - 4, a.headY + a.headH - frillH, 5, frillH);
+        ctx.fillRect(a.headX - 6, a.headY + a.headH - frillH + 2, 3, frillH - 2);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX - 6, a.headY + a.headH - frillH + 2, 1, frillH - 2);
     }
-    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        ctx.fillRect(a.headX + a.headW - 1, a.headY + a.headH - 6, 4, 6);
-        ctx.fillRect(a.headX + a.headW + 1, a.headY + a.headH - 4, 3, 3);
-    }
-
-    // Dorsal spine crest from head down back
     ctx.fillStyle = colors.hair;
-    ctx.fillRect(cx - 1, a.headY - 5, 3, 4);
-    ctx.fillRect(cx, a.headY - 7, 2, 3);
-    ctx.fillRect(cx - 1, a.headY - 3, 3, 3);
-    if (dir === DIR_UP || dir === DIR_LEFT || dir === DIR_RIGHT) {
-        // Spines down back
-        for (let i = 0; i < 4; i++) {
-            ctx.fillRect(cx - 1, a.headY + a.headH + i * 3, 3, 2);
-        }
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        ctx.fillRect(a.headX + a.headW - 1, a.headY + a.headH - frillH, 5, frillH);
+        ctx.fillRect(a.headX + a.headW + 3, a.headY + a.headH - frillH + 2, 3, frillH - 2);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX + a.headW + 5, a.headY + a.headH - frillH + 2, 1, frillH - 2);
     }
 
-    // Prominent jaw/snout with teeth
+    // --- Spinal crest on top of head ---
+    ctx.fillStyle = colors.hair;
+    ctx.fillRect(cx - 1, a.headY - 6, 3, 4);
+    ctx.fillRect(cx, a.headY - 8, 2, 3);
+    ctx.fillRect(cx - 1, a.headY - 3, 3, 3);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(cx, a.headY - 9, 1, 1);
+
+    // --- Elongated lizard snout with teeth ---
     if (dir === DIR_DOWN) {
         ctx.fillStyle = colors.skin;
-        ctx.fillRect(cx - 4, a.headY + a.headH - 3, 8, 5);
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(cx - 3, a.headY + a.headH + 1, 6, 1);
-        // Teeth
+        ctx.fillRect(cx - 5, a.headY + a.headH - 3, 10, snoutLen + 2);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx - 5, a.headY + a.headH + snoutLen - 2, 10, 1);
+        // Teeth (upper jaw)
         ctx.fillStyle = '#eeeedd';
-        ctx.fillRect(cx - 2, a.headY + a.headH, 1, 2);
-        ctx.fillRect(cx + 2, a.headY + a.headH, 1, 2);
-        ctx.fillRect(cx, a.headY + a.headH, 1, 1);
+        ctx.fillRect(cx - 3, a.headY + a.headH + snoutLen - 3, 1, 2);
+        ctx.fillRect(cx - 1, a.headY + a.headH + snoutLen - 3, 1, 2);
+        ctx.fillRect(cx + 1, a.headY + a.headH + snoutLen - 3, 1, 2);
+        ctx.fillRect(cx + 3, a.headY + a.headH + snoutLen - 3, 1, 2);
         // Nostrils
-        ctx.fillStyle = colors.outline;
+        ctx.fillStyle = '#000000';
         ctx.fillRect(cx - 2, a.headY + a.headH - 2, 1, 1);
         ctx.fillRect(cx + 2, a.headY + a.headH - 2, 1, 1);
+        // Forked tongue
+        ctx.fillStyle = '#cc3333';
+        ctx.fillRect(cx, a.headY + a.headH + snoutLen - 1, 1, 3);
+        ctx.fillRect(cx - 1, a.headY + a.headH + snoutLen + 1, 1, 2);
+        ctx.fillRect(cx + 1, a.headY + a.headH + snoutLen + 1, 1, 2);
     } else if (dir === DIR_LEFT) {
         ctx.fillStyle = colors.skin;
-        ctx.fillRect(a.headX - 7, a.headY + Math.floor(a.headH * 0.35), 8, 5);
+        ctx.fillRect(a.headX - snoutLen - 2, a.headY + Math.floor(a.headH * 0.3), snoutLen + 3, 6);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX - snoutLen - 3, a.headY + Math.floor(a.headH * 0.3), 1, 6);
         ctx.fillStyle = '#eeeedd';
-        ctx.fillRect(a.headX - 7, a.headY + Math.floor(a.headH * 0.35) + 4, 2, 2);
-        ctx.fillRect(a.headX - 5, a.headY + Math.floor(a.headH * 0.35) + 3, 1, 2);
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(a.headX - 8, a.headY + Math.floor(a.headH * 0.35) + 1, 2, 2);
+        ctx.fillRect(a.headX - snoutLen - 2, a.headY + Math.floor(a.headH * 0.3) + 5, 2, 2);
+        ctx.fillRect(a.headX - snoutLen + 1, a.headY + Math.floor(a.headH * 0.3) + 4, 1, 2);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX - snoutLen - 2, a.headY + Math.floor(a.headH * 0.3) + 1, 2, 1);
     } else if (dir === DIR_RIGHT) {
         ctx.fillStyle = colors.skin;
-        ctx.fillRect(a.headX + a.headW - 1, a.headY + Math.floor(a.headH * 0.35), 8, 5);
+        ctx.fillRect(a.headX + a.headW - 1, a.headY + Math.floor(a.headH * 0.3), snoutLen + 3, 6);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX + a.headW + snoutLen + 2, a.headY + Math.floor(a.headH * 0.3), 1, 6);
         ctx.fillStyle = '#eeeedd';
-        ctx.fillRect(a.headX + a.headW + 5, a.headY + Math.floor(a.headH * 0.35) + 4, 2, 2);
-        ctx.fillRect(a.headX + a.headW + 4, a.headY + Math.floor(a.headH * 0.35) + 3, 1, 2);
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(a.headX + a.headW + 6, a.headY + Math.floor(a.headH * 0.35) + 1, 2, 2);
+        ctx.fillRect(a.headX + a.headW + snoutLen, a.headY + Math.floor(a.headH * 0.3) + 5, 2, 2);
+        ctx.fillRect(a.headX + a.headW + snoutLen - 2, a.headY + Math.floor(a.headH * 0.3) + 4, 1, 2);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX + a.headW + snoutLen, a.headY + Math.floor(a.headH * 0.3) + 1, 2, 1);
     }
 
-    // Vertical slit-pupil eyes (NOT dots)
+    // --- Slitted reptile eyes (vertical pupils) ---
     if (dir !== DIR_UP) {
-        const eyeY = a.headY + Math.floor(a.headH * 0.3);
+        const eyeY = a.headY + Math.floor(a.headH * 0.25);
         ctx.fillStyle = colors.eye;
         if (dir === DIR_DOWN) {
-            // Yellow eye background
             ctx.fillRect(cx - 6, eyeY, 4, 4);
             ctx.fillRect(cx + 3, eyeY, 4, 4);
             // Vertical slit pupil
-            ctx.fillStyle = '#111';
+            ctx.fillStyle = '#000000';
             ctx.fillRect(cx - 5, eyeY, 1, 4);
             ctx.fillRect(cx + 4, eyeY, 1, 4);
+            // Specular highlight
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(cx - 4, eyeY, 1, 1);
+            ctx.fillRect(cx + 5, eyeY, 1, 1);
         } else {
             const ex = dir === DIR_RIGHT ? cx + 3 : cx - 6;
             ctx.fillRect(ex, eyeY, 4, 4);
-            ctx.fillStyle = '#111';
+            ctx.fillStyle = '#000000';
             ctx.fillRect(ex + 1, eyeY, 1, 4);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(ex + 2, eyeY, 1, 1);
         }
     }
 
-    // --- 3-clawed hands ---
-    ctx.fillStyle = '#443322';
+    // --- Clawed hands (3 claws) ---
+    const clawH = Math.floor(a.armH * 0.18);
     const laY = a.shoulderY + a.walk.armL + a.armH;
     const raY = a.shoulderY + a.walk.armR + a.armH;
-    ctx.fillRect(a.leftArmX - 1, laY, 2, 3);
-    ctx.fillRect(a.leftArmX + Math.floor(a.armW / 2), laY, 2, 3);
-    ctx.fillRect(a.leftArmX + a.armW - 1, laY, 2, 3);
-    ctx.fillRect(a.rightArmX - 1, raY, 2, 3);
-    ctx.fillRect(a.rightArmX + Math.floor(a.armW / 2), raY, 2, 3);
-    ctx.fillRect(a.rightArmX + a.armW - 1, raY, 2, 3);
+    ctx.fillStyle = clawColor;
+    ctx.fillRect(a.leftArmX - 1, laY, 2, clawH);
+    ctx.fillRect(a.leftArmX + Math.floor(a.armW / 2), laY, 2, clawH + 1);
+    ctx.fillRect(a.leftArmX + a.armW - 1, laY, 2, clawH);
+    ctx.fillRect(a.rightArmX - 1, raY, 2, clawH);
+    ctx.fillRect(a.rightArmX + Math.floor(a.armW / 2), raY, 2, clawH + 1);
+    ctx.fillRect(a.rightArmX + a.armW - 1, raY, 2, clawH);
 
     // --- Front arms ---
     if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH, colors, 'right');
     if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH, colors, 'left');
     // Re-draw front arm claws on top
-    ctx.fillStyle = '#443322';
+    ctx.fillStyle = clawColor;
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        ctx.fillRect(a.rightArmX - 1, raY, 2, 3);
-        ctx.fillRect(a.rightArmX + Math.floor(a.armW / 2), raY, 2, 3);
-        ctx.fillRect(a.rightArmX + a.armW - 1, raY, 2, 3);
+        ctx.fillRect(a.rightArmX - 1, raY, 2, clawH);
+        ctx.fillRect(a.rightArmX + Math.floor(a.armW / 2), raY, 2, clawH + 1);
+        ctx.fillRect(a.rightArmX + a.armW - 1, raY, 2, clawH);
     }
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        ctx.fillRect(a.leftArmX - 1, laY, 2, 3);
-        ctx.fillRect(a.leftArmX + Math.floor(a.armW / 2), laY, 2, 3);
-        ctx.fillRect(a.leftArmX + a.armW - 1, laY, 2, 3);
+        ctx.fillRect(a.leftArmX - 1, laY, 2, clawH);
+        ctx.fillRect(a.leftArmX + Math.floor(a.armW / 2), laY, 2, clawH + 1);
+        ctx.fillRect(a.leftArmX + a.armW - 1, laY, 2, clawH);
     }
 }
 
@@ -656,155 +703,223 @@ function _drawMinotaur(ctx, a, dir, colors) {
     const cx = Math.floor(a.torsoX + a.torsoW / 2);
     const bob = a.walk.bob;
 
-    // MASSIVE proportions (2nd widest race)
+    // MASSIVE powerful build — extra wide torso
     const mTorsoW = a.torsoW + 8;
     const mTorsoX = Math.floor(cx - mTorsoW / 2);
+    const mTorsoY = a.torsoY + bob;
     const mArmW = a.armW + 4;
     const mHeadW = a.headW + 6;
-    const mHeadH = a.headH + 3;
+    const mHeadH = a.headH + 4;
     const mHeadX = Math.floor(cx - mHeadW / 2);
     const mLegW = a.legW + 4;
     const mLegH = a.legH + 2;
+    const hornLen = Math.floor(mHeadH * 0.6);
 
-    // --- Bovine tail with tuft (behind body) ---
+    // --- Short bull tail (behind body) ---
     if (dir !== DIR_DOWN) {
-        ctx.fillStyle = colors.skin;
         const td = dir === DIR_LEFT ? 1 : (dir === DIR_RIGHT ? -1 : 0);
         const tailX = dir === DIR_UP ? cx - 1 : (dir === DIR_LEFT ? mTorsoX + mTorsoW - 2 : mTorsoX);
-        const tailY = a.torsoY + a.torsoH - 2 + bob;
+        const tailY = mTorsoY + a.torsoH - 2;
+        ctx.fillStyle = colors.skin;
         ctx.fillRect(tailX + td * 0, tailY, 3, 2);
-        ctx.fillRect(tailX + td * 2, tailY + 2, 2, 2);
-        ctx.fillRect(tailX + td * 3, tailY + 3, 2, 2);
-        ctx.fillRect(tailX + td * 4, tailY + 4, 2, 2);
+        ctx.fillRect(tailX + td * 2, tailY + 2, 2, 3);
+        ctx.fillRect(tailX + td * 3, tailY + 4, 2, 3);
         // Tail tuft
         ctx.fillStyle = colors.hair;
-        ctx.fillRect(tailX + td * 3, tailY + 5, 4, 3);
-        ctx.fillRect(tailX + td * 4, tailY + 6, 3, 2);
+        ctx.fillRect(tailX + td * 2, tailY + 6, 4, 3);
+        ctx.fillRect(tailX + td * 3, tailY + 7, 3, 2);
     }
 
-    // --- Back arms ---
-    if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, cx + Math.floor(mTorsoW / 2), a.shoulderY + a.walk.armR, mArmW, a.armH + 2, colors, 'right');
-    if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, cx - Math.floor(mTorsoW / 2) - mArmW, a.shoulderY + a.walk.armL, mArmW, a.armH + 2, colors, 'left');
+    // --- Back arms (massive with fur on forearms) ---
+    if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        _drawArm(ctx, cx + Math.floor(mTorsoW / 2), a.shoulderY + a.walk.armR, mArmW, a.armH + 2, colors, 'right');
+        // Fur tufts on forearm
+        ctx.fillStyle = colors.hair;
+        ctx.fillRect(cx + Math.floor(mTorsoW / 2), a.shoulderY + a.walk.armR + Math.floor(a.armH * 0.5), mArmW, 3);
+    }
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        _drawArm(ctx, cx - Math.floor(mTorsoW / 2) - mArmW, a.shoulderY + a.walk.armL, mArmW, a.armH + 2, colors, 'left');
+        ctx.fillStyle = colors.hair;
+        ctx.fillRect(cx - Math.floor(mTorsoW / 2) - mArmW, a.shoulderY + a.walk.armL + Math.floor(a.armH * 0.5), mArmW, 3);
+    }
 
-    // --- Thick legs with cloven hooves ---
+    // --- Thick legs with cloven hooves (no boots) ---
     _drawLeg(ctx, Math.floor(cx - mLegW - 1), a.legsTopY + a.walk.legL, mLegW, mLegH, colors);
     _drawLeg(ctx, Math.floor(cx + 1), a.legsTopY + a.walk.legR, mLegW, mLegH, colors);
-    // Cloven hooves (dark split hoof)
-    ctx.fillStyle = '#332211';
+    // Cloven hooves
     const lhY = a.legsTopY + a.walk.legL + mLegH - 2;
     const rhY = a.legsTopY + a.walk.legR + mLegH - 2;
+    ctx.fillStyle = '#332211';
     ctx.fillRect(Math.floor(cx - mLegW - 2), lhY, mLegW + 3, 4);
     ctx.fillRect(Math.floor(cx), rhY, mLegW + 3, 4);
     // Hoof split line
-    ctx.fillStyle = '#111';
+    ctx.fillStyle = '#000000';
     ctx.fillRect(Math.floor(cx - mLegW / 2 - 1), lhY + 1, 1, 3);
     ctx.fillRect(Math.floor(cx + mLegW / 2 + 1), rhY + 1, 1, 3);
+    // Hoof outline
+    ctx.fillRect(Math.floor(cx - mLegW - 2), lhY + 3, mLegW + 3, 1);
+    ctx.fillRect(Math.floor(cx), rhY + 3, mLegW + 3, 1);
 
     // --- Barrel chest / massive torso ---
-    _drawOutlinedRect(ctx, mTorsoX, a.torsoY + bob, mTorsoW, a.torsoH + 2, colors.skin, colors.outline);
-    _drawShading(ctx, mTorsoX, a.torsoY + bob, mTorsoW, a.torsoH + 2, colors.mid);
-    // Chest muscle definition
+    _drawOutlinedRect(ctx, mTorsoX, mTorsoY, mTorsoW, a.torsoH + 2, colors.skin, '#000000');
+    _drawShading(ctx, mTorsoX, mTorsoY, mTorsoW, a.torsoH + 2, colors.mid);
+    // Chest fur
+    if (dir === DIR_DOWN) {
+        ctx.fillStyle = colors.hair;
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(mTorsoX + 3, mTorsoY + 2, mTorsoW - 6, Math.floor(a.torsoH * 0.4));
+        ctx.globalAlpha = 1.0;
+    }
+    // Pectoral muscle definition
     ctx.fillStyle = colors.mid;
     ctx.globalAlpha = 0.5;
-    ctx.fillRect(mTorsoX + 2, a.torsoY + bob + 2, Math.floor(mTorsoW / 2) - 2, 3);
-    ctx.fillRect(mTorsoX + Math.floor(mTorsoW / 2) + 1, a.torsoY + bob + 2, Math.floor(mTorsoW / 2) - 2, 3);
+    ctx.fillRect(mTorsoX + 2, mTorsoY + 2, Math.floor(mTorsoW / 2) - 2, 4);
+    ctx.fillRect(mTorsoX + Math.floor(mTorsoW / 2) + 1, mTorsoY + 2, Math.floor(mTorsoW / 2) - 2, 4);
+    // Abs
+    ctx.fillRect(mTorsoX + 4, mTorsoY + Math.floor(a.torsoH * 0.45), mTorsoW - 8, 2);
+    ctx.fillRect(mTorsoX + 4, mTorsoY + Math.floor(a.torsoH * 0.65), mTorsoW - 8, 2);
     ctx.globalAlpha = 1.0;
 
-    // --- Thick neck ---
+    // --- Thick neck (no gap — head sits directly on shoulders) ---
     ctx.fillStyle = colors.skin;
-    ctx.fillRect(cx - 5, a.headY + mHeadH - 2, 10, 4);
-    ctx.fillStyle = colors.outline;
-    ctx.fillRect(cx - 5, a.headY + mHeadH + 1, 1, 1);
-    ctx.fillRect(cx + 4, a.headY + mHeadH + 1, 1, 1);
+    ctx.fillRect(cx - 5, a.headY + mHeadH - 2, 10, 5);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(cx - 6, a.headY + mHeadH + 2, 1, 1);
+    ctx.fillRect(cx + 5, a.headY + mHeadH + 2, 1, 1);
 
     // --- Dark mane (behind head) ---
     if (dir !== DIR_DOWN) {
         ctx.fillStyle = colors.hair;
-        ctx.fillRect(mHeadX - 1, a.headY + 2, mHeadW + 2, mHeadH);
-        ctx.fillRect(mHeadX, a.headY + mHeadH - 2, mHeadW, 4);
+        ctx.fillRect(mHeadX - 2, a.headY + 2, mHeadW + 4, mHeadH);
+        ctx.fillRect(mHeadX - 1, a.headY + mHeadH, mHeadW + 2, 4);
     }
 
-    // --- Huge bull head with wide muzzle ---
-    _drawOutlinedRect(ctx, mHeadX, a.headY, mHeadW, mHeadH, colors.skin, colors.outline);
+    // --- Huge bull head with broad snout ---
+    _drawOutlinedRect(ctx, mHeadX, a.headY, mHeadW, mHeadH, colors.skin, '#000000');
     _drawShading(ctx, mHeadX, a.headY, mHeadW, mHeadH, colors.mid);
 
-    // Small ears
+    // Small pointed ears
     ctx.fillStyle = colors.skin;
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        ctx.fillRect(mHeadX - 3, a.headY + 3, 4, 3);
+        ctx.fillRect(mHeadX - 4, a.headY + 3, 5, 4);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(mHeadX - 4, a.headY + 3, 1, 4);
         ctx.fillStyle = colors.mid;
-        ctx.fillRect(mHeadX - 2, a.headY + 4, 2, 1);
+        ctx.fillRect(mHeadX - 3, a.headY + 4, 3, 2);
     }
     ctx.fillStyle = colors.skin;
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        ctx.fillRect(mHeadX + mHeadW - 1, a.headY + 3, 4, 3);
+        ctx.fillRect(mHeadX + mHeadW - 1, a.headY + 3, 5, 4);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(mHeadX + mHeadW + 3, a.headY + 3, 1, 4);
         ctx.fillStyle = colors.mid;
-        ctx.fillRect(mHeadX + mHeadW, a.headY + 4, 2, 1);
+        ctx.fillRect(mHeadX + mHeadW, a.headY + 4, 3, 2);
     }
 
-    // Fierce brow ridge
+    // --- Heavy brow ridge ---
     if (dir !== DIR_UP) {
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(mHeadX + 2, a.headY + Math.floor(mHeadH * 0.2), mHeadW - 4, 3);
-        // Brow furrowed middle
-        ctx.fillRect(cx - 1, a.headY + Math.floor(mHeadH * 0.18), 2, 2);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(mHeadX + 2, a.headY + Math.floor(mHeadH * 0.18), mHeadW - 4, 3);
+        ctx.fillRect(cx - 1, a.headY + Math.floor(mHeadH * 0.15), 2, 2);
     }
 
-    // Curved horns with ridges (shortened for realistic proportions)
+    // --- Large curved horns with ridges ---
     ctx.fillStyle = '#998877';
-    // Left horn base -> curve up-out
+    // Left horn
     ctx.fillRect(mHeadX - 2, a.headY, 4, 3);
-    ctx.fillRect(mHeadX - 4, a.headY - 2, 3, 3);
-    ctx.fillRect(mHeadX - 6, a.headY - 4, 3, 3);
-    ctx.fillRect(mHeadX - 7, a.headY - 6, 3, 3);
+    ctx.fillRect(mHeadX - 5, a.headY - 3, 4, 4);
+    ctx.fillRect(mHeadX - 7, a.headY - hornLen + 2, 3, hornLen - 3);
+    ctx.fillRect(mHeadX - 6, a.headY - hornLen, 2, 3);
     // Right horn
     ctx.fillRect(mHeadX + mHeadW - 2, a.headY, 4, 3);
-    ctx.fillRect(mHeadX + mHeadW + 1, a.headY - 2, 3, 3);
-    ctx.fillRect(mHeadX + mHeadW + 3, a.headY - 4, 3, 3);
-    ctx.fillRect(mHeadX + mHeadW + 4, a.headY - 6, 3, 3);
-    // Horn ridges (darker lines)
+    ctx.fillRect(mHeadX + mHeadW + 1, a.headY - 3, 4, 4);
+    ctx.fillRect(mHeadX + mHeadW + 4, a.headY - hornLen + 2, 3, hornLen - 3);
+    ctx.fillRect(mHeadX + mHeadW + 4, a.headY - hornLen, 2, 3);
+    // Horn tips (lighter)
+    ctx.fillStyle = '#ccbbaa';
+    ctx.fillRect(mHeadX - 6, a.headY - hornLen, 1, 2);
+    ctx.fillRect(mHeadX + mHeadW + 5, a.headY - hornLen, 1, 2);
+    // Horn ridges
     ctx.fillStyle = '#776655';
-    ctx.fillRect(mHeadX - 3, a.headY - 1, 2, 1);
-    ctx.fillRect(mHeadX - 5, a.headY - 3, 2, 1);
-    ctx.fillRect(mHeadX + mHeadW + 1, a.headY - 1, 2, 1);
-    ctx.fillRect(mHeadX + mHeadW + 3, a.headY - 3, 2, 1);
+    ctx.fillRect(mHeadX - 4, a.headY - 1, 2, 1);
+    ctx.fillRect(mHeadX - 6, a.headY - 4, 2, 1);
+    ctx.fillRect(mHeadX + mHeadW + 2, a.headY - 1, 2, 1);
+    ctx.fillRect(mHeadX + mHeadW + 4, a.headY - 4, 2, 1);
+    // Horn outlines
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(mHeadX - 7, a.headY - hornLen, 1, hornLen + 2);
+    ctx.fillRect(mHeadX + mHeadW + 6, a.headY - hornLen, 1, hornLen + 2);
 
-    // Face features
+    // --- Face features ---
     if (dir !== DIR_UP) {
-        // Eyes under brow
+        // Bovine eyes under brow
         const eyeY = a.headY + Math.floor(mHeadH * 0.35);
-        _drawEyes(ctx, cx, eyeY, dir, colors, 7);
+        if (dir === DIR_DOWN) {
+            ctx.fillStyle = '#f8f4f0';
+            ctx.fillRect(cx - 7, eyeY, 5, 4);
+            ctx.fillRect(cx + 3, eyeY, 5, 4);
+            ctx.fillStyle = colors.eye;
+            ctx.fillRect(cx - 6, eyeY + 1, 3, 2);
+            ctx.fillRect(cx + 4, eyeY + 1, 3, 2);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(cx - 5, eyeY + 1, 2, 2);
+            ctx.fillRect(cx + 5, eyeY + 1, 2, 2);
+        } else {
+            const ex = dir === DIR_RIGHT ? cx + 3 : cx - 7;
+            ctx.fillStyle = '#f8f4f0';
+            ctx.fillRect(ex, eyeY, 5, 4);
+            ctx.fillStyle = colors.eye;
+            ctx.fillRect(ex + 1, eyeY + 1, 3, 2);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(ex + 2, eyeY + 1, 2, 2);
+        }
 
-        // Wide muzzle area
+        // Broad snout / muzzle with flared nostrils
         if (dir === DIR_DOWN) {
             ctx.fillStyle = colors.mid;
-            ctx.fillRect(cx - 5, a.headY + mHeadH - 7, 10, 5);
+            ctx.fillRect(cx - 6, a.headY + mHeadH - 7, 12, 6);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(cx - 6, a.headY + mHeadH - 7, 12, 1);
             // Flared nostrils
-            ctx.fillStyle = '#222';
-            ctx.fillRect(cx - 3, a.headY + mHeadH - 5, 2, 2);
-            ctx.fillRect(cx + 2, a.headY + mHeadH - 5, 2, 2);
+            ctx.fillStyle = '#222222';
+            ctx.fillRect(cx - 4, a.headY + mHeadH - 5, 3, 2);
+            ctx.fillRect(cx + 2, a.headY + mHeadH - 5, 3, 2);
             // Gold nose ring
             ctx.fillStyle = '#ddaa22';
             ctx.fillRect(cx - 2, a.headY + mHeadH - 3, 5, 2);
-            ctx.fillRect(cx - 3, a.headY + mHeadH - 2, 1, 2);
-            ctx.fillRect(cx + 3, a.headY + mHeadH - 2, 1, 2);
+            ctx.fillRect(cx - 3, a.headY + mHeadH - 2, 1, 3);
+            ctx.fillRect(cx + 3, a.headY + mHeadH - 2, 1, 3);
             ctx.fillRect(cx - 2, a.headY + mHeadH, 5, 1);
+            // Ring highlight
+            ctx.fillStyle = '#ffdd44';
+            ctx.fillRect(cx - 1, a.headY + mHeadH - 3, 1, 1);
         } else {
-            // Side muzzle
-            const mx = dir === DIR_RIGHT ? mHeadX + mHeadW - 2 : mHeadX - 3;
+            const mx = dir === DIR_RIGHT ? mHeadX + mHeadW - 2 : mHeadX - 4;
             ctx.fillStyle = colors.mid;
-            ctx.fillRect(mx, a.headY + mHeadH - 7, 5, 5);
-            ctx.fillStyle = '#222';
-            ctx.fillRect(mx + (dir === DIR_RIGHT ? 3 : 0), a.headY + mHeadH - 5, 2, 2);
+            ctx.fillRect(mx, a.headY + mHeadH - 7, 6, 6);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(mx, a.headY + mHeadH - 7, 6, 1);
+            // Nostril
+            ctx.fillStyle = '#222222';
+            ctx.fillRect(mx + (dir === DIR_RIGHT ? 4 : 0), a.headY + mHeadH - 5, 2, 2);
             // Side nose ring
             ctx.fillStyle = '#ddaa22';
-            ctx.fillRect(mx + (dir === DIR_RIGHT ? 2 : 1), a.headY + mHeadH - 3, 3, 2);
+            ctx.fillRect(mx + (dir === DIR_RIGHT ? 3 : 1), a.headY + mHeadH - 3, 3, 2);
+            ctx.fillRect(mx + (dir === DIR_RIGHT ? 4 : 1), a.headY + mHeadH - 1, 2, 2);
         }
     }
 
-    // --- Front arms ---
-    if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, cx + Math.floor(mTorsoW / 2), a.shoulderY + a.walk.armR, mArmW, a.armH + 2, colors, 'right');
-    if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, cx - Math.floor(mTorsoW / 2) - mArmW, a.shoulderY + a.walk.armL, mArmW, a.armH + 2, colors, 'left');
+    // --- Front arms (massive with fur on forearms) ---
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        _drawArm(ctx, cx + Math.floor(mTorsoW / 2), a.shoulderY + a.walk.armR, mArmW, a.armH + 2, colors, 'right');
+        ctx.fillStyle = colors.hair;
+        ctx.fillRect(cx + Math.floor(mTorsoW / 2), a.shoulderY + a.walk.armR + Math.floor(a.armH * 0.5), mArmW, 3);
+    }
+    if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        _drawArm(ctx, cx - Math.floor(mTorsoW / 2) - mArmW, a.shoulderY + a.walk.armL, mArmW, a.armH + 2, colors, 'left');
+        ctx.fillStyle = colors.hair;
+        ctx.fillRect(cx - Math.floor(mTorsoW / 2) - mArmW, a.shoulderY + a.walk.armL + Math.floor(a.armH * 0.5), mArmW, 3);
+    }
 }
 
 // ── Race 15: Monkey man ─────────────────────────────────────────────────────
@@ -812,116 +927,135 @@ function _drawMonkeyman(ctx, a, dir, colors) {
     const cx = Math.floor(a.torsoX + a.torsoW / 2);
     const bob = a.walk.bob;
 
-    // Lean agile build, slightly crouched
+    // Lean agile build
     const mTorsoW = a.torsoW - 2;
     const mTorsoX = Math.floor(cx - mTorsoW / 2);
-    const mTorsoY = a.torsoY + bob + 2; // crouched lower
+    const mTorsoY = a.torsoY + bob + 2;
+    const mTorsoH = a.torsoH - 3;
 
-    // VERY long arms (longest of all races)
+    // Longer arms than normal
     const longArmH = a.armH + 8;
     const mArmW = a.armW - 1;
 
-    // --- Long curling prehensile tail (behind body) ---
+    // Shorter legs
+    const mLegH = a.legH - 2;
+    const legY = a.legsTopY + 2;
+
+    // --- Prehensile curled tail (behind body) ---
     if (dir !== DIR_DOWN) {
         ctx.fillStyle = colors.skin;
         const td = dir === DIR_LEFT ? 1 : (dir === DIR_RIGHT ? -1 : 0);
         const tailX = dir === DIR_UP ? cx - 1 : (dir === DIR_LEFT ? mTorsoX + mTorsoW : mTorsoX - 2);
-        const tailY = mTorsoY + a.torsoH - 4;
-        // Long curling S-shape
+        const tailY = mTorsoY + mTorsoH - 3;
+        // Curling S-shape tail
         ctx.fillRect(tailX + td * 0, tailY, 3, 2);
-        ctx.fillRect(tailX + td * 2, tailY - 1, 3, 2);
-        ctx.fillRect(tailX + td * 4, tailY - 2, 2, 2);
-        ctx.fillRect(tailX + td * 5, tailY - 1, 2, 2);
-        ctx.fillRect(tailX + td * 6, tailY + 1, 2, 2);
-        ctx.fillRect(tailX + td * 7, tailY + 3, 2, 2);
+        ctx.fillRect(tailX + td * 2, tailY - 2, 2, 3);
+        ctx.fillRect(tailX + td * 4, tailY - 3, 2, 2);
+        ctx.fillRect(tailX + td * 5, tailY - 2, 2, 2);
+        ctx.fillRect(tailX + td * 6, tailY, 2, 2);
+        ctx.fillRect(tailX + td * 7, tailY + 2, 2, 3);
         ctx.fillRect(tailX + td * 7, tailY + 5, 2, 2);
-        // Curl tip (loops back)
+        // Curl tip loops back
         ctx.fillRect(tailX + td * 6, tailY + 6, 2, 2);
         ctx.fillRect(tailX + td * 5, tailY + 5, 2, 2);
+        ctx.fillRect(tailX + td * 4, tailY + 4, 2, 1);
+        // Outline tip
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(tailX + td * 4, tailY + 4, 1, 1);
     }
 
-    // --- Back arms (very long, with gripping hands) ---
+    // --- Back arms (very long) ---
     if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, a.rightArmX, a.shoulderY + a.walk.armR, mArmW, longArmH, colors, 'right');
     if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, a.leftArmX, a.shoulderY + a.walk.armL, mArmW, longArmH, colors, 'left');
-    // Back arm gripping hand fingers
-    ctx.fillStyle = colors.mid;
+    // Back gripping hands with long fingers
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
         const hy = a.shoulderY + a.walk.armR + longArmH;
-        ctx.fillRect(a.rightArmX - 1, hy, mArmW + 2, 3);
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(a.rightArmX - 1, hy + 2, 1, 2);
-        ctx.fillRect(a.rightArmX + mArmW, hy + 2, 1, 2);
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(a.rightArmX - 1, hy, mArmW + 2, 4);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.rightArmX - 1, hy + 3, 1, 2);
+        ctx.fillRect(a.rightArmX + Math.floor(mArmW / 2), hy + 3, 1, 2);
+        ctx.fillRect(a.rightArmX + mArmW, hy + 3, 1, 2);
     }
-    ctx.fillStyle = colors.mid;
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
         const hy = a.shoulderY + a.walk.armL + longArmH;
-        ctx.fillRect(a.leftArmX - 1, hy, mArmW + 2, 3);
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(a.leftArmX - 1, hy + 2, 1, 2);
-        ctx.fillRect(a.leftArmX + mArmW, hy + 2, 1, 2);
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(a.leftArmX - 1, hy, mArmW + 2, 4);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.leftArmX - 1, hy + 3, 1, 2);
+        ctx.fillRect(a.leftArmX + Math.floor(mArmW / 2), hy + 3, 1, 2);
+        ctx.fillRect(a.leftArmX + mArmW, hy + 3, 1, 2);
     }
 
-    // --- Shorter legs with prehensile gripping feet ---
-    const mLegH = a.legH - 2;
-    const legY = a.legsTopY + 2;
+    // --- Shorter legs with hand-like feet (no boots) ---
     _drawLeg(ctx, a.leftLegX, legY + a.walk.legL, a.legW - 1, mLegH, colors);
     _drawLeg(ctx, a.rightLegX, legY + a.walk.legR, a.legW - 1, mLegH, colors);
     // Prehensile gripping feet with spread toes
-    ctx.fillStyle = colors.mid;
     const lfY = legY + a.walk.legL + mLegH - 1;
     const rfY = legY + a.walk.legR + mLegH - 1;
+    ctx.fillStyle = colors.skin;
     ctx.fillRect(a.leftLegX - 3, lfY, a.legW + 5, 3);
     ctx.fillRect(a.rightLegX - 3, rfY, a.legW + 5, 3);
-    // Toe outlines
-    ctx.fillStyle = colors.outline;
+    // Toe outlines / finger separations
+    ctx.fillStyle = '#000000';
     ctx.fillRect(a.leftLegX - 3, lfY + 2, 2, 2);
+    ctx.fillRect(a.leftLegX + Math.floor(a.legW / 2) - 1, lfY + 2, 1, 2);
     ctx.fillRect(a.leftLegX + a.legW, lfY + 2, 2, 2);
     ctx.fillRect(a.rightLegX - 3, rfY + 2, 2, 2);
+    ctx.fillRect(a.rightLegX + Math.floor(a.legW / 2) - 1, rfY + 2, 1, 2);
     ctx.fillRect(a.rightLegX + a.legW, rfY + 2, 2, 2);
+    // Opposable big toe
+    ctx.fillStyle = colors.skin;
+    ctx.fillRect(a.leftLegX - 4, lfY + 1, 2, 2);
+    ctx.fillRect(a.rightLegX - 4, rfY + 1, 2, 2);
 
-    // --- Lean torso ---
-    _drawOutlinedRect(ctx, mTorsoX, mTorsoY, mTorsoW, a.torsoH - 3, colors.skin, colors.outline);
-    _drawShading(ctx, mTorsoX, mTorsoY, mTorsoW, a.torsoH - 3, colors.mid);
-    // Lighter belly patch
+    // --- Lean torso with lighter belly/chest area ---
+    _drawOutlinedRect(ctx, mTorsoX, mTorsoY, mTorsoW, mTorsoH, colors.skin, '#000000');
+    _drawShading(ctx, mTorsoX, mTorsoY, mTorsoW, mTorsoH, colors.mid);
+    // Fur texture on sides
+    ctx.fillStyle = colors.mid;
+    ctx.globalAlpha = 0.4;
+    ctx.fillRect(mTorsoX + 1, mTorsoY + 1, 2, mTorsoH - 2);
+    ctx.fillRect(mTorsoX + mTorsoW - 3, mTorsoY + 1, 2, mTorsoH - 2);
+    ctx.globalAlpha = 1.0;
+    // Lighter belly/chest patch
     if (dir === DIR_DOWN) {
         ctx.fillStyle = colors.hair;
-        ctx.globalAlpha = 0.35;
-        ctx.fillRect(mTorsoX + 2, mTorsoY + 1, mTorsoW - 4, a.torsoH - 5);
+        ctx.globalAlpha = 0.4;
+        ctx.fillRect(mTorsoX + Math.floor(mTorsoW * 0.2), mTorsoY + 1, Math.floor(mTorsoW * 0.6), mTorsoH - 2);
         ctx.globalAlpha = 1.0;
     }
 
-    // --- Round head ---
+    // --- Round monkey head ---
     if (dir === DIR_UP) _drawHairBack(ctx, a.headX, a.headY, a.headW, a.headH, colors);
-    _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, colors.outline);
+    _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, '#000000');
     _drawShading(ctx, a.headX, a.headY, a.headW, a.headH, colors.mid);
 
-    // Brow ridge
-    if (dir !== DIR_UP) {
-        ctx.fillStyle = colors.mid;
-        ctx.globalAlpha = 0.6;
-        ctx.fillRect(a.headX + 2, a.headY + Math.floor(a.headH * 0.2), a.headW - 4, 2);
-        ctx.globalAlpha = 1.0;
-    }
-
-    // Large round side-ears
+    // --- Large prominent ears ---
     ctx.fillStyle = colors.skin;
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        ctx.fillRect(a.headX - 5, a.headY + 1, 6, 7);
+        ctx.fillRect(a.headX - 6, a.headY + 1, 7, 8);
         ctx.fillStyle = colors.mid;
-        ctx.fillRect(a.headX - 4, a.headY + 2, 4, 5);
+        ctx.fillRect(a.headX - 5, a.headY + 2, 5, 6);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX - 6, a.headY + 1, 1, 8);
+        ctx.fillRect(a.headX - 6, a.headY, 7, 1);
     }
     ctx.fillStyle = colors.skin;
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        ctx.fillRect(a.headX + a.headW - 1, a.headY + 1, 6, 7);
+        ctx.fillRect(a.headX + a.headW - 1, a.headY + 1, 7, 8);
         ctx.fillStyle = colors.mid;
-        ctx.fillRect(a.headX + a.headW, a.headY + 2, 4, 5);
+        ctx.fillRect(a.headX + a.headW, a.headY + 2, 5, 6);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX + a.headW + 5, a.headY + 1, 1, 8);
+        ctx.fillRect(a.headX + a.headW - 1, a.headY, 7, 1);
     }
 
-    // Lighter face/muzzle area
+    // --- Facial markings around eyes (lighter fur) ---
     if (dir === DIR_DOWN) {
         ctx.fillStyle = colors.hair;
-        ctx.globalAlpha = 0.3;
-        ctx.fillRect(cx - 5, a.headY + Math.floor(a.headH * 0.4), 10, a.headH - Math.floor(a.headH * 0.4) - 1);
+        ctx.globalAlpha = 0.35;
+        ctx.fillRect(cx - 6, a.headY + Math.floor(a.headH * 0.2), 12, Math.floor(a.headH * 0.3));
         ctx.globalAlpha = 1.0;
     }
 
@@ -929,58 +1063,96 @@ function _drawMonkeyman(ctx, a, dir, colors) {
     ctx.fillStyle = colors.hair;
     ctx.fillRect(a.headX + 2, a.headY - 3, a.headW - 4, 4);
     ctx.fillRect(a.headX + 4, a.headY - 5, a.headW - 8, 3);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(a.headX + 2, a.headY - 3, a.headW - 4, 1);
 
-    // Face
+    // --- Face features ---
     if (dir !== DIR_UP) {
-        const eyeY = a.headY + Math.floor(a.headH * 0.35);
-        _drawEyes(ctx, cx, eyeY, dir, colors, 5);
+        // Large expressive eyes
+        const eyeY = a.headY + Math.floor(a.headH * 0.3);
+        if (dir === DIR_DOWN) {
+            ctx.fillStyle = '#f8f4f0';
+            ctx.fillRect(cx - 6, eyeY, 5, 5);
+            ctx.fillRect(cx + 2, eyeY, 5, 5);
+            ctx.fillStyle = colors.eye;
+            ctx.fillRect(cx - 5, eyeY + 1, 3, 3);
+            ctx.fillRect(cx + 3, eyeY + 1, 3, 3);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(cx - 4, eyeY + 2, 2, 2);
+            ctx.fillRect(cx + 4, eyeY + 2, 2, 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(cx - 3, eyeY + 1, 1, 1);
+            ctx.fillRect(cx + 5, eyeY + 1, 1, 1);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(cx - 6, eyeY - 1, 5, 1);
+            ctx.fillRect(cx + 2, eyeY - 1, 5, 1);
+        } else {
+            const ex = dir === DIR_RIGHT ? cx + 2 : cx - 6;
+            ctx.fillStyle = '#f8f4f0';
+            ctx.fillRect(ex, eyeY, 5, 5);
+            ctx.fillStyle = colors.eye;
+            ctx.fillRect(ex + 1, eyeY + 1, 3, 3);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(ex + 2, eyeY + 2, 2, 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(ex + 3, eyeY + 1, 1, 1);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(ex, eyeY - 1, 5, 1);
+        }
+
+        // Flat broad nose
+        const noseY = a.headY + Math.floor(a.headH * 0.55);
+        if (dir === DIR_DOWN) {
+            ctx.fillStyle = colors.mid;
+            ctx.fillRect(cx - 3, noseY, 6, 3);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(cx - 2, noseY + 1, 1, 1);
+            ctx.fillRect(cx + 2, noseY + 1, 1, 1);
+        } else {
+            const nx = dir === DIR_RIGHT ? cx + 3 : cx - 4;
+            ctx.fillStyle = colors.mid;
+            ctx.fillRect(nx, noseY, 3, 3);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(nx + (dir === DIR_RIGHT ? 2 : 0), noseY + 1, 1, 1);
+        }
 
         // Wide grin with teeth
+        const mouthY = a.headY + Math.floor(a.headH * 0.75);
         if (dir === DIR_DOWN) {
-            const mouthY = a.headY + Math.floor(a.headH * 0.75);
-            ctx.fillStyle = colors.outline;
+            ctx.fillStyle = '#000000';
             ctx.fillRect(cx - 4, mouthY, 9, 3);
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = '#ffffff';
             ctx.fillRect(cx - 3, mouthY, 7, 2);
-            // Flat nose
-            const noseY = a.headY + Math.floor(a.headH * 0.55);
-            ctx.fillStyle = colors.mid;
-            ctx.fillRect(cx - 2, noseY, 4, 2);
-            ctx.fillStyle = '#222';
-            ctx.fillRect(cx - 1, noseY + 1, 1, 1);
-            ctx.fillRect(cx + 1, noseY + 1, 1, 1);
         } else {
-            // Side grin
             const gx = dir === DIR_RIGHT ? cx + 2 : cx - 5;
-            const sideGrinY = a.headY + Math.floor(a.headH * 0.75);
-            ctx.fillStyle = colors.outline;
-            ctx.fillRect(gx, sideGrinY, 4, 2);
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(gx + 1, sideGrinY, 2, 1);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(gx, mouthY, 4, 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(gx + 1, mouthY, 2, 1);
         }
     }
 
-    // --- Front arms (very long, with gripping hands) ---
+    // --- Front arms (very long with gripping hands) ---
     if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, a.rightArmX, a.shoulderY + a.walk.armR, mArmW, longArmH, colors, 'right');
     if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, a.leftArmX, a.shoulderY + a.walk.armL, mArmW, longArmH, colors, 'left');
-    // Front arm gripping hands
-    ctx.fillStyle = colors.mid;
+    // Front gripping hands with long fingers
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
         const hy = a.shoulderY + a.walk.armR + longArmH;
-        ctx.fillRect(a.rightArmX - 1, hy, mArmW + 2, 3);
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(a.rightArmX - 1, hy + 2, 1, 2);
-        ctx.fillRect(a.rightArmX + Math.floor(mArmW / 2), hy + 2, 1, 2);
-        ctx.fillRect(a.rightArmX + mArmW, hy + 2, 1, 2);
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(a.rightArmX - 1, hy, mArmW + 2, 4);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.rightArmX - 1, hy + 3, 1, 2);
+        ctx.fillRect(a.rightArmX + Math.floor(mArmW / 2), hy + 3, 1, 2);
+        ctx.fillRect(a.rightArmX + mArmW, hy + 3, 1, 2);
     }
-    ctx.fillStyle = colors.mid;
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
         const hy = a.shoulderY + a.walk.armL + longArmH;
-        ctx.fillRect(a.leftArmX - 1, hy, mArmW + 2, 3);
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(a.leftArmX - 1, hy + 2, 1, 2);
-        ctx.fillRect(a.leftArmX + Math.floor(mArmW / 2), hy + 2, 1, 2);
-        ctx.fillRect(a.leftArmX + mArmW, hy + 2, 1, 2);
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(a.leftArmX - 1, hy, mArmW + 2, 4);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.leftArmX - 1, hy + 3, 1, 2);
+        ctx.fillRect(a.leftArmX + Math.floor(mArmW / 2), hy + 3, 1, 2);
+        ctx.fillRect(a.leftArmX + mArmW, hy + 3, 1, 2);
     }
 }
 
@@ -991,17 +1163,20 @@ function _drawMummy(ctx, a, dir, colors) {
     const bandageColor = '#d4c8a0';
     const bandageDark = '#b0a478';
     const voidColor = '#2a1a0a';
+    const skinColor = '#554433';
     const goldColor = '#ccaa33';
+    const bandageStep = Math.max(3, Math.floor(a.torsoH / 6));
 
-    // --- Trailing loose bandage strips (behind body) ---
+    // --- Trailing tattered bandage strips (behind body) ---
     ctx.fillStyle = bandageColor;
-    if (dir !== DIR_UP) {
-        // Loose strips hanging from back
-        ctx.fillRect(a.leftArmX - 2, a.shoulderY + a.walk.armL + a.armH, 2, 6 + Math.abs(a.walk.armL));
-        ctx.fillRect(a.rightArmX + a.armW, a.shoulderY + a.walk.armR + a.armH, 2, 5 + Math.abs(a.walk.armR));
-        ctx.fillRect(a.torsoX - 1, a.torsoY + a.torsoH + bob - 2, 2, 5);
-        ctx.fillRect(a.torsoX + a.torsoW - 1, a.torsoY + a.torsoH + bob - 1, 2, 4);
-    }
+    ctx.fillRect(a.leftArmX - 2, a.shoulderY + a.walk.armL + a.armH, 2, 7 + Math.abs(a.walk.armL));
+    ctx.fillRect(a.rightArmX + a.armW, a.shoulderY + a.walk.armR + a.armH, 2, 6 + Math.abs(a.walk.armR));
+    ctx.fillRect(a.torsoX - 1, a.torsoY + a.torsoH + bob - 2, 2, 6);
+    ctx.fillRect(a.torsoX + a.torsoW - 1, a.torsoY + a.torsoH + bob - 1, 2, 5);
+    // Tattered ends (uneven)
+    ctx.fillStyle = bandageDark;
+    ctx.fillRect(a.leftArmX - 2, a.shoulderY + a.walk.armL + a.armH + 6, 1, 2);
+    ctx.fillRect(a.torsoX - 1, a.torsoY + a.torsoH + bob + 3, 1, 2);
 
     // --- Back arms (bandaged) ---
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
@@ -1011,17 +1186,13 @@ function _drawMummy(ctx, a, dir, colors) {
         _drawArm(ctx, a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH, colors, 'left');
     }
 
-    // --- Legs (bandaged, shambling posture - offset) ---
+    // --- Legs (bandaged, stiff robotic walk) ---
     const lLegOff = dir === DIR_DOWN || dir === DIR_LEFT ? 1 : 0;
     const rLegOff = dir === DIR_DOWN || dir === DIR_RIGHT ? 1 : 0;
     _drawLeg(ctx, a.leftLegX + lLegOff, a.legsTopY + a.walk.legL, a.legW, a.legH, colors);
     _drawLeg(ctx, a.rightLegX - rLegOff, a.legsTopY + a.walk.legR, a.legW, a.legH, colors);
-    // Gold ankle bands
-    ctx.fillStyle = goldColor;
-    ctx.fillRect(a.leftLegX + lLegOff - 1, a.legsTopY + a.walk.legL + a.legH - 4, a.legW + 2, 2);
-    ctx.fillRect(a.rightLegX - rLegOff - 1, a.legsTopY + a.walk.legR + a.legH - 4, a.legW + 2, 2);
-    // Leg bandage wraps with void gaps
-    for (let y = 0; y < a.legH - 4; y += 3) {
+    // Leg bandage wraps with exposed skin gaps
+    for (let y = 0; y < a.legH - 4; y += bandageStep) {
         ctx.fillStyle = bandageColor;
         ctx.fillRect(a.leftLegX + lLegOff, a.legsTopY + a.walk.legL + y, a.legW, 2);
         ctx.fillRect(a.rightLegX - rLegOff, a.legsTopY + a.walk.legR + y, a.legW, 2);
@@ -1029,8 +1200,16 @@ function _drawMummy(ctx, a, dir, colors) {
         ctx.fillRect(a.leftLegX + lLegOff, a.legsTopY + a.walk.legL + y + 2, a.legW, 1);
         ctx.fillRect(a.rightLegX - rLegOff, a.legsTopY + a.walk.legR + y + 2, a.legW, 1);
     }
-    // Dessicated thin fingers on feet
-    ctx.fillStyle = '#554433';
+    // Exposed dried skin patches on legs
+    ctx.fillStyle = skinColor;
+    ctx.fillRect(a.leftLegX + lLegOff + 1, a.legsTopY + a.walk.legL + Math.floor(a.legH * 0.4), 3, 3);
+    ctx.fillRect(a.rightLegX - rLegOff + 2, a.legsTopY + a.walk.legR + Math.floor(a.legH * 0.6), 2, 2);
+    // Gold ankle bands
+    ctx.fillStyle = goldColor;
+    ctx.fillRect(a.leftLegX + lLegOff - 1, a.legsTopY + a.walk.legL + a.legH - 4, a.legW + 2, 2);
+    ctx.fillRect(a.rightLegX - rLegOff - 1, a.legsTopY + a.walk.legR + a.legH - 4, a.legW + 2, 2);
+    // Desiccated feet
+    ctx.fillStyle = skinColor;
     ctx.fillRect(a.leftLegX + lLegOff - 1, a.legsTopY + a.walk.legL + a.legH - 1, a.legW + 2, 2);
     ctx.fillRect(a.rightLegX - rLegOff - 1, a.legsTopY + a.walk.legR + a.legH - 1, a.legW + 2, 2);
 
@@ -1176,192 +1355,224 @@ function _drawOrk(ctx, a, dir, colors) {
     const cx = Math.floor(a.torsoX + a.torsoW / 2);
     const bob = a.walk.bob;
 
-    // Hulking top-heavy proportions with forward lean
+    // Extra-wide hulking proportions
     const orkTorsoW = a.torsoW + 6;
     const orkTorsoX = Math.floor(cx - orkTorsoW / 2);
     const orkArmW = a.armW + 3;
-    const lean = dir === DIR_DOWN ? 1 : (dir === DIR_UP ? -1 : 0);
-    const orkTorsoY = a.torsoY + bob + lean;
-
-    // --- Back arms (massive, with bicep bulge) ---
-    if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        _drawArm(ctx, cx + Math.floor(orkTorsoW / 2), a.shoulderY + a.walk.armR, orkArmW, a.armH + 2, colors, 'right');
-        // Bicep bulge
-        ctx.fillStyle = colors.skin;
-        ctx.fillRect(cx + Math.floor(orkTorsoW / 2) - 1, a.shoulderY + a.walk.armR + 1, orkArmW + 2, 3);
-    }
-    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        _drawArm(ctx, cx - Math.floor(orkTorsoW / 2) - orkArmW, a.shoulderY + a.walk.armL, orkArmW, a.armH + 2, colors, 'left');
-        ctx.fillStyle = colors.skin;
-        ctx.fillRect(cx - Math.floor(orkTorsoW / 2) - orkArmW - 1, a.shoulderY + a.walk.armL + 1, orkArmW + 2, 3);
-    }
-    // Spiked wrist bracers on back arms
-    ctx.fillStyle = '#554433';
-    if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        const bY = a.shoulderY + a.walk.armR + a.armH - 2;
-        ctx.fillRect(cx + Math.floor(orkTorsoW / 2) - 1, bY, orkArmW + 2, 3);
-        ctx.fillStyle = '#888';
-        ctx.fillRect(cx + Math.floor(orkTorsoW / 2), bY - 2, 2, 2);
-        ctx.fillRect(cx + Math.floor(orkTorsoW / 2) + orkArmW - 2, bY - 2, 2, 2);
-    }
-    ctx.fillStyle = '#554433';
-    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        const bY = a.shoulderY + a.walk.armL + a.armH - 2;
-        ctx.fillRect(cx - Math.floor(orkTorsoW / 2) - orkArmW - 1, bY, orkArmW + 2, 3);
-        ctx.fillStyle = '#888';
-        ctx.fillRect(cx - Math.floor(orkTorsoW / 2) - orkArmW, bY - 2, 2, 2);
-        ctx.fillRect(cx - Math.floor(orkTorsoW / 2) - 2, bY - 2, 2, 2);
-    }
-
-    // --- Thick legs with heavy plated boots ---
     const orkLegW = a.legW + 3;
+    const orkTorsoY = a.torsoY + bob;
+
+    // Helper: draw iron bracer with spikes
+    function drawBracer(bx, by, w) {
+        ctx.fillStyle = '#555555';
+        ctx.fillRect(bx - 1, by, w + 2, 3);
+        ctx.fillStyle = '#777777';
+        ctx.fillRect(bx, by, w, 1);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(bx - 1, by - 1, 1, 1);
+        ctx.fillRect(bx + w, by - 1, 1, 1);
+        ctx.fillRect(bx + Math.floor(w / 2), by - 2, 1, 2);
+    }
+
+    // --- Back arms (massive with bicep bulge) ---
+    const rArmX = cx + Math.floor(orkTorsoW / 2);
+    const lArmX = cx - Math.floor(orkTorsoW / 2) - orkArmW;
+    if (dir === DIR_DOWN || dir === DIR_LEFT) {
+        _drawArm(ctx, rArmX, a.shoulderY + a.walk.armR, orkArmW, a.armH + 2, colors, 'right');
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(rArmX - 1, a.shoulderY + a.walk.armR + 1, orkArmW + 2, 3);
+        drawBracer(rArmX, a.shoulderY + a.walk.armR + a.armH - 2, orkArmW);
+    }
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
+        _drawArm(ctx, lArmX, a.shoulderY + a.walk.armL, orkArmW, a.armH + 2, colors, 'left');
+        ctx.fillStyle = colors.skin;
+        ctx.fillRect(lArmX - 1, a.shoulderY + a.walk.armL + 1, orkArmW + 2, 3);
+        drawBracer(lArmX, a.shoulderY + a.walk.armL + a.armH - 2, orkArmW);
+    }
+
+    // --- Thick legs with heavy iron boots ---
     _drawLeg(ctx, Math.floor(cx - orkLegW - 1), a.legsTopY + a.walk.legL, orkLegW, a.legH, colors);
     _drawLeg(ctx, Math.floor(cx + 1), a.legsTopY + a.walk.legR, orkLegW, a.legH, colors);
-    // Heavy plated boots
-    ctx.fillStyle = '#443322';
-    const lBootY = a.legsTopY + a.walk.legL + a.legH - 4;
-    const rBootY = a.legsTopY + a.walk.legR + a.legH - 4;
+    // Iron plated boots
+    const lBootY = a.legsTopY + a.walk.legL + a.legH - Math.floor(a.legH * 0.22);
+    const rBootY = a.legsTopY + a.walk.legR + a.legH - Math.floor(a.legH * 0.22);
+    ctx.fillStyle = '#555555';
     ctx.fillRect(Math.floor(cx - orkLegW - 2), lBootY, orkLegW + 4, 6);
     ctx.fillRect(Math.floor(cx), rBootY, orkLegW + 4, 6);
-    // Boot plate lines
-    ctx.fillStyle = '#665544';
+    ctx.fillStyle = '#666666';
     ctx.fillRect(Math.floor(cx - orkLegW - 1), lBootY + 1, orkLegW + 2, 1);
     ctx.fillRect(Math.floor(cx + 1), rBootY + 1, orkLegW + 2, 1);
-    // Boot spikes/rivets
-    ctx.fillStyle = '#888';
-    ctx.fillRect(Math.floor(cx - orkLegW - 2), lBootY, 2, 2);
-    ctx.fillRect(Math.floor(cx + orkLegW + 2), rBootY, 2, 2);
+    ctx.fillStyle = '#888888';
+    ctx.fillRect(Math.floor(cx - orkLegW), lBootY + 3, 2, 1);
+    ctx.fillRect(Math.floor(cx + 2), rBootY + 3, 2, 1);
+    ctx.fillStyle = '#333333';
+    ctx.fillRect(Math.floor(cx - orkLegW - 2), lBootY + 5, orkLegW + 4, 1);
+    ctx.fillRect(Math.floor(cx), rBootY + 5, orkLegW + 4, 1);
 
-    // --- Muscular torso with leather hide vest ---
-    _drawOutlinedRect(ctx, orkTorsoX, orkTorsoY, orkTorsoW, a.torsoH + 1, colors.skin, colors.outline);
+    // --- Muscular torso with iron armor plates ---
+    _drawOutlinedRect(ctx, orkTorsoX, orkTorsoY, orkTorsoW, a.torsoH + 1, colors.skin, '#000000');
     _drawShading(ctx, orkTorsoX, orkTorsoY, orkTorsoW, a.torsoH + 1, colors.mid);
-    // Leather hide vest with ragged edges
-    ctx.fillStyle = '#665533';
-    ctx.fillRect(orkTorsoX + 1, orkTorsoY + 1, orkTorsoW - 2, a.torsoH - 1);
-    ctx.fillStyle = '#776644';
-    ctx.fillRect(orkTorsoX + 2, orkTorsoY + 2, orkTorsoW - 4, a.torsoH - 3);
-    // Vest opening (shows skin)
+    // Iron chest plate
+    ctx.fillStyle = '#666666';
+    ctx.fillRect(orkTorsoX + 2, orkTorsoY + 1, orkTorsoW - 4, Math.floor(a.torsoH * 0.5));
+    ctx.fillStyle = '#777777';
+    ctx.fillRect(orkTorsoX + 3, orkTorsoY + 2, orkTorsoW - 6, 2);
+    ctx.fillStyle = '#555555';
+    ctx.fillRect(orkTorsoX + 2, orkTorsoY + Math.floor(a.torsoH * 0.5), orkTorsoW - 4, 1);
     if (dir === DIR_DOWN) {
         ctx.fillStyle = colors.skin;
-        ctx.fillRect(cx - 2, orkTorsoY + 1, 4, a.torsoH - 2);
+        ctx.fillRect(cx - 2, orkTorsoY + Math.floor(a.torsoH * 0.5) + 1, 4, Math.floor(a.torsoH * 0.4));
     }
-    // Ragged bottom edge of vest
-    ctx.fillStyle = '#665533';
-    for (let x = orkTorsoX + 1; x < orkTorsoX + orkTorsoW - 1; x += 3) {
-        ctx.fillRect(x, orkTorsoY + a.torsoH, 2, 1 + (x % 2));
-    }
-    // Battle scars on torso
+    // Battle scars on exposed skin
     ctx.fillStyle = '#884444';
-    ctx.fillRect(orkTorsoX + 3, orkTorsoY + 3, 3, 1);
-    ctx.fillRect(orkTorsoX + orkTorsoW - 6, orkTorsoY + 5, 1, 3);
+    ctx.fillRect(orkTorsoX + 3, orkTorsoY + Math.floor(a.torsoH * 0.6), 4, 1);
+    ctx.fillRect(orkTorsoX + orkTorsoW - 5, orkTorsoY + Math.floor(a.torsoH * 0.65), 1, 3);
+    // Iron belt
+    ctx.fillStyle = '#555555';
+    ctx.fillRect(orkTorsoX + 1, orkTorsoY + a.torsoH - 2, orkTorsoW - 2, 3);
+    ctx.fillStyle = '#888888';
+    ctx.fillRect(cx - 2, orkTorsoY + a.torsoH - 2, 4, 3);
 
-    // --- Thick neck ---
+    // --- Thick bull neck ---
     ctx.fillStyle = colors.skin;
     ctx.fillRect(cx - 4, a.headY + a.headH - 1, 8, 3);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(cx - 4, a.headY + a.headH - 1, 1, 3);
+    ctx.fillRect(cx + 4, a.headY + a.headH - 1, 1, 3);
 
-    // --- Head ---
+    // --- Broad flat head ---
     if (dir === DIR_UP) _drawHairBack(ctx, a.headX, a.headY, a.headW, a.headH, colors);
-    _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, colors.outline);
+    _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, '#000000');
     _drawShading(ctx, a.headX, a.headY, a.headW, a.headH, colors.mid);
 
-    // Pointed ears (wide)
+    // Pointed ears
     ctx.fillStyle = colors.skin;
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        ctx.fillRect(a.headX - 5, a.headY + 3, 6, 4);
-        ctx.fillRect(a.headX - 7, a.headY + 2, 3, 3);
+        ctx.fillRect(a.headX - 5, a.headY + Math.floor(a.headH * 0.2), 6, 4);
+        ctx.fillRect(a.headX - 7, a.headY + Math.floor(a.headH * 0.15), 3, 3);
         ctx.fillStyle = colors.mid;
-        ctx.fillRect(a.headX - 4, a.headY + 4, 3, 2);
+        ctx.fillRect(a.headX - 4, a.headY + Math.floor(a.headH * 0.3), 3, 2);
     }
     ctx.fillStyle = colors.skin;
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        ctx.fillRect(a.headX + a.headW - 1, a.headY + 3, 6, 4);
-        ctx.fillRect(a.headX + a.headW + 4, a.headY + 2, 3, 3);
+        ctx.fillRect(a.headX + a.headW - 1, a.headY + Math.floor(a.headH * 0.2), 6, 4);
+        ctx.fillRect(a.headX + a.headW + 4, a.headY + Math.floor(a.headH * 0.15), 3, 3);
         ctx.fillStyle = colors.mid;
-        ctx.fillRect(a.headX + a.headW + 1, a.headY + 4, 3, 2);
+        ctx.fillRect(a.headX + a.headW + 1, a.headY + Math.floor(a.headH * 0.3), 3, 2);
     }
 
     // Heavy brow ridge
     if (dir !== DIR_UP) {
-        ctx.fillStyle = colors.outline;
+        ctx.fillStyle = '#000000';
         ctx.fillRect(a.headX + 1, a.headY + Math.floor(a.headH * 0.2), a.headW - 2, 3);
     }
 
-    // Mohawk hairstyle
+    // Mohawk
     ctx.fillStyle = colors.hair;
-    ctx.fillRect(cx - 2, a.headY - 6, 4, 7);
-    ctx.fillRect(cx - 1, a.headY - 8, 3, 3);
-    ctx.fillRect(cx, a.headY - 9, 2, 2);
-    // Mohawk back trail
+    ctx.fillRect(cx - 2, a.headY - Math.floor(a.headH * 0.45), 4, Math.floor(a.headH * 0.55));
+    ctx.fillRect(cx - 1, a.headY - Math.floor(a.headH * 0.6), 3, 3);
+    ctx.fillRect(cx, a.headY - Math.floor(a.headH * 0.7), 2, 2);
     if (dir !== DIR_DOWN) {
         ctx.fillRect(cx - 1, a.headY + 2, 3, a.headH - 4);
     }
 
-    // Large tusks from lower jaw
+    // Heavy underbite jaw
+    if (dir !== DIR_UP) {
+        ctx.fillStyle = colors.skin;
+        if (dir === DIR_DOWN) {
+            ctx.fillRect(a.headX + 1, a.headY + a.headH - 1, a.headW - 2, 3);
+        } else {
+            const jx = dir === DIR_RIGHT ? cx - 2 : cx - Math.floor(a.headW * 0.3);
+            ctx.fillRect(jx, a.headY + a.headH - 1, Math.floor(a.headW * 0.6), 3);
+        }
+        ctx.fillStyle = '#000000';
+        if (dir === DIR_DOWN) {
+            ctx.fillRect(a.headX + 1, a.headY + a.headH + 1, a.headW - 2, 1);
+        }
+    }
+
+    // Large tusks protruding upward from lower jaw
     if (dir !== DIR_UP) {
         ctx.fillStyle = '#eeddcc';
         if (dir === DIR_DOWN) {
-            ctx.fillRect(cx - 6, a.headY + a.headH - 3, 3, 5);
-            ctx.fillRect(cx + 4, a.headY + a.headH - 3, 3, 5);
-            // Tusk tips
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(cx - 5, a.headY + a.headH - 3, 1, 2);
-            ctx.fillRect(cx + 5, a.headY + a.headH - 3, 1, 2);
+            ctx.fillRect(cx - Math.floor(a.headW * 0.4), a.headY + a.headH - 3, 3, 5);
+            ctx.fillRect(cx + Math.floor(a.headW * 0.25), a.headY + a.headH - 3, 3, 5);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(cx - Math.floor(a.headW * 0.4) + 1, a.headY + a.headH - 3, 1, 2);
+            ctx.fillRect(cx + Math.floor(a.headW * 0.25) + 1, a.headY + a.headH - 3, 1, 2);
         } else {
             const tx = dir === DIR_RIGHT ? cx + 3 : cx - 5;
-            ctx.fillRect(tx, a.headY + a.headH - 3, 3, 4);
+            ctx.fillRect(tx, a.headY + a.headH - 3, 3, 5);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(tx + 1, a.headY + a.headH - 3, 1, 2);
         }
     }
 
     // Broad flat nose
     if (dir === DIR_DOWN) {
         ctx.fillStyle = colors.mid;
-        ctx.fillRect(cx - 3, a.headY + a.headH - 6, 6, 3);
-        ctx.fillStyle = '#222';
-        ctx.fillRect(cx - 2, a.headY + a.headH - 5, 1, 1);
-        ctx.fillRect(cx + 2, a.headY + a.headH - 5, 1, 1);
+        ctx.fillRect(cx - 3, a.headY + Math.floor(a.headH * 0.55), 6, 3);
+        ctx.fillStyle = '#222222';
+        ctx.fillRect(cx - 2, a.headY + Math.floor(a.headH * 0.6), 1, 1);
+        ctx.fillRect(cx + 2, a.headY + Math.floor(a.headH * 0.6), 1, 1);
+    } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
+        const nx = dir === DIR_RIGHT ? cx + 4 : cx - 5;
+        ctx.fillStyle = colors.mid;
+        ctx.fillRect(nx, a.headY + Math.floor(a.headH * 0.55), 2, 2);
     }
 
-    // Red war paint stripes on face
+    // Red war paint stripes
     if (dir !== DIR_UP) {
         ctx.fillStyle = '#cc2222';
         if (dir === DIR_DOWN) {
-            ctx.fillRect(a.headX + 3, a.headY + Math.floor(a.headH * 0.3), 2, a.headH - Math.floor(a.headH * 0.3) - 3);
-            ctx.fillRect(a.headX + a.headW - 5, a.headY + Math.floor(a.headH * 0.3), 2, a.headH - Math.floor(a.headH * 0.3) - 3);
+            ctx.fillRect(a.headX + 3, a.headY + Math.floor(a.headH * 0.3), 2, Math.floor(a.headH * 0.5));
+            ctx.fillRect(a.headX + a.headW - 5, a.headY + Math.floor(a.headH * 0.3), 2, Math.floor(a.headH * 0.5));
         } else {
             const px = dir === DIR_RIGHT ? cx + 1 : cx - 3;
-            ctx.fillRect(px, a.headY + Math.floor(a.headH * 0.3), 2, 6);
+            ctx.fillRect(px, a.headY + Math.floor(a.headH * 0.3), 2, Math.floor(a.headH * 0.4));
         }
     }
 
-    // Face (eyes under brow)
-    if (dir !== DIR_UP) {
-        const eyeY = a.headY + Math.floor(a.headH * 0.35) + 2;
-        _drawEyes(ctx, cx, eyeY, dir, colors, 5);
+    // Face scar (diagonal)
+    if (dir === DIR_DOWN) {
+        ctx.fillStyle = '#884444';
+        ctx.fillRect(a.headX + a.headW - 4, a.headY + Math.floor(a.headH * 0.35), 1, 1);
+        ctx.fillRect(a.headX + a.headW - 5, a.headY + Math.floor(a.headH * 0.4), 1, 1);
+        ctx.fillRect(a.headX + a.headW - 6, a.headY + Math.floor(a.headH * 0.45), 1, 1);
     }
 
-    // --- Front arms (massive, with spiked bracers) ---
+    // Small beady angry eyes under brow
+    if (dir !== DIR_UP) {
+        const eyeY = a.headY + Math.floor(a.headH * 0.3) + 2;
+        const eyeColor = colors.eye || '#cc4400';
+        if (dir === DIR_DOWN) {
+            ctx.fillStyle = eyeColor;
+            ctx.fillRect(cx - 4, eyeY, 2, 2);
+            ctx.fillRect(cx + 3, eyeY, 2, 2);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(cx - 3, eyeY + 1, 1, 1);
+            ctx.fillRect(cx + 3, eyeY + 1, 1, 1);
+        } else {
+            const ex = dir === DIR_RIGHT ? cx + 2 : cx - 3;
+            ctx.fillStyle = eyeColor;
+            ctx.fillRect(ex, eyeY, 2, 2);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(ex + 1, eyeY + 1, 1, 1);
+        }
+    }
+
+    // --- Front arms (massive with spiked bracers) ---
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        _drawArm(ctx, cx + Math.floor(orkTorsoW / 2), a.shoulderY + a.walk.armR, orkArmW, a.armH + 2, colors, 'right');
+        _drawArm(ctx, rArmX, a.shoulderY + a.walk.armR, orkArmW, a.armH + 2, colors, 'right');
         ctx.fillStyle = colors.skin;
-        ctx.fillRect(cx + Math.floor(orkTorsoW / 2) - 1, a.shoulderY + a.walk.armR + 1, orkArmW + 2, 3);
-        // Spiked bracer
-        ctx.fillStyle = '#554433';
-        const bY = a.shoulderY + a.walk.armR + a.armH - 2;
-        ctx.fillRect(cx + Math.floor(orkTorsoW / 2) - 1, bY, orkArmW + 2, 3);
-        ctx.fillStyle = '#888';
-        ctx.fillRect(cx + Math.floor(orkTorsoW / 2), bY - 2, 2, 2);
-        ctx.fillRect(cx + Math.floor(orkTorsoW / 2) + orkArmW - 2, bY - 2, 2, 2);
+        ctx.fillRect(rArmX - 1, a.shoulderY + a.walk.armR + 1, orkArmW + 2, 3);
+        drawBracer(rArmX, a.shoulderY + a.walk.armR + a.armH - 2, orkArmW);
     }
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        _drawArm(ctx, cx - Math.floor(orkTorsoW / 2) - orkArmW, a.shoulderY + a.walk.armL, orkArmW, a.armH + 2, colors, 'left');
+        _drawArm(ctx, lArmX, a.shoulderY + a.walk.armL, orkArmW, a.armH + 2, colors, 'left');
         ctx.fillStyle = colors.skin;
-        ctx.fillRect(cx - Math.floor(orkTorsoW / 2) - orkArmW - 1, a.shoulderY + a.walk.armL + 1, orkArmW + 2, 3);
-        ctx.fillStyle = '#554433';
-        const bY = a.shoulderY + a.walk.armL + a.armH - 2;
-        ctx.fillRect(cx - Math.floor(orkTorsoW / 2) - orkArmW - 1, bY, orkArmW + 2, 3);
-        ctx.fillStyle = '#888';
-        ctx.fillRect(cx - Math.floor(orkTorsoW / 2) - orkArmW, bY - 2, 2, 2);
-        ctx.fillRect(cx - Math.floor(orkTorsoW / 2) - 2, bY - 2, 2, 2);
+        ctx.fillRect(lArmX - 1, a.shoulderY + a.walk.armL + 1, orkArmW + 2, 3);
+        drawBracer(lArmX, a.shoulderY + a.walk.armL + a.armH - 2, orkArmW);
     }
 }
 
@@ -1370,20 +1581,20 @@ function _drawRatman(ctx, a, dir, colors) {
     const cx = Math.floor(a.torsoX + a.torsoW / 2);
     const bob = a.walk.bob;
 
-    // Smallest/most hunched race
+    // Hunched lean build — narrower torso, thinner limbs
     const rTorsoW = a.torsoW - 4;
     const rTorsoX = Math.floor(cx - rTorsoW / 2);
-    const rTorsoY = a.torsoY + bob + 3; // very hunched
-    const rArmW = a.armW - 2; // thinnest limbs
+    const rTorsoH = a.torsoH - 3;
+    const rTorsoY = a.torsoY + bob + 3;
+    const rArmW = a.armW - 2;
     const rLegW = a.legW - 2;
 
-    // --- Long naked whip tail (behind body) ---
+    // --- Long naked rat tail (behind body, thin curling) ---
     if (dir !== DIR_DOWN) {
         ctx.fillStyle = '#cc9988';
         const td = dir === DIR_LEFT ? 1 : (dir === DIR_RIGHT ? -1 : 0);
         const tailX = dir === DIR_UP ? cx - 1 : (dir === DIR_LEFT ? rTorsoX + rTorsoW : rTorsoX - 1);
-        const tailY = rTorsoY + a.torsoH - 4;
-        // Long thin naked tail
+        const tailY = rTorsoY + rTorsoH - 2;
         ctx.fillRect(tailX + td * 0, tailY, 2, 2);
         ctx.fillRect(tailX + td * 2, tailY + 1, 2, 1);
         ctx.fillRect(tailX + td * 3, tailY + 2, 1, 1);
@@ -1393,65 +1604,89 @@ function _drawRatman(ctx, a, dir, colors) {
         ctx.fillRect(tailX + td * 7, tailY + 5, 1, 1);
         ctx.fillRect(tailX + td * 8, tailY + 4, 1, 1);
         ctx.fillRect(tailX + td * 9, tailY + 3, 1, 1);
-        ctx.fillRect(tailX + td * 10, tailY + 3, 1, 1);
+        ctx.fillRect(tailX + td * 10, tailY + 2, 1, 1);
+        ctx.fillRect(tailX + td * 11, tailY + 1, 1, 1);
+        // Outline tip
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(tailX + td * 11, tailY + 1, 1, 1);
     }
 
-    // --- Back arms (thinnest, with grabby long fingers) ---
+    // --- Back arms (thin with clawed paw-hands) ---
     if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, a.rightArmX + 1, a.shoulderY + a.walk.armR + 2, rArmW, a.armH, colors, 'right');
     if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, a.leftArmX, a.shoulderY + a.walk.armL + 2, rArmW, a.armH, colors, 'left');
 
-    // --- Thin legs ---
+    // --- Thin legs with clawed feet ---
     _drawLeg(ctx, a.leftLegX + 1, a.legsTopY + a.walk.legL, rLegW, a.legH, colors);
     _drawLeg(ctx, a.rightLegX, a.legsTopY + a.walk.legR, rLegW, a.legH, colors);
-    // Ratty clawed feet
-    ctx.fillStyle = '#cc9988';
+    // Clawed rat feet
     const lfY = a.legsTopY + a.walk.legL + a.legH - 1;
     const rfY = a.legsTopY + a.walk.legR + a.legH - 1;
+    ctx.fillStyle = '#cc9988';
     ctx.fillRect(a.leftLegX - 1, lfY, rLegW + 3, 2);
     ctx.fillRect(a.rightLegX - 1, rfY, rLegW + 3, 2);
-    ctx.fillStyle = colors.outline;
+    // Claw tips
+    ctx.fillStyle = '#000000';
     ctx.fillRect(a.leftLegX - 1, lfY + 1, 1, 2);
     ctx.fillRect(a.leftLegX + rLegW + 1, lfY + 1, 1, 2);
+    ctx.fillRect(a.leftLegX + Math.floor(rLegW / 2), lfY + 1, 1, 2);
     ctx.fillRect(a.rightLegX - 1, rfY + 1, 1, 2);
     ctx.fillRect(a.rightLegX + rLegW + 1, rfY + 1, 1, 2);
+    ctx.fillRect(a.rightLegX + Math.floor(rLegW / 2), rfY + 1, 1, 2);
 
-    // --- Tattered hooded cloak (behind head, over torso) ---
+    // --- Tattered rags/cloak over torso ---
     ctx.fillStyle = '#554444';
-    // Cloak body draping over torso
-    ctx.fillRect(rTorsoX - 2, rTorsoY - 2, rTorsoW + 4, a.torsoH);
+    ctx.fillRect(rTorsoX - 2, rTorsoY - 2, rTorsoW + 4, rTorsoH + 2);
     ctx.fillStyle = '#443333';
     ctx.fillRect(rTorsoX - 3, rTorsoY - 1, rTorsoW + 6, 2);
-    // Ragged cloak bottom
+    // Ragged bottom edge
     for (let x = rTorsoX - 2; x < rTorsoX + rTorsoW + 2; x += 2) {
         ctx.fillStyle = '#554444';
-        ctx.fillRect(x, rTorsoY + a.torsoH - 2, 1, 1 + (x % 3));
+        ctx.fillRect(x, rTorsoY + rTorsoH - 1, 1, 1 + (x % 3));
     }
-    // Cloak hood (behind head)
-    ctx.fillStyle = '#554444';
-    ctx.fillRect(a.headX - 2, a.headY - 2, a.headW + 4, a.headH + 2);
-    ctx.fillStyle = '#443333';
-    ctx.fillRect(a.headX - 3, a.headY - 3, a.headW + 6, 4);
-    ctx.fillRect(a.headX - 3, a.headY - 2, 3, a.headH);
-    ctx.fillRect(a.headX + a.headW, a.headY - 2, 3, a.headH);
+    // Tattered patches / holes showing skin
+    ctx.fillStyle = colors.skin;
+    ctx.fillRect(rTorsoX + 1, rTorsoY + Math.floor(rTorsoH * 0.3), 2, 2);
+    ctx.fillRect(rTorsoX + rTorsoW - 3, rTorsoY + Math.floor(rTorsoH * 0.5), 2, 3);
 
-    // --- Hunched torso (under cloak, just skin edges visible) ---
-    _drawOutlinedRect(ctx, rTorsoX, rTorsoY, rTorsoW, a.torsoH - 3, colors.skin, colors.outline);
-    _drawShading(ctx, rTorsoX, rTorsoY, rTorsoW, a.torsoH - 3, colors.mid);
+    // --- Hunched torso under rags ---
+    _drawOutlinedRect(ctx, rTorsoX, rTorsoY, rTorsoW, rTorsoH, colors.skin, '#000000');
+    _drawShading(ctx, rTorsoX, rTorsoY, rTorsoW, rTorsoH, colors.mid);
 
-    // --- Head with long pointed snout ---
-    _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, colors.outline);
+    // Mangy fur texture on torso
+    ctx.fillStyle = colors.mid;
+    ctx.globalAlpha = 0.4;
+    for (let fy = rTorsoY + 2; fy < rTorsoY + rTorsoH - 2; fy += 3) {
+        ctx.fillRect(rTorsoX + 1 + (fy % 2), fy, 1, 1);
+        ctx.fillRect(rTorsoX + rTorsoW - 2 - (fy % 2), fy, 1, 1);
+    }
+    ctx.globalAlpha = 1.0;
+
+    // --- Head with pointed rat snout ---
+    _drawOutlinedRect(ctx, a.headX, a.headY, a.headW, a.headH, colors.skin, '#000000');
     _drawShading(ctx, a.headX, a.headY, a.headW, a.headH, colors.mid);
 
-    // HUGE round ears
+    // Mangy fur texture on head
+    ctx.fillStyle = colors.mid;
+    ctx.globalAlpha = 0.3;
+    ctx.fillRect(a.headX + 2, a.headY + 1, 1, 1);
+    ctx.fillRect(a.headX + a.headW - 3, a.headY + 2, 1, 1);
+    ctx.fillRect(a.headX + 4, a.headY + Math.floor(a.headH * 0.6), 1, 1);
+    ctx.globalAlpha = 1.0;
+
+    // Large round ears
     ctx.fillStyle = colors.skin;
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
         ctx.fillRect(a.headX - 5, a.headY - 5, 8, 8);
-        ctx.fillStyle = '#ddaaaa'; // Pink inner ear
+        ctx.fillStyle = '#ddaaaa';
         ctx.fillRect(a.headX - 4, a.headY - 4, 6, 6);
         ctx.fillStyle = colors.skin;
         ctx.fillRect(a.headX - 3, a.headY - 3, 4, 4);
         ctx.fillStyle = '#ddaaaa';
         ctx.fillRect(a.headX - 2, a.headY - 2, 2, 2);
+        // Ear outline
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX - 5, a.headY - 5, 8, 1);
+        ctx.fillRect(a.headX - 5, a.headY - 5, 1, 8);
     }
     ctx.fillStyle = colors.skin;
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
@@ -1462,9 +1697,12 @@ function _drawRatman(ctx, a, dir, colors) {
         ctx.fillRect(a.headX + a.headW - 1, a.headY - 3, 4, 4);
         ctx.fillStyle = '#ddaaaa';
         ctx.fillRect(a.headX + a.headW, a.headY - 2, 2, 2);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX + a.headW - 3, a.headY - 5, 8, 1);
+        ctx.fillRect(a.headX + a.headW + 4, a.headY - 5, 1, 8);
     }
 
-    // Long pointed whiskered snout
+    // Pointed snout with buck teeth and whiskers
     if (dir === DIR_DOWN) {
         ctx.fillStyle = colors.skin;
         ctx.fillRect(cx - 3, a.headY + a.headH - 2, 6, 5);
@@ -1473,26 +1711,31 @@ function _drawRatman(ctx, a, dir, colors) {
         // Pink nose
         ctx.fillStyle = '#ee8899';
         ctx.fillRect(cx - 1, a.headY + a.headH + 5, 2, 2);
-        // Front incisors
+        // Buck teeth
         ctx.fillStyle = '#ffffee';
         ctx.fillRect(cx - 1, a.headY + a.headH + 3, 1, 2);
         ctx.fillRect(cx + 1, a.headY + a.headH + 3, 1, 2);
-        // 3+ whiskers per side
-        ctx.fillStyle = colors.outline;
-        ctx.fillRect(a.headX - 4, a.headY + Math.floor(a.headH * 0.55), 5, 1);
-        ctx.fillRect(a.headX - 5, a.headY + Math.floor(a.headH * 0.65), 6, 1);
-        ctx.fillRect(a.headX - 3, a.headY + Math.floor(a.headH * 0.75), 4, 1);
-        ctx.fillRect(a.headX + a.headW, a.headY + Math.floor(a.headH * 0.55), 5, 1);
-        ctx.fillRect(a.headX + a.headW, a.headY + Math.floor(a.headH * 0.65), 6, 1);
-        ctx.fillRect(a.headX + a.headW, a.headY + Math.floor(a.headH * 0.75), 4, 1);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx, a.headY + a.headH + 3, 1, 2);
+        // Long thin whiskers (3 per side)
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX - 5, a.headY + Math.floor(a.headH * 0.5), 6, 1);
+        ctx.fillRect(a.headX - 6, a.headY + Math.floor(a.headH * 0.6), 7, 1);
+        ctx.fillRect(a.headX - 4, a.headY + Math.floor(a.headH * 0.7), 5, 1);
+        ctx.fillRect(a.headX + a.headW, a.headY + Math.floor(a.headH * 0.5), 6, 1);
+        ctx.fillRect(a.headX + a.headW, a.headY + Math.floor(a.headH * 0.6), 7, 1);
+        ctx.fillRect(a.headX + a.headW, a.headY + Math.floor(a.headH * 0.7), 5, 1);
     } else if (dir === DIR_LEFT) {
         ctx.fillStyle = colors.skin;
         ctx.fillRect(a.headX - 7, a.headY + Math.floor(a.headH * 0.4), 8, 4);
         ctx.fillRect(a.headX - 9, a.headY + Math.floor(a.headH * 0.45), 3, 3);
         ctx.fillStyle = '#ee8899';
         ctx.fillRect(a.headX - 10, a.headY + Math.floor(a.headH * 0.47), 2, 2);
+        // Buck teeth on side
+        ctx.fillStyle = '#ffffee';
+        ctx.fillRect(a.headX - 8, a.headY + Math.floor(a.headH * 0.55), 1, 2);
         // Side whiskers
-        ctx.fillStyle = colors.outline;
+        ctx.fillStyle = '#000000';
         ctx.fillRect(a.headX - 12, a.headY + Math.floor(a.headH * 0.4), 4, 1);
         ctx.fillRect(a.headX - 11, a.headY + Math.floor(a.headH * 0.5), 3, 1);
         ctx.fillRect(a.headX - 10, a.headY + Math.floor(a.headH * 0.6), 3, 1);
@@ -1502,46 +1745,48 @@ function _drawRatman(ctx, a, dir, colors) {
         ctx.fillRect(a.headX + a.headW + 6, a.headY + Math.floor(a.headH * 0.45), 3, 3);
         ctx.fillStyle = '#ee8899';
         ctx.fillRect(a.headX + a.headW + 8, a.headY + Math.floor(a.headH * 0.47), 2, 2);
-        ctx.fillStyle = colors.outline;
+        ctx.fillStyle = '#ffffee';
+        ctx.fillRect(a.headX + a.headW + 7, a.headY + Math.floor(a.headH * 0.55), 1, 2);
+        ctx.fillStyle = '#000000';
         ctx.fillRect(a.headX + a.headW + 8, a.headY + Math.floor(a.headH * 0.4), 4, 1);
         ctx.fillRect(a.headX + a.headW + 8, a.headY + Math.floor(a.headH * 0.5), 3, 1);
         ctx.fillRect(a.headX + a.headW + 7, a.headY + Math.floor(a.headH * 0.6), 3, 1);
     }
 
-    // Beady gleaming eyes
+    // Beady red/black eyes
     if (dir !== DIR_UP) {
         const eyeY = a.headY + Math.floor(a.headH * 0.3);
-        ctx.fillStyle = colors.eye;
+        const eyeColor = colors.eye || '#cc2222';
         if (dir === DIR_DOWN) {
+            ctx.fillStyle = eyeColor;
             ctx.fillRect(cx - 5, eyeY, 3, 3);
             ctx.fillRect(cx + 3, eyeY, 3, 3);
-            // Gleam highlight
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = '#ffffff';
             ctx.fillRect(cx - 4, eyeY, 1, 1);
             ctx.fillRect(cx + 4, eyeY, 1, 1);
-            // Dark pupil
-            ctx.fillStyle = '#111';
+            ctx.fillStyle = '#111111';
             ctx.fillRect(cx - 4, eyeY + 1, 2, 2);
             ctx.fillRect(cx + 3, eyeY + 1, 2, 2);
         } else {
             const ex = dir === DIR_RIGHT ? cx + 2 : cx - 4;
+            ctx.fillStyle = eyeColor;
             ctx.fillRect(ex, eyeY, 3, 3);
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = '#ffffff';
             ctx.fillRect(ex + 1, eyeY, 1, 1);
-            ctx.fillStyle = '#111';
+            ctx.fillStyle = '#111111';
             ctx.fillRect(ex, eyeY + 1, 2, 2);
         }
     }
 
-    // --- Front arms (thin, with grabby long-fingered hands) ---
+    // --- Front arms (thin with grabby clawed paw-hands) ---
     if (dir === DIR_DOWN || dir === DIR_RIGHT) _drawArm(ctx, a.rightArmX + 1, a.shoulderY + a.walk.armR + 2, rArmW, a.armH, colors, 'right');
     if (dir === DIR_DOWN || dir === DIR_LEFT) _drawArm(ctx, a.leftArmX, a.shoulderY + a.walk.armL + 2, rArmW, a.armH, colors, 'left');
-    // Grabby long-fingered hands
+    // Clawed paw-hands with long fingers
     ctx.fillStyle = '#cc9988';
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
         const hy = a.shoulderY + a.walk.armR + 2 + a.armH;
         ctx.fillRect(a.rightArmX, hy, rArmW + 1, 2);
-        ctx.fillStyle = colors.outline;
+        ctx.fillStyle = '#000000';
         ctx.fillRect(a.rightArmX - 1, hy + 1, 1, 3);
         ctx.fillRect(a.rightArmX + Math.floor(rArmW / 2), hy + 1, 1, 3);
         ctx.fillRect(a.rightArmX + rArmW, hy + 1, 1, 3);
@@ -1550,7 +1795,7 @@ function _drawRatman(ctx, a, dir, colors) {
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
         const hy = a.shoulderY + a.walk.armL + 2 + a.armH;
         ctx.fillRect(a.leftArmX, hy, rArmW + 1, 2);
-        ctx.fillStyle = colors.outline;
+        ctx.fillStyle = '#000000';
         ctx.fillRect(a.leftArmX - 1, hy + 1, 1, 3);
         ctx.fillRect(a.leftArmX + Math.floor(rArmW / 2), hy + 1, 1, 3);
         ctx.fillRect(a.leftArmX + rArmW, hy + 1, 1, 3);
@@ -1560,66 +1805,132 @@ function _drawRatman(ctx, a, dir, colors) {
 // ── Race 19: Robot ──────────────────────────────────────────────────────────
 function _drawRobot(ctx, a, dir, colors) {
     const cx = Math.floor(a.torsoX + a.torsoW / 2);
-    const metalColor = colors.skin;
-    const metalDark = colors.outline;
-    const metalMid = colors.mid;
+    const bob = a.walk.bob;
+    const metalColor = colors.skin || '#b8b8c8';
+    const metalDark = '#555566';
+    const metalMid = colors.mid || '#8888a0';
+    const metalLight = '#d0d0e0';
+    const glowColor = colors.eye || '#44ddff';
 
-    // Segmented/jointed arms
-    if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        _drawOutlinedRect(ctx, a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH, metalColor, metalDark);
-        ctx.fillStyle = metalDark;
-        ctx.fillRect(a.rightArmX, a.shoulderY + a.walk.armR + Math.floor(a.armH / 2), a.armW, 2);
-    }
-    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        _drawOutlinedRect(ctx, a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH, metalColor, metalDark);
-        ctx.fillStyle = metalDark;
-        ctx.fillRect(a.leftArmX, a.shoulderY + a.walk.armL + Math.floor(a.armH / 2), a.armW, 2);
+    // Helper: draw riveted plate segment
+    function drawPlate(px, py, pw, ph) {
+        _drawOutlinedRect(ctx, px, py, pw, ph, metalColor, '#000000');
+        _drawSoftShading(ctx, px, py, pw, ph, metalDark);
+        ctx.fillStyle = metalLight;
+        ctx.fillRect(px + 1, py + 1, 1, 1);
+        ctx.fillRect(px + pw - 2, py + 1, 1, 1);
+        ctx.fillRect(px + 1, py + ph - 2, 1, 1);
+        ctx.fillRect(px + pw - 2, py + ph - 2, 1, 1);
     }
 
-    // Piston-like legs
-    _drawOutlinedRect(ctx, a.leftLegX, a.legsTopY + a.walk.legL, a.legW, a.legH, metalColor, metalDark);
-    _drawOutlinedRect(ctx, a.rightLegX, a.legsTopY + a.walk.legR, a.legW, a.legH, metalColor, metalDark);
-    // Joint circles on legs
+    // Helper: draw segmented mechanical arm
+    function drawMechArm(ax, ay, w, h) {
+        const elbowOff = Math.floor(h * 0.45);
+        drawPlate(ax, ay, w, elbowOff);
+        ctx.fillStyle = metalDark;
+        ctx.fillRect(ax - 1, ay + elbowOff, w + 2, 3);
+        ctx.fillStyle = metalLight;
+        ctx.fillRect(ax, ay + elbowOff + 1, w, 1);
+        drawPlate(ax, ay + elbowOff + 3, w, h - elbowOff - 3);
+        ctx.fillStyle = metalDark;
+        ctx.fillRect(ax - 1, ay + h, w + 2, 3);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(ax - 1, ay + h + 2, 1, 2);
+        ctx.fillRect(ax + w, ay + h + 2, 1, 2);
+        ctx.fillRect(ax + Math.floor(w / 2), ay + h + 2, 1, 2);
+    }
+
+    // --- Back arms ---
+    if (dir === DIR_DOWN || dir === DIR_LEFT) drawMechArm(a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH);
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) drawMechArm(a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH);
+
+    // --- Piston-like legs with knee joints ---
+    const lLegY = a.legsTopY + a.walk.legL;
+    const rLegY = a.legsTopY + a.walk.legR;
+    const kneeOff = Math.floor(a.legH * 0.45);
+    drawPlate(a.leftLegX, lLegY, a.legW, kneeOff);
+    drawPlate(a.rightLegX, rLegY, a.legW, kneeOff);
     ctx.fillStyle = metalDark;
-    ctx.fillRect(a.leftLegX + 1, a.legsTopY + a.walk.legL + Math.floor(a.legH / 2), a.legW - 2, 2);
-    ctx.fillRect(a.rightLegX + 1, a.legsTopY + a.walk.legR + Math.floor(a.legH / 2), a.legW - 2, 2);
-    // Flat rectangular feet
-    ctx.fillRect(a.leftLegX - 2, a.legsTopY + a.walk.legL + a.legH - 2, a.legW + 4, 4);
-    ctx.fillRect(a.rightLegX - 2, a.legsTopY + a.walk.legR + a.legH - 2, a.legW + 4, 4);
+    ctx.fillRect(a.leftLegX - 1, lLegY + kneeOff, a.legW + 2, 3);
+    ctx.fillRect(a.rightLegX - 1, rLegY + kneeOff, a.legW + 2, 3);
+    ctx.fillStyle = metalLight;
+    ctx.fillRect(a.leftLegX, lLegY + kneeOff + 1, a.legW, 1);
+    ctx.fillRect(a.rightLegX, rLegY + kneeOff + 1, a.legW, 1);
+    drawPlate(a.leftLegX, lLegY + kneeOff + 3, a.legW, a.legH - kneeOff - 3);
+    drawPlate(a.rightLegX, rLegY + kneeOff + 3, a.legW, a.legH - kneeOff - 3);
+    // Flat mechanical feet
+    ctx.fillStyle = metalDark;
+    ctx.fillRect(a.leftLegX - 2, lLegY + a.legH - 2, a.legW + 4, 4);
+    ctx.fillRect(a.rightLegX - 2, rLegY + a.legH - 2, a.legW + 4, 4);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(a.leftLegX - 2, lLegY + a.legH + 1, a.legW + 4, 1);
+    ctx.fillRect(a.rightLegX - 2, rLegY + a.legH + 1, a.legW + 4, 1);
 
-    // Rectangular mechanical torso
+    // --- Rectangular mechanical torso with chest panel ---
     const rTorsoW = a.torsoW + 2;
     const rTorsoX = Math.floor(cx - rTorsoW / 2);
-    _drawOutlinedRect(ctx, rTorsoX, a.torsoY + a.walk.bob, rTorsoW, a.torsoH, metalColor, metalDark);
-    // Panel lines
+    const rTorsoY = a.torsoY + bob;
+    drawPlate(rTorsoX, rTorsoY, rTorsoW, a.torsoH);
     ctx.fillStyle = metalDark;
-    ctx.fillRect(rTorsoX + 2, a.torsoY + a.walk.bob + 2, rTorsoW - 4, 1);
-    ctx.fillRect(rTorsoX + 2, a.torsoY + a.walk.bob + a.torsoH - 3, rTorsoW - 4, 1);
-    // Chest light (glowing dot)
+    ctx.fillRect(rTorsoX + 2, rTorsoY + 2, rTorsoW - 4, 1);
+    ctx.fillRect(rTorsoX + 2, rTorsoY + a.torsoH - 3, rTorsoW - 4, 1);
+    ctx.fillRect(cx, rTorsoY + 3, 1, a.torsoH - 6);
+    // Glowing core on chest
     if (dir !== DIR_UP) {
-        const frame = a.walk.bob === 0 ? 0 : 1;
-        ctx.fillStyle = frame ? colors.eye : '#fff';
-        ctx.fillRect(cx - 1, a.torsoY + a.walk.bob + Math.floor(a.torsoH / 2) - 1, 3, 3);
+        ctx.fillStyle = glowColor;
+        ctx.fillRect(cx - 2, rTorsoY + Math.floor(a.torsoH * 0.3), 4, 4);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - 1, rTorsoY + Math.floor(a.torsoH * 0.3) + 1, 2, 2);
+        ctx.fillStyle = glowColor;
+        ctx.globalAlpha = 0.2;
+        ctx.fillRect(cx - 3, rTorsoY + Math.floor(a.torsoH * 0.3) - 1, 6, 6);
+        ctx.globalAlpha = 1.0;
+    }
+    // Exhaust vents on sides
+    ctx.fillStyle = metalDark;
+    ctx.fillRect(rTorsoX + 1, rTorsoY + Math.floor(a.torsoH * 0.6), 2, 3);
+    ctx.fillRect(rTorsoX + rTorsoW - 3, rTorsoY + Math.floor(a.torsoH * 0.6), 2, 3);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(rTorsoX + 1, rTorsoY + Math.floor(a.torsoH * 0.6) + 1, 2, 1);
+    ctx.fillRect(rTorsoX + rTorsoW - 3, rTorsoY + Math.floor(a.torsoH * 0.6) + 1, 2, 1);
+    if (dir === DIR_DOWN) {
+        ctx.fillStyle = metalMid;
+        ctx.fillRect(cx - 4, rTorsoY + Math.floor(a.torsoH * 0.7), 2, 2);
+        ctx.fillRect(cx + 3, rTorsoY + Math.floor(a.torsoH * 0.7), 2, 2);
     }
 
-    // Square blocky head
+    // --- Neck cylinder ---
+    ctx.fillStyle = metalDark;
+    ctx.fillRect(cx - 2, a.headY + a.headH - 1, 4, 3);
+
+    // --- Square blocky head ---
     const robotHeadH = a.headH - 2;
-    _drawOutlinedRect(ctx, a.headX, a.headY + 1, a.headW, robotHeadH, metalColor, metalDark);
+    drawPlate(a.headX, a.headY + 1, a.headW, robotHeadH);
+    ctx.fillStyle = metalDark;
+    ctx.fillRect(a.headX + 2, a.headY + 2, a.headW - 4, 1);
+    ctx.fillRect(a.headX + 2, a.headY + robotHeadH - 1, a.headW - 4, 1);
 
     // Antenna
-    ctx.fillStyle = metalDark;
-    ctx.fillRect(cx - 1, a.headY - 6, 2, 7);
-    // Antenna blinks on certain frames
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(cx - 1, a.headY - Math.floor(a.headH * 0.45), 2, Math.floor(a.headH * 0.5));
     const blinkFrame = (a.walk.armL !== 0);
-    ctx.fillStyle = blinkFrame ? colors.eye : metalMid;
-    ctx.fillRect(cx - 2, a.headY - 7, 4, 2);
+    ctx.fillStyle = blinkFrame ? glowColor : metalMid;
+    ctx.fillRect(cx - 2, a.headY - Math.floor(a.headH * 0.5), 4, 2);
+    if (blinkFrame) {
+        ctx.fillStyle = glowColor;
+        ctx.globalAlpha = 0.25;
+        ctx.fillRect(cx - 3, a.headY - Math.floor(a.headH * 0.55), 6, 4);
+        ctx.globalAlpha = 1.0;
+    }
 
-    // Visor-line for eyes
+    // Glowing visor (horizontal slit)
     if (dir !== DIR_UP) {
-        const visorY = a.headY + Math.floor(robotHeadH * 0.4);
-        ctx.fillStyle = colors.eye;
+        const visorY = a.headY + 1 + Math.floor(robotHeadH * 0.35);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(a.headX + 2, visorY - 1, a.headW - 4, 5);
+        ctx.fillStyle = glowColor;
         ctx.fillRect(a.headX + 3, visorY, a.headW - 6, 3);
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = '#ffffff';
         if (dir === DIR_DOWN) {
             ctx.fillRect(a.headX + 4, visorY + 1, 2, 1);
             ctx.fillRect(a.headX + a.headW - 6, visorY + 1, 2, 1);
@@ -1627,24 +1938,25 @@ function _drawRobot(ctx, a, dir, colors) {
             const ex = dir === DIR_RIGHT ? a.headX + a.headW - 6 : a.headX + 4;
             ctx.fillRect(ex, visorY + 1, 2, 1);
         }
+        ctx.fillStyle = glowColor;
+        ctx.globalAlpha = 0.15;
+        ctx.fillRect(a.headX + 2, visorY - 2, a.headW - 4, 7);
+        ctx.globalAlpha = 1.0;
     }
 
-    // Bolt/rivet dots at joints
-    ctx.fillStyle = metalMid;
-    ctx.fillRect(a.leftArmX + 1, a.shoulderY + a.walk.armL + 1, 2, 2);
-    ctx.fillRect(a.rightArmX + a.armW - 3, a.shoulderY + a.walk.armR + 1, 2, 2);
+    // Speaker grille on lower head
+    if (dir === DIR_DOWN) {
+        ctx.fillStyle = metalDark;
+        ctx.fillRect(cx - 3, a.headY + 1 + Math.floor(robotHeadH * 0.7), 6, 2);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx - 2, a.headY + 1 + Math.floor(robotHeadH * 0.7), 1, 1);
+        ctx.fillRect(cx, a.headY + 1 + Math.floor(robotHeadH * 0.7), 1, 1);
+        ctx.fillRect(cx + 2, a.headY + 1 + Math.floor(robotHeadH * 0.7), 1, 1);
+    }
 
-    // Front arms
-    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        _drawOutlinedRect(ctx, a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH, metalColor, metalDark);
-        ctx.fillStyle = metalDark;
-        ctx.fillRect(a.rightArmX, a.shoulderY + a.walk.armR + Math.floor(a.armH / 2), a.armW, 2);
-    }
-    if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        _drawOutlinedRect(ctx, a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH, metalColor, metalDark);
-        ctx.fillStyle = metalDark;
-        ctx.fillRect(a.leftArmX, a.shoulderY + a.walk.armL + Math.floor(a.armH / 2), a.armW, 2);
-    }
+    // --- Front arms ---
+    if (dir === DIR_DOWN || dir === DIR_RIGHT) drawMechArm(a.rightArmX, a.shoulderY + a.walk.armR, a.armW, a.armH);
+    if (dir === DIR_DOWN || dir === DIR_LEFT) drawMechArm(a.leftArmX, a.shoulderY + a.walk.armL, a.armW, a.armH);
 }
 
 // ── Race 20: Shark man ──────────────────────────────────────────────────────
