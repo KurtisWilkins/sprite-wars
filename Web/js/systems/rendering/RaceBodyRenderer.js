@@ -1,12 +1,11 @@
 /**
- * RaceBodyRenderer.js — Adventure-Quest-style race-specific body rendering (Races 1-12).
+ * RaceBodyRenderer.js — Chibi doodle-style race-specific body rendering (Races 1-12).
  * Each race has a unique body shape, head features, and distinguishing characteristics
  * drawn in 64×64 logical space, rendered at 256×256 via 4× supersampling.
  *
- * Art style: Adventure Quest / heroic fantasy — thick 2px black outlines,
- * heroic proportions (~4.5 heads tall), broader shoulders, defined hands,
- * tall detailed boots, cel-shaded with hard shadows + specular highlights,
- * rich equipment/armor detail, expressive race-specific features.
+ * Art style: Chibi doodle — oversized round heads (~50% of height), ~2.5 heads tall,
+ * large anime eyes, tiny bodies, stubby limbs, bold 1.5px outlines, flat cel-shaded
+ * fills, saturated colors, no gradients. Matches equipment sprite sheet art style.
  *
  * Race mappings:
  *   1=Bug man, 2=Bear man, 3=Bird man, 4=Demon, 5=Devil, 6=Cat man,
@@ -35,12 +34,12 @@ export const RACE_BODY_TYPES = {
     12: 'human',
 };
 
-// Walk animation cycles (4 frames) — heroic stride with pronounced arm swing
+// Walk animation cycles (4 frames) — bouncy chibi stride
 const WALK_CYCLES = [
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: -5, armR: 5,  legL: 5,  legR: -4, bob: -1 },
+    { armL: -3, armR: 3,  legL: 3,  legR: -2, bob: -2 },
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: 5,  armR: -5, legL: -4, legR: 5,  bob: -1 },
+    { armL: 3,  armR: -3, legL: -2, legR: 3,  bob: -2 },
 ];
 
 // ── roundRect polyfill for older mobile WebViews ────────────────────────────
@@ -62,10 +61,10 @@ if (typeof CanvasRenderingContext2D !== 'undefined' &&
     };
 }
 
-// ── AQ-Style Rendering Helpers ──────────────────────────────────────────────
+// ── Chibi Doodle Style Helpers ──────────────────────────────────────────────
 
-/** Thick clean outline around a rounded rectangle (AQ-style 2px black outline) */
-function _drawCleanRectOutline(ctx, x, y, w, h, color = '#000000', lineWidth = 2) {
+/** Clean outline around a rounded rectangle (chibi-style 1.5px outline) */
+function _drawCleanRectOutline(ctx, x, y, w, h, color = '#111111', lineWidth = 1.5) {
     const fx = Math.floor(x);
     const fy = Math.floor(y);
     const r = Math.min(2, w / 4, h / 4);
@@ -89,8 +88,8 @@ function _drawOutlinedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     ctx.beginPath();
     ctx.roundRect(fx, fy, w, h, r);
     ctx.fill();
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#111111';
+    ctx.lineWidth = 1.5;
     ctx.lineJoin = 'round';
     ctx.stroke();
 }
@@ -103,310 +102,165 @@ function _drawRoundedRect(ctx, x, y, w, h, fillColor, outlineColor) {
     ctx.beginPath();
     ctx.roundRect(fx, fy, w, h, r);
     ctx.fill();
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#111111';
+    ctx.lineWidth = 1.5;
     ctx.lineJoin = 'round';
     ctx.stroke();
 }
 
-/** AQ-style cel-shading: hard shadow on right + specular highlight on left */
+/** Chibi cel-shading: simple shadow on right side */
 function _drawShading(ctx, x, y, w, h, midColor) {
-    const fx = Math.floor(x);
-    const fy = Math.floor(y);
-    // Right shadow
-    const sx = fx + Math.floor(w * 0.6);
-    const sy = fy + 2;
-    const sw = Math.ceil(w * 0.35);
-    const sh = h - 4;
-    if (sw > 0 && sh > 0) {
-        const r = Math.min(2, sw / 4, sh / 4);
-        ctx.fillStyle = midColor;
-        ctx.globalAlpha = 0.7;
-        ctx.beginPath();
-        ctx.roundRect(sx, sy, sw, sh, r);
-        ctx.fill();
-        ctx.globalAlpha = 1.0;
-    }
-    // Left highlight
-    const hlW = Math.max(1, Math.floor(w * 0.15));
-    const hlH = Math.max(1, h - 6);
-    if (hlH > 0) {
-        ctx.fillStyle = '#ffffff';
-        ctx.globalAlpha = 0.2;
-        ctx.fillRect(fx + 2, fy + 3, hlW, hlH);
-        ctx.globalAlpha = 1.0;
-    }
+    const sx = Math.floor(x) + Math.floor(w * 0.55);
+    const sy = Math.floor(y) + 1;
+    const sw = Math.ceil(w * 0.45) - 1;
+    const sh = h - 2;
+    if (sw <= 0 || sh <= 0) return;
+    const r = Math.min(2, sw / 4, sh / 4);
+    ctx.fillStyle = midColor;
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.roundRect(sx, sy, sw, sh, r);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
 }
 
-/** AQ-style cel-shading with softer highlight */
+/** Chibi cel-shading: softer shadow */
 function _drawSoftShading(ctx, x, y, w, h, midColor) {
-    const fx = Math.floor(x);
-    const fy = Math.floor(y);
-    // Right shadow
-    const sx = fx + Math.floor(w * 0.6);
-    const sy = fy + 2;
-    const sw = Math.ceil(w * 0.35);
-    const sh = h - 4;
-    if (sw > 0 && sh > 0) {
-        const r = Math.min(2, sw / 4, sh / 4);
-        ctx.fillStyle = midColor;
-        ctx.globalAlpha = 0.6;
-        ctx.beginPath();
-        ctx.roundRect(sx, sy, sw, sh, r);
-        ctx.fill();
-        ctx.globalAlpha = 1.0;
-    }
-    // Left highlight
-    const hlW = Math.max(1, Math.floor(w * 0.12));
-    const hlH = Math.max(1, h - 6);
-    if (hlH > 0) {
-        ctx.fillStyle = '#ffffff';
-        ctx.globalAlpha = 0.15;
-        ctx.fillRect(fx + 2, fy + 3, hlW, hlH);
-        ctx.globalAlpha = 1.0;
-    }
+    const sx = Math.floor(x) + Math.floor(w * 0.55);
+    const sy = Math.floor(y) + 1;
+    const sw = Math.ceil(w * 0.45) - 1;
+    const sh = h - 2;
+    if (sw <= 0 || sh <= 0) return;
+    const r = Math.min(2, sw / 4, sh / 4);
+    ctx.fillStyle = midColor;
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath();
+    ctx.roundRect(sx, sy, sw, sh, r);
+    ctx.fill();
+    ctx.globalAlpha = 1.0;
 }
 
-// ── AQ-Style Eyes — expressive with thick lids ──────────────────────────
+// ── Chibi Large Anime Eyes ──────────────────────────────────────────────
 function _drawEyes(ctx, cx, eyeY, dir, colors, spacing) {
     const sp = spacing || 5;
     const eyeColor = colors.eye || '#4488cc';
     if (dir === DIR_DOWN) {
-        // Thick upper eyelid (AQ-style bold)
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(cx - sp - 3, eyeY - 1, 6, 2);
-        ctx.fillRect(cx + sp - 2, eyeY - 1, 6, 2);
-        // White sclera (5×4 — larger, more expressive)
-        ctx.fillStyle = '#f8f4f0';
-        ctx.fillRect(cx - sp - 2, eyeY + 1, 5, 4);
-        ctx.fillRect(cx + sp - 2, eyeY + 1, 5, 4);
-        // Colored iris (3×3)
+        // Large round sclera (5×5 — big chibi eyes)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - sp - 2, eyeY, 5, 5);
+        ctx.fillRect(cx + sp - 2, eyeY, 5, 5);
+        // Colored iris (3×4)
         ctx.fillStyle = eyeColor;
-        ctx.fillRect(cx - sp - 1, eyeY + 1, 3, 3);
-        ctx.fillRect(cx + sp - 1, eyeY + 1, 3, 3);
+        ctx.fillRect(cx - sp - 1, eyeY + 1, 3, 4);
+        ctx.fillRect(cx + sp - 1, eyeY + 1, 3, 4);
         // Dark pupil (2×2)
-        ctx.fillStyle = '#000000';
+        ctx.fillStyle = '#111111';
         ctx.fillRect(cx - sp, eyeY + 2, 2, 2);
         ctx.fillRect(cx + sp, eyeY + 2, 2, 2);
-        // Bright highlight (AQ-style catchlight)
+        // Big bright highlight (chibi sparkle)
         ctx.fillStyle = '#ffffff';
-        ctx.fillRect(cx - sp + 1, eyeY + 1, 1, 1);
-        ctx.fillRect(cx + sp + 1, eyeY + 1, 1, 1);
-        // Lower lid
-        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx - sp + 1, eyeY + 1, 2, 2);
+        ctx.fillRect(cx + sp + 1, eyeY + 1, 2, 2);
+        // Small secondary highlight
+        ctx.fillRect(cx - sp - 1, eyeY + 3, 1, 1);
+        ctx.fillRect(cx + sp - 1, eyeY + 3, 1, 1);
+        // Outline
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(cx - sp - 2, eyeY - 1, 5, 1);
+        ctx.fillRect(cx + sp - 2, eyeY - 1, 5, 1);
         ctx.fillRect(cx - sp - 2, eyeY + 5, 5, 1);
         ctx.fillRect(cx + sp - 2, eyeY + 5, 5, 1);
     } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
-        const ex = dir === DIR_RIGHT ? cx + 2 : cx - 6;
-        // Thick upper lid
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(ex, eyeY - 1, 5, 2);
-        // Sclera
-        ctx.fillStyle = '#f8f4f0';
-        ctx.fillRect(ex, eyeY + 1, 4, 4);
-        // Iris
+        const ex = dir === DIR_RIGHT ? cx + 1 : cx - 5;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(ex, eyeY, 4, 5);
         ctx.fillStyle = eyeColor;
         ctx.fillRect(ex + 1, eyeY + 1, 3, 3);
-        // Pupil
-        ctx.fillStyle = '#000000';
+        ctx.fillStyle = '#111111';
         ctx.fillRect(ex + 1, eyeY + 2, 2, 2);
-        // Highlight
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(ex + 2, eyeY + 1, 1, 1);
-        // Lower lid
-        ctx.fillStyle = '#000000';
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(ex, eyeY - 1, 4, 1);
         ctx.fillRect(ex, eyeY + 5, 4, 1);
     }
 }
 
-// ── AQ-Style Nose ────────────────────────────────────────────────────────
-function _drawNose(ctx, cx, y, dir) {
-    if (dir === DIR_DOWN) {
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(cx - 1, y, 2, 2);
-        ctx.fillRect(cx, y + 2, 1, 1);
-    } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
-        const nx = dir === DIR_RIGHT ? cx + 3 : cx - 4;
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(nx, y, 2, 2);
-    }
-}
-
-// ── AQ-Style Mouth — defined lips ───────────────────────────────────────
+// ── Chibi Mouth — tiny simple line ──────────────────────────────────────
 function _drawMouth(ctx, cx, y, dir, outlineColor) {
     if (dir === DIR_DOWN) {
-        // Upper lip
-        ctx.fillStyle = '#221111';
-        ctx.fillRect(cx - 3, y, 6, 1);
-        // Lower lip (fuller)
-        ctx.fillStyle = '#443333';
-        ctx.fillRect(cx - 2, y + 1, 4, 1);
-        // Lip highlight
-        ctx.fillStyle = '#665555';
-        ctx.fillRect(cx - 1, y + 1, 2, 1);
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(cx - 1, y, 3, 1);
     } else if (dir === DIR_LEFT || dir === DIR_RIGHT) {
-        const mx = dir === DIR_RIGHT ? cx + 2 : cx - 4;
-        ctx.fillStyle = '#221111';
-        ctx.fillRect(mx, y, 3, 1);
-        ctx.fillStyle = '#443333';
-        ctx.fillRect(mx, y + 1, 2, 1);
+        const mx = dir === DIR_RIGHT ? cx + 2 : cx - 3;
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(mx, y, 2, 1);
     }
 }
 
-// ── Blush (no-op in AQ style) ───────────────────────────────────────────
+// ── Blush marks (chibi style pink cheeks) ───────────────────────────────
 function _drawBlush(ctx, cx, blushY, dir, spacing) {
-    // AQ style does not use blush marks
+    if (dir === DIR_DOWN) {
+        const sp = spacing || 6;
+        ctx.fillStyle = '#ff8888';
+        ctx.globalAlpha = 0.25;
+        ctx.fillRect(cx - sp - 1, blushY, 3, 2);
+        ctx.fillRect(cx + sp - 1, blushY, 3, 2);
+        ctx.globalAlpha = 1.0;
+    }
 }
 
-// ── AQ-Style Hair — voluminous with defined strands ─────────────────────
+// ── Chibi Hair — big and spiky ──────────────────────────────────────────
 function _drawHairTop(ctx, x, y, w, dir, hairColor) {
     if (dir !== DIR_UP) {
-        // Darken for hair shadow
-        const r = parseInt(hairColor.slice(1,3),16), g = parseInt(hairColor.slice(3,5),16), b = parseInt(hairColor.slice(5,7),16);
-        const shadowColor = `rgb(${Math.max(0,r-40)},${Math.max(0,g-40)},${Math.max(0,b-40)})`;
-        // Main hair volume
         ctx.fillStyle = hairColor;
-        ctx.fillRect(x - 3, y - 4, w + 6, 7);
-        ctx.fillRect(x - 2, y - 6, w + 4, 3);
-        // Top spike/tuft
-        ctx.fillRect(x + Math.floor(w / 2) - 2, y - 8, 5, 3);
-        ctx.fillRect(x + Math.floor(w / 2) - 1, y - 9, 3, 2);
-        // Side locks
+        // Big fluffy hair mass
+        ctx.fillRect(x - 2, y - 3, w + 4, 6);
+        ctx.fillRect(x - 1, y - 5, w + 2, 3);
+        // Side bangs
         if (dir === DIR_DOWN || dir === DIR_LEFT) {
-            ctx.fillRect(x - 4, y + 1, 5, 8);
-            ctx.fillStyle = shadowColor;
-            ctx.fillRect(x - 3, y + 4, 3, 5);
+            ctx.fillRect(x - 3, y + 1, 4, 7);
         }
-        ctx.fillStyle = hairColor;
         if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-            ctx.fillRect(x + w - 1, y + 1, 5, 8);
-            ctx.fillStyle = shadowColor;
-            ctx.fillRect(x + w, y + 4, 3, 5);
+            ctx.fillRect(x + w - 1, y + 1, 4, 7);
         }
-        // Hair highlight streak
-        ctx.fillStyle = '#ffffff';
-        ctx.globalAlpha = 0.15;
-        ctx.fillRect(x + 1, y - 5, 3, 4);
-        ctx.globalAlpha = 1.0;
-        // Hair outline
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(x - 3, y - 4, w + 6, 1);
-        ctx.fillRect(x - 2, y - 6, w + 4, 1);
+        // Spiky tuft on top
+        ctx.fillRect(x + Math.floor(w / 2) - 2, y - 7, 4, 3);
     }
 }
 
 function _drawHairBack(ctx, x, y, w, h, colors) {
     ctx.fillStyle = colors.hair;
-    ctx.fillRect(x - 3, y, w + 6, h);
-    // Hair shading
-    const r = parseInt(colors.hair.slice(1,3),16), g = parseInt(colors.hair.slice(3,5),16), b = parseInt(colors.hair.slice(5,7),16);
-    ctx.fillStyle = `rgb(${Math.max(0,r-40)},${Math.max(0,g-40)},${Math.max(0,b-40)})`;
-    ctx.fillRect(x + w, y + 2, 3, h - 4);
-    // Outline
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(x - 3, y - 1, w + 6, 2);
-    ctx.fillRect(x - 4, y, 2, h - 2);
-    ctx.fillRect(x + w + 2, y, 2, h - 2);
+    ctx.fillRect(x - 2, y, w + 4, h);
+    ctx.fillStyle = colors.outline;
+    ctx.fillRect(x - 2, y - 1, w + 4, 2);
+    ctx.fillRect(x - 3, y, 2, h - 2);
+    ctx.fillRect(x + w + 1, y, 2, h - 2);
 }
 
 function _drawLeg(ctx, x, y, w, h, colors) {
     _drawRoundedRect(ctx, x, y, w, h, colors.skin, colors.outline);
     _drawSoftShading(ctx, x, y, w, h, colors.mid);
-    // Knee joint line
-    const kneeY = y + Math.floor(h * 0.45);
-    ctx.fillStyle = colors.mid || colors.outline;
-    ctx.globalAlpha = 0.3;
-    ctx.fillRect(x + 1, kneeY, w - 2, 1);
-    ctx.globalAlpha = 1.0;
 }
 
 function _drawArm(ctx, x, y, w, h, colors, side) {
     _drawRoundedRect(ctx, x, y, w, h, colors.skin, colors.outline);
     if (side === 'right') _drawSoftShading(ctx, x, y, w, h, colors.mid);
-    // Elbow joint line
-    const elbowY = y + Math.floor(h * 0.45);
-    ctx.fillStyle = colors.mid || colors.outline;
-    ctx.globalAlpha = 0.25;
-    ctx.fillRect(x + 1, elbowY, w - 2, 1);
-    ctx.globalAlpha = 1.0;
-    // Hand at bottom
-    _drawHand(ctx, x, y + h - 1, w, colors);
 }
 
-// ── AQ-Style Hand ───────────────────────────────────────────────────────
-function _drawHand(ctx, x, y, armW, colors) {
-    const hw = armW + 2;
-    const hx = x - 1;
-    ctx.fillStyle = colors.skin;
-    ctx.fillRect(hx, y, hw, 3);
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(hx, y, hw, 1); // wrist line
-    ctx.fillRect(hx, y + 3, hw, 1); // bottom outline
-    // Finger definition
-    ctx.fillRect(hx + Math.floor(hw / 2), y + 1, 1, 2);
-}
-
-// ── AQ-Style Boots — tall with buckle detail ────────────────────────────
+// ── Chibi Shoes — small and simple ──────────────────────────────────────
 function _drawShoes(ctx, lx, ly, rx, ry, legW, colors) {
-    const bootH = 6;
-    const bootW = legW + 3;
-    // Left boot
-    ctx.fillStyle = '#4a3020';
-    ctx.fillRect(lx - 1, ly - 2, bootW, bootH);
-    ctx.fillRect(rx - 1, ry - 2, bootW, bootH);
-    // Boot cuff (top band)
-    ctx.fillStyle = '#5a3828';
-    ctx.fillRect(lx - 1, ly - 2, bootW, 2);
-    ctx.fillRect(rx - 1, ry - 2, bootW, 2);
-    // Boot toe cap
-    ctx.fillStyle = '#3a2015';
-    ctx.fillRect(lx - 2, ly + bootH - 4, bootW + 1, 2);
-    ctx.fillRect(rx - 1, ry + bootH - 4, bootW + 1, 2);
-    // Sole (thick, dark)
-    ctx.fillStyle = '#1a1008';
-    ctx.fillRect(lx - 2, ly + bootH - 2, bootW + 2, 2);
-    ctx.fillRect(rx - 2, ry + bootH - 2, bootW + 2, 2);
-    // Buckle detail
-    ctx.fillStyle = '#c0a040';
-    ctx.fillRect(lx + 1, ly, 2, 2);
-    ctx.fillRect(rx + 1, ry, 2, 2);
-    // Boot highlight
-    ctx.fillStyle = '#ffffff';
-    ctx.globalAlpha = 0.12;
-    ctx.fillRect(lx, ly - 1, 2, bootH - 2);
-    ctx.fillRect(rx, ry - 1, 2, bootH - 2);
-    ctx.globalAlpha = 1.0;
-    // Boot outline
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(lx - 2, ly - 2, 1, bootH + 2);
-    ctx.fillRect(lx + bootW - 1, ly - 2, 1, bootH + 2);
-    ctx.fillRect(rx - 2, ry - 2, 1, bootH + 2);
-    ctx.fillRect(rx + bootW - 1, ry - 2, 1, bootH + 2);
-}
-
-// ── AQ-Style Shoulder Pauldrons ─────────────────────────────────────────
-function _drawShoulders(ctx, a, dir, colors) {
-    const pW = a.armW + 4;
-    const pH = 5;
-    const shade = colors.mid || colors.skin;
-    if (dir === DIR_DOWN || dir === DIR_LEFT) {
-        const px = a.rightArmX - 2;
-        const py = a.shoulderY + a.walk.armR - 2;
-        _drawRoundedRect(ctx, px, py, pW, pH, colors.skin, '#000000');
-        ctx.fillStyle = '#ffffff';
-        ctx.globalAlpha = 0.2;
-        ctx.fillRect(px + 1, py + 1, pW - 2, 1);
-        ctx.globalAlpha = 1.0;
-    }
-    if (dir === DIR_DOWN || dir === DIR_RIGHT) {
-        const px = a.leftArmX - 2;
-        const py = a.shoulderY + a.walk.armL - 2;
-        _drawRoundedRect(ctx, px, py, pW, pH, colors.skin, '#000000');
-        ctx.fillStyle = '#ffffff';
-        ctx.globalAlpha = 0.2;
-        ctx.fillRect(px + 1, py + 1, pW - 2, 1);
-        ctx.globalAlpha = 1.0;
-    }
+    ctx.fillStyle = '#3a2818';
+    ctx.fillRect(lx - 1, ly, legW + 2, 3);
+    ctx.fillRect(rx - 1, ry, legW + 2, 3);
+    // Sole
+    ctx.fillStyle = '#221810';
+    ctx.fillRect(lx - 1, ly + 2, legW + 2, 1);
+    ctx.fillRect(rx - 1, ry + 2, legW + 2, 1);
+    // Highlight
+    ctx.fillStyle = '#5a4030';
+    ctx.fillRect(lx, ly, legW, 1);
+    ctx.fillRect(rx, ry, legW, 1);
 }
 
 function _drawTunic(ctx, x, y, w, h, skinColor) {
@@ -415,14 +269,9 @@ function _drawTunic(ctx, x, y, w, h, skinColor) {
     const b = parseInt(skinColor.slice(5, 7), 16) - 30;
     ctx.fillStyle = `rgb(${Math.max(0, r)},${Math.max(0, g)},${Math.max(0, b)})`;
     ctx.fillRect(x + 1, y + 1, w - 2, h - 1);
-    // Armor-style collar line
-    ctx.fillStyle = `rgb(${Math.max(0, r - 40)},${Math.max(0, g - 40)},${Math.max(0, b - 40)})`;
-    ctx.fillRect(x + 2, y + 1, w - 4, 2);
-    // Belt with buckle
-    ctx.fillStyle = '#3a2818';
-    ctx.fillRect(x + 1, y + h - 4, w - 2, 3);
-    ctx.fillStyle = '#c0a040';
-    ctx.fillRect(x + Math.floor(w / 2) - 1, y + h - 4, 3, 3);
+    // Belt
+    ctx.fillStyle = `rgb(${Math.max(0, r - 20)},${Math.max(0, g - 20)},${Math.max(0, b - 20)})`;
+    ctx.fillRect(x + 2, y + h - 3, w - 4, 2);
 }
 
 // ── Core body builder ───────────────────────────────────────────────────────
@@ -437,11 +286,11 @@ function _buildAnchors(cx, groundY, scale, walk, dims) {
     const legW = Math.round(dims.legW * scale);
     const legH = Math.round(dims.legH * scale);
 
-    // AQ-style heroic proportions: broader shoulders, smaller head, defined neck
+    // Chibi proportions: oversized head sits directly on tiny torso
     const feetY = groundY;
     const legsTopY = feetY - legH;
     const torsoTopY = legsTopY - torsoH + 1;
-    const neckGap = 2; // Shorter neck — AQ style has head close to broad shoulders
+    const neckGap = 0; // No visible neck — chibi head directly on torso
     const headTopY = torsoTopY - headH - neckGap + walk.bob;
     const shoulderY = torsoTopY + 2 + walk.bob;
 
@@ -471,7 +320,7 @@ function _drawGenericBody(ctx, a, dir, colors, hasTunic) {
             leftLegX, rightLegX, legW, legH, legsTopY, feetY, walk } = a;
     const cx = Math.floor(torsoX + torsoW / 2);
 
-    // Back arms (with shoulder pauldrons)
+    // Back arms
     if (dir === DIR_DOWN || dir === DIR_LEFT) {
         _drawArm(ctx, rightArmX, shoulderY + walk.armR, armW, armH, colors, 'right');
     }
@@ -479,36 +328,29 @@ function _drawGenericBody(ctx, a, dir, colors, hasTunic) {
         _drawArm(ctx, leftArmX, shoulderY + walk.armL, armW, armH, colors, 'left');
     }
 
-    // Legs with defined joints
+    // Short stubby legs
     _drawLeg(ctx, leftLegX, legsTopY + walk.legL, legW, legH, colors);
     _drawLeg(ctx, rightLegX, legsTopY + walk.legR, legW, legH, colors);
-    _drawShoes(ctx, leftLegX, legsTopY + walk.legL + legH - 4, rightLegX, legsTopY + walk.legR + legH - 4, legW, colors);
+    _drawShoes(ctx, leftLegX, legsTopY + walk.legL + legH - 3, rightLegX, legsTopY + walk.legR + legH - 3, legW, colors);
 
-    // Broad torso with armor/tunic
+    // Compact torso
     _drawRoundedRect(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.skin, colors.outline);
     _drawSoftShading(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.mid);
     if (hasTunic) _drawTunic(ctx, torsoX, torsoY + walk.bob, torsoW, torsoH, colors.skin);
 
-    // Neck
-    ctx.fillStyle = colors.skin;
-    ctx.fillRect(cx - 2, torsoY + walk.bob - 2, 4, 3);
-
     // Head (back hair when facing up)
     if (dir === DIR_UP) _drawHairBack(ctx, headX, headY, headW, headH, colors);
 
-    // Head
+    // Big round chibi head
     _drawRoundedRect(ctx, headX, headY, headW, headH, colors.skin, colors.outline);
     _drawSoftShading(ctx, headX, headY, headW, headH, colors.mid);
 
-    // Face — AQ-style expressive eyes, nose, defined mouth
-    const eyeY = headY + Math.floor(headH * 0.25);
+    // Face — large anime eyes, tiny mouth, blush marks
+    const eyeY = headY + Math.floor(headH * 0.3);
     _drawEyes(ctx, cx, eyeY, dir, colors);
-    _drawNose(ctx, cx, headY + Math.floor(headH * 0.55), dir);
-    _drawMouth(ctx, cx, headY + Math.floor(headH * 0.72), dir, colors.outline);
+    _drawMouth(ctx, cx, headY + headH - 5, dir, colors.outline);
+    _drawBlush(ctx, cx, eyeY + Math.floor(headH * 0.35), dir);
     _drawHairTop(ctx, headX, headY, headW, dir, colors.hair);
-
-    // Shoulder pauldrons
-    _drawShoulders(ctx, a, dir, colors);
 
     // Front arms
     if (dir === DIR_DOWN || dir === DIR_RIGHT) {
@@ -3466,12 +3308,12 @@ const RACE_RENDERERS = {
 export function drawRaceBody(ctx, raceId, cx, groundY, dir, frame, scale, colors) {
     const walk = WALK_CYCLES[frame % 4];
 
-    // AQ-style heroic proportions: broad shoulders, smaller head, thick limbs (~4.5 heads tall)
+    // Chibi doodle proportions: oversized head, tiny body, stubby limbs (~2.5 heads tall)
     const dims = {
-        headW: 16, headH: 13,
-        torsoW: 20, torsoH: 20,
-        armW: 6, armH: 18,
-        legW: 7, legH: 18,
+        headW: 22, headH: 20,
+        torsoW: 16, torsoH: 12,
+        armW: 5, armH: 12,
+        legW: 6, legH: 10,
     };
 
     const a = _buildAnchors(cx, groundY, scale, walk, dims);

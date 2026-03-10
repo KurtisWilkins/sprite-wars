@@ -50,29 +50,29 @@ const DIR_LEFT  = 1;
 const DIR_RIGHT = 2;
 const DIR_UP    = 3;
 
-// ── Realistic Body Proportions (within 64×64 frame) ──────────────────────────
-// Semi-realistic humanoid: smaller head (~25% of height), visible neck,
-// taller torso, longer limbs for more natural proportions (~5 heads tall)
+// ── Chibi Doodle Body Proportions (within 64×64 frame) ──────────────────────
+// Chibi-style: oversized round head (~50% of height), tiny body, stubby limbs,
+// large anime eyes, ~2.5 heads tall — matches equipment sprite sheet art style
 const BODY = {
-    headW: 18, headH: 14,   // Must match RaceBodyRenderer dims for anchor alignment
-    torsoW: 16, torsoH: 18,
-    armW: 5,   armH: 16,
-    legW: 6,   legH: 16,    // Must match RaceBodyRenderer dims
+    headW: 22, headH: 20,   // Must match RaceBodyRenderer dims for anchor alignment
+    torsoW: 16, torsoH: 12,
+    armW: 5,   armH: 12,
+    legW: 6,   legH: 10,    // Must match RaceBodyRenderer dims
     footW: 8,  footH: 3,
-    shoulderW: 18,
+    shoulderW: 16,
 };
 
-// Walk animation cycles (must match RaceBodyRenderer) — natural stride
+// Walk animation cycles (must match RaceBodyRenderer) — bouncy chibi stride
 const WALK_CYCLES = [
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: -4, armR: 4,  legL: 4,  legR: -3, bob: -1 },
+    { armL: -3, armR: 3,  legL: 3,  legR: -2, bob: -2 },
     { armL: 0,  armR: 0,  legL: 0,  legR: 0,  bob: 0  },
-    { armL: 4,  armR: -4, legL: -3, legR: 4,  bob: -1 },
+    { armL: 3,  armR: -3, legL: -2, legR: 3,  bob: -2 },
 ];
 
 /**
  * Build approximate anchor points for character outfit rendering.
- * Realistic-style: proportional body with visible neck gap between head and torso.
+ * Chibi-style: oversized head directly on tiny torso, no visible neck.
  */
 function _buildCharacterAnchors(cx, groundY, scale, frame) {
     const walk = WALK_CYCLES[frame % 4];
@@ -89,7 +89,7 @@ function _buildCharacterAnchors(cx, groundY, scale, frame) {
     const feetY = groundY;
     const legsTopY = feetY - legH;
     const torsoTopY = legsTopY - torsoH + 1;
-    const neckGap = 3; // Visible neck between head and torso
+    const neckGap = 0; // No visible neck — chibi head sits directly on torso
     const headTopY = torsoTopY - headH - neckGap + walk.bob;
     const shoulderY = torsoTopY + 2 + walk.bob;
 
