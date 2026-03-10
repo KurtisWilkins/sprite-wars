@@ -79,6 +79,8 @@ class AdminLog {
 // ── Map Constants ──────────────────────────────────────────────────────────
 const TILE_SIZE = 32;
 const TILE_DRAW_SIZE = 32;
+const TILE_RENDER_SIZE = 128;   // High-quality off-screen render resolution per tile
+const TILE_CACHE_LIMIT = 1024;  // Max cached tile canvases (LRU eviction)
 const PLAYER_SIZE = 34;          // AQ-style characters with heroic proportions
 const NPC_DRAW_HALFSIZE = 17;    // NPC render radius matches AQ player proportions
 const PLAYER_SPEED = 120;        // pixels per second
@@ -233,6 +235,9 @@ export class OverworldScene extends Scene {
 
         // Generated walk-cycle sprite sheets from Units body types
         this._generatedSpriteSheets = [];
+
+        // Tile rendering cache — 128x128 off-screen canvases for high-quality tiles
+        this._tileCache = new Map();
     }
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
@@ -489,6 +494,9 @@ export class OverworldScene extends Scene {
 
     async _loadRegion(regionId, spawnPoint) {
         this._currentRegion = regionId;
+
+        // Clear tile cache for new region (tiles change per region)
+        this._tileCache.clear();
 
         // Attempt to load region data from JSON, fall back to procedural
         let regionData = await this.engine.assets.loadJSON(`data/regions/${regionId}.json`);
@@ -2772,367 +2780,1060 @@ export class OverworldScene extends Scene {
     }
 
     /**
-     * Draw a single tile procedurally with cel-shaded style:
-     * flat base color, 2px highlight on top/left, 2px shadow on bottom/right,
-     * subtle 1px black outline, and small procedural decorations per tile type.
-     * All rendering is flat with no gradients — hard-edged shading only.
+     * Draw a single tile with caching at TILE_RENDER_SIZE (128px) resolution.
+     * Cached tiles are rendered once to an off-screen canvas, then blitted
+     * to the display at the requested size for high-quality scaled output.
+     * Animated tiles (magic_wall) bypass the cache and render directly.
      */
     _drawCelShadedTile(ctx, tileIndex, dx, dy, size, gridX, gridY) {
         const colors = TILE_COLORS[tileIndex] || DEFAULT_TILE_COLOR;
+        const isAnimated = (colors.name === 'magic_wall');
+
+        if (!isAnimated) {
+            // Use hash bucket (16 variants per tile) for deterministic variety
+            const hashBucket = ((gridX * 7919 + gridY * 6271) & 0xFFFF) % 16;
+            const cacheKey = (tileIndex << 8) | (hashBucket << 4) | (((gridX * 11) % 12) & 0xF);
+            let cached = this._tileCache.get(cacheKey);
+            if (!cached) {
+                // Evict oldest entry if over limit
+                if (this._tileCache.size >= TILE_CACHE_LIMIT) {
+                    const firstKey = this._tileCache.keys().next().value;
+                    this._tileCache.delete(firstKey);
+                }
+                cached = (typeof OffscreenCanvas !== 'undefined')
+                    ? new OffscreenCanvas(TILE_RENDER_SIZE, TILE_RENDER_SIZE)
+                    : Object.assign(document.createElement('canvas'), { width: TILE_RENDER_SIZE, height: TILE_RENDER_SIZE });
+                const tctx = cached.getContext('2d');
+                this._renderTileDetailed(tctx, tileIndex, 0, 0, TILE_RENDER_SIZE, gridX, gridY);
+                this._tileCache.set(cacheKey, cached);
+            }
+            ctx.drawImage(cached, dx, dy, size, size);
+        } else {
+            // Animated tiles render directly each frame
+            this._renderTileDetailed(ctx, tileIndex, dx, dy, size, gridX, gridY);
+        }
+    }
+
+    /**
+     * Render a single tile at high detail (128x128) with AQ cel-shaded style:
+     * base fill, highlight/shadow strips, bold outline, and rich procedural
+     * decorations scaled via the s factor (size/32). At 128px, s=4 gives
+     * 4x the detail of the original 32px tiles.
+     */
+    _renderTileDetailed(ctx, tileIndex, dx, dy, size, gridX, gridY) {
+        const colors = TILE_COLORS[tileIndex] || DEFAULT_TILE_COLOR;
+        const s = size / 32;  // Scale factor: 1 at 32px, 4 at 128px
+
+        // Scaled fillRect helper — coordinates in 32px space, auto-scaled
+        const r = (x, y, w, h) => ctx.fillRect(dx + (x * s) | 0, dy + (y * s) | 0, (w * s) | 0, (h * s) | 0);
+        // Scaled strokeRect helper
+        const sr = (x, y, w, h) => ctx.strokeRect(dx + (x * s) + 0.5, dy + (y * s) + 0.5, (w * s) | 0, (h * s) | 0);
 
         // 1. Base fill
         ctx.fillStyle = colors.base;
         ctx.fillRect(dx, dy, size, size);
 
-        // 2. Highlight strip (top 3px and left 2px) — AQ-style hard edge
+        // 2. Highlight strip (top 3px and left 2px scaled) — AQ hard edge
         ctx.fillStyle = colors.highlight;
-        ctx.fillRect(dx, dy, size, 3);       // top highlight (bolder)
-        ctx.fillRect(dx, dy, 2, size);       // left highlight
+        r(0, 0, 32, 3);
+        r(0, 0, 2, 32);
 
-        // 3. Shadow strip (bottom 3px and right 2px) — AQ-style hard edge
+        // 3. Shadow strip (bottom 3px and right 2px scaled)
         ctx.fillStyle = colors.shadow;
-        ctx.fillRect(dx, dy + size - 3, size, 3);  // bottom shadow (bolder)
-        ctx.fillRect(dx + size - 2, dy, 2, size);  // right shadow
+        r(0, 29, 32, 3);
+        r(30, 0, 2, 32);
 
-        // 4. Bold 1px black outline on tile edges — AQ cartoon style
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.18)';
-        ctx.lineWidth = 1;
+        // 4. Bold outline — scales with resolution
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.22)';
+        ctx.lineWidth = Math.max(1, s * 0.75);
         ctx.strokeRect(dx + 0.5, dy + 0.5, size - 1, size - 1);
 
-        // 5. Procedural decorations based on tile type (flat colors, no gradients)
+        // 5. Procedural decorations — high detail at 128px resolution
         const name = colors.name;
-        // Use grid position as seed for deterministic pseudo-random placement
         const hash = ((gridX * 7919 + gridY * 6271) & 0xFFFF) / 0xFFFF;
+        const hash2 = ((gridX * 4919 + gridY * 8271) & 0xFFFF) / 0xFFFF;
+        const hash3 = ((gridX * 3571 + gridY * 9029) & 0xFFFF) / 0xFFFF;
 
         if (name === 'grass' || name === 'deep_grass') {
-            // Small darker blades/spots
-            ctx.fillStyle = colors.shadow;
-            if (hash > 0.5) {
-                ctx.fillRect(dx + 6 + (hash * 10 | 0), dy + 8 + (hash * 6 | 0), 2, 3);
-                ctx.fillRect(dx + 18 + (hash * 4 | 0), dy + 20 + (hash * 4 | 0), 2, 3);
-            }
-            if (hash > 0.7) {
-                ctx.fillRect(dx + 12, dy + 14, 1, 4);
-            }
-        } else if (name === 'water' || name === 'deep_water' || name === 'water_edge') {
-            // Small lighter horizontal streaks (ripples)
-            ctx.fillStyle = colors.highlight;
-            const ry = 8 + (hash * 14 | 0);
-            ctx.fillRect(dx + 4, dy + ry, 8, 1);
-            if (hash > 0.4) {
-                ctx.fillRect(dx + 16, dy + ry + 6, 10, 1);
-            }
-        } else if (name === 'stone' || name === 'dark_stone' || name === 'stone_path') {
-            // Small crack lines
-            ctx.fillStyle = colors.shadow;
-            const cx = 6 + (hash * 16 | 0);
-            const cy = 6 + (hash * 12 | 0);
-            ctx.fillRect(dx + cx, dy + cy, 6, 1);
-            ctx.fillRect(dx + cx + 4, dy + cy, 1, 5);
-        } else if (name === 'sand') {
-            // Small speckles
+            // Rich grass with multiple blade clusters, texture, and occasional flowers
             ctx.fillStyle = colors.shadow;
             if (hash > 0.3) {
-                ctx.fillRect(dx + 8 + (hash * 10 | 0), dy + 10 + (hash * 8 | 0), 1, 1);
-                ctx.fillRect(dx + 20 + (hash * 4 | 0), dy + 6, 1, 1);
+                r(6 + (hash * 10 | 0), 8 + (hash * 6 | 0), 2, 4);
+                r(18 + (hash * 4 | 0), 20 + (hash * 4 | 0), 2, 4);
+                r(24 + (hash2 * 4 | 0), 6 + (hash2 * 8 | 0), 1, 3);
+            }
+            // Lighter blade accents
+            ctx.fillStyle = colors.highlight;
+            r(3 + (hash2 * 8 | 0), 5 + (hash3 * 4 | 0), 1, 5);
+            r(14 + (hash3 * 6 | 0), 3, 1, 4);
+            r(24 + (hash * 4 | 0), 14 + (hash2 * 6 | 0), 1, 5);
+            r(10, 22 + (hash3 * 4 | 0), 1, 4);
+            // Ground texture dots
+            ctx.fillStyle = colors.shadow;
+            r(10 + (hash * 6 | 0), 16, 1, 1);
+            r(22 + (hash2 * 6 | 0), 10, 1, 1);
+            r(4 + (hash3 * 4 | 0), 26, 1, 1);
+            // Tiny clover/flower at some positions
+            if (hash > 0.8) {
+                ctx.fillStyle = '#e8e060';
+                r(14 + (hash2 * 6 | 0), 14 + (hash * 4 | 0), 2, 2);
+                ctx.fillStyle = '#e0d040';
+                r(15 + (hash2 * 6 | 0), 13 + (hash * 4 | 0), 1, 1);
+            }
+            if (hash > 0.7) {
+                ctx.fillStyle = colors.shadow;
+                r(12, 14, 1, 5);
+            }
+        } else if (name === 'water' || name === 'deep_water' || name === 'water_edge') {
+            // Layered ripples with foam and depth variation
+            ctx.fillStyle = colors.highlight;
+            const ry = 6 + (hash * 10 | 0);
+            r(3, ry, 10, 1);
+            r(16, ry + 4, 12, 1);
+            r(6, ry + 10, 8, 1);
+            // Depth variation — darker areas
+            ctx.fillStyle = colors.shadow;
+            r(2 + (hash2 * 8 | 0), 18 + (hash2 * 6 | 0), 6, 3);
+            // Foam bubbles at edges
+            if (name === 'water_edge') {
+                ctx.fillStyle = '#a0d0f0';
+                r(4 + (hash * 6 | 0), 2, 2, 1);
+                r(18 + (hash2 * 4 | 0), 3, 3, 1);
+                r(10 + (hash3 * 6 | 0), 1, 2, 1);
+            }
+            // Secondary ripple layer
+            ctx.fillStyle = colors.highlight;
+            r(20 + (hash3 * 4 | 0), ry + 8, 6, 1);
+            if (hash > 0.4) {
+                r(8 + (hash2 * 6 | 0), ry + 14, 8, 1);
+            }
+        } else if (name === 'stone' || name === 'dark_stone' || name === 'stone_path') {
+            // Detailed cracks, pebble texture, and moss patches
+            ctx.fillStyle = colors.shadow;
+            const cx = 6 + (hash * 14 | 0);
+            const cy = 6 + (hash * 10 | 0);
+            r(cx, cy, 8, 1);
+            r(cx + 5, cy, 1, 6);
+            // Secondary crack
+            r(4 + (hash2 * 12 | 0), 18 + (hash2 * 6 | 0), 5, 1);
+            r(8 + (hash2 * 12 | 0), 18 + (hash2 * 6 | 0), 1, 4);
+            // Pebble texture
+            ctx.fillStyle = colors.highlight;
+            r(3 + (hash3 * 6 | 0), 4 + (hash * 4 | 0), 2, 2);
+            r(22 + (hash2 * 4 | 0), 22 + (hash3 * 4 | 0), 2, 2);
+            // Moss at some positions
+            if (hash > 0.75 && name !== 'stone_path') {
+                ctx.fillStyle = '#4a8a3a';
+                r(2 + (hash * 8 | 0), 24 + (hash2 * 4 | 0), 4, 2);
+            }
+        } else if (name === 'sand') {
+            // Detailed sand with speckles, ripples, and shell fragments
+            ctx.fillStyle = colors.shadow;
+            r(8 + (hash * 10 | 0), 10 + (hash * 8 | 0), 1, 1);
+            r(20 + (hash * 4 | 0), 6, 1, 1);
+            r(4 + (hash2 * 8 | 0), 22 + (hash2 * 4 | 0), 1, 1);
+            r(16 + (hash3 * 6 | 0), 16, 1, 1);
+            // Wind ripple lines
+            ctx.fillStyle = colors.highlight;
+            r(2, 14 + (hash * 6 | 0), 12, 1);
+            r(18, 20 + (hash2 * 4 | 0), 10, 1);
+            // Shell fragment
+            if (hash > 0.85) {
+                ctx.fillStyle = '#e8e0d0';
+                r(12 + (hash2 * 8 | 0), 8 + (hash3 * 10 | 0), 2, 2);
             }
         } else if (name === 'path' || name === 'path_v' || name === 'crossroad') {
-            // Subtle dirt speckles
+            // Detailed dirt path with tracks, pebbles, and wear marks
             ctx.fillStyle = colors.shadow;
-            if (hash > 0.5) {
-                ctx.fillRect(dx + 10 + (hash * 8 | 0), dy + 14, 2, 1);
+            r(10 + (hash * 8 | 0), 14, 3, 1);
+            r(4 + (hash2 * 6 | 0), 8 + (hash * 8 | 0), 2, 1);
+            r(20 + (hash3 * 4 | 0), 22, 2, 1);
+            // Embedded pebbles
+            ctx.fillStyle = colors.highlight;
+            r(6 + (hash * 10 | 0), 18 + (hash2 * 6 | 0), 2, 2);
+            r(22 + (hash2 * 4 | 0), 10 + (hash3 * 4 | 0), 2, 1);
+            // Wheel rut marks (path only)
+            if (name === 'path') {
+                ctx.fillStyle = colors.shadow;
+                r(8, 2, 1, 28);
+                r(22, 2, 1, 28);
+            } else if (name === 'path_v') {
+                ctx.fillStyle = colors.shadow;
+                r(2, 8, 28, 1);
+                r(2, 22, 28, 1);
             }
         } else if (name === 'flowers') {
-            // Small colorful dots (flat flower petals)
-            const flowerColors = ['#e05050', '#e0e050', '#e050e0', '#50b0e0'];
+            // Rich flower patches with stems, petals, and leaves
+            const flowerColors = ['#e05050', '#e0e050', '#e050e0', '#50b0e0', '#ff8844'];
             const fci = (gridX + gridY) % flowerColors.length;
+            // Main flowers
             ctx.fillStyle = flowerColors[fci];
-            ctx.fillRect(dx + 8 + (hash * 10 | 0), dy + 8 + (hash * 8 | 0), 3, 3);
-            ctx.fillRect(dx + 18 + (hash * 6 | 0), dy + 18 + (hash * 4 | 0), 3, 3);
+            r(8 + (hash * 8 | 0), 8 + (hash * 6 | 0), 4, 4);
+            r(18 + (hash * 4 | 0), 18 + (hash * 4 | 0), 4, 4);
+            // Petal highlights
+            ctx.fillStyle = '#ffffff';
+            r(9 + (hash * 8 | 0), 9 + (hash * 6 | 0), 1, 1);
+            r(19 + (hash * 4 | 0), 19 + (hash * 4 | 0), 1, 1);
+            // Third flower at some positions
+            if (hash > 0.4) {
+                ctx.fillStyle = flowerColors[(fci + 2) % flowerColors.length];
+                r(4 + (hash2 * 6 | 0), 20 + (hash2 * 4 | 0), 3, 3);
+            }
+            // Stems and leaves
+            ctx.fillStyle = '#2a8a2a';
+            r(9 + (hash * 8 | 0), 12 + (hash * 6 | 0), 1, 4);
+            r(19 + (hash * 4 | 0), 22 + (hash * 4 | 0), 1, 3);
+            // Grass blades around flowers
+            ctx.fillStyle = colors.shadow;
+            r(14, 6, 1, 5);
+            r(26, 14, 1, 4);
         } else if (name === 'tree_dark' || name === 'tree_light') {
-            // Leaf cluster dots
+            // Dense foliage with multiple leaf clusters and depth
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 6, dy + 6, 4, 4);
-            ctx.fillRect(dx + 18, dy + 14, 5, 4);
+            r(4, 4, 6, 6);
+            r(16, 3, 8, 5);
+            r(8, 12, 7, 5);
+            r(22, 14, 6, 6);
+            // Deep shadow clusters
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 12, dy + 20, 6, 4);
+            r(12, 20, 8, 5);
+            r(2, 16, 5, 4);
+            r(26, 6, 4, 4);
+            // Individual leaf dots
+            ctx.fillStyle = colors.highlight;
+            r(6, 24, 3, 2);
+            r(20, 8, 2, 2);
+            // Bark peek-through at bottom
+            ctx.fillStyle = '#5c4030';
+            r(14, 28, 4, 3);
         } else if (name === 'big_tree_tl' || name === 'big_tree_tr') {
-            // Dense canopy highlight patches
+            // Dense canopy with layered highlights and leaf detail
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 4, dy + 4, 8, 6);
-            ctx.fillRect(dx + 16, dy + 10, 10, 5);
-        } else if (name === 'big_tree_bl' || name === 'big_tree_br') {
-            // Trunk bark texture — vertical streaks
-            ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 10, dy + 2, 2, 12);
-            ctx.fillRect(dx + 18, dy + 6, 2, 10);
-        } else if (name === 'wall' || name === 'wall_wood' || name === 'wall_window') {
-            // Mortar lines / window detail
+            r(3, 3, 10, 8);
+            r(16, 8, 12, 7);
+            r(6, 16, 8, 5);
+            // Darker depth
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx, dy + 10, size, 1);
-            ctx.fillRect(dx, dy + 22, size, 1);
+            r(12, 4, 4, 6);
+            r(24, 18, 5, 6);
+            // Leaf edge detail
+            ctx.fillStyle = colors.highlight;
+            r(2, 22, 3, 3);
+            r(28, 4, 3, 3);
+            r(8, 26, 4, 2);
+        } else if (name === 'big_tree_bl' || name === 'big_tree_br') {
+            // Detailed trunk bark with grain, knots, and root textures
+            ctx.fillStyle = colors.highlight;
+            r(8, 2, 3, 14);
+            r(18, 4, 3, 12);
+            r(13, 8, 2, 8);
+            // Bark knot
+            ctx.fillStyle = colors.shadow;
+            r(14, 16, 4, 3);
+            r(10, 22, 3, 2);
+            // Root detail at bottom
+            ctx.fillStyle = colors.highlight;
+            r(4, 26, 6, 2);
+            r(20, 28, 8, 2);
+            // Moss on bark
+            ctx.fillStyle = '#3a7a2a';
+            r(6, 18, 3, 3);
+        } else if (name === 'wall' || name === 'wall_wood' || name === 'wall_window') {
+            // Detailed brick/wood wall with mortar, weathering, texture
+            ctx.fillStyle = colors.shadow;
+            r(0, 10, 32, 1);
+            r(0, 22, 32, 1);
+            // Brick pattern (staggered horizontal lines)
+            r(14, 2, 1, 8);
+            r(8, 12, 1, 10);
+            r(22, 12, 1, 10);
+            // Mortar highlight
+            ctx.fillStyle = colors.highlight;
+            r(4, 4, 8, 1);
+            r(18, 16, 8, 1);
+            // Weathering spots
+            ctx.fillStyle = colors.shadow;
+            r(4 + (hash * 6 | 0), 26 + (hash2 * 2 | 0), 3, 2);
             if (name === 'wall_window') {
-                // Window pane
-                ctx.fillStyle = '#88bbdd';
-                ctx.fillRect(dx + 10, dy + 6, 12, 10);
+                // Detailed window with frame, panes, sill, and reflection
+                ctx.fillStyle = '#6699cc';
+                r(8, 4, 16, 14);
+                // Window frame
                 ctx.fillStyle = colors.shadow;
-                ctx.fillRect(dx + 15, dy + 6, 2, 10); // mullion
-                ctx.fillRect(dx + 10, dy + 10, 12, 2);
+                r(8, 4, 16, 1);
+                r(8, 17, 16, 1);
+                r(8, 4, 1, 14);
+                r(23, 4, 1, 14);
+                // Mullion cross
+                r(15, 4, 2, 14);
+                r(8, 10, 16, 2);
+                // Glass reflection
+                ctx.fillStyle = '#aaddff';
+                r(10, 6, 4, 3);
+                r(18, 12, 3, 2);
+                // Window sill
+                ctx.fillStyle = colors.highlight;
+                r(6, 18, 20, 2);
+            } else if (name === 'wall_wood') {
+                // Wood plank grain
+                ctx.fillStyle = colors.highlight;
+                r(2, 6, 28, 1);
+                r(2, 16, 28, 1);
+                r(2, 26, 28, 1);
             }
         } else if (name === 'roof' || name === 'roof_peak' || name === 'roof_left' || name === 'roof_right') {
-            // Roof tile lines
+            // Detailed roof tiles with shingle pattern and weathering
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx, dy + 8, size, 1);
-            ctx.fillRect(dx, dy + 18, size, 1);
-            ctx.fillRect(dx, dy + 28, size, 1);
+            r(0, 7, 32, 1);
+            r(0, 15, 32, 1);
+            r(0, 23, 32, 1);
+            // Staggered shingle edges
+            ctx.fillStyle = colors.highlight;
+            r(4, 6, 6, 1);
+            r(18, 6, 8, 1);
+            r(8, 14, 6, 1);
+            r(22, 14, 6, 1);
+            r(2, 22, 8, 1);
+            r(16, 22, 6, 1);
+            // Weathering/moss spots
+            if (hash > 0.6) {
+                ctx.fillStyle = '#8a4020';
+                r(10 + (hash * 8 | 0), 4, 2, 2);
+            }
         } else if (name === 'door') {
-            // Door planks and handle
+            // Detailed door with planks, hinges, handle, and frame
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 10, dy + 2, 2, size - 4);
-            ctx.fillRect(dx + 20, dy + 2, 2, size - 4);
-            ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 22, dy + 14, 3, 3); // door handle
+            r(10, 2, 2, 28);
+            r(20, 2, 2, 28);
+            // Extra plank lines
+            r(6, 2, 1, 28);
+            r(15, 2, 1, 28);
+            r(25, 2, 1, 28);
+            // Door frame
+            ctx.fillStyle = '#3a2810';
+            r(0, 0, 2, 32);
+            r(30, 0, 2, 32);
+            r(0, 0, 32, 2);
+            // Handle and keyhole
+            ctx.fillStyle = '#c8a040';
+            r(22, 14, 4, 4);
+            ctx.fillStyle = '#8a6020';
+            r(23, 15, 2, 2);
+            // Hinges
+            ctx.fillStyle = '#555555';
+            r(2, 6, 3, 2);
+            r(2, 22, 3, 2);
         } else if (name === 'fence') {
-            // Fence posts
+            // Detailed fence with posts, rails, wood grain, and nails
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 4, dy + 4, 3, size - 8);
-            ctx.fillRect(dx + size - 7, dy + 4, 3, size - 8);
+            r(4, 3, 4, 26);
+            r(24, 3, 4, 26);
+            // Middle post
+            r(14, 6, 3, 20);
+            // Horizontal rails with highlight
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 2, dy + 12, size - 4, 2); // horizontal rail
-            ctx.fillRect(dx + 2, dy + 22, size - 4, 2);
+            r(2, 11, 28, 3);
+            r(2, 21, 28, 3);
+            // Rail shadow edge
+            ctx.fillStyle = colors.shadow;
+            r(2, 14, 28, 1);
+            r(2, 24, 28, 1);
+            // Nail dots
+            ctx.fillStyle = '#555555';
+            r(5, 12, 1, 1);
+            r(5, 22, 1, 1);
+            r(25, 12, 1, 1);
+            r(25, 22, 1, 1);
         } else if (name === 'bridge') {
-            // Plank lines
+            // Detailed bridge planks with grain, gaps, and rope rails
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 6, dy, 1, size);
-            ctx.fillRect(dx + 14, dy, 1, size);
-            ctx.fillRect(dx + 22, dy, 1, size);
+            r(5, 0, 2, 32);
+            r(13, 0, 2, 32);
+            r(21, 0, 2, 32);
+            r(28, 0, 1, 32);
+            // Plank grain
+            ctx.fillStyle = colors.highlight;
+            r(2, 4, 1, 8);
+            r(9, 8, 1, 10);
+            r(17, 2, 1, 12);
+            r(25, 6, 1, 8);
+            // Rope rails
+            ctx.fillStyle = '#8a7050';
+            r(0, 0, 1, 32);
+            r(31, 0, 1, 32);
         } else if (name === 'lava') {
-            // Bright hot streaks
+            // Detailed lava with hot streaks, crust, and glow
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 4, dy + 8 + (hash * 10 | 0), 10, 2);
+            r(3, 6 + (hash * 8 | 0), 12, 3);
+            r(18, 14, 10, 3);
+            // Orange glow
             ctx.fillStyle = '#ff8844';
-            ctx.fillRect(dx + 16, dy + 14, 8, 2);
+            r(8, 18 + (hash2 * 4 | 0), 14, 2);
+            // Yellow-hot center
+            ctx.fillStyle = '#ffcc44';
+            r(10, 10 + (hash * 6 | 0), 6, 2);
+            // Dark crust patches
+            ctx.fillStyle = colors.shadow;
+            r(2 + (hash * 8 | 0), 2 + (hash2 * 4 | 0), 4, 3);
+            r(20 + (hash2 * 4 | 0), 22 + (hash3 * 4 | 0), 5, 3);
         } else if (name === 'fountain') {
-            // Water splash dots
+            // Detailed fountain with basin, water, spout, and splashes
+            ctx.fillStyle = '#707080';
+            r(6, 6, 20, 20);
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 12, dy + 8, 4, 4);
-            ctx.fillRect(dx + 8, dy + 14, 3, 3);
-            ctx.fillRect(dx + 18, dy + 12, 3, 3);
+            r(8, 8, 16, 16);
+            // Water
+            ctx.fillStyle = colors.base;
+            r(10, 10, 12, 12);
+            // Central spout
+            ctx.fillStyle = '#808090';
+            r(14, 8, 4, 8);
+            // Water splashes
+            ctx.fillStyle = '#a0d0f0';
+            r(11, 9, 2, 2);
+            r(20, 11, 2, 2);
+            r(12, 18, 2, 2);
+            r(18, 16, 3, 2);
+            // Basin rim
+            ctx.fillStyle = '#606070';
+            r(6, 6, 20, 2);
+            r(6, 24, 20, 2);
+            r(6, 6, 2, 20);
+            r(24, 6, 2, 20);
         } else if (name === 'chest' || name === 'crate') {
-            // Lid line and clasp
+            // Detailed chest/crate with lid, bands, clasp, and wood grain
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 4, dy + 14, size - 8, 2);
-            ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 13, dy + 10, 6, 4); // clasp/latch
+            r(3, 14, 26, 2);
+            // Wood grain
+            r(6, 4, 1, 10);
+            r(18, 4, 1, 10);
+            r(8, 18, 1, 10);
+            r(22, 18, 1, 10);
+            // Metal bands
+            ctx.fillStyle = '#888888';
+            r(3, 6, 26, 1);
+            r(3, 24, 26, 1);
+            // Clasp/latch
+            ctx.fillStyle = name === 'chest' ? '#d4a020' : colors.highlight;
+            r(12, 10, 8, 5);
+            // Keyhole on chests
+            if (name === 'chest') {
+                ctx.fillStyle = '#333333';
+                r(15, 12, 2, 2);
+            }
         } else if (name === 'lamp') {
-            // Glow effect and post
-            ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 14, dy + 12, 4, size - 12); // post
+            // Detailed lamp post with lantern, flame, and glow
+            ctx.fillStyle = '#555555';
+            r(14, 14, 4, 18);
+            // Lantern body
+            ctx.fillStyle = '#cc9930';
+            r(10, 4, 12, 10);
+            // Glass panes
             ctx.fillStyle = '#fff8cc';
-            ctx.fillRect(dx + 10, dy + 4, 12, 8); // lamp head glow
+            r(12, 6, 8, 6);
+            // Flame inside
+            ctx.fillStyle = '#ff9930';
+            r(14, 7, 4, 4);
+            ctx.fillStyle = '#ffcc60';
+            r(15, 8, 2, 2);
+            // Top cap
+            ctx.fillStyle = '#444444';
+            r(11, 3, 10, 2);
+            r(13, 2, 6, 1);
+            // Warm glow area
+            ctx.fillStyle = 'rgba(255, 200, 80, 0.08)';
+            ctx.fillRect(dx, dy, size, size);
         } else if (name === 'mushroom') {
-            // Cap and stem
+            // Detailed mushroom with cap, spots, gills, and stem
+            // Cap
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 8, dy + 6, 16, 10); // cap
-            ctx.fillStyle = '#e8dcc0';
-            ctx.fillRect(dx + 13, dy + 16, 6, 10); // stem
-            // spots on cap
+            r(6, 4, 20, 12);
+            r(8, 2, 16, 4);
+            // Cap shadow
+            ctx.fillStyle = colors.shadow;
+            r(6, 14, 20, 2);
+            // White spots
             ctx.fillStyle = '#ffffff';
-            ctx.fillRect(dx + 11, dy + 8, 3, 3);
-            ctx.fillRect(dx + 18, dy + 10, 2, 2);
+            r(10, 6, 4, 4);
+            r(18, 8, 3, 3);
+            r(14, 4, 2, 2);
+            // Gills underneath
+            ctx.fillStyle = '#d0c0a0';
+            r(10, 14, 2, 2);
+            r(14, 14, 2, 2);
+            r(18, 14, 2, 2);
+            // Stem
+            ctx.fillStyle = '#e8dcc0';
+            r(12, 16, 8, 12);
+            ctx.fillStyle = '#d8cca0';
+            r(14, 18, 2, 8);
         } else if (name === 'stump') {
-            // Rings on top
+            // Detailed tree stump with rings, bark, and moss
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 8, dy + 8, 16, 12);
+            r(6, 6, 20, 16);
+            // Growth rings
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 12, dy + 12, 8, 4); // inner ring
+            r(10, 10, 12, 8);
+            ctx.fillStyle = colors.highlight;
+            r(12, 12, 8, 4);
+            ctx.fillStyle = colors.shadow;
+            r(14, 13, 4, 2);
+            // Bark edges
+            ctx.fillStyle = colors.shadow;
+            r(4, 20, 24, 8);
+            ctx.fillStyle = colors.highlight;
+            r(6, 22, 20, 4);
+            // Moss
+            ctx.fillStyle = '#3a8a2a';
+            r(4 + (hash * 4 | 0), 20, 4, 2);
         } else if (name === 'barrel') {
-            // Hoop bands
+            // Detailed barrel with staves, hoops, and wood grain
+            // Stave lines
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 4, dy + 8, size - 8, 2);
-            ctx.fillRect(dx + 4, dy + 20, size - 8, 2);
+            r(8, 2, 1, 28);
+            r(16, 2, 1, 28);
+            r(24, 2, 1, 28);
+            // Metal hoops
+            ctx.fillStyle = '#777777';
+            r(3, 7, 26, 2);
+            r(3, 20, 26, 2);
+            // Hoop rivets
+            ctx.fillStyle = '#999999';
+            r(6, 7, 1, 2);
+            r(14, 7, 1, 2);
+            r(22, 7, 1, 2);
+            // Wood grain
+            ctx.fillStyle = colors.highlight;
+            r(4, 12, 1, 6);
+            r(12, 10, 1, 8);
+            r(20, 14, 1, 4);
+            // Barrel top
+            ctx.fillStyle = colors.shadow;
+            r(6, 2, 20, 2);
         } else if (name === 'sign') {
-            // Post and board
+            // Detailed sign with post, board, text lines, and arrow
+            // Post
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 14, dy + 16, 4, size - 16); // post
+            r(13, 16, 6, 16);
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 6, dy + 4, 20, 12); // sign board
+            r(14, 18, 4, 12);
+            // Sign board
+            ctx.fillStyle = colors.highlight;
+            r(4, 2, 24, 14);
+            // Board border
+            ctx.fillStyle = colors.shadow;
+            r(4, 2, 24, 1);
+            r(4, 15, 24, 1);
+            r(4, 2, 1, 14);
+            r(27, 2, 1, 14);
+            // Text lines
+            ctx.fillStyle = '#333333';
+            r(7, 6, 18, 1);
+            r(7, 10, 14, 1);
+            // Arrow
+            r(22, 9, 3, 3);
         } else if (name === 'stairs') {
-            // Step lines
+            // Detailed stairs with step edges, shadows, and side walls
             ctx.fillStyle = colors.highlight;
-            for (let sy = 4; sy < size - 4; sy += 6) {
-                ctx.fillRect(dx + 4, dy + sy, size - 8, 2);
+            for (let sy = 3; sy < 29; sy += 5) {
+                r(3, sy, 26, 3);
             }
+            // Step edges/shadows
+            ctx.fillStyle = colors.shadow;
+            for (let sy = 6; sy < 32; sy += 5) {
+                r(3, sy, 26, 1);
+            }
+            // Side walls
+            ctx.fillStyle = colors.shadow;
+            r(2, 2, 1, 28);
+            r(29, 2, 1, 28);
         } else if (name === 'tall_grass') {
-            // Taller blade marks
+            // Detailed tall grass with swaying blades and seed heads
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 6, dy + 4, 2, 8);
-            ctx.fillRect(dx + 14, dy + 2, 2, 10);
-            ctx.fillRect(dx + 22, dy + 6, 2, 8);
+            r(4, 2, 2, 10);
+            r(10, 0, 2, 14);
+            r(18, 3, 2, 10);
+            r(24, 1, 2, 12);
+            r(7, 6, 2, 8);
+            r(21, 4, 2, 10);
+            // Shadow blades
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 10, dy + 8, 2, 10);
-            ctx.fillRect(dx + 18, dy + 4, 2, 12);
+            r(8, 8, 2, 12);
+            r(14, 6, 2, 14);
+            r(22, 10, 2, 10);
+            r(3, 14, 2, 10);
+            r(28, 8, 2, 8);
+            // Seed heads
+            ctx.fillStyle = '#d0c080';
+            r(10, 0, 3, 2);
+            r(24, 1, 3, 2);
+            r(14, 4, 2, 2);
         } else if (name === 'marble') {
-            // Subtle veining
+            // Detailed marble with veining, polish, and subtle color variation
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 4, dy + 8, 12, 1);
-            ctx.fillRect(dx + 14, dy + 8, 1, 10);
+            r(3, 7, 14, 1);
+            r(15, 7, 1, 12);
+            r(8, 18, 10, 1);
+            // Additional veins
+            r(22, 4, 1, 8);
+            r(20, 12, 8, 1);
+            // Polish highlights
+            ctx.fillStyle = colors.highlight;
+            r(4, 4, 3, 2);
+            r(20, 20, 4, 2);
+            r(10, 24, 3, 2);
         } else if (name === 'wood') {
-            // Wood grain lines
+            // Detailed wood planks with grain, knots, and nail holes
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 2, dy + 6, size - 4, 1);
-            ctx.fillRect(dx + 2, dy + 16, size - 4, 1);
-            ctx.fillRect(dx + 2, dy + 26, size - 4, 1);
+            r(1, 5, 30, 1);
+            r(1, 13, 30, 1);
+            r(1, 21, 30, 1);
+            r(1, 29, 30, 1);
+            // Grain lines within planks
+            ctx.fillStyle = colors.highlight;
+            r(3, 8, 12, 1);
+            r(18, 16, 10, 1);
+            r(6, 24, 14, 1);
+            // Knots
+            ctx.fillStyle = colors.shadow;
+            r(10 + (hash * 6 | 0), 8, 2, 2);
+            r(22 + (hash2 * 4 | 0), 24, 2, 2);
+            // Nail holes
+            ctx.fillStyle = '#444444';
+            r(4, 5, 1, 1);
+            r(28, 13, 1, 1);
         } else if (name === 'inn_wall') {
-            // Timber frame pattern (AQ inn style)
+            // Detailed timber frame inn wall with plaster, nails, and weathering
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 2, dy + 10, size - 4, 2);
-            ctx.fillRect(dx + 2, dy + 22, size - 4, 2);
-            ctx.fillRect(dx + 14, dy + 2, 2, size - 4);
-            // Plaster fill between timbers
+            r(2, 9, 28, 3);
+            r(2, 20, 28, 3);
+            r(13, 2, 3, 28);
+            // Plaster between timbers
             ctx.fillStyle = '#d8c8a8';
-            ctx.fillRect(dx + 4, dy + 12, 10, 10);
-            ctx.fillRect(dx + 16, dy + 12, 10, 10);
+            r(4, 12, 9, 8);
+            r(16, 12, 12, 8);
+            r(4, 2, 9, 7);
+            r(16, 2, 12, 7);
+            // Plaster texture
+            ctx.fillStyle = '#c8b898';
+            r(6, 14, 4, 2);
+            r(20, 4, 3, 2);
+            // Timber grain
+            ctx.fillStyle = colors.shadow;
+            r(4, 10, 8, 1);
+            r(18, 21, 6, 1);
+            r(14, 6, 1, 4);
+            // Nails
+            ctx.fillStyle = '#555555';
+            r(5, 9, 1, 1);
+            r(25, 20, 1, 1);
         } else if (name === 'shop_awning') {
-            // Striped awning (AQ shop front)
+            // Detailed striped awning with scalloped edge and shadows
             ctx.fillStyle = colors.highlight;
-            for (let sx = 0; sx < size; sx += 8) {
-                ctx.fillRect(dx + sx, dy, 4, size);
+            for (let sx = 0; sx < 32; sx += 8) {
+                r(sx, 0, 4, 28);
             }
+            // Scalloped bottom edge
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx, dy + size - 4, size, 4); // awning edge
+            r(0, 28, 32, 4);
+            // Edge detail
+            ctx.fillStyle = colors.highlight;
+            r(2, 28, 4, 1);
+            r(10, 28, 4, 1);
+            r(18, 28, 4, 1);
+            r(26, 28, 4, 1);
+            // Support rod
+            ctx.fillStyle = '#666666';
+            r(0, 2, 32, 1);
         } else if (name === 'tavern_sign') {
-            // Hanging sign board
-            ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 14, dy, 4, 8); // chain/hook
+            // Detailed hanging tavern sign with icon, chains, and board grain
+            // Chains
+            ctx.fillStyle = '#888888';
+            r(10, 0, 2, 8);
+            r(20, 0, 2, 8);
+            // Chain links
+            ctx.fillStyle = '#666666';
+            r(10, 2, 2, 1);
+            r(10, 5, 2, 1);
+            r(20, 2, 2, 1);
+            r(20, 5, 2, 1);
+            // Sign board
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 4, dy + 8, 24, 16); // sign board
-            ctx.fillStyle = '#111';
-            ctx.fillRect(dx + 8, dy + 12, 16, 8); // text area
+            r(3, 8, 26, 18);
+            // Board border
+            ctx.fillStyle = '#3a2810';
+            r(3, 8, 26, 1);
+            r(3, 25, 26, 1);
+            r(3, 8, 1, 18);
+            r(28, 8, 1, 18);
+            // Dark text area
+            ctx.fillStyle = '#222222';
+            r(6, 11, 20, 12);
+            // Mug icon
             ctx.fillStyle = '#e8d068';
-            ctx.fillRect(dx + 10, dy + 14, 4, 4); // mug icon
-            ctx.fillRect(dx + 16, dy + 14, 4, 4);
+            r(9, 13, 5, 6);
+            r(14, 15, 2, 4);
+            // Tankard foam
+            ctx.fillStyle = '#f0e8c0';
+            r(9, 13, 5, 2);
+            // Second mug
+            ctx.fillStyle = '#e8d068';
+            r(18, 13, 5, 6);
+            r(17, 15, 1, 4);
         } else if (name === 'magic_wall') {
-            // Mystical stone wall (AQ magic shop)
+            // Animated mystical wall with glowing runes and arcane patterns
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx, dy + 10, size, 1);
-            ctx.fillRect(dx, dy + 22, size, 1);
-            // Glowing rune marks
+            r(0, 8, 32, 1);
+            r(0, 16, 32, 1);
+            r(0, 24, 32, 1);
+            // Stone block pattern
+            ctx.fillStyle = colors.shadow;
+            r(14, 2, 1, 6);
+            r(8, 10, 1, 6);
+            r(22, 10, 1, 6);
+            r(14, 18, 1, 6);
+            // Glowing rune marks (animated)
+            const runeAlpha = 0.4 + 0.3 * Math.sin((gridX * 3 + gridY * 7) + performance.now() / 600);
             ctx.fillStyle = '#8868d0';
-            ctx.globalAlpha = 0.5 + 0.2 * Math.sin((gridX * 3 + gridY * 7) + performance.now() / 600);
-            ctx.fillRect(dx + 10, dy + 4, 4, 4);
-            ctx.fillRect(dx + 18, dy + 16, 4, 4);
+            ctx.globalAlpha = runeAlpha;
+            r(9, 3, 5, 5);
+            r(18, 11, 5, 5);
+            r(6, 19, 5, 5);
+            r(22, 19, 4, 4);
+            // Rune detail
+            ctx.fillStyle = '#b090f0';
+            r(10, 4, 3, 3);
+            r(19, 12, 3, 3);
+            r(7, 20, 3, 3);
             ctx.globalAlpha = 1.0;
         } else if (name === 'magic_roof') {
-            // Peaked mystical roof with star decorations
+            // Mystical roof with star constellations and shimmer
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx, dy + 8, size, 1);
-            ctx.fillRect(dx, dy + 18, size, 1);
+            r(0, 7, 32, 1);
+            r(0, 15, 32, 1);
+            r(0, 23, 32, 1);
+            // Star pattern
             ctx.fillStyle = '#c8b8f0';
-            ctx.fillRect(dx + 12, dy + 12, 3, 3); // star
-            ctx.fillRect(dx + 13, dy + 11, 1, 1);
-            ctx.fillRect(dx + 13, dy + 15, 1, 1);
+            r(12, 10, 4, 4);
+            r(13, 9, 2, 1);
+            r(13, 14, 2, 1);
+            r(11, 11, 1, 2);
+            r(16, 11, 1, 2);
+            // Second star
+            r(24, 20, 3, 3);
+            r(25, 19, 1, 1);
+            r(25, 23, 1, 1);
+            // Shimmer dots
+            ctx.fillStyle = '#d8d0f8';
+            r(6, 4, 1, 1);
+            r(20, 6, 1, 1);
+            r(8, 26, 1, 1);
         } else if (name === 'wood_floor') {
-            // Interior wood plank floor
+            // Detailed wood plank floor with grain, gaps, and wear marks
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx, dy + 7, size, 1);
-            ctx.fillRect(dx, dy + 15, size, 1);
-            ctx.fillRect(dx, dy + 23, size, 1);
-            ctx.fillRect(dx + 10 + ((gridX * 11) % 12), dy, 1, size);
-        } else if (name === 'fireplace') {
-            // Stone fireplace with fire glow
+            r(0, 6, 32, 1);
+            r(0, 13, 32, 1);
+            r(0, 20, 32, 1);
+            r(0, 27, 32, 1);
+            // Staggered plank joints
+            const jx = 10 + ((gridX * 11) % 12);
+            r(jx, 0, 1, 6);
+            r((jx + 14) % 30 + 1, 7, 1, 6);
+            r((jx + 8) % 30 + 1, 14, 1, 6);
+            r((jx + 20) % 30 + 1, 21, 1, 6);
+            // Wood grain within planks
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 4, dy + 4, size - 8, size - 8); // stone surround
+            r(4, 2, 10, 1);
+            r(20, 9, 8, 1);
+            r(8, 16, 12, 1);
+            r(16, 23, 10, 1);
+            // Knot detail
+            ctx.fillStyle = colors.shadow;
+            r(18 + (hash * 6 | 0), 3, 2, 2);
+            r(8 + (hash2 * 6 | 0), 23, 2, 2);
+        } else if (name === 'fireplace') {
+            // Detailed stone fireplace with flames, embers, and warm glow
+            // Stone surround
+            ctx.fillStyle = colors.highlight;
+            r(3, 3, 26, 26);
+            // Stone blocks
+            ctx.fillStyle = colors.shadow;
+            r(3, 3, 26, 2);
+            r(3, 27, 26, 2);
+            r(3, 3, 2, 26);
+            r(27, 3, 2, 26);
+            // Inner fireplace
+            ctx.fillStyle = '#2a2020';
+            r(7, 7, 18, 18);
+            // Fire layers
             ctx.fillStyle = '#d85020';
-            ctx.fillRect(dx + 8, dy + 12, 6, 8); // fire
-            ctx.fillStyle = '#e8a030';
-            ctx.fillRect(dx + 10, dy + 10, 4, 6);
-            ctx.fillStyle = '#f8d040';
-            ctx.fillRect(dx + 11, dy + 8, 2, 4); // flame tip
+            r(9, 12, 14, 12);
+            ctx.fillStyle = '#e88030';
+            r(11, 10, 10, 10);
+            ctx.fillStyle = '#f8b040';
+            r(13, 8, 6, 8);
+            ctx.fillStyle = '#f8d850';
+            r(14, 6, 4, 6);
+            // Flame tip
+            ctx.fillStyle = '#ffe870';
+            r(15, 5, 2, 3);
+            // Embers
+            ctx.fillStyle = '#ff6020';
+            r(10, 22, 2, 1);
+            r(18, 20, 2, 1);
+            r(14, 23, 2, 1);
+            // Log
+            ctx.fillStyle = '#4a3020';
+            r(8, 22, 16, 3);
             // Warm glow
-            ctx.fillStyle = 'rgba(255, 160, 60, 0.15)';
+            ctx.fillStyle = 'rgba(255, 140, 40, 0.12)';
             ctx.fillRect(dx, dy, size, size);
         } else if (name === 'counter') {
-            // Shop/inn counter
-            ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx, dy + 12, size, 2); // counter edge
+            // Detailed shop/inn counter with grain, edge trim, and items
+            // Counter surface
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 2, dy + 2, size - 4, 10); // counter top
+            r(2, 2, 28, 12);
+            // Surface grain
+            ctx.fillStyle = colors.base;
+            r(4, 4, 12, 1);
+            r(20, 6, 8, 1);
+            r(8, 9, 10, 1);
+            // Edge trim
+            ctx.fillStyle = colors.shadow;
+            r(0, 13, 32, 3);
+            // Support legs below
+            ctx.fillStyle = colors.shadow;
+            r(4, 16, 3, 14);
+            r(25, 16, 3, 14);
+            r(14, 18, 3, 12);
+            // Shelf behind
+            ctx.fillStyle = colors.highlight;
+            r(6, 20, 20, 1);
         } else if (name === 'bookshelf') {
-            // Bookshelf with colored book spines
-            const bookColors = ['#c04040', '#40a040', '#4060c0', '#c0a030', '#a040a0'];
-            for (let bx = 3; bx < size - 4; bx += 5) {
+            // Detailed bookshelf with varied book sizes, colors, and shelf detail
+            const bookColors = ['#c04040', '#40a040', '#4060c0', '#c0a030', '#a040a0', '#c06030', '#30a0a0'];
+            // Shelf boards
+            ctx.fillStyle = colors.shadow;
+            r(1, 14, 30, 2);
+            r(1, 0, 30, 2);
+            r(1, 30, 30, 2);
+            // Upper shelf books (varied heights)
+            for (let bx = 2; bx < 29; bx += 4) {
+                const bh = 8 + ((bx * 3 + gridX) % 4);
                 ctx.fillStyle = bookColors[(bx + gridX) % bookColors.length];
-                ctx.fillRect(dx + bx, dy + 4, 4, 10);
-                ctx.fillRect(dx + bx, dy + 18, 4, 10);
+                r(bx, 16 - bh + 2, 3, bh);
+                // Book spine line
+                ctx.fillStyle = colors.shadow;
+                r(bx + 1, 16 - bh + 3, 1, bh - 2);
             }
+            // Lower shelf books
+            for (let bx = 2; bx < 29; bx += 4) {
+                const bh = 8 + ((bx * 7 + gridY) % 4);
+                ctx.fillStyle = bookColors[(bx + gridY + 3) % bookColors.length];
+                r(bx, 32 - bh - 2, 3, bh);
+            }
+            // Side panels
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 2, dy + 14, size - 4, 2); // shelf divider
+            r(0, 0, 2, 32);
+            r(30, 0, 2, 32);
         } else if (name === 'table') {
-            // Wooden table top
+            // Detailed wooden table with surface, legs, and items
+            // Table surface
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 2, dy + 4, size - 4, 12); // table surface
+            r(2, 4, 28, 14);
+            // Surface grain
+            ctx.fillStyle = colors.base;
+            r(4, 6, 10, 1);
+            r(18, 10, 8, 1);
+            r(8, 14, 14, 1);
+            // Edge shadow
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 6, dy + 16, 4, 12); // left leg
-            ctx.fillRect(dx + size - 10, dy + 16, 4, 12); // right leg
-        } else if (name === 'anvil') {
-            // Blacksmith anvil
+            r(2, 16, 28, 2);
+            // Legs
+            ctx.fillStyle = colors.shadow;
+            r(4, 18, 4, 12);
+            r(24, 18, 4, 12);
+            // Cross beam
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 6, dy + 8, 20, 8); // anvil top
-            ctx.fillRect(dx + 10, dy + 16, 12, 8); // anvil body
-            ctx.fillStyle = '#888';
-            ctx.fillRect(dx + 8, dy + 6, 16, 4); // horn
+            r(8, 24, 16, 2);
+        } else if (name === 'anvil') {
+            // Detailed blacksmith anvil with horn, face, hardy hole, and base
+            // Anvil face (top)
+            ctx.fillStyle = '#9090a0';
+            r(4, 6, 24, 6);
+            // Horn (left side)
+            ctx.fillStyle = '#888898';
+            r(2, 8, 6, 3);
+            r(0, 9, 3, 1);
+            // Heel (right side)
+            r(26, 8, 4, 3);
+            // Face highlight
+            ctx.fillStyle = '#a8a8b8';
+            r(6, 7, 20, 2);
+            // Hardy hole
+            ctx.fillStyle = '#333333';
+            r(20, 8, 3, 3);
+            // Waist
+            ctx.fillStyle = colors.highlight;
+            r(8, 12, 16, 4);
+            // Base
+            ctx.fillStyle = colors.base;
+            r(6, 16, 20, 8);
+            ctx.fillStyle = colors.shadow;
+            r(4, 24, 24, 4);
+            // Base edge highlight
+            ctx.fillStyle = colors.highlight;
+            r(6, 24, 20, 1);
         } else if (name === 'forge_fire') {
-            // Blacksmith forge fire
+            // Detailed forge with brick, flames, bellows, and sparks
+            // Forge body
+            ctx.fillStyle = '#4a3030';
+            r(2, 4, 28, 24);
+            // Brick pattern
+            ctx.fillStyle = '#5a3838';
+            r(2, 10, 28, 1);
+            r(2, 18, 28, 1);
+            r(14, 4, 1, 6);
+            r(8, 12, 1, 6);
+            r(22, 12, 1, 6);
+            // Fire in center
             ctx.fillStyle = '#e85020';
-            ctx.fillRect(dx + 4, dy + 6, size - 8, size - 10);
+            r(6, 8, 20, 16);
             ctx.fillStyle = '#f8a030';
-            ctx.fillRect(dx + 8, dy + 10, size - 16, size - 18);
+            r(8, 10, 16, 12);
             ctx.fillStyle = '#f8d850';
-            ctx.fillRect(dx + 12, dy + 14, 8, 8);
+            r(10, 12, 12, 8);
+            ctx.fillStyle = '#ffe878';
+            r(12, 14, 8, 4);
             // Sparks
             ctx.fillStyle = '#ffe080';
-            ctx.fillRect(dx + 6, dy + 4, 2, 2);
-            ctx.fillRect(dx + 20, dy + 2, 2, 2);
+            r(5, 4, 2, 2);
+            r(22, 2, 2, 2);
+            r(14, 2, 2, 2);
+            r(26, 6, 2, 2);
+            // Coal bed
+            ctx.fillStyle = '#cc4020';
+            r(8, 22, 16, 4);
+            ctx.fillStyle = '#882010';
+            r(10, 24, 4, 2);
+            r(18, 24, 4, 2);
         } else if (name === 'carpet') {
-            // Ornate carpet/rug
+            // Ornate carpet with border pattern, tassels, and center design
+            // Main carpet body
             ctx.fillStyle = '#b84040';
-            ctx.fillRect(dx + 2, dy + 2, size - 4, size - 4);
+            r(2, 2, 28, 28);
+            // Outer border (gold)
             ctx.fillStyle = '#d8a040';
-            ctx.fillRect(dx + 4, dy + 4, size - 8, 2); // border pattern
-            ctx.fillRect(dx + 4, dy + size - 6, size - 8, 2);
-            ctx.fillRect(dx + 4, dy + 4, 2, size - 8);
-            ctx.fillRect(dx + size - 6, dy + 4, 2, size - 8);
+            r(3, 3, 26, 2);
+            r(3, 27, 26, 2);
+            r(3, 3, 2, 26);
+            r(27, 3, 2, 26);
+            // Inner border
+            ctx.fillStyle = '#c86838';
+            r(6, 6, 20, 1);
+            r(6, 25, 20, 1);
+            r(6, 6, 1, 20);
+            r(25, 6, 1, 20);
+            // Center diamond motif
+            ctx.fillStyle = '#d8a040';
+            r(14, 10, 4, 4);
+            r(12, 12, 8, 8);
+            r(14, 18, 4, 4);
+            // Center dot
+            ctx.fillStyle = '#e8d070';
+            r(15, 14, 2, 2);
+            // Corner details
+            ctx.fillStyle = '#c88030';
+            r(4, 4, 2, 2);
+            r(26, 4, 2, 2);
+            r(4, 26, 2, 2);
+            r(26, 26, 2, 2);
         } else if (name === 'potion_shelf') {
-            // Shelf with potion bottles
+            // Detailed shelf with potion bottles, labels, and shelf boards
+            // Shelf boards
             ctx.fillStyle = colors.shadow;
-            ctx.fillRect(dx + 2, dy + 14, size - 4, 2); // shelf
-            // Potion bottles
+            r(1, 14, 30, 2);
+            r(1, 0, 30, 2);
+            r(1, 30, 30, 2);
+            // Side panels
+            r(0, 0, 2, 32);
+            r(30, 0, 2, 32);
+            // Upper shelf potions (with bottle shapes)
+            // Red health potion
             ctx.fillStyle = '#e04040';
-            ctx.fillRect(dx + 4, dy + 6, 4, 8);
+            r(3, 5, 5, 9);
+            ctx.fillStyle = '#cc2020';
+            r(4, 4, 3, 2);
+            // Blue mana potion
             ctx.fillStyle = '#4080e0';
-            ctx.fillRect(dx + 10, dy + 6, 4, 8);
+            r(10, 6, 5, 8);
+            ctx.fillStyle = '#2060c0';
+            r(11, 4, 3, 3);
+            // Green potion
             ctx.fillStyle = '#40c040';
-            ctx.fillRect(dx + 16, dy + 6, 4, 8);
+            r(17, 5, 5, 9);
+            ctx.fillStyle = '#20a020';
+            r(18, 3, 3, 3);
+            // Yellow potion
             ctx.fillStyle = '#e0d040';
-            ctx.fillRect(dx + 22, dy + 6, 4, 8);
-            // Bottom shelf potions
+            r(24, 6, 5, 8);
+            ctx.fillStyle = '#c8b020';
+            r(25, 4, 3, 3);
+            // Lower shelf potions
             ctx.fillStyle = '#c040c0';
-            ctx.fillRect(dx + 6, dy + 20, 4, 8);
+            r(4, 18, 5, 10);
+            ctx.fillStyle = '#a020a0';
+            r(5, 16, 3, 3);
             ctx.fillStyle = '#40c0c0';
-            ctx.fillRect(dx + 14, dy + 20, 4, 8);
+            r(12, 19, 5, 9);
+            ctx.fillStyle = '#20a0a0';
+            r(13, 17, 3, 3);
             ctx.fillStyle = '#e08040';
-            ctx.fillRect(dx + 22, dy + 20, 4, 8);
+            r(20, 18, 5, 10);
+            ctx.fillStyle = '#c06020';
+            r(21, 16, 3, 3);
+            // Cork stoppers
+            ctx.fillStyle = '#a08060';
+            r(4, 4, 3, 1);
+            r(11, 4, 3, 1);
+            r(18, 3, 3, 1);
+            r(25, 4, 3, 1);
         } else if (name === 'bed') {
-            // Bed with pillow and blanket
+            // Detailed bed with headboard, pillow, blanket folds, and frame
+            // Bed frame
             ctx.fillStyle = colors.highlight;
-            ctx.fillRect(dx + 2, dy + 2, size - 4, size - 4); // bed frame
+            r(2, 2, 28, 28);
+            // Headboard
+            ctx.fillStyle = '#5a4030';
+            r(2, 2, 28, 4);
+            ctx.fillStyle = '#6a5040';
+            r(4, 3, 24, 2);
+            // Pillow
             ctx.fillStyle = '#e8e0d0';
-            ctx.fillRect(dx + 4, dy + 4, size - 8, 8); // pillow
+            r(4, 6, 24, 8);
+            ctx.fillStyle = '#f0e8e0';
+            r(6, 7, 20, 4);
+            // Pillow indent
+            ctx.fillStyle = '#d8d0c0';
+            r(10, 8, 12, 2);
+            // Blanket
             ctx.fillStyle = '#4060a0';
-            ctx.fillRect(dx + 4, dy + 14, size - 8, 14); // blanket
+            r(4, 15, 24, 14);
+            // Blanket fold line
             ctx.fillStyle = '#3050a0';
-            ctx.fillRect(dx + 4, dy + 14, size - 8, 2); // blanket fold
+            r(4, 15, 24, 2);
+            // Blanket wrinkle
+            ctx.fillStyle = '#506cb0';
+            r(8, 20, 16, 1);
+            r(6, 26, 20, 1);
+            // Blanket pattern
+            ctx.fillStyle = '#3858a8';
+            r(10, 22, 4, 4);
+            r(18, 22, 4, 4);
+            // Side rails
+            ctx.fillStyle = '#5a4030';
+            r(2, 6, 2, 24);
+            r(28, 6, 2, 24);
         }
     }
 
