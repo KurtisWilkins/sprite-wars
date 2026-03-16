@@ -23,6 +23,7 @@ import { LEARNSETS } from '../data/LearnsetData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
 import { EQUIPMENT, findEquipmentWithExpansion } from '../data/EquipmentData.js';
 import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { getRaceSpritePath, getFormSpritePath } from '../data/SpriteTextureHelper.js';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function _getSpriteName(inst) {
@@ -569,13 +570,28 @@ export class SpriteCenterScene extends Scene {
         posNum.textContent = `${index + 1}`;
         row.appendChild(posNum);
 
-        // Sprite preview canvas (rich composite via UnitRenderer)
+        // PNG race sprite portrait (primary display)
         const hp = inst.currentHp !== undefined ? inst.currentHp : (inst.maxHp || 100);
         const maxHp = inst.maxHp || 100;
+        const raceId = inst.raceId || inst.race_id || 1;
+        const formId = inst.formId || inst.form_id || 1;
+        const stage = ((formId - 1) % 3);
+        const portraitWrap = document.createElement('div');
+        portraitWrap.style.cssText = 'position:relative;width:52px;height:58px;flex-shrink:0;overflow:hidden;';
+        const racePath = getRaceSpritePath(raceId, stage);
+        if (racePath) {
+            const raceImg = document.createElement('img');
+            raceImg.src = racePath;
+            raceImg.style.cssText = 'width:52px;height:52px;object-fit:contain;image-rendering:pixelated;';
+            raceImg.onerror = () => { raceImg.style.display = 'none'; };
+            portraitWrap.appendChild(raceImg);
+        }
+
+        // Canvas overlay (equipment rendering)
         const previewCanvas = document.createElement('canvas');
         previewCanvas.width = 52;
         previewCanvas.height = 58;
-        previewCanvas.style.cssText = 'width:52px;height:58px;flex-shrink:0;';
+        previewCanvas.style.cssText = 'position:absolute;top:0;left:0;width:52px;height:58px;';
         const pCtx = previewCanvas.getContext('2d');
         UnitRenderer.draw(pCtx, inst, 26, 26, 46, {
             time: this._time,
@@ -587,7 +603,8 @@ export class SpriteCenterScene extends Scene {
             showArmorGlow: true,
             showElementBadge: true,
         });
-        row.appendChild(previewCanvas);
+        portraitWrap.appendChild(previewCanvas);
+        row.appendChild(portraitWrap);
         this._previewCanvases.push({
             canvas: previewCanvas,
             inst,
@@ -765,11 +782,25 @@ export class SpriteCenterScene extends Scene {
             if (sprite) {
                 const inst = sprite.instance || sprite;
 
-                // Sprite preview canvas (rich composite via UnitRenderer)
+                // PNG race sprite (primary display)
+                const sRaceId = inst.raceId || inst.race_id || 1;
+                const sFormId = inst.formId || inst.form_id || 1;
+                const sStage = ((sFormId - 1) % 3);
+                const sPath = getRaceSpritePath(sRaceId, sStage);
+                if (sPath) {
+                    const sImg = document.createElement('img');
+                    sImg.src = sPath;
+                    sImg.style.cssText = 'width:48px;height:48px;object-fit:contain;image-rendering:pixelated;';
+                    sImg.onerror = () => { sImg.style.display = 'none'; };
+                    cell.appendChild(sImg);
+                }
+
+                // Canvas overlay (equipment rendering)
                 const cellCanvas = document.createElement('canvas');
                 cellCanvas.width = 56;
                 cellCanvas.height = 60;
-                cellCanvas.style.cssText = 'width:56px;height:60px;';
+                cellCanvas.style.cssText = 'width:56px;height:60px;position:absolute;top:0;left:0;';
+                cell.style.position = 'relative';
                 const cCtx = cellCanvas.getContext('2d');
                 UnitRenderer.draw(cCtx, inst, 28, 28, 48, {
                     time: this._time,
@@ -904,6 +935,18 @@ export class SpriteCenterScene extends Scene {
                     flex-direction:column;cursor:${seen ? 'pointer' : 'default'};
                 `;
 
+                // PNG race sprite for seen/caught forms
+                if (caught || seen) {
+                    const formSpritePath = getFormSpritePath(formId);
+                    if (formSpritePath) {
+                        const formImg = document.createElement('img');
+                        formImg.src = formSpritePath;
+                        formImg.style.cssText = `width:36px;height:36px;object-fit:contain;image-rendering:pixelated;${seen && !caught ? 'filter:brightness(0.5);' : ''}`;
+                        formImg.onerror = () => { formImg.style.display = 'none'; };
+                        formCell.appendChild(formImg);
+                    }
+                }
+
                 // Stage indicator
                 const stageLabel = document.createElement('div');
                 stageLabel.style.cssText = `font-size:0.55rem;color:${textColor};font-weight:600;`;
@@ -966,6 +1009,16 @@ export class SpriteCenterScene extends Scene {
         formInfo.style.cssText = 'font-size:0.7rem;color:#aaa;margin-bottom:8px;';
         formInfo.textContent = `Form #${formId} | ${entry.caught ? 'Caught' : 'Seen'}`;
         this._detailPanelEl.appendChild(formInfo);
+
+        // PNG race sprite portrait (primary display in registry detail)
+        const regSpritePath = getFormSpritePath(formId);
+        if (regSpritePath) {
+            const regImg = document.createElement('img');
+            regImg.src = regSpritePath;
+            regImg.style.cssText = 'display:block;width:96px;height:96px;object-fit:contain;image-rendering:pixelated;margin:0 auto 10px auto;border-radius:8px;background:rgba(0,0,0,0.3);padding:4px;';
+            regImg.onerror = () => { regImg.style.display = 'none'; };
+            this._detailPanelEl.appendChild(regImg);
+        }
 
         // Elements
         if (entry.elementTypes && entry.elementTypes.length > 0) {

@@ -17,6 +17,7 @@ import { SPRITE_RACES } from '../data/SpriteData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
 import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
 import { SpriteInspectPanel } from '../systems/ui/SpriteInspectPanel.js';
+import { getRaceSpritePath } from '../data/SpriteTextureHelper.js';
 
 function _getSpriteName(inst) {
     if (!inst) return '???';
@@ -835,6 +836,19 @@ export class DeploymentScene extends Scene {
                 onClick: () => this._selectRosterSprite(i),
             });
             card.style.margin = '2px 4px';
+            card.style.position = 'relative';
+
+            // Add PNG race sprite portrait
+            const raceId = spriteInst.raceId || spriteInst.race_id || Math.ceil((spriteInst.formId || spriteInst.form_id || 1) / 3);
+            const stage = (((spriteInst.formId || spriteInst.form_id || 1) - 1) % 3);
+            const spritePath = getRaceSpritePath(raceId, stage);
+            if (spritePath) {
+                const img = document.createElement('img');
+                img.src = spritePath;
+                img.style.cssText = 'width:42px;height:42px;object-fit:contain;image-rendering:pixelated;position:absolute;left:4px;top:5px;z-index:1;';
+                img.onerror = () => { img.style.display = 'none'; };
+                card.appendChild(img);
+            }
 
             this._rosterPanelEl.appendChild(card);
         }

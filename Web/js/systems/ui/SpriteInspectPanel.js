@@ -289,7 +289,7 @@ export class SpriteInspectPanel {
         const canvasWrap = document.createElement('div');
         canvasWrap.style.cssText = 'position: relative; width: 160px; height: 180px; flex-shrink: 0; overflow: hidden;';
 
-        // Race sprite portrait image (background)
+        // Race sprite PNG portrait (primary display)
         const racePath = getRaceSpritePath(d.raceId, Math.max(0, d.evolutionStage - 1));
         if (racePath) {
             const racePortrait = document.createElement('img');
@@ -298,19 +298,20 @@ export class SpriteInspectPanel {
                 position: 'absolute', top: '0', left: '0',
                 width: '100%', height: '100%',
                 objectFit: 'contain',
-                imageRendering: 'crisp-edges',
-                opacity: '0.25',
+                imageRendering: 'pixelated',
+                opacity: '1',
                 pointerEvents: 'none',
+                zIndex: '0',
             });
             racePortrait.onerror = () => { racePortrait.style.display = 'none'; };
             canvasWrap.appendChild(racePortrait);
         }
 
-        // Canvas (foreground)
+        // Canvas overlay (equipment rendering on top of PNG)
         const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 288;
-        canvas.style.cssText = 'position: relative; width: 160px; height: 180px;';
+        canvas.style.cssText = 'position: absolute; top: 0; left: 0; width: 160px; height: 180px; z-index: 1;';
         const ctx = canvas.getContext('2d');
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, d.raceId, d.evolutionStage, d.facing, 0,

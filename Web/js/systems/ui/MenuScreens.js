@@ -443,7 +443,7 @@ export class TeamScreen {
             const sStage = spriteData.evolutionStage || spriteData.evolution_stage || 1;
             const sEquip = spriteData.equipment || {};
 
-            // Race sprite image (background portrait)
+            // Race sprite PNG image (primary portrait)
             const raceSpritePath = getRaceSpritePath(sRaceId, Math.max(0, sStage - 1));
             if (raceSpritePath) {
                 const raceImg = document.createElement('img');
@@ -452,21 +452,23 @@ export class TeamScreen {
                     position: 'absolute', top: '0', left: '0',
                     width: '100%', height: '100%',
                     objectFit: 'contain',
-                    imageRendering: 'crisp-edges',
-                    opacity: '0.35',
+                    imageRendering: 'pixelated',
+                    opacity: '1',
+                    zIndex: '0',
                 });
                 raceImg.onerror = () => { raceImg.style.display = 'none'; };
                 portraitWrap.appendChild(raceImg);
             }
 
-            // Canvas with equipment rendering (foreground)
+            // Canvas overlay with equipment rendering
             const portrait = document.createElement('canvas');
             portrait.width = 56;
             portrait.height = 56;
             Object.assign(portrait.style, {
-                position: 'relative',
+                position: 'absolute', top: '0', left: '0',
                 width: '56px', height: '56px',
                 imageRendering: 'crisp-edges',
+                zIndex: '1',
             });
             const pCtx = portrait.getContext('2d');
             HumanoidSpriteSystem.drawWithEquipment(
@@ -1491,8 +1493,9 @@ export class InventoryScreen {
                     position: 'absolute', top: '0', left: '0',
                     width: '100%', height: '100%',
                     objectFit: 'contain',
-                    imageRendering: 'crisp-edges',
-                    opacity: '0.35',
+                    imageRendering: 'pixelated',
+                    opacity: '1',
+                    zIndex: '0',
                 });
                 raceImg2.onerror = () => { raceImg2.style.display = 'none'; };
                 portraitWrap2.appendChild(raceImg2);
@@ -1502,9 +1505,10 @@ export class InventoryScreen {
             portrait.width = 44;
             portrait.height = 44;
             Object.assign(portrait.style, {
-                position: 'relative',
+                position: 'absolute', top: '0', left: '0',
                 width: '44px', height: '44px',
                 imageRendering: 'crisp-edges',
+                zIndex: '1',
             });
             const pCtx = portrait.getContext('2d');
             HumanoidSpriteSystem.drawWithEquipment(

@@ -496,20 +496,20 @@ export class GlossaryScreen {
             drawSpritePreview(previewCanvas, race.race_id, this._raceSelectedElement[race.race_id]);
             topRow.appendChild(previewCanvas);
 
-            // Race portrait image from sprite assets
+            // Race portrait image from PNG sprite assets (primary display)
             const portraitPath = getRaceSpritePath(race.race_id, 0);
             if (portraitPath) {
                 const portraitImg = document.createElement('img');
                 portraitImg.src = portraitPath;
                 Object.assign(portraitImg.style, {
-                    width: '48px',
-                    height: '48px',
+                    width: '80px',
+                    height: '80px',
                     objectFit: 'contain',
-                    borderRadius: '6px',
+                    borderRadius: '8px',
                     border: '2px solid #1A1A1A',
                     background: 'rgba(0,0,0,0.3)',
                     flexShrink: '0',
-                    imageRendering: 'crisp-edges',
+                    imageRendering: 'pixelated',
                 });
                 portraitImg.onerror = () => { portraitImg.style.display = 'none'; };
                 topRow.appendChild(portraitImg);

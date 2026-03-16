@@ -17,6 +17,7 @@ import { eventBus, GameEvents } from '../core/EventBus.js';
 import { CONSUMABLES, CRYSTALS } from '../data/ItemData.js';
 import { EQUIPMENT, getAllEquipmentWithExpansion } from '../data/EquipmentData.js';
 import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { getRaceSpritePath } from '../data/SpriteTextureHelper.js';
 
 // ── Constants ───────────────────────────────────────────────────────────────
 const TABS = ['items', 'equipment', 'keyitems'];
@@ -930,18 +931,31 @@ export class BagScene extends Scene {
         });
         this._detailPanelEl.appendChild(closeBtn);
 
-        // Larger equipment sprite preview (48x48 canvas)
+        // PNG race sprite portrait (primary display for equipment preview)
+        const detailPreviewWrap = document.createElement('div');
+        detailPreviewWrap.style.cssText = 'position:relative;width:56px;height:56px;margin:0 auto 8px auto;';
+        const eqRaceSpritePath = getRaceSpritePath(1, 0);
+        if (eqRaceSpritePath) {
+            const eqRaceImg = document.createElement('img');
+            eqRaceImg.src = eqRaceSpritePath;
+            eqRaceImg.style.cssText = 'width:56px;height:56px;object-fit:contain;image-rendering:pixelated;';
+            eqRaceImg.onerror = () => { eqRaceImg.style.display = 'none'; };
+            detailPreviewWrap.appendChild(eqRaceImg);
+        }
+
+        // Canvas overlay with equipment rendering
         const detailPreviewCanvas = document.createElement('canvas');
         detailPreviewCanvas.width = 56;
         detailPreviewCanvas.height = 56;
-        detailPreviewCanvas.style.cssText = 'display:block;margin:0 auto 8px auto;';
+        detailPreviewCanvas.style.cssText = 'position:absolute;top:0;left:0;display:block;';
         const dpCtx = detailPreviewCanvas.getContext('2d');
         const detailPreviewEquip = {};
         detailPreviewEquip[def.slot_type] = def.equipment_id;
         HumanoidSpriteSystem.drawWithEquipment(
             dpCtx, 1, 1, 0, 0, 28, 50, 48, { equipment: detailPreviewEquip }
         );
-        this._detailPanelEl.appendChild(detailPreviewCanvas);
+        detailPreviewWrap.appendChild(detailPreviewCanvas);
+        this._detailPanelEl.appendChild(detailPreviewWrap);
 
         // Equipment name
         const nameEl = document.createElement('div');
