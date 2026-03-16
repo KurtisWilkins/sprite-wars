@@ -15,7 +15,7 @@ import { eventBus, GameEvents } from '../../core/EventBus.js';
 import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../../data/SpriteData.js';
 import { ABILITIES } from '../../data/AbilityData.js';
-import { EQUIPMENT } from '../../data/EquipmentData.js';
+import { EQUIPMENT, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
 import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
 
 // ── Colors ──────────────────────────────────────────────────────────────────
@@ -714,7 +714,7 @@ export class SpriteInspectPanel {
         for (const slot of allSlots) {
             const pos = slotLayout[slot];
             const eqId = equipment[slot];
-            const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
+            const eqData = eqId ? (typeof eqId === 'object' ? eqId : findEquipmentWithExpansion(eqId)) : null;
             const hasItem = !!eqData;
             const rarityColor = hasItem ? (RARITY_COLORS[eqData.rarity] || '#888') : '#333';
             const icon = SLOT_ICONS[slot] || '\u2B24';
@@ -789,7 +789,7 @@ export class SpriteInspectPanel {
             if (!eqId) continue;
             hasAny = true;
 
-            const eqData = typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId);
+            const eqData = typeof eqId === 'object' ? eqId : findEquipmentWithExpansion(eqId);
             if (!eqData) continue;
 
             const rarityColor = RARITY_COLORS[eqData.rarity] || '#888';

@@ -11,7 +11,7 @@
  */
 import { SPRITE_RACES } from '../../data/SpriteData.js';
 import { ABILITIES } from '../../data/AbilityData.js';
-import { EQUIPMENT, SLOT_TYPES } from '../../data/EquipmentData.js';
+import { EQUIPMENT, SLOT_TYPES, getAllEquipmentWithExpansion } from '../../data/EquipmentData.js';
 import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
 
@@ -1036,7 +1036,7 @@ export class GlossaryScreen {
         this._equipListContainer.innerHTML = '';
 
         // Filter
-        let items = [...EQUIPMENT];
+        let items = getAllEquipmentWithExpansion();
         if (this._equipmentFilter !== 'all') {
             items = items.filter(eq => eq.slot_type === this._equipmentFilter);
         }

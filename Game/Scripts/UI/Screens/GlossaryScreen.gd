@@ -850,7 +850,7 @@ func _stat_weight_to_bar(weight: int) -> String:
 ## ── EQUIPMENT TAB ────────────────────────────────────────────────────────────
 
 func _populate_equipment_tab() -> void:
-	var all_equipment: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+	var all_equipment: Array[Dictionary] = EquipmentDatabase.get_all_equipment_with_expansion()
 
 	if all_equipment.is_empty():
 		_add_empty_label("No equipment found.")
@@ -899,7 +899,7 @@ func _refresh_equipment_cards() -> void:
 		_equipment_cards_container.remove_child(child)
 		child.queue_free()
 
-	var all_equipment: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+	var all_equipment: Array[Dictionary] = EquipmentDatabase.get_all_equipment_with_expansion()
 
 	# Sort equipment: by slot_type then by level_requirement.
 	var sorted_equipment: Array[Dictionary] = all_equipment.duplicate()

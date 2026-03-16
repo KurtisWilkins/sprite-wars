@@ -81,7 +81,7 @@ static func roll_battle_loot(
 			break
 
 	# Get all valid equipment from database.
-	var all_equipment: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+	var all_equipment: Array[Dictionary] = EquipmentDatabase.get_all_equipment_with_expansion()
 
 	# Filter by level requirement.
 	var level_cap: int = player_level + MAX_LEVEL_ABOVE_PLAYER

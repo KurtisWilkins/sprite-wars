@@ -627,7 +627,7 @@ func _generate_default_positions(team: int, count: int) -> Array[Vector2i]:
 ## Uses the EquipmentDatabase to look up each equipped item by ID.
 func _resolve_equipment_list(instance: SpriteInstance) -> Array:
 	var result: Array = []
-	var all_equipment: Array = _EquipmentDatabase.get_all_equipment()
+	var all_equipment: Array = _EquipmentDatabase.get_all_equipment_with_expansion()
 	var equipped_ids: Array[int] = instance.get_equipped_item_ids()
 	for eid in equipped_ids:
 		for eq_entry in all_equipment:

@@ -11,7 +11,7 @@
  */
 import { eventBus, GameEvents } from '../../core/EventBus.js';
 import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
-import { EQUIPMENT, SLOT_TYPES, RARITY_TIERS } from '../../data/EquipmentData.js';
+import { EQUIPMENT, SLOT_TYPES, RARITY_TIERS, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
 import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
 
 // -- Shared Style Constants ------------------------------------------------------
@@ -1138,13 +1138,13 @@ export class InventoryScreen {
         // Resolve equipment data: items might be IDs or full objects
         let resolvedItems = equipmentList.map(item => {
             if (typeof item === 'number') {
-                const found = EQUIPMENT.find(e => e.equipment_id === item);
+                const found = findEquipmentWithExpansion(item);
                 return found || null;
             }
             if (item && (item.equipment_id || item.equipmentId)) {
                 // If it's a partial object, try to enrich with static data
                 const eqId = item.equipment_id || item.equipmentId;
-                const staticData = EQUIPMENT.find(e => e.equipment_id === eqId);
+                const staticData = findEquipmentWithExpansion(eqId);
                 return staticData || item;
             }
             return item;
@@ -1445,7 +1445,7 @@ export class InventoryScreen {
             const displayName = sprite.nickname || `Sprite #${sprite.raceId || sprite.race_id || '?'}`;
             const currentEquip = sprite.equipment ? sprite.equipment[slotType] : null;
             const currentEqName = currentEquip
-                ? (EQUIPMENT.find(e => e.equipment_id === currentEquip) || {}).equipment_name || `Item #${currentEquip}`
+                ? (findEquipmentWithExpansion(currentEquip) || {}).equipment_name || `Item #${currentEquip}`
                 : 'Empty';
 
             const row = document.createElement('div');
@@ -1575,7 +1575,7 @@ export class InventoryScreen {
             }
             // Return old item to inventory
             if (oldEquipId) {
-                const oldEqData = EQUIPMENT.find(e => e.equipment_id === oldEquipId);
+                const oldEqData = findEquipmentWithExpansion(oldEquipId);
                 if (oldEqData) {
                     playerData.equipmentInventory.push(oldEqData);
                 }
