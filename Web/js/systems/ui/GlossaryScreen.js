@@ -14,7 +14,7 @@ import { ABILITIES } from '../../data/AbilityData.js';
 import { EQUIPMENT, SLOT_TYPES, getAllEquipmentWithExpansion } from '../../data/EquipmentData.js';
 import { getEquipmentAssets, getEquipmentAssetsBySlot, ASSET_CATEGORIES, CATEGORY_TO_SLOT } from '../../data/EquipmentAssetRegistry.js';
 import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js';
-import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
+
 
 // -- Shared Style Constants ------------------------------------------------------
 
@@ -238,7 +238,7 @@ function drawSpritePreview(canvas, raceId, elementName) {
 
     const size = canvas.width;
 
-    // Use HumanoidSpriteSystem to render if available
+    // Use SkeletalAnimationSystem to render if available
     try {
         // Create a mock sprite instance with the selected element
         const mockInst = {
@@ -252,7 +252,7 @@ function drawSpritePreview(canvas, raceId, elementName) {
             equipment: {},
         };
 
-        // Draw the frame using HumanoidSpriteSystem (chibi sized)
+        // Draw the frame using SkeletalAnimationSystem (chibi sized)
         const spriteSize = size * 0.9;
         SkeletalAnimationSystem.drawFrame(ctx, raceId, 1, 0, 0, (size - spriteSize) / 2, (size - spriteSize) / 2, spriteSize);
     } catch (e) {
@@ -513,25 +513,6 @@ export class GlossaryScreen {
             });
             drawSpritePreview(previewCanvas, race.race_id, this._raceSelectedElement[race.race_id]);
             topRow.appendChild(previewCanvas);
-
-            // Race portrait image from PNG sprite assets (primary display)
-            const portraitPath = getRaceSpritePath(race.race_id, 0);
-            if (portraitPath) {
-                const portraitImg = document.createElement('img');
-                portraitImg.src = portraitPath;
-                Object.assign(portraitImg.style, {
-                    width: '80px',
-                    height: '80px',
-                    objectFit: 'contain',
-                    borderRadius: '8px',
-                    border: '2px solid #1A1A1A',
-                    background: 'rgba(0,0,0,0.3)',
-                    flexShrink: '0',
-                    imageRendering: 'pixelated',
-                });
-                portraitImg.onerror = () => { portraitImg.style.display = 'none'; };
-                topRow.appendChild(portraitImg);
-            }
 
             // Info column
             const infoCol = document.createElement('div');

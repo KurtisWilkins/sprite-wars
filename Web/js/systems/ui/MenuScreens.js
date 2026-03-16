@@ -12,7 +12,7 @@
 import { eventBus, GameEvents } from '../../core/EventBus.js';
 import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js';
 import { EQUIPMENT, SLOT_TYPES, RARITY_TIERS, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
-import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
+
 
 // -- Shared Style Constants ------------------------------------------------------
 
@@ -443,32 +443,13 @@ export class TeamScreen {
             const sStage = spriteData.evolutionStage || spriteData.evolution_stage || 1;
             const sEquip = spriteData.equipment || {};
 
-            // Race sprite PNG image (primary portrait)
-            const raceSpritePath = getRaceSpritePath(sRaceId, Math.max(0, sStage - 1));
-            if (raceSpritePath) {
-                const raceImg = document.createElement('img');
-                raceImg.src = raceSpritePath;
-                Object.assign(raceImg.style, {
-                    position: 'absolute', top: '0', left: '0',
-                    width: '100%', height: '100%',
-                    objectFit: 'contain',
-                    imageRendering: 'pixelated',
-                    opacity: '1',
-                    zIndex: '0',
-                });
-                raceImg.onerror = () => { raceImg.style.display = 'none'; };
-                portraitWrap.appendChild(raceImg);
-            }
-
-            // Canvas overlay with equipment rendering
+            // Canvas with equipment rendering
             const portrait = document.createElement('canvas');
             portrait.width = 56;
             portrait.height = 56;
             Object.assign(portrait.style, {
-                position: 'absolute', top: '0', left: '0',
                 width: '56px', height: '56px',
                 imageRendering: 'crisp-edges',
-                zIndex: '1',
             });
             const pCtx = portrait.getContext('2d');
             SkeletalAnimationSystem.drawWithEquipment(
@@ -1485,30 +1466,12 @@ export class InventoryScreen {
             const sRaceId = sprite.raceId || sprite.race_id || 1;
             const sStage = sprite.evolutionStage || sprite.evolution_stage || 1;
 
-            const raceSpritePath2 = getRaceSpritePath(sRaceId, Math.max(0, sStage - 1));
-            if (raceSpritePath2) {
-                const raceImg2 = document.createElement('img');
-                raceImg2.src = raceSpritePath2;
-                Object.assign(raceImg2.style, {
-                    position: 'absolute', top: '0', left: '0',
-                    width: '100%', height: '100%',
-                    objectFit: 'contain',
-                    imageRendering: 'pixelated',
-                    opacity: '1',
-                    zIndex: '0',
-                });
-                raceImg2.onerror = () => { raceImg2.style.display = 'none'; };
-                portraitWrap2.appendChild(raceImg2);
-            }
-
             const portrait = document.createElement('canvas');
             portrait.width = 44;
             portrait.height = 44;
             Object.assign(portrait.style, {
-                position: 'absolute', top: '0', left: '0',
                 width: '44px', height: '44px',
                 imageRendering: 'crisp-edges',
-                zIndex: '1',
             });
             const pCtx = portrait.getContext('2d');
             SkeletalAnimationSystem.drawWithEquipment(

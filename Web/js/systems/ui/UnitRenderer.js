@@ -23,7 +23,6 @@ import { assetRegistry } from '../../data/AssetRegistry.js';
 import { SPRITE_RACES } from '../../data/SpriteData.js';
 import { EQUIPMENT, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
 import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js';
-import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
 
 // ── Element colors ──────────────────────────────────────────────────────────
 export const ELEMENT_COLORS = {
@@ -121,15 +120,7 @@ export class UnitRenderer {
             await _loadImage(engine, iconPath);
         }
 
-        // 3. Race sprite PNG (new pre-rendered sprites)
-        const inst = spriteInstance;
-        const stage = inst.evolutionStage || inst.evolution_stage || (((formId - 1) % 3) + 1);
-        const raceSpritePath = getRaceSpritePath(raceId, stage - 1); // stage is 1-indexed, path is 0-indexed
-        if (raceSpritePath) {
-            await _loadImage(engine, raceSpritePath);
-        }
-
-        // 4. Status effect VFX
+        // 3. Status effect VFX
         const statuses = spriteInstance.activeStatusEffects || [];
         for (const s of statuses) {
             const effectId = s.effectId || s.effect_id || (s.effectData && s.effectData.effect_id);

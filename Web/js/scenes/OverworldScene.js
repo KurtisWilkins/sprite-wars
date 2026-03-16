@@ -240,7 +240,7 @@ export class OverworldScene extends Scene {
     // ── Lifecycle ──────────────────────────────────────────────────────────
 
     async init() {
-        // Preload PNG race sprites for HumanoidSpriteSystem rendering.
+        // Preload PNG race sprites for SkeletalAnimationSystem rendering.
         await SkeletalAnimationSystem.preloadAssets(this.engine.assets);
 
         // Load player sprite from the new race sprite system (Human, stage 0)
@@ -493,7 +493,7 @@ export class OverworldScene extends Scene {
 
         // Set up NPCs
         // Deterministic race assignments for NPC types so they render via
-        // HumanoidSpriteSystem (cel-shaded) instead of pixel-art sprite sheets.
+        // SkeletalAnimationSystem (cel-shaded) instead of pixel-art sprite sheets.
         const NPC_RACE_BY_TYPE = {
             talk:    [12, 6, 10, 15, 18, 20, 22],  // Human, Cat Man, Ghost, Monkey Man, Rat Man, Shark Man, Turtle Man
             heal:    [9, 17, 24],                    // Fish Man, Ork, Zombie
@@ -535,7 +535,7 @@ export class OverworldScene extends Scene {
             npc.spriteFrameH = 64;
             npc.spriteCols = 4;
             npc.spriteRows = 4;
-            // Skip sprite sheet loading for NPCs with raceId — they use HumanoidSpriteSystem
+            // Skip sprite sheet loading for NPCs with raceId — they use SkeletalAnimationSystem
             if (npc.raceId) continue;
             if (npc.spritePath) {
                 try {
@@ -989,17 +989,17 @@ export class OverworldScene extends Scene {
             collisionMap: collision,
             defaultSpawn: { x: 24, y: 24 },
             npcs: [
-                { id:'elder', name:'Temple Elder', gridX:24, gridY:23, type:'talk', facing:'down', spritePath:'Sprites/Characters/Elf/Elf_S2_Idle.png', dialogue:['Welcome to Willowshade, young trainer!','Our town has grown into a fine settlement.','Head east through the cave to reach the Blazecore Sanctum.','Or venture south through the gate to explore the Verdant Route.','Build your team and grow stronger before challenging the temple guardian.'] },
-                { id:'healer', name:'Healer Mira', gridX:7, gridY:20, type:'heal', facing:'up', spritePath:'Sprites/Characters/Human/Human_S1_Idle.png', dialogue:['Oh dear, your Sprites look exhausted!','Rest here a moment... Let me tend to them.','There we go -- all healed up! Good luck out there!'] },
-                { id:'shopkeeper', name:'Merchant Grin', gridX:8, gridY:35, type:'shop', facing:'down', spritePath:'Sprites/Characters/Ork/Ork_S2_Idle.png', dialogue:['Looking to buy supplies? You have come to the right place!','I stock potions, crystals, and other essentials.','Come back any time -- my door is always open!'] },
-                { id:'quest_guide', name:'Scout Renn', gridX:41, gridY:23, type:'quest', facing:'left', spritePath:'Sprites/Characters/WolfMan/WolfMan_S1_Idle.png', dialogue:['Blazecore Sanctum is through the cave to the east!','Fire-type Sprites lurk within. Their guardian is formidable.','I train here every day to prepare for the challenge.','If you bring me a Fire Gem, I can teach your Sprites fire resistance!'] },
-                { id:'mom', name:'Mom', gridX:7, gridY:8, type:'talk', facing:'down', spritePath:'Sprites/Characters/Human/Human_S2_Idle.png', dialogue:['Be careful out there, dear!','Remember to heal your Sprites at Mira\'s hut if they get hurt.','I\'ll always be here if you need me.'] },
-                { id:'father_byron', name:'Father Byron', gridX:35, gridY:35, type:'talk', facing:'up', spritePath:'Sprites/Characters/Elf/Elf_S2_Idle.png', dialogue:['Blessings upon you, young trainer!','I have devoted my life to studying the bond between Sprites and their tamers.','There are 24 known Sprite races, each with three evolution stages.','That is 72 distinct forms to discover!','Head south to the Verdant Route for your first encounters.'] },
-                { id:'fisherman', name:'Old Fisher Tom', gridX:31, gridY:8, type:'talk', facing:'right', spritePath:'Sprites/Characters/FishMan/FishMan_S1_Idle.png', dialogue:['The pond here is home to some rare Water-type Sprites.','I have been fishing these waters for thirty years.','Legend says there is a treasure on the small island out there...'] },
-                { id:'guard', name:'Gate Guard Hal', gridX:24, gridY:43, type:'talk', facing:'up', spritePath:'Sprites/Characters/Minotaur/Minotaur_S1_Idle.png', dialogue:['Beyond this gate lies the Verdant Route.','Wild Sprites roam freely out there. Make sure you are prepared!','Stock up on potions before heading out.'] },
-                { id:'blacksmith', name:'Smith Doran', gridX:6, gridY:44, type:'shop', facing:'up', spritePath:'Sprites/Characters/Golem/Golem_S2_Idle.png', dialogue:['Need equipment? I forge the finest gear in Willowshade.','Bring me raw materials and I can craft something special.'] },
-                { id:'trainer_pip', name:'Youngster Pip', gridX:22, gridY:40, type:'trainer', facing:'up', spritePath:'Sprites/Characters/MonkeyMan/MonkeyMan_S1_Idle.png', dialogue:['I just got my first Sprite yesterday!','Wanna see how strong it is? Battle me!'], visionRange:4, visionDirection:{x:0,y:-1} },
-                { id:'trainer_fern', name:'Lass Fern', gridX:28, gridY:10, type:'trainer', facing:'left', spritePath:'Sprites/Characters/FishMan/FishMan_S2_Idle.png', dialogue:['The Sprites near this pond are so graceful...','Oh! A challenger? My Water-types won\'t go easy on you!'], visionRange:3, visionDirection:{x:-1,y:0} },
+                { id:'elder', name:'Temple Elder', gridX:24, gridY:23, type:'talk', facing:'down', raceId:2, stage:2, dialogue:['Welcome to Willowshade, young trainer!','Our town has grown into a fine settlement.','Head east through the cave to reach the Blazecore Sanctum.','Or venture south through the gate to explore the Verdant Route.','Build your team and grow stronger before challenging the temple guardian.'] },
+                { id:'healer', name:'Healer Mira', gridX:7, gridY:20, type:'heal', facing:'up', raceId:1, stage:1, dialogue:['Oh dear, your Sprites look exhausted!','Rest here a moment... Let me tend to them.','There we go -- all healed up! Good luck out there!'] },
+                { id:'shopkeeper', name:'Merchant Grin', gridX:8, gridY:35, type:'shop', facing:'down', raceId:18, stage:2, dialogue:['Looking to buy supplies? You have come to the right place!','I stock potions, crystals, and other essentials.','Come back any time -- my door is always open!'] },
+                { id:'quest_guide', name:'Scout Renn', gridX:41, gridY:23, type:'quest', facing:'left', raceId:7, stage:1, dialogue:['Blazecore Sanctum is through the cave to the east!','Fire-type Sprites lurk within. Their guardian is formidable.','I train here every day to prepare for the challenge.','If you bring me a Fire Gem, I can teach your Sprites fire resistance!'] },
+                { id:'mom', name:'Mom', gridX:7, gridY:8, type:'talk', facing:'down', raceId:1, stage:2, dialogue:['Be careful out there, dear!','Remember to heal your Sprites at Mira\'s hut if they get hurt.','I\'ll always be here if you need me.'] },
+                { id:'father_byron', name:'Father Byron', gridX:35, gridY:35, type:'talk', facing:'up', raceId:2, stage:2, dialogue:['Blessings upon you, young trainer!','I have devoted my life to studying the bond between Sprites and their tamers.','There are 24 known Sprite races, each with three evolution stages.','That is 72 distinct forms to discover!','Head south to the Verdant Route for your first encounters.'] },
+                { id:'fisherman', name:'Old Fisher Tom', gridX:31, gridY:8, type:'talk', facing:'right', raceId:12, stage:1, dialogue:['The pond here is home to some rare Water-type Sprites.','I have been fishing these waters for thirty years.','Legend says there is a treasure on the small island out there...'] },
+                { id:'guard', name:'Gate Guard Hal', gridX:24, gridY:43, type:'talk', facing:'up', raceId:16, stage:1, dialogue:['Beyond this gate lies the Verdant Route.','Wild Sprites roam freely out there. Make sure you are prepared!','Stock up on potions before heading out.'] },
+                { id:'blacksmith', name:'Smith Doran', gridX:6, gridY:44, type:'shop', facing:'up', raceId:14, stage:2, dialogue:['Need equipment? I forge the finest gear in Willowshade.','Bring me raw materials and I can craft something special.'] },
+                { id:'trainer_pip', name:'Youngster Pip', gridX:22, gridY:40, type:'trainer', facing:'up', raceId:8, stage:1, dialogue:['I just got my first Sprite yesterday!','Wanna see how strong it is? Battle me!'], visionRange:4, visionDirection:{x:0,y:-1} },
+                { id:'trainer_fern', name:'Lass Fern', gridX:28, gridY:10, type:'trainer', facing:'left', raceId:12, stage:2, dialogue:['The Sprites near this pond are so graceful...','Oh! A challenger? My Water-types won\'t go easy on you!'], visionRange:3, visionDirection:{x:-1,y:0} },
             ],
             transitions: [
                 { gridX:45, gridY:24, width:2, height:2, targetRegion:'fire_temple', targetSpawn:{x:1,y:12} },
@@ -1076,8 +1076,8 @@ export class OverworldScene extends Scene {
             collisionMap: collision,
             defaultSpawn: { x: 16, y: 1 },
             npcs: [
-                { id:'trainer_kai', name:'Javelin Kai', gridX:14, gridY:6, type:'trainer', facing:'right', spritePath:'Sprites/Characters/WolfMan/WolfMan_S2_Idle.png', dialogue:['Hold it right there, rookie!','The wilds ahead are dangerous. Let me test if you are ready!'], visionRange:5, visionDirection:{x:-1,y:0} },
-                { id:'trainer_tim', name:'Bug Catcher Tim', gridX:6, gridY:5, type:'trainer', facing:'down', spritePath:'Sprites/Characters/BugMan/BugMan_S1_Idle.png', dialogue:['Hey! You look like a new trainer!','Let me show you what my Bug-type Sprites can do!'], visionRange:4, visionDirection:{x:0,y:1} },
+                { id:'trainer_kai', name:'Javelin Kai', gridX:14, gridY:6, type:'trainer', facing:'right', raceId:7, stage:2, dialogue:['Hold it right there, rookie!','The wilds ahead are dangerous. Let me test if you are ready!'], visionRange:5, visionDirection:{x:-1,y:0} },
+                { id:'trainer_tim', name:'Bug Catcher Tim', gridX:6, gridY:5, type:'trainer', facing:'down', raceId:9, stage:1, dialogue:['Hey! You look like a new trainer!','Let me show you what my Bug-type Sprites can do!'], visionRange:4, visionDirection:{x:0,y:1} },
             ],
             transitions: [
                 { gridX:15, gridY:0, width:4, height:1, targetRegion:'starter_town', targetSpawn:{x:24,y:44} },

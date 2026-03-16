@@ -17,7 +17,6 @@ import { eventBus, GameEvents } from '../core/EventBus.js';
 import { CONSUMABLES, CRYSTALS } from '../data/ItemData.js';
 import { EQUIPMENT, getAllEquipmentWithExpansion } from '../data/EquipmentData.js';
 import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
-import { getRaceSpritePath } from '../data/SpriteTextureHelper.js';
 
 // ── Constants ───────────────────────────────────────────────────────────────
 const TABS = ['items', 'equipment', 'keyitems'];
@@ -931,19 +930,10 @@ export class BagScene extends Scene {
         });
         this._detailPanelEl.appendChild(closeBtn);
 
-        // PNG race sprite portrait (primary display for equipment preview)
         const detailPreviewWrap = document.createElement('div');
         detailPreviewWrap.style.cssText = 'position:relative;width:56px;height:56px;margin:0 auto 8px auto;';
-        const eqRaceSpritePath = getRaceSpritePath(1, 0);
-        if (eqRaceSpritePath) {
-            const eqRaceImg = document.createElement('img');
-            eqRaceImg.src = eqRaceSpritePath;
-            eqRaceImg.style.cssText = 'width:56px;height:56px;object-fit:contain;image-rendering:pixelated;';
-            eqRaceImg.onerror = () => { eqRaceImg.style.display = 'none'; };
-            detailPreviewWrap.appendChild(eqRaceImg);
-        }
 
-        // Canvas overlay with equipment rendering
+        // Canvas with equipment rendering
         const detailPreviewCanvas = document.createElement('canvas');
         detailPreviewCanvas.width = 56;
         detailPreviewCanvas.height = 56;

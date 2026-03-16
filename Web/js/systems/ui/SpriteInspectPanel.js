@@ -16,7 +16,7 @@ import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../../data/SpriteData.js';
 import { ABILITIES } from '../../data/AbilityData.js';
 import { EQUIPMENT, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
-import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
+
 
 // ── Colors ──────────────────────────────────────────────────────────────────
 
@@ -289,25 +289,7 @@ export class SpriteInspectPanel {
         const canvasWrap = document.createElement('div');
         canvasWrap.style.cssText = 'position: relative; width: 160px; height: 180px; flex-shrink: 0; overflow: hidden;';
 
-        // Race sprite PNG portrait (primary display)
-        const racePath = getRaceSpritePath(d.raceId, Math.max(0, d.evolutionStage - 1));
-        if (racePath) {
-            const racePortrait = document.createElement('img');
-            racePortrait.src = racePath;
-            Object.assign(racePortrait.style, {
-                position: 'absolute', top: '0', left: '0',
-                width: '100%', height: '100%',
-                objectFit: 'contain',
-                imageRendering: 'pixelated',
-                opacity: '1',
-                pointerEvents: 'none',
-                zIndex: '0',
-            });
-            racePortrait.onerror = () => { racePortrait.style.display = 'none'; };
-            canvasWrap.appendChild(racePortrait);
-        }
-
-        // Canvas overlay (equipment rendering on top of PNG)
+        // Canvas (full sprite rendering via SkeletalAnimationSystem)
         const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 288;

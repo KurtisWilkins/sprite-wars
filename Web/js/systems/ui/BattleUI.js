@@ -8,7 +8,7 @@
  * All rendered into the #battle-hud div using DOM manipulation.
  */
 import { eventBus, GameEvents } from '../../core/EventBus.js';
-import { getRaceSpritePath, getPortraitPath } from '../../data/SpriteTextureHelper.js';
+import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js';
 
 // -- Color Constants (matching BattleEventFeed colors) ---------------------------
 
@@ -348,26 +348,20 @@ export class BattleUI {
      * @param {number} currentHp
      */
     registerUnit(unitId, gridPos, textureUrl, team, maxHp, currentHp, unitData) {
-        // Resolve portrait from race sprite path if no textureUrl provided
-        let resolvedUrl = textureUrl;
-        if (!resolvedUrl && unitData) {
-            const path = getPortraitPath(unitData);
-            if (path) resolvedUrl = path;
-        }
-
         this._trackedUnits.set(unitId, {
             gridPos,
-            textureUrl: resolvedUrl,
+            textureUrl,
             team,
             maxHp,
             currentHp,
+            unitData,
         });
 
         // Create health bar
         this._createHealthBar(unitId, maxHp, currentHp, team);
 
-        // Add to turn order bar
-        this._addTurnOrderPortrait(unitId, resolvedUrl, team);
+        // Add to turn order bar with full unitData for skeletal rendering
+        this._addTurnOrderPortrait(unitId, unitData, team);
     }
 
     /**
@@ -394,7 +388,7 @@ export class BattleUI {
     // -- Turn Order Bar ----------------------------------------------------------
 
     /** @private */
-    _addTurnOrderPortrait(unitId, textureUrl, team) {
+    _addTurnOrderPortrait(unitId, unitData, team) {
         // Clean cel-shaded portrait with uniform outline
         const el = document.createElement('div');
         el.className = 'turn-order-portrait';
@@ -414,12 +408,17 @@ export class BattleUI {
             transition: 'transform 0.2s, box-shadow 0.2s',
         });
 
-        if (textureUrl) {
-            const img = document.createElement('img');
-            img.src = textureUrl;
-            img.style.cssText = 'width:100%;height:100%;object-fit:contain;';
-            img.onerror = () => { img.style.display = 'none'; el.textContent = unitId; };
-            el.appendChild(img);
+        if (unitData) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 48;
+            canvas.height = 48;
+            canvas.style.cssText = 'width:100%;height:100%;';
+            const ctx = canvas.getContext('2d');
+            const raceId = unitData.raceId || unitData.race_id || 1;
+            const stage = unitData.evolutionStage || unitData.evolution_stage || 1;
+            const equipment = unitData.equipment || {};
+            SkeletalAnimationSystem.drawWithEquipment(ctx, raceId, stage, 0, 0, 24, 40, 40, { equipment });
+            el.appendChild(canvas);
         } else {
             el.textContent = unitId;
         }

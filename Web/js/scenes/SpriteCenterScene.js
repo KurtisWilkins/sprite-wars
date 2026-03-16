@@ -23,7 +23,7 @@ import { LEARNSETS } from '../data/LearnsetData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
 import { EQUIPMENT, findEquipmentWithExpansion } from '../data/EquipmentData.js';
 import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
-import { getRaceSpritePath, getFormSpritePath } from '../data/SpriteTextureHelper.js';
+import { getFormSpritePath } from '../data/SpriteTextureHelper.js';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function _getSpriteName(inst) {
@@ -570,28 +570,16 @@ export class SpriteCenterScene extends Scene {
         posNum.textContent = `${index + 1}`;
         row.appendChild(posNum);
 
-        // PNG race sprite portrait (primary display)
+        // Sprite portrait (canvas rendering)
         const hp = inst.currentHp !== undefined ? inst.currentHp : (inst.maxHp || 100);
         const maxHp = inst.maxHp || 100;
-        const raceId = inst.raceId || inst.race_id || 1;
-        const formId = inst.formId || inst.form_id || 1;
-        const stage = ((formId - 1) % 3);
         const portraitWrap = document.createElement('div');
-        portraitWrap.style.cssText = 'position:relative;width:52px;height:58px;flex-shrink:0;overflow:hidden;';
-        const racePath = getRaceSpritePath(raceId, stage);
-        if (racePath) {
-            const raceImg = document.createElement('img');
-            raceImg.src = racePath;
-            raceImg.style.cssText = 'width:52px;height:52px;object-fit:contain;image-rendering:pixelated;';
-            raceImg.onerror = () => { raceImg.style.display = 'none'; };
-            portraitWrap.appendChild(raceImg);
-        }
+        portraitWrap.style.cssText = 'width:52px;height:58px;flex-shrink:0;overflow:hidden;';
 
-        // Canvas overlay (equipment rendering)
         const previewCanvas = document.createElement('canvas');
         previewCanvas.width = 52;
         previewCanvas.height = 58;
-        previewCanvas.style.cssText = 'position:absolute;top:0;left:0;width:52px;height:58px;';
+        previewCanvas.style.cssText = 'width:52px;height:58px;';
         const pCtx = previewCanvas.getContext('2d');
         UnitRenderer.draw(pCtx, inst, 26, 26, 46, {
             time: this._time,
@@ -782,25 +770,11 @@ export class SpriteCenterScene extends Scene {
             if (sprite) {
                 const inst = sprite.instance || sprite;
 
-                // PNG race sprite (primary display)
-                const sRaceId = inst.raceId || inst.race_id || 1;
-                const sFormId = inst.formId || inst.form_id || 1;
-                const sStage = ((sFormId - 1) % 3);
-                const sPath = getRaceSpritePath(sRaceId, sStage);
-                if (sPath) {
-                    const sImg = document.createElement('img');
-                    sImg.src = sPath;
-                    sImg.style.cssText = 'width:48px;height:48px;object-fit:contain;image-rendering:pixelated;';
-                    sImg.onerror = () => { sImg.style.display = 'none'; };
-                    cell.appendChild(sImg);
-                }
-
-                // Canvas overlay (equipment rendering)
+                // Sprite canvas rendering
                 const cellCanvas = document.createElement('canvas');
                 cellCanvas.width = 56;
                 cellCanvas.height = 60;
-                cellCanvas.style.cssText = 'width:56px;height:60px;position:absolute;top:0;left:0;';
-                cell.style.position = 'relative';
+                cellCanvas.style.cssText = 'width:56px;height:60px;';
                 const cCtx = cellCanvas.getContext('2d');
                 UnitRenderer.draw(cCtx, inst, 28, 28, 48, {
                     time: this._time,
