@@ -23,7 +23,6 @@ import { LEARNSETS } from '../data/LearnsetData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
 import { EQUIPMENT, findEquipmentWithExpansion } from '../data/EquipmentData.js';
 import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
-import { getFormSpritePath } from '../data/SpriteTextureHelper.js';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function _getSpriteName(inst) {
@@ -909,16 +908,23 @@ export class SpriteCenterScene extends Scene {
                     flex-direction:column;cursor:${seen ? 'pointer' : 'default'};
                 `;
 
-                // PNG race sprite for seen/caught forms
+                // Skeletal canvas sprite for seen/caught forms
                 if (caught || seen) {
-                    const formSpritePath = getFormSpritePath(formId);
-                    if (formSpritePath) {
-                        const formImg = document.createElement('img');
-                        formImg.src = formSpritePath;
-                        formImg.style.cssText = `width:36px;height:36px;object-fit:contain;image-rendering:pixelated;${seen && !caught ? 'filter:brightness(0.5);' : ''}`;
-                        formImg.onerror = () => { formImg.style.display = 'none'; };
-                        formCell.appendChild(formImg);
-                    }
+                    const raceId = Math.ceil(formId / 3);
+                    const stage = ((formId - 1) % 3) + 1;
+                    const miniCanvas = document.createElement('canvas');
+                    miniCanvas.width = 64;
+                    miniCanvas.height = 64;
+                    miniCanvas.style.cssText = `width:36px;height:36px;image-rendering:pixelated;${seen && !caught ? 'filter:brightness(0.5);' : ''}`;
+                    const miniCtx = miniCanvas.getContext('2d');
+                    try {
+                        SkeletalAnimationSystem.drawWithEquipment(
+                            miniCtx, raceId, stage, 0, 0,
+                            32, 64, 56,
+                            { equipment: null }
+                        );
+                    } catch (_) { /* skeleton not loaded yet */ }
+                    formCell.appendChild(miniCanvas);
                 }
 
                 // Stage indicator
@@ -984,15 +990,22 @@ export class SpriteCenterScene extends Scene {
         formInfo.textContent = `Form #${formId} | ${entry.caught ? 'Caught' : 'Seen'}`;
         this._detailPanelEl.appendChild(formInfo);
 
-        // PNG race sprite portrait (primary display in registry detail)
-        const regSpritePath = getFormSpritePath(formId);
-        if (regSpritePath) {
-            const regImg = document.createElement('img');
-            regImg.src = regSpritePath;
-            regImg.style.cssText = 'display:block;width:96px;height:96px;object-fit:contain;image-rendering:pixelated;margin:0 auto 10px auto;border-radius:8px;background:rgba(0,0,0,0.3);padding:4px;';
-            regImg.onerror = () => { regImg.style.display = 'none'; };
-            this._detailPanelEl.appendChild(regImg);
-        }
+        // Skeletal canvas sprite portrait (primary display in registry detail)
+        const raceId = Math.ceil(formId / 3);
+        const detailStage = ((formId - 1) % 3) + 1;
+        const detailCanvas = document.createElement('canvas');
+        detailCanvas.width = 128;
+        detailCanvas.height = 128;
+        detailCanvas.style.cssText = 'display:block;width:96px;height:96px;image-rendering:auto;margin:0 auto 10px auto;border-radius:8px;background:rgba(0,0,0,0.3);padding:4px;';
+        const detailCtx = detailCanvas.getContext('2d');
+        try {
+            SkeletalAnimationSystem.drawWithEquipment(
+                detailCtx, raceId, detailStage, 0, 0,
+                64, 128, 112,
+                { equipment: null }
+            );
+        } catch (_) { /* skeleton not loaded yet */ }
+        this._detailPanelEl.appendChild(detailCanvas);
 
         // Elements
         if (entry.elementTypes && entry.elementTypes.length > 0) {

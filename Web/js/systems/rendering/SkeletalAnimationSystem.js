@@ -53,6 +53,20 @@ const PART_PADDING = 2;
 /** Maximum cached composite sheets (LRU eviction) — ~120MB ceiling */
 const MAX_CACHE_ENTRIES = 30;
 
+/** Track rendering errors for debugging (visible in console on first N occurrences). */
+let _errorCount = 0;
+const MAX_ERROR_LOGS = 10;
+
+function _logRenderError(context, err) {
+    _errorCount++;
+    if (_errorCount <= MAX_ERROR_LOGS) {
+        console.error(`[SkeletalAnimationSystem] ${context}:`, err);
+        if (_errorCount === MAX_ERROR_LOGS) {
+            console.warn('[SkeletalAnimationSystem] Further rendering errors will be suppressed.');
+        }
+    }
+}
+
 // ── Race Name Lookup ─────────────────────────────────────────────────────────
 
 const RACE_NAMES = {
@@ -1044,6 +1058,26 @@ export class SkeletalAnimationSystem {
         }
 
         await Promise.all(allPromises);
+
+        // Log preload summary for debugging
+        const skelCount = _skeletonCache.size;
+        const partCount = _partImageCache.size;
+        const themeCount = _themeImageCache.size;
+        const missingSkels = [];
+        for (let raceId = 1; raceId <= 24; raceId++) {
+            const raceName = RACE_NAMES[raceId];
+            if (!raceName) continue;
+            for (let stage = 1; stage <= 3; stage++) {
+                const skel = _skeletonCache.get(`${raceName}_S${stage}`);
+                if (!skel || !skel.bones) {
+                    missingSkels.push(`${raceName}_S${stage}`);
+                }
+            }
+        }
+        console.log(`[SkeletalAnimationSystem] Preload complete: ${skelCount} skeletons, ${partCount} parts, ${themeCount} themes loaded.`);
+        if (missingSkels.length > 0) {
+            console.warn(`[SkeletalAnimationSystem] Missing/fallback skeletons: ${missingSkels.join(', ')}`);
+        }
     }
 
     /**
@@ -1122,7 +1156,12 @@ export class SkeletalAnimationSystem {
      */
     static drawWithEquipment(ctx, raceId, stage, direction, frame, x, y, size, opts = {}) {
         const equipment = opts.equipment || null;
-        this.drawFrame(ctx, raceId, stage, direction, frame, x, y, size, equipment);
+        try {
+            this.drawFrame(ctx, raceId, stage, direction, frame, x, y, size, equipment);
+        } catch (err) {
+            _logRenderError(`drawWithEquipment(race=${raceId}, stage=${stage})`, err);
+            return;
+        }
 
         // Rarity glow effect for highest-rarity equipped item
         if (equipment) {
@@ -1278,6 +1317,7 @@ export class SkeletalAnimationSystem {
         // Generate all 4 directions x 4 walk frames
         for (let dir = 0; dir < 4; dir++) {
             for (let frame = 0; frame < 4; frame++) {
+              try {
                 const frameX = frame * FRAME_SIZE;
                 const frameY = dir * FRAME_SIZE;
 
@@ -1298,6 +1338,10 @@ export class SkeletalAnimationSystem {
                 _drawEquipmentOverlays(ctx, anchors, dir, frame, stage, raceId, eqData, raceTheme, themeImg, armorTier, colors);
 
                 ctx.restore();
+              } catch (err) {
+                  _logRenderError(`generateCompositeSheet(${raceName}, S${stage}, dir=${dir}, frame=${frame})`, err);
+                  ctx.restore();
+              }
             }
         }
 

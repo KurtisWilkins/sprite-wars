@@ -356,7 +356,7 @@ export class RTSBattleRenderer {
                 ctx.translate(-drawX, -(drawY - UNIT_DRAW_SIZE / 2));
             }
 
-            // Draw the unit sprite (realistic proportions handled by HumanoidSpriteSystem)
+            // Draw the unit sprite (realistic proportions handled by SkeletalAnimationSystem)
             this._drawUnitSprite(ctx, unit, drawX, drawY, spriteFrame);
 
             // Draw flash overlay if active (clean solid rect, no gradient)
@@ -431,7 +431,7 @@ export class RTSBattleRenderer {
     }
 
     _drawUnitSprite(ctx, unit, x, y, frame) {
-        // Use HumanoidSpriteSystem for composite sprites with equipment
+        // Use SkeletalAnimationSystem for composite sprites with equipment
         // UNIT_DRAW_SIZE is set for realistic proportions
         SkeletalAnimationSystem.drawWithEquipment(
             ctx, unit.raceId, unit.evolutionStage,

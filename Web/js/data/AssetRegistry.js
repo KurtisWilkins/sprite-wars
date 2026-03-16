@@ -33,6 +33,7 @@ class AssetRegistry {
   // form_id = race_id * 3 - 2 (stage 1), race_id * 3 - 1 (stage 2), race_id * 3 (stage 3)
   // 24 races x 3 evolution stages = 72 forms
   // -------------------------------------------------------------------------
+  /** @deprecated Legacy Idle PNG paths — use SkeletalAnimationSystem instead. Kept only for reference. */
   static CHARACTER_SPRITES = {
     // Race 1 — Human
     1:  "../Sprites/Characters/Human/Human_S1_Idle.png",
@@ -762,6 +763,7 @@ class AssetRegistry {
   }
 
   /**
+   * @deprecated Legacy Idle PNG lookup — use SkeletalAnimationSystem instead.
    * Returns the sprite path for a specific form_id (1-72).
    * @param {number} formId
    * @returns {string}
@@ -781,6 +783,7 @@ class AssetRegistry {
   }
 
   /**
+   * @deprecated Legacy Idle PNG lookup — use SkeletalAnimationSystem instead.
    * Returns an array of [stage1_path, stage2_path, stage3_path] for the given race_id (1-24).
    * @param {number} raceId
    * @returns {string[]}

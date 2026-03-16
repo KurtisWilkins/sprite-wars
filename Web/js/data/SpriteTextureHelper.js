@@ -14,6 +14,7 @@ export function getRaceName(raceId) {
     return RACE_NAMES[raceId] || 'Unknown';
 }
 
+/** @deprecated Legacy _Idle.png path — use SkeletalAnimationSystem instead. */
 export function getRaceSpritePath(raceId, stage) {
     const name = getRaceName(raceId);
     if (name === 'Unknown') return null;
@@ -21,12 +22,14 @@ export function getRaceSpritePath(raceId, stage) {
     return `Sprites/Characters/${name}/${name}_S${s+1}_Idle.png`;
 }
 
+/** @deprecated Legacy _Idle.png path — use SkeletalAnimationSystem instead. */
 export function getFormSpritePath(formId) {
     const raceId = Math.ceil(formId / 3);
     const stage = (formId - 1) % 3;
     return getRaceSpritePath(raceId, stage);
 }
 
+/** @deprecated Legacy _Idle.png path — use SkeletalAnimationSystem instead. */
 export function getPortraitPath(spriteInstance) {
     if (!spriteInstance) return null;
     const raceId = spriteInstance.raceId || spriteInstance.race_id || 1;

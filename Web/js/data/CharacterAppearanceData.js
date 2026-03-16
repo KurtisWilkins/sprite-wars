@@ -6,7 +6,7 @@
  * flat color fills, 2-3px uniform black outlines, hard-edged shading, dot eyes.
  * No gradients — every color here is a single flat hex value.
  *
- * Used by HumanoidSpriteSystem to render character visuals on the overworld
+ * Used by SkeletalAnimationSystem to render character visuals on the overworld
  * and in battle UI portraits.
  *
  * @typedef {Object} CharacterAppearance

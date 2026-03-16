@@ -19,7 +19,7 @@
  *   7. Accessory        — backpack, net, glasses, scarf, cape
  */
 
-// Direction constants (match HumanoidSpriteSystem)
+// Direction constants (match SkeletalAnimationSystem)
 const DIR_DOWN  = 0;
 const DIR_LEFT  = 1;
 const DIR_RIGHT = 2;

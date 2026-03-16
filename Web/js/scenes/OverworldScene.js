@@ -12,7 +12,6 @@
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
-import { getRaceSpritePath } from '../data/SpriteTextureHelper.js';
 import { getTrainer } from '../data/TrainerData.js';
 import { ENCOUNTER_TABLES } from '../data/EncounterData.js';
 import { GlossaryScreen } from '../systems/ui/GlossaryScreen.js';
@@ -178,7 +177,6 @@ export class OverworldScene extends Scene {
             moving: false,
             animFrame: 0,
             animTimer: 0,
-            spriteImg: null,
         };
 
         // Camera (world coordinates of top-left corner, smoothed)
@@ -243,23 +241,7 @@ export class OverworldScene extends Scene {
         // Preload PNG race sprites for SkeletalAnimationSystem rendering.
         await SkeletalAnimationSystem.preloadAssets(this.engine.assets);
 
-        // Load player sprite from the new race sprite system (Human, stage 0)
-        const playerSpritePath = getRaceSpritePath(1, 0);
-        if (playerSpritePath) {
-            try {
-                this._player.spriteImg = await this.engine.assets.loadImage(playerSpritePath);
-            } catch (_) {
-                this._player.spriteImg = null;
-            }
-        }
-
-        // Pre-calculate player sprite frame dimensions (same logic as NPCs).
-        if (this._player.spriteImg) {
-            this._player.spriteRows = 4;
-            this._player.spriteFrameH = this._player.spriteImg.height / 4;
-            this._player.spriteFrameW = this._player.spriteFrameH; // square frames
-            this._player.spriteCols = Math.floor(this._player.spriteImg.width / this._player.spriteFrameW);
-        }
+        // Player sprite rendering handled by SkeletalAnimationSystem (no legacy fallback needed)
 
         this.initialized = true;
     }
@@ -513,8 +495,6 @@ export class OverworldScene extends Scene {
                 name: npcDef.name || 'NPC',
                 x: (npcDef.gridX ?? 5) * TILE_SIZE + TILE_SIZE / 2,
                 y: (npcDef.gridY ?? 5) * TILE_SIZE + TILE_SIZE / 2,
-                spriteImg: null,
-                spritePath: npcDef.spritePath || null,
                 dialogue: npcDef.dialogue || ['...'],
                 facing: npcDef.facing || 'down',
                 type: npcType,
@@ -526,32 +506,7 @@ export class OverworldScene extends Scene {
             };
         });
 
-        // Load individual NPC sprites and auto-detect frame dimensions.
-        // Sprite sheets use 4 rows (down/left/right/up) with square frames.
-        // Supports various sheet sizes: 128x128 (32x32), 256x256 (64x64), 512x256 (64x64), etc.
-        for (const npc of this._npcs) {
-            npc.spriteSheet = null;
-            npc.spriteFrameW = 64;
-            npc.spriteFrameH = 64;
-            npc.spriteCols = 4;
-            npc.spriteRows = 4;
-            // Skip sprite sheet loading for NPCs with raceId — they use SkeletalAnimationSystem
-            if (npc.raceId) continue;
-            if (npc.spritePath) {
-                try {
-                    npc.spriteSheet = await this.engine.assets.loadImage(npc.spritePath);
-                    if (npc.spriteSheet) {
-                        // Auto-detect frame size: 4 rows, square frames
-                        npc.spriteFrameH = npc.spriteSheet.height / 4;
-                        npc.spriteFrameW = npc.spriteFrameH;
-                        npc.spriteCols = Math.floor(npc.spriteSheet.width / npc.spriteFrameW);
-                        npc.spriteRows = 4;
-                    }
-                } catch (_) {
-                    npc.spriteSheet = null;
-                }
-            }
-        }
+        // All NPC rendering handled by SkeletalAnimationSystem via raceId
 
         // Set up area transitions
         this._transitions = (this._mapData.transitions || []).map(t => ({
@@ -2652,101 +2607,64 @@ export class OverworldScene extends Scene {
         const stage = this._player.stage || 1;
         const equipment = this._player.equipment || {};
 
-        try {
+        const ctx = renderer.ctx || renderer._ctx;
+        if (ctx) {
+            // Direct ctx calls need manual camera offset
+            const px = wx - camX;
+            const py = wy - camY;
+            ctx.imageSmoothingEnabled = true;
+            SkeletalAnimationSystem.drawWithEquipment(
+                ctx, raceId, stage, dir, animFrame,
+                px, py + halfSize * 0.3, PLAYER_SIZE,
+                { equipment }
+            );
+            ctx.imageSmoothingEnabled = true;
+            return;
+        }
+
+        // Minimal fallback: colored circle (no legacy sprite sheets)
+        renderer.drawCircle(wx, wy, halfSize, '#44aaff');
+        const d = DIR[this._player.facing] || DIR.down;
+        renderer.drawCircle(
+            wx + d.x * halfSize * 0.6,
+            wy + d.y * halfSize * 0.6,
+            3, '#ffffff'
+        );
+    }
+
+    _renderNpc(renderer, npc) {
+        // Use SkeletalAnimationSystem for NPCs with race data
+        if (npc.raceId) {
             const ctx = renderer.ctx || renderer._ctx;
             if (ctx) {
                 // Direct ctx calls need manual camera offset
-                const px = wx - camX;
-                const py = wy - camY;
+                const camX = Math.round(this._camera.x);
+                const camY = Math.round(this._camera.y);
+                const dirMap = { down: 0, left: 1, right: 2, up: 3 };
+                const dir = dirMap[npc.facing] || 0;
+                const animFrame = npc.moving ? ((npc.animFrame || 0) % 4) : 0;
+                const npcSize = NPC_DRAW_HALFSIZE * 2;
                 ctx.imageSmoothingEnabled = true;
                 SkeletalAnimationSystem.drawWithEquipment(
-                    ctx, raceId, stage, dir, animFrame,
-                    px, py + halfSize * 0.3, PLAYER_SIZE,
-                    { equipment }
+                    ctx, npc.raceId, npc.stage || 1, dir, animFrame,
+                    npc.x - camX, npc.y - camY + NPC_DRAW_HALFSIZE * 0.3, npcSize,
+                    { equipment: npc.equipment || {} }
                 );
                 ctx.imageSmoothingEnabled = true;
                 return;
             }
-        } catch (_) { /* fall through to legacy rendering */ }
-
-        // Legacy fallback uses renderer methods which subtract camera internally
-        if (this._player.spriteImg && this._player.spriteImg.complete) {
-            const dirRow = { down: 0, left: 1, right: 2, up: 3 };
-            const row = dirRow[this._player.facing] || 0;
-            const numRows = this._player.spriteRows || 4;
-            const sh = this._player.spriteImg.height / numRows;
-            const sw = this._player.spriteFrameW || sh;
-            const numCols = this._player.spriteCols || Math.floor(this._player.spriteImg.width / sw) || 4;
-            const col = this._player.moving ? (this._player.animFrame % numCols) : 0;
-            renderer.drawSprite(
-                this._player.spriteImg,
-                col * sw, row * sh, sw, sh,
-                wx - halfSize, wy - halfSize, PLAYER_SIZE, PLAYER_SIZE
-            );
-        } else {
-            // Fallback: colored circle
-            renderer.drawCircle(wx, wy, halfSize, '#44aaff');
-            const d = DIR[this._player.facing] || DIR.down;
-            renderer.drawCircle(
-                wx + d.x * halfSize * 0.6,
-                wy + d.y * halfSize * 0.6,
-                3, '#ffffff'
-            );
-        }
-    }
-
-    _renderNpc(renderer, npc) {
-        // Try AQ-style SkeletalAnimationSystem rendering for NPCs with race data
-        if (npc.raceId) {
-            try {
-                const ctx = renderer.ctx || renderer._ctx;
-                if (ctx) {
-                    // Direct ctx calls need manual camera offset
-                    const camX = Math.round(this._camera.x);
-                    const camY = Math.round(this._camera.y);
-                    const dirMap = { down: 0, left: 1, right: 2, up: 3 };
-                    const dir = dirMap[npc.facing] || 0;
-                    const animFrame = npc.moving ? ((npc.animFrame || 0) % 4) : 0;
-                    const npcSize = NPC_DRAW_HALFSIZE * 2;
-                    ctx.imageSmoothingEnabled = true;
-                    SkeletalAnimationSystem.drawWithEquipment(
-                        ctx, npc.raceId, npc.stage || 1, dir, animFrame,
-                        npc.x - camX, npc.y - camY + NPC_DRAW_HALFSIZE * 0.3, npcSize,
-                        { equipment: npc.equipment || {} }
-                    );
-                    ctx.imageSmoothingEnabled = true;
-                    return;
-                }
-            } catch (_) { /* fall through to legacy */ }
         }
 
-        if (npc.spriteSheet && npc.spriteSheet.complete) {
-            const dirRow = { down: 0, left: 1, right: 2, up: 3 };
-            const row = dirRow[npc.facing] || 0;
-            const col = npc.moving ? ((npc.animFrame || 0) % (npc.spriteCols || 4)) : 0;
-            const fw = npc.spriteFrameW || (npc.spriteSheet.width / (npc.spriteCols || 4));
-            const fh = npc.spriteFrameH || (npc.spriteSheet.height / (npc.spriteRows || 4));
-            renderer.drawSprite(
-                npc.spriteSheet,
-                col * fw, row * fh, fw, fh,
-                npc.x - NPC_DRAW_HALFSIZE, npc.y - NPC_DRAW_HALFSIZE,
-                NPC_DRAW_HALFSIZE * 2, NPC_DRAW_HALFSIZE * 2
-            );
-        } else if (npc.spriteImg && npc.spriteImg.complete) {
-            renderer.drawImage(npc.spriteImg, npc.x - NPC_DRAW_HALFSIZE, npc.y - NPC_DRAW_HALFSIZE,
-                NPC_DRAW_HALFSIZE * 2, NPC_DRAW_HALFSIZE * 2);
-        } else {
-            // Fallback: colored circle by type
-            const colors = {
-                talk: '#e8a035',
-                heal: '#44cc44',
-                shop: '#cc44cc',
-                quest: '#4488ee',
-                trainer: '#e03535',
-            };
-            const color = colors[npc.type] || '#ffffff';
-            renderer.drawCircle(npc.x, npc.y, NPC_DRAW_HALFSIZE, color);
-        }
+        // Minimal fallback: colored circle by type (no legacy sprite sheets)
+        const colors = {
+            talk: '#e8a035',
+            heal: '#44cc44',
+            shop: '#cc44cc',
+            quest: '#4488ee',
+            trainer: '#e03535',
+        };
+        const color = colors[npc.type] || '#ffffff';
+        renderer.drawCircle(npc.x, npc.y, NPC_DRAW_HALFSIZE, color);
     }
 
     /**
