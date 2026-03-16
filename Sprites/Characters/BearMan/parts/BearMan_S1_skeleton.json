@@ -1,173 +1,192 @@
 {
   "race": "BearMan",
   "stage": 1,
-  "source_size": 64,
+  "source_size": 128,
   "parts": {
     "head": {
       "file": "BearMan_S1_head.png",
-      "width": 28,
-      "height": 14,
+      "width": 46,
+      "height": 46,
       "source_bbox": [
-        10,
-        0,
-        37,
-        11
+        39,
+        24,
+        84,
+        69
       ],
       "source_center": [
-        24.0,
-        5.0
+        61.5,
+        46.5
       ],
       "anchor": {
-        "x": 14,
-        "y": 11
+        "x": 23,
+        "y": 41
       }
     },
     "torso": {
       "file": "BearMan_S1_torso.png",
-      "width": 37,
-      "height": 27,
+      "width": 15,
+      "height": 15,
       "source_bbox": [
-        10,
-        8,
-        46,
-        34
+        65,
+        77,
+        79,
+        91
       ],
       "source_center": [
-        28.5,
-        21.5
+        72,
+        84
       ],
       "anchor": {
-        "x": 18,
-        "y": 13
+        "x": 7,
+        "y": 7
       }
     },
     "left_arm": {
       "file": "BearMan_S1_left_arm.png",
-      "width": 12,
-      "height": 10,
+      "width": 24,
+      "height": 26,
       "source_bbox": [
-        11,
-        35,
-        22,
-        44
+        16,
+        17,
+        39,
+        42
       ],
       "source_center": [
-        16.5,
-        39.5
+        27.5,
+        29.5
       ],
       "anchor": {
-        "x": 8,
-        "y": 2
+        "x": 18,
+        "y": 4
+      }
+    },
+    "left_hand": {
+      "file": "BearMan_S1_left_hand.png",
+      "width": 23,
+      "height": 17,
+      "source_bbox": [
+        18,
+        69,
+        40,
+        85
+      ],
+      "source_center": [
+        29,
+        77
+      ],
+      "anchor": {
+        "x": 11,
+        "y": 3
       }
     },
     "right_hand": {
       "file": "BearMan_S1_right_hand.png",
-      "width": 10,
-      "height": 11,
+      "width": 17,
+      "height": 18,
       "source_bbox": [
-        47,
-        10,
-        56,
-        20
+        103,
+        11,
+        119,
+        28
       ],
       "source_center": [
-        51.5,
-        15.0
+        111,
+        19.5
       ],
       "anchor": {
-        "x": 5,
-        "y": 2
+        "x": 8,
+        "y": 3
       }
     },
     "right_arm": {
       "file": "BearMan_S1_right_arm.png",
-      "width": 10,
-      "height": 10,
+      "width": 19,
+      "height": 16,
       "source_bbox": [
-        46,
-        28,
-        55,
-        37
+        99,
+        53,
+        117,
+        68
       ],
       "source_center": [
-        50.5,
-        32.5
+        108,
+        60.5
       ],
       "anchor": {
-        "x": 3,
-        "y": 2
+        "x": 5,
+        "y": 3
       }
     },
     "right_foot": {
       "file": "BearMan_S1_right_foot.png",
-      "width": 9,
-      "height": 9,
+      "width": 14,
+      "height": 17,
       "source_bbox": [
-        32,
-        51,
-        40,
-        59
+        67,
+        105,
+        80,
+        121
       ],
       "source_center": [
-        36.0,
-        55.0
+        73.5,
+        113
       ],
       "anchor": {
-        "x": 4,
+        "x": 7,
+        "y": 3
+      }
+    },
+    "left_foot": {
+      "file": "BearMan_S1_left_foot.png",
+      "width": 13,
+      "height": 14,
+      "source_bbox": [
+        37,
+        109,
+        49,
+        122
+      ],
+      "source_center": [
+        43,
+        115.5
+      ],
+      "anchor": {
+        "x": 6,
+        "y": 3
+      }
+    },
+    "left_leg": {
+      "file": "BearMan_S1_left_leg.png",
+      "width": 12,
+      "height": 12,
+      "source_bbox": [
+        9,
+        108,
+        20,
+        119
+      ],
+      "source_center": [
+        14.5,
+        113.5
+      ],
+      "anchor": {
+        "x": 6,
         "y": 2
       }
     },
     "right_leg": {
       "file": "BearMan_S1_right_leg.png",
       "width": 9,
-      "height": 9,
+      "height": 10,
       "source_bbox": [
-        31,
-        39,
-        39,
-        47
+        106,
+        79,
+        114,
+        88
       ],
       "source_center": [
-        35.0,
-        43.0
-      ],
-      "anchor": {
-        "x": 4,
-        "y": 2
-      }
-    },
-    "left_foot": {
-      "file": "BearMan_S1_left_foot.png",
-      "width": 9,
-      "height": 8,
-      "source_bbox": [
-        19,
-        53,
-        27,
-        60
-      ],
-      "source_center": [
-        23.0,
-        56.5
-      ],
-      "anchor": {
-        "x": 4,
-        "y": 2
-      }
-    },
-    "left_leg": {
-      "file": "BearMan_S1_left_leg.png",
-      "width": 8,
-      "height": 7,
-      "source_bbox": [
-        7,
-        52,
-        14,
-        58
-      ],
-      "source_center": [
-        10.5,
-        55.0
+        110,
+        83.5
       ],
       "anchor": {
         "x": 4,
@@ -176,21 +195,21 @@
     },
     "extra_0": {
       "file": "BearMan_S1_extra_0.png",
-      "width": 7,
-      "height": 6,
+      "width": 18,
+      "height": 19,
       "source_bbox": [
-        50,
-        42,
-        52,
-        43
+        70,
+        13,
+        83,
+        27
       ],
       "source_center": [
-        51.0,
-        42.5
+        76.5,
+        20
       ],
       "anchor": {
-        "x": 3,
-        "y": 3
+        "x": 9,
+        "y": 9
       },
       "attach_to": "head"
     }
@@ -198,66 +217,73 @@
   "bones": {
     "head": {
       "parent": "torso",
-      "offset_x": 0.375,
-      "offset_y": 0.078,
+      "offset_x": 0.48,
+      "offset_y": 0.363,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "torso": {
       "parent": null,
-      "offset_x": 0.445,
-      "offset_y": 0.336,
+      "offset_x": 0.562,
+      "offset_y": 0.656,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_arm": {
       "parent": "torso",
-      "offset_x": 0.258,
-      "offset_y": 0.617,
+      "offset_x": 0.215,
+      "offset_y": 0.23,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
+    },
+    "left_hand": {
+      "parent": "left_arm",
+      "offset_x": 0.227,
+      "offset_y": 0.602,
+      "rotation": 0,
+      "scale": 1
     },
     "right_hand": {
       "parent": "right_arm",
-      "offset_x": 0.805,
-      "offset_y": 0.234,
+      "offset_x": 0.867,
+      "offset_y": 0.152,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_arm": {
       "parent": "torso",
-      "offset_x": 0.789,
-      "offset_y": 0.508,
+      "offset_x": 0.844,
+      "offset_y": 0.473,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_foot": {
       "parent": "right_leg",
-      "offset_x": 0.562,
-      "offset_y": 0.859,
+      "offset_x": 0.574,
+      "offset_y": 0.883,
       "rotation": 0,
-      "scale": 1.0
-    },
-    "right_leg": {
-      "parent": "torso",
-      "offset_x": 0.547,
-      "offset_y": 0.672,
-      "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_foot": {
       "parent": "left_leg",
-      "offset_x": 0.359,
-      "offset_y": 0.883,
+      "offset_x": 0.336,
+      "offset_y": 0.902,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_leg": {
       "parent": "torso",
-      "offset_x": 0.164,
-      "offset_y": 0.859,
+      "offset_x": 0.113,
+      "offset_y": 0.887,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
+    },
+    "right_leg": {
+      "parent": "torso",
+      "offset_x": 0.859,
+      "offset_y": 0.652,
+      "rotation": 0,
+      "scale": 1
     }
   },
   "draw_order": [
@@ -268,6 +294,7 @@
     "torso",
     "left_arm",
     "right_arm",
+    "left_hand",
     "right_hand",
     "head"
   ]

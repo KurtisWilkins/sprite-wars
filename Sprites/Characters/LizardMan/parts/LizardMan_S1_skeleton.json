@@ -1,173 +1,192 @@
 {
   "race": "LizardMan",
   "stage": 1,
-  "source_size": 64,
+  "source_size": 128,
   "parts": {
     "head": {
       "file": "LizardMan_S1_head.png",
-      "width": 26,
-      "height": 11,
+      "width": 50,
+      "height": 45,
       "source_bbox": [
-        10,
-        2,
-        35,
-        12
+        39,
+        29,
+        88,
+        73
       ],
       "source_center": [
-        23.0,
-        7.5
+        63.5,
+        51
       ],
       "anchor": {
-        "x": 13,
-        "y": 8
+        "x": 25,
+        "y": 40
       }
     },
     "torso": {
       "file": "LizardMan_S1_torso.png",
-      "width": 37,
-      "height": 27,
+      "width": 15,
+      "height": 15,
       "source_bbox": [
-        10,
-        9,
-        46,
-        35
+        65,
+        77,
+        79,
+        91
       ],
       "source_center": [
-        28.5,
-        22.5
+        72,
+        84
       ],
       "anchor": {
-        "x": 18,
-        "y": 13
-      }
-    },
-    "right_foot": {
-      "file": "LizardMan_S1_right_foot.png",
-      "width": 20,
-      "height": 12,
-      "source_bbox": [
-        30,
-        48,
-        49,
-        59
-      ],
-      "source_center": [
-        39.5,
-        53.5
-      ],
-      "anchor": {
-        "x": 10,
-        "y": 2
+        "x": 7,
+        "y": 7
       }
     },
     "left_arm": {
       "file": "LizardMan_S1_left_arm.png",
-      "width": 12,
-      "height": 10,
+      "width": 24,
+      "height": 26,
       "source_bbox": [
-        11,
-        35,
-        22,
-        44
+        16,
+        17,
+        39,
+        42
       ],
       "source_center": [
-        16.5,
-        39.5
+        27.5,
+        29.5
       ],
       "anchor": {
-        "x": 8,
-        "y": 2
+        "x": 18,
+        "y": 4
+      }
+    },
+    "left_hand": {
+      "file": "LizardMan_S1_left_hand.png",
+      "width": 23,
+      "height": 17,
+      "source_bbox": [
+        18,
+        69,
+        40,
+        85
+      ],
+      "source_center": [
+        29,
+        77
+      ],
+      "anchor": {
+        "x": 11,
+        "y": 3
       }
     },
     "right_hand": {
       "file": "LizardMan_S1_right_hand.png",
-      "width": 10,
-      "height": 11,
+      "width": 17,
+      "height": 18,
       "source_bbox": [
-        47,
-        10,
-        56,
-        20
+        103,
+        11,
+        119,
+        28
       ],
       "source_center": [
-        51.5,
-        15.0
+        111,
+        19.5
+      ],
+      "anchor": {
+        "x": 8,
+        "y": 3
+      }
+    },
+    "right_arm": {
+      "file": "LizardMan_S1_right_arm.png",
+      "width": 19,
+      "height": 16,
+      "source_bbox": [
+        99,
+        53,
+        117,
+        68
+      ],
+      "source_center": [
+        108,
+        60.5
       ],
       "anchor": {
         "x": 5,
+        "y": 3
+      }
+    },
+    "right_foot": {
+      "file": "LizardMan_S1_right_foot.png",
+      "width": 15,
+      "height": 17,
+      "source_bbox": [
+        67,
+        105,
+        81,
+        121
+      ],
+      "source_center": [
+        74,
+        113
+      ],
+      "anchor": {
+        "x": 7,
+        "y": 3
+      }
+    },
+    "left_foot": {
+      "file": "LizardMan_S1_left_foot.png",
+      "width": 13,
+      "height": 14,
+      "source_bbox": [
+        37,
+        109,
+        49,
+        122
+      ],
+      "source_center": [
+        43,
+        115.5
+      ],
+      "anchor": {
+        "x": 6,
+        "y": 3
+      }
+    },
+    "left_leg": {
+      "file": "LizardMan_S1_left_leg.png",
+      "width": 12,
+      "height": 12,
+      "source_bbox": [
+        9,
+        108,
+        20,
+        119
+      ],
+      "source_center": [
+        14.5,
+        113.5
+      ],
+      "anchor": {
+        "x": 6,
         "y": 2
       }
     },
     "right_leg": {
       "file": "LizardMan_S1_right_leg.png",
-      "width": 11,
-      "height": 10,
-      "source_bbox": [
-        31,
-        38,
-        41,
-        47
-      ],
-      "source_center": [
-        36.0,
-        42.5
-      ],
-      "anchor": {
-        "x": 5,
-        "y": 2
-      }
-    },
-    "right_arm": {
-      "file": "LizardMan_S1_right_arm.png",
-      "width": 10,
-      "height": 10,
-      "source_bbox": [
-        46,
-        28,
-        55,
-        37
-      ],
-      "source_center": [
-        50.5,
-        32.5
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      }
-    },
-    "left_foot": {
-      "file": "LizardMan_S1_left_foot.png",
       "width": 9,
-      "height": 8,
+      "height": 10,
       "source_bbox": [
-        19,
-        53,
-        27,
-        60
+        106,
+        79,
+        114,
+        88
       ],
       "source_center": [
-        23.0,
-        56.5
-      ],
-      "anchor": {
-        "x": 4,
-        "y": 2
-      }
-    },
-    "left_leg": {
-      "file": "LizardMan_S1_left_leg.png",
-      "width": 8,
-      "height": 7,
-      "source_bbox": [
-        7,
-        52,
-        14,
-        58
-      ],
-      "source_center": [
-        10.5,
-        55.0
+        110,
+        83.5
       ],
       "anchor": {
         "x": 4,
@@ -176,561 +195,21 @@
     },
     "extra_0": {
       "file": "LizardMan_S1_extra_0.png",
-      "width": 13,
-      "height": 6,
+      "width": 28,
+      "height": 21,
       "source_bbox": [
-        25,
-        40,
-        33,
-        41
+        60,
+        11,
+        83,
+        27
       ],
       "source_center": [
-        29.0,
-        40.5
+        71.5,
+        19
       ],
       "anchor": {
-        "x": 6,
-        "y": 3
-      },
-      "attach_to": "head"
-    },
-    "extra_1": {
-      "file": "LizardMan_S1_extra_1.png",
-      "width": 7,
-      "height": 6,
-      "source_bbox": [
-        50,
-        42,
-        52,
-        43
-      ],
-      "source_center": [
-        51.0,
-        42.5
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 3
-      },
-      "attach_to": "head"
-    },
-    "extra_2": {
-      "file": "LizardMan_S1_extra_2.png",
-      "width": 9,
-      "height": 5,
-      "source_bbox": [
-        35,
-        33,
-        39,
-        33
-      ],
-      "source_center": [
-        37.0,
-        33.0
-      ],
-      "anchor": {
-        "x": 4,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_3": {
-      "file": "LizardMan_S1_extra_3.png",
-      "width": 9,
-      "height": 5,
-      "source_bbox": [
-        27,
-        44,
-        31,
-        44
-      ],
-      "source_center": [
-        29.0,
-        44.0
-      ],
-      "anchor": {
-        "x": 4,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_4": {
-      "file": "LizardMan_S1_extra_4.png",
-      "width": 7,
-      "height": 6,
-      "source_bbox": [
-        32,
-        47,
-        34,
-        48
-      ],
-      "source_center": [
-        33.0,
-        47.5
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 3
-      },
-      "attach_to": "head"
-    },
-    "extra_5": {
-      "file": "LizardMan_S1_extra_5.png",
-      "width": 7,
-      "height": 6,
-      "source_bbox": [
-        35,
-        47,
-        37,
-        48
-      ],
-      "source_center": [
-        36.0,
-        47.5
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 3
-      },
-      "attach_to": "head"
-    },
-    "extra_6": {
-      "file": "LizardMan_S1_extra_6.png",
-      "width": 7,
-      "height": 5,
-      "source_bbox": [
-        38,
-        44,
-        40,
-        44
-      ],
-      "source_center": [
-        39.0,
-        44.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_7": {
-      "file": "LizardMan_S1_extra_7.png",
-      "width": 6,
-      "height": 5,
-      "source_bbox": [
-        27,
-        29,
-        28,
-        29
-      ],
-      "source_center": [
-        27.5,
-        29.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_8": {
-      "file": "LizardMan_S1_extra_8.png",
-      "width": 6,
-      "height": 5,
-      "source_bbox": [
-        39,
-        29,
-        40,
-        29
-      ],
-      "source_center": [
-        39.5,
-        29.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_9": {
-      "file": "LizardMan_S1_extra_9.png",
-      "width": 6,
-      "height": 5,
-      "source_bbox": [
-        27,
-        37,
-        28,
-        37
-      ],
-      "source_center": [
-        27.5,
-        37.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_10": {
-      "file": "LizardMan_S1_extra_10.png",
-      "width": 6,
-      "height": 5,
-      "source_bbox": [
-        30,
-        37,
-        31,
-        37
-      ],
-      "source_center": [
-        30.5,
-        37.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_11": {
-      "file": "LizardMan_S1_extra_11.png",
-      "width": 6,
-      "height": 5,
-      "source_bbox": [
-        33,
-        37,
-        34,
-        37
-      ],
-      "source_center": [
-        33.5,
-        37.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_12": {
-      "file": "LizardMan_S1_extra_12.png",
-      "width": 6,
-      "height": 5,
-      "source_bbox": [
-        36,
-        37,
-        37,
-        37
-      ],
-      "source_center": [
-        36.5,
-        37.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_13": {
-      "file": "LizardMan_S1_extra_13.png",
-      "width": 6,
-      "height": 5,
-      "source_bbox": [
-        39,
-        37,
-        40,
-        37
-      ],
-      "source_center": [
-        39.5,
-        37.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_14": {
-      "file": "LizardMan_S1_extra_14.png",
-      "width": 6,
-      "height": 5,
-      "source_bbox": [
-        26,
-        48,
-        27,
-        48
-      ],
-      "source_center": [
-        26.5,
-        48.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_15": {
-      "file": "LizardMan_S1_extra_15.png",
-      "width": 6,
-      "height": 5,
-      "source_bbox": [
-        29,
-        48,
-        30,
-        48
-      ],
-      "source_center": [
-        29.5,
-        48.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_16": {
-      "file": "LizardMan_S1_extra_16.png",
-      "width": 6,
-      "height": 5,
-      "source_bbox": [
-        38,
-        48,
-        39,
-        48
-      ],
-      "source_center": [
-        38.5,
-        48.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_17": {
-      "file": "LizardMan_S1_extra_17.png",
-      "width": 6,
-      "height": 5,
-      "source_bbox": [
-        29,
-        51,
-        30,
-        51
-      ],
-      "source_center": [
-        29.5,
-        51.0
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_18": {
-      "file": "LizardMan_S1_extra_18.png",
-      "width": 5,
-      "height": 5,
-      "source_bbox": [
-        31,
-        30,
-        31,
-        30
-      ],
-      "source_center": [
-        31.0,
-        30.0
-      ],
-      "anchor": {
-        "x": 2,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_19": {
-      "file": "LizardMan_S1_extra_19.png",
-      "width": 5,
-      "height": 5,
-      "source_bbox": [
-        29,
-        36,
-        29,
-        36
-      ],
-      "source_center": [
-        29.0,
-        36.0
-      ],
-      "anchor": {
-        "x": 2,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_20": {
-      "file": "LizardMan_S1_extra_20.png",
-      "width": 5,
-      "height": 5,
-      "source_bbox": [
-        32,
-        36,
-        32,
-        36
-      ],
-      "source_center": [
-        32.0,
-        36.0
-      ],
-      "anchor": {
-        "x": 2,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_21": {
-      "file": "LizardMan_S1_extra_21.png",
-      "width": 5,
-      "height": 5,
-      "source_bbox": [
-        35,
-        36,
-        35,
-        36
-      ],
-      "source_center": [
-        35.0,
-        36.0
-      ],
-      "anchor": {
-        "x": 2,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_22": {
-      "file": "LizardMan_S1_extra_22.png",
-      "width": 5,
-      "height": 5,
-      "source_bbox": [
-        38,
-        36,
-        38,
-        36
-      ],
-      "source_center": [
-        38.0,
-        36.0
-      ],
-      "anchor": {
-        "x": 2,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_23": {
-      "file": "LizardMan_S1_extra_23.png",
-      "width": 5,
-      "height": 5,
-      "source_bbox": [
-        28,
-        47,
-        28,
-        47
-      ],
-      "source_center": [
-        28.0,
-        47.0
-      ],
-      "anchor": {
-        "x": 2,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_24": {
-      "file": "LizardMan_S1_extra_24.png",
-      "width": 5,
-      "height": 5,
-      "source_bbox": [
-        31,
-        47,
-        31,
-        47
-      ],
-      "source_center": [
-        31.0,
-        47.0
-      ],
-      "anchor": {
-        "x": 2,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_25": {
-      "file": "LizardMan_S1_extra_25.png",
-      "width": 5,
-      "height": 5,
-      "source_bbox": [
-        27,
-        51,
-        27,
-        51
-      ],
-      "source_center": [
-        27.0,
-        51.0
-      ],
-      "anchor": {
-        "x": 2,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_26": {
-      "file": "LizardMan_S1_extra_26.png",
-      "width": 5,
-      "height": 5,
-      "source_bbox": [
-        28,
-        52,
-        28,
-        52
-      ],
-      "source_center": [
-        28.0,
-        52.0
-      ],
-      "anchor": {
-        "x": 2,
-        "y": 2
-      },
-      "attach_to": "head"
-    },
-    "extra_27": {
-      "file": "LizardMan_S1_extra_27.png",
-      "width": 5,
-      "height": 5,
-      "source_bbox": [
-        31,
-        52,
-        31,
-        52
-      ],
-      "source_center": [
-        31.0,
-        52.0
-      ],
-      "anchor": {
-        "x": 2,
-        "y": 2
+        "x": 14,
+        "y": 10
       },
       "attach_to": "head"
     }
@@ -738,66 +217,73 @@
   "bones": {
     "head": {
       "parent": "torso",
-      "offset_x": 0.359,
-      "offset_y": 0.117,
+      "offset_x": 0.484,
+      "offset_y": 0.379,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "torso": {
       "parent": null,
-      "offset_x": 0.445,
-      "offset_y": 0.352,
+      "offset_x": 0.562,
+      "offset_y": 0.656,
       "rotation": 0,
-      "scale": 1.0
-    },
-    "right_foot": {
-      "parent": "right_leg",
-      "offset_x": 0.617,
-      "offset_y": 0.836,
-      "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_arm": {
       "parent": "torso",
-      "offset_x": 0.258,
-      "offset_y": 0.617,
+      "offset_x": 0.215,
+      "offset_y": 0.23,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
+    },
+    "left_hand": {
+      "parent": "left_arm",
+      "offset_x": 0.227,
+      "offset_y": 0.602,
+      "rotation": 0,
+      "scale": 1
     },
     "right_hand": {
       "parent": "right_arm",
-      "offset_x": 0.805,
-      "offset_y": 0.234,
+      "offset_x": 0.867,
+      "offset_y": 0.152,
       "rotation": 0,
-      "scale": 1.0
-    },
-    "right_leg": {
-      "parent": "torso",
-      "offset_x": 0.562,
-      "offset_y": 0.664,
-      "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_arm": {
       "parent": "torso",
-      "offset_x": 0.789,
-      "offset_y": 0.508,
+      "offset_x": 0.844,
+      "offset_y": 0.473,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
+    },
+    "right_foot": {
+      "parent": "right_leg",
+      "offset_x": 0.578,
+      "offset_y": 0.883,
+      "rotation": 0,
+      "scale": 1
     },
     "left_foot": {
       "parent": "left_leg",
-      "offset_x": 0.359,
-      "offset_y": 0.883,
+      "offset_x": 0.336,
+      "offset_y": 0.902,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_leg": {
       "parent": "torso",
-      "offset_x": 0.164,
-      "offset_y": 0.859,
+      "offset_x": 0.113,
+      "offset_y": 0.887,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
+    },
+    "right_leg": {
+      "parent": "torso",
+      "offset_x": 0.859,
+      "offset_y": 0.652,
+      "rotation": 0,
+      "scale": 1
     }
   },
   "draw_order": [
@@ -808,6 +294,7 @@
     "torso",
     "left_arm",
     "right_arm",
+    "left_hand",
     "right_hand",
     "head"
   ]

@@ -14,8 +14,8 @@
         107
       ],
       "source_center": [
-        63.0,
-        68.0
+        63,
+        68
       ],
       "anchor": {
         "x": 24,
@@ -24,21 +24,21 @@
     },
     "torso": {
       "file": "TurtleMan_S3_torso.png",
-      "width": 16,
-      "height": 22,
+      "width": 15,
+      "height": 15,
       "source_bbox": [
         65,
-        105,
-        80,
-        126
+        77,
+        79,
+        91
       ],
       "source_center": [
-        72.5,
-        115.5
+        72,
+        84
       ],
       "anchor": {
-        "x": 8,
-        "y": 11
+        "x": 7,
+        "y": 7
       }
     },
     "left_arm": {
@@ -71,8 +71,8 @@
         85
       ],
       "source_center": [
-        29.0,
-        77.0
+        29,
+        77
       ],
       "anchor": {
         "x": 11,
@@ -90,30 +90,11 @@
         28
       ],
       "source_center": [
-        111.0,
+        111,
         19.5
       ],
       "anchor": {
         "x": 8,
-        "y": 3
-      }
-    },
-    "left_leg": {
-      "file": "TurtleMan_S3_left_leg.png",
-      "width": 18,
-      "height": 18,
-      "source_bbox": [
-        37,
-        109,
-        54,
-        126
-      ],
-      "source_center": [
-        45.5,
-        117.5
-      ],
-      "anchor": {
-        "x": 9,
         "y": 3
       }
     },
@@ -128,7 +109,7 @@
         68
       ],
       "source_center": [
-        108.0,
+        108,
         60.5
       ],
       "anchor": {
@@ -136,8 +117,46 @@
         "y": 3
       }
     },
+    "right_foot": {
+      "file": "TurtleMan_S3_right_foot.png",
+      "width": 15,
+      "height": 17,
+      "source_bbox": [
+        67,
+        105,
+        81,
+        121
+      ],
+      "source_center": [
+        74,
+        113
+      ],
+      "anchor": {
+        "x": 7,
+        "y": 3
+      }
+    },
     "left_foot": {
       "file": "TurtleMan_S3_left_foot.png",
+      "width": 13,
+      "height": 14,
+      "source_bbox": [
+        37,
+        109,
+        49,
+        122
+      ],
+      "source_center": [
+        43,
+        115.5
+      ],
+      "anchor": {
+        "x": 6,
+        "y": 3
+      }
+    },
+    "left_leg": {
+      "file": "TurtleMan_S3_left_leg.png",
       "width": 12,
       "height": 12,
       "source_bbox": [
@@ -166,7 +185,7 @@
         88
       ],
       "source_center": [
-        110.0,
+        110,
         83.5
       ],
       "anchor": {
@@ -186,7 +205,7 @@
       ],
       "source_center": [
         76.5,
-        20.0
+        20
       ],
       "anchor": {
         "x": 9,
@@ -198,72 +217,80 @@
   "bones": {
     "head": {
       "parent": "torso",
-      "offset_x": 0.492,
-      "offset_y": 0.531,
+      "offset_x": 0.484,
+      "offset_y": 0.379,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "torso": {
       "parent": null,
-      "offset_x": 0.566,
-      "offset_y": 0.902,
+      "offset_x": 0.562,
+      "offset_y": 0.656,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_arm": {
       "parent": "torso",
       "offset_x": 0.215,
       "offset_y": 0.23,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_hand": {
       "parent": "left_arm",
       "offset_x": 0.227,
       "offset_y": 0.602,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_hand": {
       "parent": "right_arm",
       "offset_x": 0.867,
       "offset_y": 0.152,
       "rotation": 0,
-      "scale": 1.0
-    },
-    "left_leg": {
-      "parent": "torso",
-      "offset_x": 0.355,
-      "offset_y": 0.918,
-      "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_arm": {
       "parent": "torso",
       "offset_x": 0.844,
       "offset_y": 0.473,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
+    },
+    "right_foot": {
+      "parent": "right_leg",
+      "offset_x": 0.578,
+      "offset_y": 0.883,
+      "rotation": 0,
+      "scale": 1
     },
     "left_foot": {
       "parent": "left_leg",
+      "offset_x": 0.336,
+      "offset_y": 0.902,
+      "rotation": 0,
+      "scale": 1
+    },
+    "left_leg": {
+      "parent": "torso",
       "offset_x": 0.113,
       "offset_y": 0.887,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_leg": {
       "parent": "torso",
       "offset_x": 0.859,
       "offset_y": 0.652,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     }
   },
   "draw_order": [
     "left_leg",
     "right_leg",
     "left_foot",
+    "right_foot",
     "torso",
     "left_arm",
     "right_arm",

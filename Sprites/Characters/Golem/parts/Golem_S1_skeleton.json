@@ -1,249 +1,296 @@
 {
   "race": "Golem",
   "stage": 1,
-  "source_size": 64,
+  "source_size": 128,
   "parts": {
     "head": {
       "file": "Golem_S1_head.png",
-      "width": 37,
-      "height": 53,
+      "width": 39,
+      "height": 69,
       "source_bbox": [
-        10,
-        2,
-        46,
-        54
+        45,
+        29,
+        83,
+        97
       ],
       "source_center": [
-        28.0,
-        28.0
+        64,
+        63
       ],
       "anchor": {
-        "x": 18,
-        "y": 48
+        "x": 19,
+        "y": 63
       }
     },
     "torso": {
       "file": "Golem_S1_torso.png",
-      "width": 9,
-      "height": 11,
+      "width": 14,
+      "height": 15,
       "source_bbox": [
-        32,
-        49,
-        40,
-        59
+        66,
+        77,
+        79,
+        91
       ],
       "source_center": [
-        36.0,
-        54.0
+        72.5,
+        84
       ],
       "anchor": {
-        "x": 4,
-        "y": 5
-      }
-    },
-    "right_hand": {
-      "file": "Golem_S1_right_hand.png",
-      "width": 10,
-      "height": 11,
-      "source_bbox": [
-        47,
-        10,
-        56,
-        20
-      ],
-      "source_center": [
-        51.5,
-        15.0
-      ],
-      "anchor": {
-        "x": 5,
-        "y": 2
-      }
-    },
-    "right_arm": {
-      "file": "Golem_S1_right_arm.png",
-      "width": 10,
-      "height": 10,
-      "source_bbox": [
-        46,
-        28,
-        55,
-        37
-      ],
-      "source_center": [
-        50.5,
-        32.5
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
+        "x": 7,
+        "y": 7
       }
     },
     "left_arm": {
       "file": "Golem_S1_left_arm.png",
-      "width": 9,
-      "height": 8,
+      "width": 25,
+      "height": 22,
       "source_bbox": [
-        19,
-        53,
-        27,
-        60
+        16,
+        17,
+        40,
+        38
       ],
       "source_center": [
-        23.0,
-        56.5
+        28,
+        27.5
+      ],
+      "anchor": {
+        "x": 18,
+        "y": 3
+      }
+    },
+    "right_hand": {
+      "file": "Golem_S1_right_hand.png",
+      "width": 16,
+      "height": 15,
+      "source_bbox": [
+        102,
+        54,
+        117,
+        68
+      ],
+      "source_center": [
+        109.5,
+        61
+      ],
+      "anchor": {
+        "x": 8,
+        "y": 3
+      }
+    },
+    "left_hand": {
+      "file": "Golem_S1_left_hand.png",
+      "width": 17,
+      "height": 12,
+      "source_bbox": [
+        21,
+        72,
+        37,
+        83
+      ],
+      "source_center": [
+        29,
+        77.5
+      ],
+      "anchor": {
+        "x": 8,
+        "y": 2
+      }
+    },
+    "right_foot": {
+      "file": "Golem_S1_right_foot.png",
+      "width": 13,
+      "height": 17,
+      "source_bbox": [
+        68,
+        105,
+        80,
+        121
+      ],
+      "source_center": [
+        74,
+        113
+      ],
+      "anchor": {
+        "x": 6,
+        "y": 3
+      }
+    },
+    "right_arm": {
+      "file": "Golem_S1_right_arm.png",
+      "width": 15,
+      "height": 15,
+      "source_bbox": [
+        104,
+        12,
+        118,
+        26
+      ],
+      "source_center": [
+        111,
+        19
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 3
+      }
+    },
+    "left_foot": {
+      "file": "Golem_S1_left_foot.png",
+      "width": 10,
+      "height": 15,
+      "source_bbox": [
+        39,
+        108,
+        48,
+        122
+      ],
+      "source_center": [
+        43.5,
+        115
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 3
+      }
+    },
+    "left_leg": {
+      "file": "Golem_S1_left_leg.png",
+      "width": 12,
+      "height": 11,
+      "source_bbox": [
+        9,
+        108,
+        20,
+        118
+      ],
+      "source_center": [
+        14.5,
+        113
       ],
       "anchor": {
         "x": 6,
         "y": 2
       }
     },
-    "left_hand": {
-      "file": "Golem_S1_left_hand.png",
-      "width": 8,
-      "height": 11,
-      "source_bbox": [
-        23,
-        48,
-        30,
-        58
-      ],
-      "source_center": [
-        26.5,
-        53.0
-      ],
-      "anchor": {
-        "x": 4,
-        "y": 2
-      }
-    },
-    "left_leg": {
-      "file": "Golem_S1_left_leg.png",
-      "width": 8,
-      "height": 7,
-      "source_bbox": [
-        7,
-        52,
-        14,
-        58
-      ],
-      "source_center": [
-        10.5,
-        55.0
-      ],
-      "anchor": {
-        "x": 4,
-        "y": 2
-      }
-    },
-    "left_foot": {
-      "file": "Golem_S1_left_foot.png",
-      "width": 6,
-      "height": 8,
-      "source_bbox": [
-        28,
-        29,
-        33,
-        36
-      ],
-      "source_center": [
-        30.5,
-        32.5
-      ],
-      "anchor": {
-        "x": 3,
-        "y": 2
-      }
-    },
     "right_leg": {
       "file": "Golem_S1_right_leg.png",
-      "width": 7,
-      "height": 6,
+      "width": 9,
+      "height": 10,
       "source_bbox": [
-        48,
-        40,
-        54,
-        45
+        106,
+        79,
+        114,
+        88
       ],
       "source_center": [
-        51.0,
-        42.5
+        110,
+        83.5
       ],
       "anchor": {
-        "x": 3,
+        "x": 4,
         "y": 2
       }
+    },
+    "extra_0": {
+      "file": "Golem_S1_extra_0.png",
+      "width": 18,
+      "height": 19,
+      "source_bbox": [
+        70,
+        13,
+        83,
+        27
+      ],
+      "source_center": [
+        76.5,
+        20
+      ],
+      "anchor": {
+        "x": 9,
+        "y": 9
+      },
+      "attach_to": "head"
     }
   },
   "bones": {
     "head": {
       "parent": "torso",
-      "offset_x": 0.438,
-      "offset_y": 0.438,
+      "offset_x": 0.5,
+      "offset_y": 0.391,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "torso": {
       "parent": null,
-      "offset_x": 0.562,
-      "offset_y": 0.844,
+      "offset_x": 0.566,
+      "offset_y": 0.656,
       "rotation": 0,
-      "scale": 1.0
-    },
-    "right_hand": {
-      "parent": "right_arm",
-      "offset_x": 0.805,
-      "offset_y": 0.234,
-      "rotation": 0,
-      "scale": 1.0
-    },
-    "right_arm": {
-      "parent": "torso",
-      "offset_x": 0.789,
-      "offset_y": 0.508,
-      "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_arm": {
       "parent": "torso",
-      "offset_x": 0.359,
-      "offset_y": 0.883,
+      "offset_x": 0.219,
+      "offset_y": 0.215,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
+    },
+    "right_hand": {
+      "parent": "right_arm",
+      "offset_x": 0.855,
+      "offset_y": 0.477,
+      "rotation": 0,
+      "scale": 1
     },
     "left_hand": {
       "parent": "left_arm",
-      "offset_x": 0.414,
-      "offset_y": 0.828,
+      "offset_x": 0.227,
+      "offset_y": 0.605,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
-    "left_leg": {
-      "parent": "torso",
-      "offset_x": 0.164,
-      "offset_y": 0.859,
+    "right_foot": {
+      "parent": "right_leg",
+      "offset_x": 0.578,
+      "offset_y": 0.883,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
+    },
+    "right_arm": {
+      "parent": "torso",
+      "offset_x": 0.867,
+      "offset_y": 0.148,
+      "rotation": 0,
+      "scale": 1
     },
     "left_foot": {
       "parent": "left_leg",
-      "offset_x": 0.477,
-      "offset_y": 0.508,
+      "offset_x": 0.34,
+      "offset_y": 0.898,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
+    },
+    "left_leg": {
+      "parent": "torso",
+      "offset_x": 0.113,
+      "offset_y": 0.883,
+      "rotation": 0,
+      "scale": 1
     },
     "right_leg": {
       "parent": "torso",
-      "offset_x": 0.797,
-      "offset_y": 0.664,
+      "offset_x": 0.859,
+      "offset_y": 0.652,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     }
   },
   "draw_order": [
     "left_leg",
     "right_leg",
     "left_foot",
+    "right_foot",
     "torso",
     "left_arm",
     "right_arm",
