@@ -428,25 +428,52 @@ export class TeamScreen {
             numLabel.style.cssText = 'color:rgba(130,130,140,0.7);font-size:14px;min-width:30px;';
             slot.appendChild(numLabel);
 
-            // Portrait with equipment rendering
+            // Portrait container: race sprite image + canvas overlay with equipment
+            const portraitWrap = document.createElement('div');
+            Object.assign(portraitWrap.style, {
+                position: 'relative',
+                width: '56px', height: '56px',
+                flexShrink: '0',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                background: 'rgba(35,35,55,1)',
+            });
+
+            const sRaceId = spriteData.raceId || spriteData.race_id || 1;
+            const sStage = spriteData.evolutionStage || spriteData.evolution_stage || 1;
+            const sEquip = spriteData.equipment || {};
+
+            // Race sprite image (background portrait)
+            const raceSpritePath = getRaceSpritePath(sRaceId, Math.max(0, sStage - 1));
+            if (raceSpritePath) {
+                const raceImg = document.createElement('img');
+                raceImg.src = raceSpritePath;
+                Object.assign(raceImg.style, {
+                    position: 'absolute', top: '0', left: '0',
+                    width: '100%', height: '100%',
+                    objectFit: 'contain',
+                    imageRendering: 'crisp-edges',
+                    opacity: '0.35',
+                });
+                raceImg.onerror = () => { raceImg.style.display = 'none'; };
+                portraitWrap.appendChild(raceImg);
+            }
+
+            // Canvas with equipment rendering (foreground)
             const portrait = document.createElement('canvas');
             portrait.width = 56;
             portrait.height = 56;
             Object.assign(portrait.style, {
+                position: 'relative',
                 width: '56px', height: '56px',
-                borderRadius: '8px',
-                flexShrink: '0',
                 imageRendering: 'crisp-edges',
-                background: 'rgba(35,35,55,1)',
             });
             const pCtx = portrait.getContext('2d');
-            const sRaceId = spriteData.raceId || spriteData.race_id || 1;
-            const sStage = spriteData.evolutionStage || spriteData.evolution_stage || 1;
-            const sEquip = spriteData.equipment || {};
             HumanoidSpriteSystem.drawWithEquipment(
                 pCtx, sRaceId, sStage, 0, 0, 28, 48, 50, { equipment: sEquip }
             );
-            slot.appendChild(portrait);
+            portraitWrap.appendChild(portrait);
+            slot.appendChild(portraitWrap);
 
             // Info column
             const info = document.createElement('div');
@@ -1245,15 +1272,29 @@ export class InventoryScreen {
         const topRow = document.createElement('div');
         topRow.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 4px;';
 
-        // Slot icon
+        // Equipment icon — prefer PNG asset, fall back to emoji
         const iconEl = document.createElement('span');
         iconEl.style.cssText = `
             font-size: 1.2rem; width: 32px; height: 32px;
             display: flex; align-items: center; justify-content: center;
             background: rgba(40,40,60,0.8); border-radius: 6px;
             border: 1px solid ${rarityColor}44; flex-shrink: 0;
+            overflow: hidden;
         `;
-        iconEl.textContent = slotIcon;
+        const eqIconPath = eqData.icon_path || eqData.iconPath;
+        if (eqIconPath) {
+            const eqIconImg = document.createElement('img');
+            eqIconImg.src = eqIconPath.replace(/^\.\.\//g, '');
+            Object.assign(eqIconImg.style, {
+                width: '100%', height: '100%',
+                objectFit: 'contain',
+                imageRendering: 'crisp-edges',
+            });
+            eqIconImg.onerror = () => { eqIconImg.style.display = 'none'; iconEl.textContent = slotIcon; };
+            iconEl.appendChild(eqIconImg);
+        } else {
+            iconEl.textContent = slotIcon;
+        }
         topRow.appendChild(iconEl);
 
         // Name + stars column
@@ -1428,23 +1469,49 @@ export class InventoryScreen {
                 });
             }
 
-            // Portrait
+            // Portrait with race sprite background
+            const portraitWrap2 = document.createElement('div');
+            Object.assign(portraitWrap2.style, {
+                position: 'relative',
+                width: '44px', height: '44px',
+                flexShrink: '0',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                background: 'rgba(35,35,55,1)',
+            });
+
+            const sRaceId = sprite.raceId || sprite.race_id || 1;
+            const sStage = sprite.evolutionStage || sprite.evolution_stage || 1;
+
+            const raceSpritePath2 = getRaceSpritePath(sRaceId, Math.max(0, sStage - 1));
+            if (raceSpritePath2) {
+                const raceImg2 = document.createElement('img');
+                raceImg2.src = raceSpritePath2;
+                Object.assign(raceImg2.style, {
+                    position: 'absolute', top: '0', left: '0',
+                    width: '100%', height: '100%',
+                    objectFit: 'contain',
+                    imageRendering: 'crisp-edges',
+                    opacity: '0.35',
+                });
+                raceImg2.onerror = () => { raceImg2.style.display = 'none'; };
+                portraitWrap2.appendChild(raceImg2);
+            }
+
             const portrait = document.createElement('canvas');
             portrait.width = 44;
             portrait.height = 44;
             Object.assign(portrait.style, {
+                position: 'relative',
                 width: '44px', height: '44px',
-                borderRadius: '6px', flexShrink: '0',
                 imageRendering: 'crisp-edges',
-                background: 'rgba(35,35,55,1)',
             });
             const pCtx = portrait.getContext('2d');
-            const sRaceId = sprite.raceId || sprite.race_id || 1;
-            const sStage = sprite.evolutionStage || sprite.evolution_stage || 1;
             HumanoidSpriteSystem.drawWithEquipment(
                 pCtx, sRaceId, sStage, 0, 0, 22, 36, 40, { equipment: sprite.equipment || {} }
             );
-            row.appendChild(portrait);
+            portraitWrap2.appendChild(portrait);
+            row.appendChild(portraitWrap2);
 
             // Info
             const info = document.createElement('div');

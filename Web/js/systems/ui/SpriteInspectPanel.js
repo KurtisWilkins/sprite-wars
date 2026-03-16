@@ -16,6 +16,7 @@ import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../../data/SpriteData.js';
 import { ABILITIES } from '../../data/AbilityData.js';
 import { EQUIPMENT } from '../../data/EquipmentData.js';
+import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
 
 // ── Colors ──────────────────────────────────────────────────────────────────
 
@@ -284,18 +285,40 @@ export class SpriteInspectPanel {
         const previewRow = document.createElement('div');
         previewRow.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-bottom: 12px;';
 
-        // Canvas
+        // Canvas container with race sprite background
+        const canvasWrap = document.createElement('div');
+        canvasWrap.style.cssText = 'position: relative; width: 160px; height: 180px; flex-shrink: 0; overflow: hidden;';
+
+        // Race sprite portrait image (background)
+        const racePath = getRaceSpritePath(d.raceId, Math.max(0, d.evolutionStage - 1));
+        if (racePath) {
+            const racePortrait = document.createElement('img');
+            racePortrait.src = racePath;
+            Object.assign(racePortrait.style, {
+                position: 'absolute', top: '0', left: '0',
+                width: '100%', height: '100%',
+                objectFit: 'contain',
+                imageRendering: 'crisp-edges',
+                opacity: '0.25',
+                pointerEvents: 'none',
+            });
+            racePortrait.onerror = () => { racePortrait.style.display = 'none'; };
+            canvasWrap.appendChild(racePortrait);
+        }
+
+        // Canvas (foreground)
         const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 288;
-        canvas.style.cssText = 'width: 160px; height: 180px; flex-shrink: 0;';
+        canvas.style.cssText = 'position: relative; width: 160px; height: 180px;';
         const ctx = canvas.getContext('2d');
         HumanoidSpriteSystem.drawWithEquipment(
             ctx, d.raceId, d.evolutionStage, d.facing, 0,
             128, 230, 210,
             { equipment: d.equipment || {} }
         );
-        previewRow.appendChild(canvas);
+        canvasWrap.appendChild(canvas);
+        previewRow.appendChild(canvasWrap);
 
         // Info col
         const infoCol = document.createElement('div');
@@ -716,7 +739,21 @@ export class SpriteInspectPanel {
                 ${pos.bottom ? `bottom: ${pos.bottom};` : ''}
                 transform: translate(${pos.tx}, ${pos.ty});
             `;
-            slotEl.textContent = icon;
+            // Use equipment icon image if available, otherwise emoji
+            const eqIconPath = hasItem && (eqData.icon_path || eqData.iconPath);
+            if (eqIconPath) {
+                const eqIconImg = document.createElement('img');
+                eqIconImg.src = eqIconPath.replace(/^\.\.\//g, '');
+                Object.assign(eqIconImg.style, {
+                    width: '100%', height: '100%',
+                    objectFit: 'contain',
+                    imageRendering: 'crisp-edges',
+                });
+                eqIconImg.onerror = () => { eqIconImg.style.display = 'none'; slotEl.textContent = icon; };
+                slotEl.appendChild(eqIconImg);
+            } else {
+                slotEl.textContent = icon;
+            }
 
             // Hover effect for equipped items
             if (hasItem) {
