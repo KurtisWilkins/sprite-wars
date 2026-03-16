@@ -41,34 +41,47 @@ import { getRaceSpritePath, getRaceName } from '../../data/SpriteTextureHelper.j
 // ── PNG Sprite Asset Cache ──────────────────────────────────────────────────
 const _spriteImageCache = new Map(); // key: "raceId_stage" -> HTMLImageElement|null
 const _spriteLoadPromises = new Map();
+let _assetLoader = null; // Stored reference to AssetLoader for path resolution
 
 /**
- * Load a race sprite PNG asynchronously.
+ * Load a race sprite PNG asynchronously via the AssetLoader.
+ * The AssetLoader resolves paths relative to the project root (../ from Web/).
  */
 function _loadRaceSprite(raceId, stage) {
     const key = `${raceId}_${stage}`;
     if (_spriteImageCache.has(key)) return Promise.resolve(_spriteImageCache.get(key));
     if (_spriteLoadPromises.has(key)) return _spriteLoadPromises.get(key);
 
-    const path = getRaceSpritePath(raceId, stage);
-    if (!path) {
+    const spritePath = getRaceSpritePath(raceId, stage);
+    if (!spritePath) {
         _spriteImageCache.set(key, null);
         return Promise.resolve(null);
     }
 
-    const promise = new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
+    // Use AssetLoader for correct path resolution (adds ../ prefix)
+    // Fall back to direct load with ../ prefix if no AssetLoader available
+    let promise;
+    if (_assetLoader) {
+        promise = _assetLoader.loadImage(spritePath).then(img => {
             _spriteImageCache.set(key, img);
-            resolve(img);
-        };
-        img.onerror = () => {
-            console.warn(`[HumanoidSpriteSystem] Failed to load race sprite: ${path}`);
-            _spriteImageCache.set(key, null);
-            resolve(null);
-        };
-        img.src = path;
-    });
+            return img;
+        });
+    } else {
+        const resolvedPath = `../${spritePath}`;
+        promise = new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                _spriteImageCache.set(key, img);
+                resolve(img);
+            };
+            img.onerror = () => {
+                console.warn(`[HumanoidSpriteSystem] Failed to load race sprite: ${resolvedPath}`);
+                _spriteImageCache.set(key, null);
+                resolve(null);
+            };
+            img.src = resolvedPath;
+        });
+    }
     _spriteLoadPromises.set(key, promise);
     return promise;
 }
@@ -253,6 +266,9 @@ export class HumanoidSpriteSystem {
      * Preload all required assets.
      */
     static async preloadAssets(assets) {
+        // Store AssetLoader reference for path resolution in _loadRaceSprite
+        _assetLoader = assets;
+
         // Load PNG sprites for all 24 races x 3 stages
         const spritePromises = [];
         for (let raceId = 1; raceId <= 24; raceId++) {
@@ -412,6 +428,7 @@ export class HumanoidSpriteSystem {
         _compositeLRU.length = 0;
         _spriteImageCache.clear();
         _spriteLoadPromises.clear();
+        _assetLoader = null;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

@@ -242,7 +242,7 @@ const server = http.createServer((req, res) => {
 
         // Set CORS and caching headers
         res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Cache-Control', 'public, max-age=3600');
+        res.setHeader('Cache-Control', 'public, max-age=60');
 
         // Stream the file
         res.writeHead(200, { 'Content-Type': contentType });
