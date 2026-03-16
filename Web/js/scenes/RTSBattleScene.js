@@ -17,7 +17,7 @@ import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { RTSBattleManager } from '../systems/battle/RTSBattleManager.js';
 import { RTSBattleRenderer } from '../systems/rendering/RTSBattleRenderer.js';
-import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
 import { ABILITIES } from '../data/AbilityData.js';
 import { EQUIPMENT, findEquipmentWithExpansion } from '../data/EquipmentData.js';
@@ -136,7 +136,7 @@ export class RTSBattleScene extends Scene {
 
     async init() {
         // Preload humanoid sprite assets
-        await HumanoidSpriteSystem.preloadAssets(this.engine.assets).catch(() => {});
+        await SkeletalAnimationSystem.preloadAssets(this.engine.assets).catch(() => {});
         this.initialized = true;
     }
 
@@ -210,7 +210,7 @@ export class RTSBattleScene extends Scene {
         this._selectedUnit = null;
         this._renderer.selectedUnit = null;
         this._renderer.clear();
-        HumanoidSpriteSystem.clearCache();
+        SkeletalAnimationSystem.clearCache();
     }
 
     // ═══════════════════════════════════════════════════════════════

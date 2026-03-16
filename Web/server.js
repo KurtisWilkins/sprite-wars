@@ -86,6 +86,60 @@ const server = http.createServer((req, res) => {
     const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
     const pathname = decodeURIComponent(parsedUrl.pathname);
 
+    // ─── API: POST /api/skeleton/save ───
+    if (req.method === 'POST' && pathname === '/api/skeleton/save') {
+        parseJsonBody(req, (err, body) => {
+            if (err) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Invalid JSON body' }));
+                return;
+            }
+
+            const race = body && body.race;
+            const stage = body && body.stage;
+            const data = body && body.data;
+
+            if (!race || typeof race !== 'string' || !stage || !data) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Missing race, stage, or data in request body' }));
+                return;
+            }
+
+            // Sanitize race name to prevent path traversal
+            const sanitizedRace = race.replace(/[\/\\:*?"<>|.\x00]/g, '');
+            const sanitizedStage = parseInt(stage, 10);
+            if (!sanitizedRace || isNaN(sanitizedStage) || sanitizedStage < 1 || sanitizedStage > 3) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Invalid race name or stage number' }));
+                return;
+            }
+
+            const partsDir = path.join(ROOT, 'Sprites', 'Characters', sanitizedRace, 'parts');
+            const filePath = path.join(partsDir, `${sanitizedRace}_S${sanitizedStage}_skeleton.json`);
+
+            // Verify resolved path is within the expected directory
+            if (!filePath.startsWith(path.join(ROOT, 'Sprites', 'Characters'))) {
+                res.writeHead(403, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Forbidden' }));
+                return;
+            }
+
+            // Ensure the parts directory exists
+            fs.mkdirSync(partsDir, { recursive: true });
+
+            fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8', (writeErr) => {
+                if (writeErr) {
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Failed to save skeleton data' }));
+                    return;
+                }
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, file: `${sanitizedRace}_S${sanitizedStage}_skeleton.json` }));
+            });
+        });
+        return;
+    }
+
     // ─── API: POST /api/tile-metadata/save ───
     if (req.method === 'POST' && pathname === '/api/tile-metadata/save') {
         parseJsonBody(req, (err, data) => {
@@ -261,5 +315,6 @@ server.listen(PORT, () => {
     console.log(`  Local:   http://localhost:${PORT}`);
     console.log(`  Game:    http://localhost:${PORT}/Web/index.html`);
     console.log(`  Admin:   http://localhost:${PORT}/Web/tile-admin.html`);
+    console.log(`  Editor:  http://localhost:${PORT}/Web/sprite-editor.html`);
     console.log(`\n  Press Ctrl+C to stop\n`);
 });

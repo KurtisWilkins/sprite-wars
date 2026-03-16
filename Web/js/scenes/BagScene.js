@@ -16,7 +16,7 @@ import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { CONSUMABLES, CRYSTALS } from '../data/ItemData.js';
 import { EQUIPMENT, getAllEquipmentWithExpansion } from '../data/EquipmentData.js';
-import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
 import { getRaceSpritePath } from '../data/SpriteTextureHelper.js';
 
 // ── Constants ───────────────────────────────────────────────────────────────
@@ -819,7 +819,7 @@ export class BagScene extends Scene {
         // Build equipment object with just this one piece
         const previewEquip = {};
         previewEquip[def.slot_type] = def.equipment_id;
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             pCtx, 1, 1, 0, 0, 16, 32, 30, { equipment: previewEquip }
         );
         row.appendChild(previewCanvas);
@@ -951,7 +951,7 @@ export class BagScene extends Scene {
         const dpCtx = detailPreviewCanvas.getContext('2d');
         const detailPreviewEquip = {};
         detailPreviewEquip[def.slot_type] = def.equipment_id;
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             dpCtx, 1, 1, 0, 0, 28, 50, 48, { equipment: detailPreviewEquip }
         );
         detailPreviewWrap.appendChild(detailPreviewCanvas);

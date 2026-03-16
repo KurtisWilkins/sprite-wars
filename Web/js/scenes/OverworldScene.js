@@ -11,7 +11,7 @@
  */
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
-import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
 import { getRaceSpritePath } from '../data/SpriteTextureHelper.js';
 import { getTrainer } from '../data/TrainerData.js';
 import { ENCOUNTER_TABLES } from '../data/EncounterData.js';
@@ -241,7 +241,7 @@ export class OverworldScene extends Scene {
 
     async init() {
         // Preload PNG race sprites for HumanoidSpriteSystem rendering.
-        await HumanoidSpriteSystem.preloadAssets(this.engine.assets);
+        await SkeletalAnimationSystem.preloadAssets(this.engine.assets);
 
         // Load player sprite from the new race sprite system (Human, stage 0)
         const playerSpritePath = getRaceSpritePath(1, 0);
@@ -2657,7 +2657,7 @@ export class OverworldScene extends Scene {
                 const px = wx - camX;
                 const py = wy - camY;
                 ctx.imageSmoothingEnabled = true;
-                HumanoidSpriteSystem.drawWithEquipment(
+                SkeletalAnimationSystem.drawWithEquipment(
                     ctx, raceId, stage, dir, animFrame,
                     px, py + halfSize * 0.3, PLAYER_SIZE,
                     { equipment }
@@ -2707,7 +2707,7 @@ export class OverworldScene extends Scene {
                     const animFrame = npc.moving ? ((npc.animFrame || 0) % 4) : 0;
                     const npcSize = NPC_DRAW_HALFSIZE * 2;
                     ctx.imageSmoothingEnabled = true;
-                    HumanoidSpriteSystem.drawWithEquipment(
+                    SkeletalAnimationSystem.drawWithEquipment(
                         ctx, npc.raceId, npc.stage || 1, dir, animFrame,
                         npc.x - camX, npc.y - camY + NPC_DRAW_HALFSIZE * 0.3, npcSize,
                         { equipment: npc.equipment || {} }

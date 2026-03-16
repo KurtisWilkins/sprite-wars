@@ -341,7 +341,7 @@ export class SpriteCenterScene extends Scene {
                 const raceId = inst.raceId || inst.race_id || 1;
                 const stage = inst.evolutionStage || inst.evolution_stage || 1;
                 const equipment = inst.equipment || {};
-                HumanoidSpriteSystem.drawWithEquipment(
+                SkeletalAnimationSystem.drawWithEquipment(
                     ctx, raceId, stage,
                     this._equipPreviewDir, this._equipPreviewFrame,
                     128, 190, 180,
@@ -1793,7 +1793,7 @@ export class SpriteCenterScene extends Scene {
         pCtx.imageSmoothingEnabled = true;
         const raceId = inst.raceId || inst.race_id || 1;
         const stage = inst.evolutionStage || inst.evolution_stage || 1;
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             pCtx, raceId, stage, 0, 0,
             128, 190, 180,
             { equipment }
@@ -2387,7 +2387,7 @@ export class SpriteCenterScene extends Scene {
             cmCtx.imageSmoothingEnabled = true;
             const raceId = inst.raceId || inst.race_id || 1;
             const stg = inst.evolutionStage || inst.evolution_stage || 1;
-            HumanoidSpriteSystem.drawWithEquipment(
+            SkeletalAnimationSystem.drawWithEquipment(
                 cmCtx, raceId, stg, 0, 0, 24, 38, 38, { equipment: inst.equipment || {} }
             );
             curPreviewRow.appendChild(curMiniCanvas);
@@ -2512,7 +2512,7 @@ export class SpriteCenterScene extends Scene {
                 hypotheticalEquip[slot.key] = item.equipment_id || item;
                 const rId = inst.raceId || inst.race_id || 1;
                 const stge = inst.evolutionStage || inst.evolution_stage || 1;
-                HumanoidSpriteSystem.drawWithEquipment(
+                SkeletalAnimationSystem.drawWithEquipment(
                     mCtx, rId, stge, 0, 0, 20, 32, 34, { equipment: hypotheticalEquip }
                 );
                 topRow.appendChild(miniCanvas);
@@ -3081,7 +3081,7 @@ export class SpriteCenterScene extends Scene {
         inst.equipment = equipment;
 
         // Invalidate sprite cache for this unit
-        HumanoidSpriteSystem.invalidateCache(
+        SkeletalAnimationSystem.invalidateCache(
             inst.raceId || inst.race_id || 1,
             inst.evolutionStage || inst.evolution_stage || 1,
             equipment
@@ -3187,7 +3187,7 @@ export class SpriteCenterScene extends Scene {
         inst.equipment = equipment;
 
         // Invalidate sprite cache so the new equipment is rendered
-        HumanoidSpriteSystem.invalidateCache(
+        SkeletalAnimationSystem.invalidateCache(
             inst.raceId || inst.race_id || 1,
             inst.evolutionStage || inst.evolution_stage || 1,
             equipment

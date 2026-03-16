@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprite Wars — Sprite Part Editor</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-dark: #1a1a2e;
+            --bg-panel: #16213e;
+            --bg-input: #0f3460;
+            --accent: #e94560;
+            --accent2: #0ea5e9;
+            --text: #e0e0e0;
+            --text-dim: #8899aa;
+            --border: #2a2a4a;
+            --sidebar-w: 300px;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ── Layout ── */
+        .app {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr var(--sidebar-w);
+            grid-template-rows: 48px 1fr 48px;
+            height: 100vh;
+        }
+
+        /* ── Toolbar ── */
+        .toolbar {
+            grid-column: 1 / -1;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 12px;
+        }
+        .toolbar h1 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-right: 16px;
+            white-space: nowrap;
+        }
+        .toolbar select, .toolbar button, .toolbar input {
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .toolbar select { cursor: pointer; }
+        .toolbar button { cursor: pointer; }
+        .toolbar button:hover { background: var(--accent); }
+        .toolbar .spacer { flex: 1; }
+        .toolbar a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .toolbar a:hover { color: var(--text); }
+
+        /* ── Left Sidebar: Parts List ── */
+        .sidebar-left {
+            grid-row: 2;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .sidebar-left h2, .sidebar-right h2 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 12px;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .parts-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .part-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            user-select: none;
+        }
+        .part-item:hover { background: rgba(255,255,255,0.05); }
+        .part-item.selected { border-color: var(--accent); background: rgba(233,69,96,0.1); }
+        .part-item.dragging { opacity: 0.4; }
+        .part-item .drag-handle {
+            cursor: grab;
+            color: var(--text-dim);
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .part-item .part-thumb {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-dark);
+            border-radius: 3px;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .part-item .part-thumb img {
+            max-width: 100%;
+            max-height: 100%;
+            image-rendering: pixelated;
+        }
+        .part-item .part-name {
+            flex: 1;
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .part-item .part-vis {
+            cursor: pointer;
+            color: var(--text-dim);
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .part-item .part-vis.hidden-part { opacity: 0.3; }
+
+        /* ── Canvas Area ── */
+        .canvas-area {
+            grid-row: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        #main-canvas {
+            image-rendering: pixelated;
+            cursor: crosshair;
+        }
+        .canvas-info {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* ── Right Sidebar: Properties ── */
+        .sidebar-right {
+            grid-row: 2;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .props-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px;
+        }
+        .prop-group {
+            margin-bottom: 16px;
+        }
+        .prop-group h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent2);
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+        }
+        .prop-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .prop-row label {
+            width: 70px;
+            font-size: 12px;
+            color: var(--text-dim);
+            flex-shrink: 0;
+        }
+        .prop-row input[type="number"] {
+            width: 60px;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .prop-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent);
+        }
+        .prop-row .range-val {
+            width: 40px;
+            text-align: right;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+        .prop-row select {
+            flex: 1;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .no-selection {
+            color: var(--text-dim);
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* ── Status Bar ── */
+        .statusbar {
+            grid-column: 1 / -1;
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        .statusbar .status-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .statusbar button {
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 2px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .statusbar button:hover { background: var(--accent); }
+        .statusbar .spacer { flex: 1; }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+        /* ── Drop indicator for drag reorder ── */
+        .drop-indicator {
+            height: 2px;
+            background: var(--accent);
+            margin: 0 4px;
+        }
+
+        /* ── Toast notification ── */
+        .toast {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent2);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .toast.show { opacity: 1; }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .app {
+                grid-template-columns: 1fr;
+                grid-template-rows: 48px auto 300px 48px;
+            }
+            .sidebar-left { grid-row: 3; border-right: none; border-top: 1px solid var(--border); }
+            .sidebar-right { display: none; }
+            .canvas-area { grid-row: 2; }
+            .statusbar { grid-row: 4; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <h1>Sprite Part Editor</h1>
+        <label>Race:</label>
+        <select id="race-select"></select>
+        <label>Stage:</label>
+        <select id="stage-select">
+            <option value="1">Stage 1</option>
+            <option value="2">Stage 2</option>
+            <option value="3">Stage 3</option>
+        </select>
+        <button id="btn-load" title="Load skeleton from server">Load</button>
+        <button id="btn-save" title="Save skeleton to server">Save</button>
+        <button id="btn-export" title="Download skeleton.json">Export</button>
+        <span class="spacer"></span>
+        <label>Show:</label>
+        <label><input type="checkbox" id="chk-bones" checked> Bones</label>
+        <label><input type="checkbox" id="chk-anchors" checked> Anchors</label>
+        <span class="spacer"></span>
+        <a href="index.html">Back to Game</a>
+        <a href="tile-admin.html">Tile Admin</a>
+    </div>
+
+    <!-- Left Sidebar: Parts -->
+    <div class="sidebar-left">
+        <h2>Parts / Draw Order</h2>
+        <div class="parts-list" id="parts-list">
+            <div class="no-selection">Select a race and stage, then click Load.</div>
+        </div>
+    </div>
+
+    <!-- Main Canvas -->
+    <div class="canvas-area">
+        <canvas id="main-canvas" width="512" height="512"></canvas>
+        <div class="canvas-info" id="canvas-info">No data loaded</div>
+    </div>
+
+    <!-- Right Sidebar: Properties -->
+    <div class="sidebar-right">
+        <h2>Properties</h2>
+        <div class="props-scroll" id="props-panel">
+            <div class="no-selection">Select a part to edit.</div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="statusbar">
+        <div class="status-section">
+            <button id="btn-play">Play</button>
+            <button id="btn-step-back" title="Previous frame">|&lt;</button>
+            <button id="btn-step-fwd" title="Next frame">&gt;|</button>
+        </div>
+        <div class="status-section">
+            <label>Dir:</label>
+            <select id="dir-select">
+                <option value="down">Down</option>
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+                <option value="up">Up</option>
+            </select>
+        </div>
+        <div class="status-section">
+            <label>Speed:</label>
+            <input type="range" id="speed-slider" min="0.1" max="3" step="0.1" value="1" style="width:80px">
+            <span id="speed-val">1.0x</span>
+        </div>
+        <div class="status-section">
+            <span id="frame-info">Frame: 0/4</span>
+        </div>
+        <span class="spacer"></span>
+        <span id="status-msg">Ready</span>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// Sprite Part Editor - Embedded JavaScript
+// ═══════════════════════════════════════════════════════════════
+
+const RACES = {
+    1: 'Human', 2: 'Elf', 3: 'Demon', 4: 'Devil', 5: 'CatMan',
+    6: 'BearMan', 7: 'WolfMan', 8: 'MonkeyMan', 9: 'BugMan', 10: 'BirdMan',
+    11: 'Ent', 12: 'FishMan', 13: 'Ghost', 14: 'Golem', 15: 'LizardMan',
+    16: 'Minotaur', 17: 'Mummy', 18: 'Ork', 19: 'RatMan', 20: 'Robot',
+    21: 'Skeleton', 22: 'SharkMan', 23: 'TurtleMan', 24: 'Zombie',
+};
+
+const BODY_PARTS = [
+    'head', 'torso', 'left_arm', 'right_arm', 'left_leg', 'right_leg',
+    'left_hand', 'right_hand', 'left_foot', 'right_foot', 'tail', 'wings', 'accessory'
+];
+
+const PART_COLORS = {
+    head: '#e94560', torso: '#0ea5e9', left_arm: '#f59e0b', right_arm: '#10b981',
+    left_leg: '#8b5cf6', right_leg: '#ec4899', left_hand: '#f97316', right_hand: '#14b8a6',
+    left_foot: '#a855f7', right_foot: '#f43f5e', tail: '#6366f1', wings: '#22d3ee', accessory: '#84cc16'
+};
+
+const BONE_HIERARCHY = {
+    torso: null,
+    head: 'torso',
+    left_arm: 'torso',
+    right_arm: 'torso',
+    left_hand: 'left_arm',
+    right_hand: 'right_arm',
+    left_leg: 'torso',
+    right_leg: 'torso',
+    left_foot: 'left_leg',
+    right_foot: 'right_leg',
+    tail: 'torso',
+    wings: 'torso',
+    accessory: 'head'
+};
+
+const DEFAULT_ANCHORS = {
+    torso:      { x: 16, y: 16 },
+    head:       { x: 16, y: 28 },
+    left_arm:   { x: 24, y: 20 },
+    right_arm:  { x: 8, y: 20 },
+    left_hand:  { x: 24, y: 12 },
+    right_hand: { x: 8, y: 12 },
+    left_leg:   { x: 20, y: 8 },
+    right_leg:  { x: 12, y: 8 },
+    left_foot:  { x: 20, y: 2 },
+    right_foot: { x: 12, y: 2 },
+    tail:       { x: 16, y: 12 },
+    wings:      { x: 16, y: 24 },
+    accessory:  { x: 16, y: 30 }
+};
+
+// Bone connection offsets on parent (where child attaches)
+const PARENT_ATTACH = {
+    head:       { x: 0, y: 8 },
+    left_arm:   { x: 8, y: 4 },
+    right_arm:  { x: -8, y: 4 },
+    left_hand:  { x: 0, y: -8 },
+    right_hand: { x: 0, y: -8 },
+    left_leg:   { x: 4, y: -8 },
+    right_leg:  { x: -4, y: -8 },
+    left_foot:  { x: 0, y: -8 },
+    right_foot: { x: 0, y: -8 },
+    tail:       { x: 0, y: -4 },
+    wings:      { x: 0, y: 6 },
+    accessory:  { x: 0, y: 4 }
+};
+
+const WALK_KEYFRAMES = [
+    { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+    { torso: {y: -1}, head: {rot: -2}, left_arm: {rot: -18}, right_arm: {rot: 18}, left_leg: {rot: 22}, right_leg: {rot: -15} },
+    { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+    { torso: {y: -1}, head: {rot: 2}, left_arm: {rot: 18}, right_arm: {rot: -18}, left_leg: {rot: -15}, right_leg: {rot: 22} },
+];
+
+// Default draw order per direction
+const DEFAULT_DRAW_ORDER = {
+    down:  ['left_foot','right_foot','left_leg','right_leg','tail','torso','left_arm','right_arm','left_hand','right_hand','wings','head','accessory'],
+    up:    ['accessory','head','left_hand','right_hand','left_arm','right_arm','wings','torso','tail','left_foot','right_foot','left_leg','right_leg'],
+    left:  ['right_foot','right_leg','right_hand','right_arm','tail','torso','wings','left_arm','left_hand','left_foot','left_leg','head','accessory'],
+    right: ['left_foot','left_leg','left_hand','left_arm','tail','torso','wings','right_arm','right_hand','right_foot','right_leg','head','accessory'],
+};
+
+// ─── State ───
+let state = {
+    race: 'Human',
+    stage: 1,
+    selectedPart: null,
+    parts: {},           // { partName: { img, anchor: {x,y}, rotation: 0, visible: true } }
+    drawOrder: {},       // per-direction arrays
+    playing: false,
+    animFrame: 0,
+    animTime: 0,
+    speed: 1,
+    direction: 'down',
+    dragging: null,      // { part, startX, startY, startAnchorX, startAnchorY }
+    images: {},          // loaded Image objects
+    skeletonData: null,  // raw loaded JSON
+};
+
+// ─── DOM Refs ───
+const $ = id => document.getElementById(id);
+const canvas = $('main-canvas');
+const ctx = canvas.getContext('2d');
+const raceSelect = $('race-select');
+const stageSelect = $('stage-select');
+const partsList = $('parts-list');
+const propsPanel = $('props-panel');
+const canvasInfo = $('canvas-info');
+const statusMsg = $('status-msg');
+const dirSelect = $('dir-select');
+const speedSlider = $('speed-slider');
+const speedVal = $('speed-val');
+const frameInfo = $('frame-info');
+const toastEl = $('toast');
+
+// ─── Init ───
+function init() {
+    // Populate race dropdown
+    for (const [id, name] of Object.entries(RACES)) {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = `${id}. ${name}`;
+        raceSelect.appendChild(opt);
+    }
+
+    // Events
+    $('btn-load').addEventListener('click', loadSkeleton);
+    $('btn-save').addEventListener('click', saveSkeleton);
+    $('btn-export').addEventListener('click', exportSkeleton);
+    $('btn-play').addEventListener('click', togglePlay);
+    $('btn-step-back').addEventListener('click', () => stepFrame(-1));
+    $('btn-step-fwd').addEventListener('click', () => stepFrame(1));
+    dirSelect.addEventListener('change', () => { state.direction = dirSelect.value; rebuildPartsList(); render(); });
+    speedSlider.addEventListener('input', () => { state.speed = parseFloat(speedSlider.value); speedVal.textContent = state.speed.toFixed(1) + 'x'; });
+    $('chk-bones').addEventListener('change', render);
+    $('chk-anchors').addEventListener('change', render);
+    raceSelect.addEventListener('change', () => { state.race = raceSelect.value; });
+    stageSelect.addEventListener('change', () => { state.stage = parseInt(stageSelect.value); });
+
+    // Canvas mouse events
+    canvas.addEventListener('mousedown', onCanvasMouseDown);
+    canvas.addEventListener('mousemove', onCanvasMouseMove);
+    canvas.addEventListener('mouseup', onCanvasMouseUp);
+    canvas.addEventListener('mouseleave', onCanvasMouseUp);
+
+    // Start render loop
+    requestAnimationFrame(tick);
+}
+
+// ─── Toast ───
+let toastTimeout;
+function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 2500);
+}
+
+// ─── Load / Save ───
+async function loadSkeleton() {
+    const race = state.race;
+    const stage = state.stage;
+    statusMsg.textContent = `Loading ${race} S${stage}...`;
+
+    // Reset
+    state.parts = {};
+    state.images = {};
+    state.selectedPart = null;
+    state.skeletonData = null;
+
+    // Try loading skeleton.json
+    const skelUrl = `../Sprites/Characters/${race}/parts/${race}_S${stage}_skeleton.json`;
+    let skelData = null;
+    try {
+        const resp = await fetch(skelUrl);
+        if (resp.ok) {
+            skelData = await resp.json();
+            state.skeletonData = skelData;
+        }
+    } catch (e) { /* no skeleton file yet */ }
+
+    // Initialize draw order
+    state.drawOrder = {};
+    for (const dir of ['down','up','left','right']) {
+        if (skelData && skelData.drawOrder && skelData.drawOrder[dir]) {
+            state.drawOrder[dir] = [...skelData.drawOrder[dir]];
+        } else {
+            state.drawOrder[dir] = [...DEFAULT_DRAW_ORDER[dir]];
+        }
+    }
+
+    // Load part images
+    const loadPromises = [];
+    for (const part of BODY_PARTS) {
+        const imgUrl = `../Sprites/Characters/${race}/parts/${race}_S${stage}_${part}.png`;
+        const img = new Image();
+        const p = new Promise(resolve => {
+            img.onload = () => {
+                state.images[part] = img;
+                // Init part data
+                const anchor = (skelData && skelData.parts && skelData.parts[part])
+                    ? { x: skelData.parts[part].anchor.x, y: skelData.parts[part].anchor.y }
+                    : { ...DEFAULT_ANCHORS[part] };
+                const rotation = (skelData && skelData.parts && skelData.parts[part])
+                    ? (skelData.parts[part].rotation || 0)
+                    : 0;
+                state.parts[part] = { anchor, rotation, visible: true };
+                resolve(true);
+            };
+            img.onerror = () => resolve(false);
+        });
+        img.src = imgUrl;
+        loadPromises.push(p);
+    }
+
+    const results = await Promise.all(loadPromises);
+    const loadedCount = results.filter(Boolean).length;
+
+    // Remove parts from draw order that have no image
+    for (const dir of ['down','up','left','right']) {
+        state.drawOrder[dir] = state.drawOrder[dir].filter(p => state.images[p]);
+        // Add any loaded parts not in draw order
+        for (const part of BODY_PARTS) {
+            if (state.images[part] && !state.drawOrder[dir].includes(part)) {
+                state.drawOrder[dir].push(part);
+            }
+        }
+    }
+
+    rebuildPartsList();
+    canvasInfo.textContent = `${race} Stage ${stage} — ${loadedCount} parts loaded`;
+    statusMsg.textContent = `Loaded ${loadedCount} parts`;
+    toast(`Loaded ${race} S${stage}: ${loadedCount} parts`);
+    render();
+}
+
+async function saveSkeleton() {
+    const data = buildSkeletonJson();
+    statusMsg.textContent = 'Saving...';
+    try {
+        const resp = await fetch('/api/skeleton/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ race: state.race, stage: state.stage, data })
+        });
+        const result = await resp.json();
+        if (result.success) {
+            toast('Skeleton saved successfully');
+            statusMsg.textContent = 'Saved';
+        } else {
+            toast('Save failed: ' + (result.error || 'Unknown error'));
+            statusMsg.textContent = 'Save failed';
+        }
+    } catch (e) {
+        toast('Save error: ' + e.message);
+        statusMsg.textContent = 'Save error';
+    }
+}
+
+function exportSkeleton() {
+    const data = buildSkeletonJson();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${state.race}_S${state.stage}_skeleton.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Exported skeleton.json');
+}
+
+function buildSkeletonJson() {
+    const parts = {};
+    for (const [name, pd] of Object.entries(state.parts)) {
+        parts[name] = {
+            anchor: { x: pd.anchor.x, y: pd.anchor.y },
+            rotation: pd.rotation,
+            parent: BONE_HIERARCHY[name] || null,
+            parentAttach: PARENT_ATTACH[name] || { x: 0, y: 0 }
+        };
+    }
+    return {
+        race: state.race,
+        stage: state.stage,
+        parts,
+        drawOrder: state.drawOrder,
+        boneHierarchy: BONE_HIERARCHY,
+        walkKeyframes: WALK_KEYFRAMES
+    };
+}
+
+// ─── Parts List UI ───
+function rebuildPartsList() {
+    partsList.innerHTML = '';
+    const order = state.drawOrder[state.direction] || [];
+
+    order.forEach((partName, index) => {
+        if (!state.images[partName]) return;
+        const pd = state.parts[partName];
+
+        const item = document.createElement('div');
+        item.className = 'part-item' + (state.selectedPart === partName ? ' selected' : '');
+        item.dataset.part = partName;
+        item.draggable = true;
+
+        // Drag handle
+        const handle = document.createElement('span');
+        handle.className = 'drag-handle';
+        handle.textContent = '\u2630';
+
+        // Thumbnail
+        const thumb = document.createElement('div');
+        thumb.className = 'part-thumb';
+        const thumbImg = document.createElement('img');
+        thumbImg.src = state.images[partName].src;
+        thumb.appendChild(thumbImg);
+
+        // Name
+        const nameEl = document.createElement('span');
+        nameEl.className = 'part-name';
+        nameEl.textContent = partName.replace(/_/g, ' ');
+
+        // Visibility toggle
+        const vis = document.createElement('span');
+        vis.className = 'part-vis' + (pd.visible ? '' : ' hidden-part');
+        vis.textContent = pd.visible ? '\u{1F441}' : '\u{1F441}\u200D\u{1F5E8}';
+        vis.title = 'Toggle visibility';
+        vis.addEventListener('click', (e) => {
+            e.stopPropagation();
+            pd.visible = !pd.visible;
+            rebuildPartsList();
+            render();
+        });
+
+        item.appendChild(handle);
+        item.appendChild(thumb);
+        item.appendChild(nameEl);
+        item.appendChild(vis);
+
+        // Click to select
+        item.addEventListener('click', () => {
+            state.selectedPart = partName;
+            rebuildPartsList();
+            updatePropsPanel();
+            render();
+        });
+
+        // Drag reorder
+        item.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', partName);
+            item.classList.add('dragging');
+        });
+        item.addEventListener('dragend', () => {
+            item.classList.remove('dragging');
+            document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+        });
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+        item.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const draggedPart = e.dataTransfer.getData('text/plain');
+            const targetPart = partName;
+            if (draggedPart === targetPart) return;
+            const order = state.drawOrder[state.direction];
+            const fromIdx = order.indexOf(draggedPart);
+            const toIdx = order.indexOf(targetPart);
+            if (fromIdx < 0 || toIdx < 0) return;
+            order.splice(fromIdx, 1);
+            order.splice(toIdx, 0, draggedPart);
+            rebuildPartsList();
+            render();
+        });
+
+        partsList.appendChild(item);
+    });
+}
+
+// ─── Properties Panel ───
+function updatePropsPanel() {
+    const part = state.selectedPart;
+    if (!part || !state.parts[part]) {
+        propsPanel.innerHTML = '<div class="no-selection">Select a part to edit.</div>';
+        return;
+    }
+
+    const pd = state.parts[part];
+    propsPanel.innerHTML = `
+        <div class="prop-group">
+            <h3>${part.replace(/_/g, ' ')}</h3>
+            <div class="prop-row">
+                <label>Anchor X:</label>
+                <input type="number" id="prop-ax" value="${pd.anchor.x}" step="1">
+            </div>
+            <div class="prop-row">
+                <label>Anchor Y:</label>
+                <input type="number" id="prop-ay" value="${pd.anchor.y}" step="1">
+            </div>
+        </div>
+        <div class="prop-group">
+            <h3>Bone Rotation</h3>
+            <div class="prop-row">
+                <label>Default:</label>
+                <input type="range" id="prop-rot" min="-180" max="180" step="1" value="${pd.rotation}">
+                <span class="range-val" id="prop-rot-val">${pd.rotation}&deg;</span>
+            </div>
+        </div>
+        <div class="prop-group">
+            <h3>Hierarchy</h3>
+            <div class="prop-row">
+                <label>Parent:</label>
+                <span style="color:var(--text-dim)">${BONE_HIERARCHY[part] || '(root)'}</span>
+            </div>
+            <div class="prop-row">
+                <label>Attach X:</label>
+                <input type="number" id="prop-pax" value="${(PARENT_ATTACH[part] || {x:0}).x}" step="1">
+            </div>
+            <div class="prop-row">
+                <label>Attach Y:</label>
+                <input type="number" id="prop-pay" value="${(PARENT_ATTACH[part] || {y:0}).y}" step="1">
+            </div>
+        </div>
+        <div class="prop-group">
+            <h3>Per-Direction Order</h3>
+            <div class="prop-row">
+                <label>Direction:</label>
+                <span style="color:var(--text-dim)">${state.direction}</span>
+            </div>
+            <div class="prop-row">
+                <label>Index:</label>
+                <span style="color:var(--text-dim)">${(state.drawOrder[state.direction] || []).indexOf(part)}</span>
+            </div>
+        </div>
+    `;
+
+    // Wire up inputs
+    $('prop-ax').addEventListener('change', (e) => {
+        pd.anchor.x = parseInt(e.target.value) || 0;
+        render();
+    });
+    $('prop-ay').addEventListener('change', (e) => {
+        pd.anchor.y = parseInt(e.target.value) || 0;
+        render();
+    });
+    $('prop-rot').addEventListener('input', (e) => {
+        pd.rotation = parseInt(e.target.value) || 0;
+        $('prop-rot-val').textContent = pd.rotation + '\u00B0';
+        render();
+    });
+    $('prop-pax').addEventListener('change', (e) => {
+        if (!PARENT_ATTACH[part]) PARENT_ATTACH[part] = { x: 0, y: 0 };
+        PARENT_ATTACH[part].x = parseInt(e.target.value) || 0;
+        render();
+    });
+    $('prop-pay').addEventListener('change', (e) => {
+        if (!PARENT_ATTACH[part]) PARENT_ATTACH[part] = { x: 0, y: 0 };
+        PARENT_ATTACH[part].y = parseInt(e.target.value) || 0;
+        render();
+    });
+}
+
+// ─── Animation ───
+function togglePlay() {
+    state.playing = !state.playing;
+    $('btn-play').textContent = state.playing ? 'Pause' : 'Play';
+}
+
+function stepFrame(delta) {
+    state.animFrame = ((state.animFrame + delta) % WALK_KEYFRAMES.length + WALK_KEYFRAMES.length) % WALK_KEYFRAMES.length;
+    state.animTime = state.animFrame;
+    frameInfo.textContent = `Frame: ${state.animFrame}/${WALK_KEYFRAMES.length}`;
+    render();
+}
+
+let lastTime = 0;
+function tick(time) {
+    if (state.playing) {
+        const dt = (time - lastTime) / 1000;
+        state.animTime += dt * state.speed * 4; // 4 frames per second base
+        state.animFrame = Math.floor(state.animTime) % WALK_KEYFRAMES.length;
+        frameInfo.textContent = `Frame: ${state.animFrame}/${WALK_KEYFRAMES.length}`;
+        render();
+    }
+    lastTime = time;
+    requestAnimationFrame(tick);
+}
+
+function getAnimatedTransform(partName) {
+    const frame = WALK_KEYFRAMES[state.animFrame];
+    const nextFrame = WALK_KEYFRAMES[(state.animFrame + 1) % WALK_KEYFRAMES.length];
+    const t = (state.animTime % 1); // fractional frame for interpolation
+    const kf = frame[partName];
+    const nkf = nextFrame[partName];
+    if (!kf) return { rot: 0, y: 0 };
+
+    const rot = (kf.rot || 0) + ((nkf ? (nkf.rot || 0) : 0) - (kf.rot || 0)) * t;
+    const y = (kf.y || 0) + ((nkf ? (nkf.y || 0) : 0) - (kf.y || 0)) * t;
+    return { rot, y };
+}
+
+// ─── Canvas Mouse Interaction ───
+const SCALE = 4;
+const CHAR_CENTER_X = 256; // canvas center
+const CHAR_CENTER_Y = 256;
+
+function canvasToChar(cx, cy) {
+    return { x: (cx - CHAR_CENTER_X) / SCALE + 16, y: (CHAR_CENTER_Y - cy) / SCALE + 16 };
+}
+function charToCanvas(px, py) {
+    return { x: CHAR_CENTER_X + (px - 16) * SCALE, y: CHAR_CENTER_Y - (py - 16) * SCALE };
+}
+
+function getPartWorldPos(partName) {
+    const pd = state.parts[partName];
+    if (!pd) return { x: CHAR_CENTER_X, y: CHAR_CENTER_Y };
+
+    // Walk up hierarchy to compute world position
+    let x = 0, y = 0;
+    let current = partName;
+    const visited = new Set();
+
+    while (current) {
+        if (visited.has(current)) break;
+        visited.add(current);
+        const cpd = state.parts[current];
+        if (!cpd) break;
+
+        const anim = state.playing ? getAnimatedTransform(current) : { rot: 0, y: 0 };
+        if (current === partName) {
+            // This part's anchor defines its origin
+        } else {
+            // Add parent attach offset
+            const attach = PARENT_ATTACH[current] || { x: 0, y: 0 };
+            // Not needed at leaf
+        }
+        y += anim.y || 0;
+
+        current = BONE_HIERARCHY[current];
+    }
+
+    // Simple positioning: anchor relative to character center
+    const ax = pd.anchor.x;
+    const ay = pd.anchor.y;
+    const torsoAnim = state.playing ? getAnimatedTransform('torso') : { rot: 0, y: 0 };
+
+    const sx = CHAR_CENTER_X + (ax - 16) * SCALE;
+    const sy = CHAR_CENTER_Y - (ay - 16) * SCALE - (torsoAnim.y || 0) * SCALE;
+
+    return { x: sx, y: sy };
+}
+
+function onCanvasMouseDown(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+    // Check if clicking near any anchor point
+    const order = state.drawOrder[state.direction] || [];
+    for (let i = order.length - 1; i >= 0; i--) {
+        const partName = order[i];
+        const pd = state.parts[partName];
+        if (!pd || !pd.visible || !state.images[partName]) continue;
+
+        const pos = getPartWorldPos(partName);
+        const dist = Math.sqrt((mx - pos.x) ** 2 + (my - pos.y) ** 2);
+        if (dist < 12) {
+            state.selectedPart = partName;
+            state.dragging = {
+                part: partName,
+                startMX: mx, startMY: my,
+                startAX: pd.anchor.x, startAY: pd.anchor.y
+            };
+            rebuildPartsList();
+            updatePropsPanel();
+            render();
+            return;
+        }
+    }
+
+    // Check if clicking on any part sprite
+    for (let i = order.length - 1; i >= 0; i--) {
+        const partName = order[i];
+        const pd = state.parts[partName];
+        if (!pd || !pd.visible || !state.images[partName]) continue;
+        const img = state.images[partName];
+
+        const pos = getPartWorldPos(partName);
+        const hw = (img.width / 2) * SCALE;
+        const hh = (img.height / 2) * SCALE;
+        if (mx >= pos.x - hw && mx <= pos.x + hw && my >= pos.y - hh && my <= pos.y + hh) {
+            state.selectedPart = partName;
+            rebuildPartsList();
+            updatePropsPanel();
+            render();
+            return;
+        }
+    }
+}
+
+function onCanvasMouseMove(e) {
+    if (!state.dragging) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+    const d = state.dragging;
+    const dx = (mx - d.startMX) / SCALE;
+    const dy = -(my - d.startMY) / SCALE;
+    const pd = state.parts[d.part];
+    pd.anchor.x = Math.round(d.startAX + dx);
+    pd.anchor.y = Math.round(d.startAY + dy);
+
+    updatePropsPanel();
+    render();
+}
+
+function onCanvasMouseUp() {
+    state.dragging = null;
+}
+
+// ─── Canvas Rendering ───
+function render() {
+    ctx.clearRect(0, 0, 512, 512);
+
+    // Checkerboard background
+    const checkSize = 16;
+    for (let y = 0; y < 512; y += checkSize) {
+        for (let x = 0; x < 512; x += checkSize) {
+            ctx.fillStyle = ((x + y) / checkSize) % 2 === 0 ? '#2a2a3e' : '#222238';
+            ctx.fillRect(x, y, checkSize, checkSize);
+        }
+    }
+
+    if (Object.keys(state.parts).length === 0) return;
+
+    const order = state.drawOrder[state.direction] || [];
+    const showBones = $('chk-bones').checked;
+    const showAnchors = $('chk-anchors').checked;
+    const torsoAnim = state.playing ? getAnimatedTransform('torso') : { rot: 0, y: 0 };
+
+    // Draw parts
+    for (const partName of order) {
+        const pd = state.parts[partName];
+        if (!pd || !pd.visible || !state.images[partName]) continue;
+        const img = state.images[partName];
+
+        const ax = pd.anchor.x;
+        const ay = pd.anchor.y;
+        const sx = CHAR_CENTER_X + (ax - 16) * SCALE;
+        const sy = CHAR_CENTER_Y - (ay - 16) * SCALE - (torsoAnim.y || 0) * SCALE;
+
+        const anim = state.playing ? getAnimatedTransform(partName) : { rot: 0, y: 0 };
+        const totalRot = (pd.rotation + (anim.rot || 0)) * Math.PI / 180;
+
+        ctx.save();
+        ctx.translate(sx, sy + (anim.y || 0) * SCALE);
+        ctx.rotate(totalRot);
+
+        // Draw sprite centered
+        const w = img.width * SCALE;
+        const h = img.height * SCALE;
+        ctx.drawImage(img, -w / 2, -h / 2, w, h);
+
+        // Highlight selected part
+        if (partName === state.selectedPart) {
+            ctx.strokeStyle = PART_COLORS[partName] || '#fff';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.strokeRect(-w / 2 - 2, -h / 2 - 2, w + 4, h + 4);
+            ctx.setLineDash([]);
+        }
+
+        ctx.restore();
+    }
+
+    // Draw bones
+    if (showBones) {
+        for (const partName of order) {
+            const pd = state.parts[partName];
+            if (!pd || !pd.visible) continue;
+            const parent = BONE_HIERARCHY[partName];
+            if (!parent || !state.parts[parent]) continue;
+
+            const childPos = getPartWorldPos(partName);
+            const parentPos = getPartWorldPos(parent);
+
+            ctx.beginPath();
+            ctx.moveTo(parentPos.x, parentPos.y);
+            ctx.lineTo(childPos.x, childPos.y);
+            ctx.strokeStyle = PART_COLORS[partName] || '#fff';
+            ctx.lineWidth = 1.5;
+            ctx.globalAlpha = 0.6;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    // Draw anchor points
+    if (showAnchors) {
+        for (const partName of order) {
+            const pd = state.parts[partName];
+            if (!pd || !pd.visible) continue;
+
+            const pos = getPartWorldPos(partName);
+            const color = PART_COLORS[partName] || '#fff';
+            const isSelected = partName === state.selectedPart;
+            const radius = isSelected ? 6 : 4;
+
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            if (isSelected) {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, radius + 3, 0, Math.PI * 2);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+    }
+}
+
+// ─── Kick off ───
+init();
+</script>
+</body>
+</html>
