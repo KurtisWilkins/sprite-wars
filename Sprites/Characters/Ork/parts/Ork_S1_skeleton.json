@@ -33,7 +33,7 @@
         57
       ],
       "source_center": [
-        27.0,
+        27,
         42.5
       ],
       "anchor": {
@@ -53,7 +53,7 @@
       ],
       "source_center": [
         51.5,
-        15.0
+        15
       ],
       "anchor": {
         "x": 5,
@@ -90,7 +90,7 @@
         58
       ],
       "source_center": [
-        23.0,
+        23,
         56.5
       ],
       "anchor": {
@@ -110,7 +110,7 @@
       ],
       "source_center": [
         10.5,
-        55.0
+        55
       ],
       "anchor": {
         "x": 4,
@@ -128,7 +128,7 @@
         43
       ],
       "source_center": [
-        51.0,
+        51,
         42.5
       ],
       "anchor": {
@@ -140,52 +140,52 @@
   "bones": {
     "head": {
       "parent": "torso",
-      "offset_x": 0.445,
-      "offset_y": 0.242,
+      "offset_x": 0.023,
+      "offset_y": -0.422,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "torso": {
       "parent": null,
       "offset_x": 0.422,
       "offset_y": 0.664,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_hand": {
       "parent": "right_arm",
-      "offset_x": 0.805,
-      "offset_y": 0.234,
+      "offset_x": 0.016,
+      "offset_y": -0.274,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_arm": {
       "parent": "torso",
-      "offset_x": 0.789,
-      "offset_y": 0.508,
+      "offset_x": 0.367,
+      "offset_y": -0.156,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_arm": {
       "parent": "torso",
-      "offset_x": 0.359,
-      "offset_y": 0.883,
+      "offset_x": -0.063,
+      "offset_y": 0.219,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_foot": {
-      "parent": "left_leg",
-      "offset_x": 0.164,
-      "offset_y": 0.859,
+      "parent": "torso",
+      "offset_x": -0.258,
+      "offset_y": 0.195,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_leg": {
       "parent": "torso",
-      "offset_x": 0.797,
-      "offset_y": 0.664,
+      "offset_x": 0.375,
+      "offset_y": 0,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     }
   },
   "draw_order": [

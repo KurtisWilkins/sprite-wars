@@ -413,7 +413,7 @@ function _computeBoneTransforms(skeleton, frameIndex) {
 function _mapToLogicalSpace(boneTransforms, skeleton) {
     const sourceSize = skeleton.source_size || 96;
     // Scale factor from source space to logical frame space
-    const scaleFactor = (LOGICAL_FRAME * 0.85) / sourceSize;
+    const scaleFactor = (LOGICAL_FRAME * 0.92) / sourceSize;
     // Center offset to place skeleton in frame center-bottom
     const offsetX = LOGICAL_FRAME / 2 - (sourceSize * scaleFactor) / 2;
     const offsetY = LOGICAL_FRAME - 3 - (sourceSize * scaleFactor);
@@ -582,7 +582,7 @@ function _buildAnchorsFromBones(logicalTransforms, skeleton, direction, frameInd
 
     // Derive sizes from skeleton part definitions, scaled to logical space
     const sourceSize = skeleton.source_size || 96;
-    const scaleFactor = (LOGICAL_FRAME * 0.85) / sourceSize;
+    const scaleFactor = (LOGICAL_FRAME * 0.92) / sourceSize;
 
     const headPart = parts.head || { width: 35, height: 42 };
     const torsoPart = parts.torso || { width: 20, height: 21 };
@@ -959,15 +959,15 @@ function _buildFallbackSkeleton(raceName, stage) {
         },
         bones: {
             torso:      { parent: null,       offset_x: 0.50, offset_y: 0.45, rotation: 0, scale: 1.0 },
-            head:       { parent: 'torso',    offset_x: 0.00, offset_y: -0.30, rotation: 0, scale: 1.0 },
-            left_arm:   { parent: 'torso',    offset_x: -0.15, offset_y: -0.08, rotation: 0, scale: 1.0 },
-            right_arm:  { parent: 'torso',    offset_x: 0.15,  offset_y: -0.08, rotation: 0, scale: 1.0 },
-            left_leg:   { parent: 'torso',    offset_x: -0.06, offset_y: 0.18,  rotation: 0, scale: 1.0 },
-            right_leg:  { parent: 'torso',    offset_x: 0.06,  offset_y: 0.18,  rotation: 0, scale: 1.0 },
-            left_hand:  { parent: 'left_arm', offset_x: 0.00,  offset_y: 0.18,  rotation: 0, scale: 1.0 },
-            right_hand: { parent: 'right_arm',offset_x: 0.00,  offset_y: 0.18,  rotation: 0, scale: 1.0 },
-            left_foot:  { parent: 'left_leg', offset_x: 0.00,  offset_y: 0.18,  rotation: 0, scale: 1.0 },
-            right_foot: { parent: 'right_leg',offset_x: 0.00,  offset_y: 0.18,  rotation: 0, scale: 1.0 },
+            head:       { parent: 'torso',    offset_x: 0.00, offset_y: -0.28, rotation: 0, scale: 1.0 },
+            left_arm:   { parent: 'torso',    offset_x: -0.11, offset_y: -0.06, rotation: 0, scale: 1.0 },
+            right_arm:  { parent: 'torso',    offset_x: 0.11,  offset_y: -0.06, rotation: 0, scale: 1.0 },
+            left_leg:   { parent: 'torso',    offset_x: -0.05, offset_y: 0.17,  rotation: 0, scale: 1.0 },
+            right_leg:  { parent: 'torso',    offset_x: 0.05,  offset_y: 0.17,  rotation: 0, scale: 1.0 },
+            left_hand:  { parent: 'left_arm', offset_x: 0.00,  offset_y: 0.14,  rotation: 0, scale: 1.0 },
+            right_hand: { parent: 'right_arm',offset_x: 0.00,  offset_y: 0.14,  rotation: 0, scale: 1.0 },
+            left_foot:  { parent: 'left_leg', offset_x: 0.00,  offset_y: 0.14,  rotation: 0, scale: 1.0 },
+            right_foot: { parent: 'right_leg',offset_x: 0.00,  offset_y: 0.14,  rotation: 0, scale: 1.0 },
         },
         draw_order: [
             'left_leg', 'right_leg', 'left_foot', 'right_foot',

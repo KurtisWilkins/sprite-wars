@@ -34,7 +34,7 @@
       ],
       "source_center": [
         28.5,
-        22.0
+        22
       ],
       "anchor": {
         "x": 18,
@@ -91,7 +91,7 @@
       ],
       "source_center": [
         51.5,
-        15.0
+        15
       ],
       "anchor": {
         "x": 5,
@@ -110,7 +110,7 @@
       ],
       "source_center": [
         33.5,
-        43.0
+        43
       ],
       "anchor": {
         "x": 6,
@@ -147,7 +147,7 @@
         60
       ],
       "source_center": [
-        24.0,
+        24,
         57.5
       ],
       "anchor": {
@@ -167,7 +167,7 @@
       ],
       "source_center": [
         10.5,
-        55.0
+        55
       ],
       "anchor": {
         "x": 4,
@@ -206,7 +206,7 @@
       ],
       "source_center": [
         31.5,
-        58.0
+        58
       ],
       "anchor": {
         "x": 4,
@@ -225,7 +225,7 @@
         43
       ],
       "source_center": [
-        51.0,
+        51,
         42.5
       ],
       "anchor": {
@@ -246,7 +246,7 @@
       ],
       "source_center": [
         30.5,
-        46.0
+        46
       ],
       "anchor": {
         "x": 4,
@@ -265,8 +265,8 @@
         30
       ],
       "source_center": [
-        30.0,
-        30.0
+        30,
+        30
       ],
       "anchor": {
         "x": 3,
@@ -285,8 +285,8 @@
         33
       ],
       "source_center": [
-        30.0,
-        33.0
+        30,
+        33
       ],
       "anchor": {
         "x": 3,
@@ -305,8 +305,8 @@
         38
       ],
       "source_center": [
-        31.0,
-        38.0
+        31,
+        38
       ],
       "anchor": {
         "x": 3,
@@ -325,8 +325,8 @@
         49
       ],
       "source_center": [
-        30.0,
-        49.0
+        30,
+        49
       ],
       "anchor": {
         "x": 3,
@@ -345,8 +345,8 @@
         51
       ],
       "source_center": [
-        29.0,
-        51.0
+        29,
+        51
       ],
       "anchor": {
         "x": 3,
@@ -366,7 +366,7 @@
       ],
       "source_center": [
         28.5,
-        35.0
+        35
       ],
       "anchor": {
         "x": 3,
@@ -386,7 +386,7 @@
       ],
       "source_center": [
         32.5,
-        36.0
+        36
       ],
       "anchor": {
         "x": 3,
@@ -405,8 +405,8 @@
         43
       ],
       "source_center": [
-        31.0,
-        43.0
+        31,
+        43
       ],
       "anchor": {
         "x": 2,
@@ -425,8 +425,8 @@
         44
       ],
       "source_center": [
-        30.0,
-        44.0
+        30,
+        44
       ],
       "anchor": {
         "x": 2,
@@ -445,8 +445,8 @@
         52
       ],
       "source_center": [
-        33.0,
-        52.0
+        33,
+        52
       ],
       "anchor": {
         "x": 2,
@@ -458,66 +458,66 @@
   "bones": {
     "head": {
       "parent": "torso",
-      "offset_x": 0.367,
-      "offset_y": 0.117,
+      "offset_x": -0.078,
+      "offset_y": -0.227,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "torso": {
       "parent": null,
       "offset_x": 0.445,
       "offset_y": 0.344,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_arm": {
       "parent": "torso",
-      "offset_x": 0.258,
-      "offset_y": 0.617,
+      "offset_x": -0.187,
+      "offset_y": 0.273,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_foot": {
       "parent": "right_leg",
-      "offset_x": 0.57,
-      "offset_y": 0.883,
+      "offset_x": 0.047,
+      "offset_y": 0.211,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_hand": {
       "parent": "right_arm",
-      "offset_x": 0.805,
-      "offset_y": 0.234,
+      "offset_x": 0.016,
+      "offset_y": -0.274,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_leg": {
       "parent": "torso",
-      "offset_x": 0.523,
-      "offset_y": 0.672,
+      "offset_x": 0.078,
+      "offset_y": 0.328,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_arm": {
       "parent": "torso",
-      "offset_x": 0.789,
-      "offset_y": 0.508,
+      "offset_x": 0.344,
+      "offset_y": 0.164,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_foot": {
       "parent": "left_leg",
-      "offset_x": 0.375,
-      "offset_y": 0.898,
+      "offset_x": 0.211,
+      "offset_y": 0.039,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_leg": {
       "parent": "torso",
-      "offset_x": 0.164,
-      "offset_y": 0.859,
+      "offset_x": -0.281,
+      "offset_y": 0.515,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     }
   },
   "draw_order": [

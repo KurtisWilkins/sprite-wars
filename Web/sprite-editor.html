@@ -689,14 +689,38 @@ function buildSkeletonJson() {
     }
 
     // Build bones section with parent, offset, rotation, scale
+    const source_size = (state.skeletonData && state.skeletonData.source_size) || 1;
     const bones = {};
     for (const [name, pd] of Object.entries(state.parts)) {
         const origBones = (state.skeletonData && state.skeletonData.bones) || {};
         const origBone = origBones[name] || {};
+        const parentName = BONE_HIERARCHY[name] || null;
+
+        let offset_x, offset_y;
+        const orig = origParts[name] || {};
+        if (orig.source_center !== undefined && parentName === null) {
+            // Root bone: keep absolute offset
+            offset_x = Math.round((orig.source_center.x / source_size) * 1000) / 1000;
+            offset_y = Math.round((orig.source_center.y / source_size) * 1000) / 1000;
+        } else if (orig.source_center !== undefined && parentName !== null) {
+            // Child bone: offset relative to immediate parent
+            const parentOrig = origParts[parentName] || {};
+            if (parentOrig.source_center !== undefined) {
+                offset_x = Math.round(((orig.source_center.x / source_size) - (parentOrig.source_center.x / source_size)) * 1000) / 1000;
+                offset_y = Math.round(((orig.source_center.y / source_size) - (parentOrig.source_center.y / source_size)) * 1000) / 1000;
+            } else {
+                offset_x = origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].x : 0);
+                offset_y = origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].y : 0);
+            }
+        } else {
+            offset_x = origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].x : 0);
+            offset_y = origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].y : 0);
+        }
+
         bones[name] = {
-            parent: BONE_HIERARCHY[name] || null,
-            offset_x: origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].x : 0),
-            offset_y: origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].y : 0),
+            parent: parentName,
+            offset_x: offset_x,
+            offset_y: offset_y,
             rotation: pd.rotation,
             scale: origBone.scale !== undefined ? origBone.scale : 1.0,
         };

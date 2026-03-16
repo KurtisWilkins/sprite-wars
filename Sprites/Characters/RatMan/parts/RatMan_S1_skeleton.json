@@ -14,7 +14,7 @@
         10
       ],
       "source_center": [
-        23.0,
+        23,
         7.5
       ],
       "anchor": {
@@ -34,7 +34,7 @@
       ],
       "source_center": [
         30.5,
-        22.0
+        22
       ],
       "anchor": {
         "x": 20,
@@ -91,7 +91,7 @@
       ],
       "source_center": [
         51.5,
-        15.0
+        15
       ],
       "anchor": {
         "x": 5,
@@ -110,7 +110,7 @@
       ],
       "source_center": [
         43.5,
-        54.0
+        54
       ],
       "anchor": {
         "x": 9,
@@ -128,8 +128,8 @@
         57
       ],
       "source_center": [
-        36.0,
-        55.0
+        36,
+        55
       ],
       "anchor": {
         "x": 4,
@@ -147,7 +147,7 @@
         58
       ],
       "source_center": [
-        23.0,
+        23,
         56.5
       ],
       "anchor": {
@@ -166,7 +166,7 @@
         28
       ],
       "source_center": [
-        9.0,
+        9,
         26.5
       ],
       "anchor": {
@@ -185,8 +185,8 @@
         35
       ],
       "source_center": [
-        9.0,
-        34.0
+        9,
+        34
       ],
       "anchor": {
         "x": 7,
@@ -204,8 +204,8 @@
         45
       ],
       "source_center": [
-        35.0,
-        43.0
+        35,
+        43
       ],
       "anchor": {
         "x": 4,
@@ -224,7 +224,7 @@
         28
       ],
       "source_center": [
-        54.0,
+        54,
         26.5
       ],
       "anchor": {
@@ -244,8 +244,8 @@
         30
       ],
       "source_center": [
-        9.0,
-        30.0
+        9,
+        30
       ],
       "anchor": {
         "x": 7,
@@ -265,7 +265,7 @@
       ],
       "source_center": [
         10.5,
-        55.0
+        55
       ],
       "anchor": {
         "x": 4,
@@ -284,7 +284,7 @@
         43
       ],
       "source_center": [
-        51.0,
+        51,
         42.5
       ],
       "anchor": {
@@ -297,73 +297,73 @@
   "bones": {
     "head": {
       "parent": "torso",
-      "offset_x": 0.359,
-      "offset_y": 0.117,
+      "offset_x": -0.118,
+      "offset_y": -0.227,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "torso": {
       "parent": null,
       "offset_x": 0.477,
       "offset_y": 0.344,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_arm": {
       "parent": "torso",
-      "offset_x": 0.836,
-      "offset_y": 0.508,
+      "offset_x": 0.359,
+      "offset_y": 0.164,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_arm": {
       "parent": "torso",
-      "offset_x": 0.258,
-      "offset_y": 0.617,
+      "offset_x": -0.219,
+      "offset_y": 0.273,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_hand": {
       "parent": "right_arm",
-      "offset_x": 0.805,
-      "offset_y": 0.234,
+      "offset_x": -0.031,
+      "offset_y": -0.274,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_foot": {
       "parent": "right_leg",
-      "offset_x": 0.68,
-      "offset_y": 0.844,
+      "offset_x": 0.118,
+      "offset_y": -0.015,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "right_leg": {
       "parent": "torso",
-      "offset_x": 0.562,
-      "offset_y": 0.859,
+      "offset_x": 0.085,
+      "offset_y": 0.515,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_foot": {
       "parent": "left_leg",
-      "offset_x": 0.359,
-      "offset_y": 0.883,
+      "offset_x": 0.218,
+      "offset_y": 0.352,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_hand": {
       "parent": "left_arm",
-      "offset_x": 0.141,
-      "offset_y": 0.414,
+      "offset_x": -0.117,
+      "offset_y": -0.203,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     },
     "left_leg": {
       "parent": "torso",
-      "offset_x": 0.141,
-      "offset_y": 0.531,
+      "offset_x": -0.336,
+      "offset_y": 0.187,
       "rotation": 0,
-      "scale": 1.0
+      "scale": 1
     }
   },
   "draw_order": [
