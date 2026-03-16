@@ -552,7 +552,7 @@ async function loadSkeleton() {
                 addLogEntry('error', 'Skeleton JSON parse error: ' + parseErr.message + ' | Raw: ' + text.substring(0, 100));
             }
         }
-    } catch (e) { /* no skeleton file yet */ }
+    } catch (e) { addLogEntry('warn', 'Skeleton load: ' + e.message); }
 
     // Init draw order
     state.drawOrder = {};
@@ -605,7 +605,8 @@ async function loadSkeleton() {
     try {
         const cfgResp = await fetch('/api/editor-config/load?race=' + encodeURIComponent(race) + '&stage=' + stage);
         if (cfgResp.ok) {
-            const cfgData = await cfgResp.json();
+            const cfgText = await cfgResp.text();
+            const cfgData = JSON.parse(cfgText);
             if (cfgData && cfgData.config) {
                 const cfg = cfgData.config;
                 if (cfg.part_mapping) state.partMapping = cfg.part_mapping;
@@ -618,7 +619,7 @@ async function loadSkeleton() {
                 }
             }
         }
-    } catch (e) { /* no config */ }
+    } catch (e) { addLogEntry('warn', 'Config load: ' + e.message); }
 
     rebuildPartsList();
     updateMappingPanel();
