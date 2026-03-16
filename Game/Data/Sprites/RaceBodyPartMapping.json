@@ -1,0 +1,434 @@
+{
+  "version": "1.0",
+  "description": "Maps each of the 24 Sprite races to their body part assets for skeletal assembly",
+  "source_base": "Sprites/Characters and Equipment/BodyParts",
+  "output_base": "Sprites/Characters",
+  "canvas_sizes": {
+    "source_body": [512, 512],
+    "source_features": [256, 256],
+    "stage_1": [64, 64],
+    "stage_2": [96, 96],
+    "stage_3": [128, 128]
+  },
+  "layer_order": [
+    "shadow",
+    "arm_back",
+    "legs",
+    "body",
+    "ears",
+    "head",
+    "mouth",
+    "eyes",
+    "eyebrows",
+    "hair",
+    "beard",
+    "arm_front",
+    "weapon"
+  ],
+  "body_type_categories": {
+    "basic": {
+      "description": "Standard humanoid body type",
+      "body": "Body/Basic/Human.png",
+      "head": "Head/Basic/Head.png",
+      "ears": "Ears/Basic/HumanEars.png"
+    },
+    "elf": {
+      "description": "Humanoid with pointed ears",
+      "body": "Body/Basic/Human.png",
+      "head": "Head/Basic/Head.png",
+      "ears": "Ears/Basic/ElfEars.png"
+    },
+    "demon": {
+      "description": "Demonic body with markings",
+      "body": "Body/Demon/Demon1.png",
+      "head": "Head/Demon/DemonHead1.png",
+      "ears": "Ears/Demon/DemonEar1.png"
+    },
+    "demon_alt": {
+      "description": "Alternate demon variant",
+      "body": "Body/Demon/Demon2.png",
+      "head": "Head/Demon/DemonHead2.png",
+      "ears": "Ears/Demon/DemonEar2.png"
+    },
+    "furry_1": {
+      "description": "Beast/animal type 1 (cat-like)",
+      "body": "Body/Furry/FurryBody1.png",
+      "head": "Head/Furry/WolfyHead1.png",
+      "ears": "Ears/Furry/WolfyEars1.png"
+    },
+    "furry_2": {
+      "description": "Beast/animal type 2 (wolf-like)",
+      "body": "Body/Furry/FurryBody2.png",
+      "head": "Head/Furry/WolfyHead2.png",
+      "ears": "Ears/Furry/WolfyEars2.png"
+    },
+    "furry_3": {
+      "description": "Beast/animal type 3 (bear-like, bulky)",
+      "body": "Body/Furry/FurryBody3.png",
+      "head": "Head/Furry/WolfyHead3.png",
+      "ears": "Ears/Furry/WolfyEars3.png"
+    },
+    "furry_4": {
+      "description": "Beast/animal type 4 (monkey-like)",
+      "body": "Body/Furry/FurryBody4.png",
+      "head": "Head/Furry/WolfyHead4.png",
+      "ears": "Ears/Furry/WolfyEars4.png"
+    },
+    "mummy": {
+      "description": "Wrapped undead body",
+      "body": "Body/Mummies/MummyBody1.png",
+      "head": "Head/Mummies/MummyHead1.png",
+      "ears": "Ears/Mummies/MummyEar1.png"
+    },
+    "skeleton": {
+      "description": "Bone structure body",
+      "body": "Body/Skeletons/Skeleton1.png",
+      "head": "Head/Skeletons/Skeleton1.png",
+      "ears": null
+    },
+    "zombie": {
+      "description": "Rotted undead body",
+      "body": "Body/Zombies/ZombieBody1.png",
+      "head": "Head/Zombies/ZombieHead1.png",
+      "ears": "Ears/Zombies/ZombieEar1.png"
+    }
+  },
+  "races": {
+    "1": {
+      "name": "BugMan",
+      "race_id": 1,
+      "body_type": "furry_1",
+      "needs_custom_body": true,
+      "custom_body_tag": "insectoid",
+      "arm_pivot": "slim",
+      "default_eyes": "Eyes/Furry/FurryEyes1.png",
+      "default_mouth": "Mouth/Furry/Normal.png",
+      "default_hair": null,
+      "distinguishing_features": ["antennae", "compound_eyes", "exoskeleton", "wing_stubs"],
+      "silhouette_notes": "Antennae extend upward from head, small wing stubs on back"
+    },
+    "2": {
+      "name": "BearMan",
+      "race_id": 2,
+      "body_type": "furry_3",
+      "needs_custom_body": false,
+      "arm_pivot": "bulky",
+      "default_eyes": "Eyes/Furry/FurryEyes3.png",
+      "default_mouth": "Mouth/Furry/Normal.png",
+      "default_hair": null,
+      "distinguishing_features": ["round_ears", "bulky_build", "fur_tufts"],
+      "silhouette_notes": "Stocky build, round bear ears, broad shoulders"
+    },
+    "3": {
+      "name": "BirdMan",
+      "race_id": 3,
+      "body_type": "furry_1",
+      "needs_custom_body": true,
+      "custom_body_tag": "avian",
+      "arm_pivot": "slim",
+      "default_eyes": "Eyes/Furry/FurryEyes1.png",
+      "default_mouth": null,
+      "default_hair": null,
+      "distinguishing_features": ["beak", "feather_crest", "wing_arms", "tail_feathers"],
+      "silhouette_notes": "Beak instead of mouth, feather crest on head, wing-arm silhouette"
+    },
+    "4": {
+      "name": "Demon",
+      "race_id": 4,
+      "body_type": "demon",
+      "needs_custom_body": false,
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Demon/DemonEyes1.png",
+      "default_mouth": "Mouth/Demon/DemonMouth1.png",
+      "default_hair": "Hair/Basic/Mohawk.png",
+      "distinguishing_features": ["horns", "dark_markings", "pointed_tail"],
+      "silhouette_notes": "Prominent horns, pointed tail visible at side"
+    },
+    "5": {
+      "name": "Devil",
+      "race_id": 5,
+      "body_type": "demon_alt",
+      "needs_custom_body": false,
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Demon/DemonEyes2.png",
+      "default_mouth": "Mouth/Demon/DemonMouth2.png",
+      "default_hair": "Hair/Basic/Slicked.png",
+      "distinguishing_features": ["smaller_horns", "trident_tail", "suave_appearance"],
+      "silhouette_notes": "Smaller curved horns, forked tail tip"
+    },
+    "6": {
+      "name": "CatMan",
+      "race_id": 6,
+      "body_type": "furry_1",
+      "needs_custom_body": false,
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Furry/FurryEyes1.png",
+      "default_mouth": "Mouth/Furry/Smirk.png",
+      "default_hair": null,
+      "distinguishing_features": ["pointed_cat_ears", "slit_eyes", "long_tail", "whiskers"],
+      "silhouette_notes": "Tall pointed ears, visible tail curving upward"
+    },
+    "7": {
+      "name": "Elf",
+      "race_id": 7,
+      "body_type": "elf",
+      "needs_custom_body": false,
+      "arm_pivot": "slim",
+      "default_eyes": "Eyes/Basic/Female.png",
+      "default_mouth": "Mouth/Basic/Smirk.png",
+      "default_hair": "Hair/Bonus/ElfaHair.png",
+      "distinguishing_features": ["pointed_ears", "slender_build", "ethereal_glow"],
+      "silhouette_notes": "Long pointed ears extending sideways, slender frame"
+    },
+    "8": {
+      "name": "Ent",
+      "race_id": 8,
+      "body_type": "basic",
+      "needs_custom_body": true,
+      "custom_body_tag": "plant",
+      "arm_pivot": "bulky",
+      "default_eyes": "Eyes/Basic/Male.png",
+      "default_mouth": "Mouth/Basic/Normal.png",
+      "default_hair": null,
+      "distinguishing_features": ["bark_texture", "leaf_crown", "branch_arms", "root_feet"],
+      "silhouette_notes": "Leafy crown sprouting from head, gnarled branch arms"
+    },
+    "9": {
+      "name": "FishMan",
+      "race_id": 9,
+      "body_type": "furry_1",
+      "needs_custom_body": true,
+      "custom_body_tag": "aquatic",
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Furry/FurryEyes2.png",
+      "default_mouth": "Mouth/Furry/Normal.png",
+      "default_hair": null,
+      "distinguishing_features": ["fin_crest", "gills", "scales", "webbed_hands"],
+      "silhouette_notes": "Dorsal fin on head, fin ears, webbed hands"
+    },
+    "10": {
+      "name": "Ghost",
+      "race_id": 10,
+      "body_type": "basic",
+      "needs_custom_body": true,
+      "custom_body_tag": "ethereal",
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Undead/GlowingEyes.png",
+      "default_mouth": "Mouth/Basic/Normal.png",
+      "default_hair": null,
+      "distinguishing_features": ["translucent_body", "wispy_trail", "floating", "no_legs"],
+      "silhouette_notes": "Body fades to wispy trail at bottom, no visible legs"
+    },
+    "11": {
+      "name": "Golem",
+      "race_id": 11,
+      "body_type": "basic",
+      "needs_custom_body": true,
+      "custom_body_tag": "stone",
+      "arm_pivot": "bulky",
+      "default_eyes": "Eyes/Basic/Male.png",
+      "default_mouth": "Mouth/Basic/Normal.png",
+      "default_hair": null,
+      "distinguishing_features": ["stone_plates", "crack_lines", "glowing_runes", "chunky_build"],
+      "silhouette_notes": "Blocky chunky build, angular shoulders, no neck"
+    },
+    "12": {
+      "name": "Human",
+      "race_id": 12,
+      "body_type": "basic",
+      "needs_custom_body": false,
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Basic/Male.png",
+      "default_mouth": "Mouth/Basic/Normal.png",
+      "default_hair": "Hair/Basic/ShortHair.png",
+      "distinguishing_features": ["balanced_proportions", "versatile"],
+      "silhouette_notes": "Standard chibi humanoid silhouette"
+    },
+    "13": {
+      "name": "LizardMan",
+      "race_id": 13,
+      "body_type": "furry_2",
+      "needs_custom_body": true,
+      "custom_body_tag": "reptilian",
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Furry/FurryEyes2.png",
+      "default_mouth": "Mouth/Furry/Smirk.png",
+      "default_hair": null,
+      "distinguishing_features": ["scales", "tail", "slit_pupils", "spine_ridge"],
+      "silhouette_notes": "Spine ridge along head/back, thick tail, snout"
+    },
+    "14": {
+      "name": "Minotaur",
+      "race_id": 14,
+      "body_type": "furry_3",
+      "needs_custom_body": true,
+      "custom_body_tag": "bovine",
+      "arm_pivot": "bulky",
+      "default_eyes": "Eyes/Furry/FurryEyes3.png",
+      "default_mouth": "Mouth/Furry/Normal.png",
+      "default_hair": null,
+      "distinguishing_features": ["large_horns", "snout", "hooves", "massive_build"],
+      "silhouette_notes": "Wide curved horns, massive shoulders, hoof feet"
+    },
+    "15": {
+      "name": "MonkeyMan",
+      "race_id": 15,
+      "body_type": "furry_4",
+      "needs_custom_body": false,
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Furry/FurryEyes4.png",
+      "default_mouth": "Mouth/Furry/Smirk.png",
+      "default_hair": null,
+      "distinguishing_features": ["prehensile_tail", "long_arms", "expressive_face"],
+      "silhouette_notes": "Long curling tail, elongated arms, rounded ears"
+    },
+    "16": {
+      "name": "Mummy",
+      "race_id": 16,
+      "body_type": "mummy",
+      "needs_custom_body": false,
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Mummies/GlowingEyes.png",
+      "default_mouth": null,
+      "default_hair": null,
+      "distinguishing_features": ["bandage_wraps", "glowing_eyes", "ancient_markings"],
+      "silhouette_notes": "Bandage strips trailing from body, glowing eye sockets"
+    },
+    "17": {
+      "name": "Ork",
+      "race_id": 17,
+      "body_type": "basic",
+      "needs_custom_body": true,
+      "custom_body_tag": "ork",
+      "arm_pivot": "bulky",
+      "default_eyes": "Eyes/Basic/Male.png",
+      "default_mouth": "Mouth/Basic/Angry.png",
+      "default_hair": "Hair/Basic/Mohawk.png",
+      "distinguishing_features": ["tusks", "green_skin", "muscular", "underbite"],
+      "silhouette_notes": "Broad muscular build, tusks protruding from lower jaw"
+    },
+    "18": {
+      "name": "RatMan",
+      "race_id": 18,
+      "body_type": "furry_2",
+      "needs_custom_body": true,
+      "custom_body_tag": "rodent",
+      "arm_pivot": "slim",
+      "default_eyes": "Eyes/Furry/FurryEyes2.png",
+      "default_mouth": "Mouth/Furry/Smirk.png",
+      "default_hair": null,
+      "distinguishing_features": ["large_round_ears", "long_tail", "whiskers", "buck_teeth"],
+      "silhouette_notes": "Large round ears, thin whip-like tail, hunched posture"
+    },
+    "19": {
+      "name": "Robot",
+      "race_id": 19,
+      "body_type": "basic",
+      "needs_custom_body": true,
+      "custom_body_tag": "mechanical",
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Basic/Male.png",
+      "default_mouth": null,
+      "default_hair": null,
+      "distinguishing_features": ["metal_plates", "visor_eyes", "antenna", "joint_rivets"],
+      "silhouette_notes": "Angular body, antenna on head, visible joint segments"
+    },
+    "20": {
+      "name": "SharkMan",
+      "race_id": 20,
+      "body_type": "furry_2",
+      "needs_custom_body": true,
+      "custom_body_tag": "shark",
+      "arm_pivot": "bulky",
+      "default_eyes": "Eyes/Furry/FurryEyes2.png",
+      "default_mouth": "Mouth/Furry/Smirk.png",
+      "default_hair": null,
+      "distinguishing_features": ["dorsal_fin", "sharp_teeth", "gill_slits", "streamlined"],
+      "silhouette_notes": "Prominent dorsal fin on head/back, wide jaw with teeth"
+    },
+    "21": {
+      "name": "Skeleton",
+      "race_id": 21,
+      "body_type": "skeleton",
+      "needs_custom_body": false,
+      "arm_pivot": "slim",
+      "default_eyes": "Eyes/Skeletons/Skeleton1Eyes.png",
+      "default_mouth": null,
+      "default_hair": null,
+      "distinguishing_features": ["bone_structure", "hollow_eyes", "jaw"],
+      "silhouette_notes": "Visible ribcage, skull head, thin limbs"
+    },
+    "22": {
+      "name": "TurtleMan",
+      "race_id": 22,
+      "body_type": "furry_3",
+      "needs_custom_body": true,
+      "custom_body_tag": "turtle",
+      "arm_pivot": "bulky",
+      "default_eyes": "Eyes/Furry/FurryEyes3.png",
+      "default_mouth": "Mouth/Furry/Normal.png",
+      "default_hair": null,
+      "distinguishing_features": ["shell_back", "beak_mouth", "stubby_limbs", "dome_head"],
+      "silhouette_notes": "Large shell dome on back, rounded beak-like snout"
+    },
+    "23": {
+      "name": "WolfMan",
+      "race_id": 23,
+      "body_type": "furry_2",
+      "needs_custom_body": false,
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Furry/FurryEyes2.png",
+      "default_mouth": "Mouth/Furry/Normal.png",
+      "default_hair": null,
+      "distinguishing_features": ["pointed_ears", "snout", "bushy_tail", "fur_mane"],
+      "silhouette_notes": "Tall pointed ears, snout, bushy tail, lean athletic build"
+    },
+    "24": {
+      "name": "Zombie",
+      "race_id": 24,
+      "body_type": "zombie",
+      "needs_custom_body": false,
+      "arm_pivot": "default",
+      "default_eyes": "Eyes/Zombies/ZombieEyes1.png",
+      "default_mouth": "Mouth/Zombies/ZombieMouth1.png",
+      "default_hair": "Hair/Basic/ZombieShabby.png",
+      "distinguishing_features": ["rotted_skin", "exposed_bone", "shambling"],
+      "silhouette_notes": "Hunched posture, ragged outline, dangling arm"
+    }
+  },
+  "custom_body_tags_needed": [
+    "insectoid",
+    "avian",
+    "plant",
+    "aquatic",
+    "ethereal",
+    "stone",
+    "reptilian",
+    "bovine",
+    "ork",
+    "rodent",
+    "mechanical",
+    "shark",
+    "turtle"
+  ],
+  "evolution_stage_modifiers": {
+    "stage_1": {
+      "canvas": [64, 64],
+      "head_ratio": 1.5,
+      "detail_level": "minimal",
+      "eye_style": "dot_small"
+    },
+    "stage_2": {
+      "canvas": [96, 96],
+      "head_ratio": 2.0,
+      "detail_level": "moderate",
+      "eye_style": "dot_medium"
+    },
+    "stage_3": {
+      "canvas": [128, 128],
+      "head_ratio": 2.5,
+      "detail_level": "rich",
+      "eye_style": "dot_with_specular"
+    }
+  }
+}
