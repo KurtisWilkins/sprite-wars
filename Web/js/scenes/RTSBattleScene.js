@@ -136,7 +136,7 @@ export class RTSBattleScene extends Scene {
 
     async init() {
         // Preload humanoid sprite assets
-        await SkeletalAnimationSystem.preloadAssets(this.engine.assets).catch(() => {});
+        await SkeletalAnimationSystem.preloadAssets(this.engine.assets);
         this.initialized = true;
     }
 
@@ -210,7 +210,7 @@ export class RTSBattleScene extends Scene {
         this._selectedUnit = null;
         this._renderer.selectedUnit = null;
         this._renderer.clear();
-        SkeletalAnimationSystem.clearCache();
+        SkeletalAnimationSystem.onSceneChange();
     }
 
     // ═══════════════════════════════════════════════════════════════

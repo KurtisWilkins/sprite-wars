@@ -121,6 +121,7 @@ export class BagScene extends Scene {
     // ═════════════════════════════════════════════════════════════════════
 
     async init() {
+        await SkeletalAnimationSystem.preloadAssets(this.engine.assets);
         this.initialized = true;
     }
 

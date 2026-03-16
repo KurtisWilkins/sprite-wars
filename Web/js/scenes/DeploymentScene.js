@@ -101,7 +101,7 @@ export class DeploymentScene extends Scene {
     // ═══════════════════════════════════════════════════════════════════
 
     async init() {
-        await SkeletalAnimationSystem.preloadAssets(this.engine.assets).catch(() => {});
+        await SkeletalAnimationSystem.preloadAssets(this.engine.assets);
         this.initialized = true;
     }
 
