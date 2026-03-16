@@ -582,8 +582,8 @@ async function loadSkeleton() {
     // Initialize draw order
     state.drawOrder = {};
     for (const dir of ['down','up','left','right']) {
-        if (skelData && skelData.drawOrder && skelData.drawOrder[dir]) {
-            state.drawOrder[dir] = [...skelData.drawOrder[dir]];
+        if (skelData && skelData.draw_order && Array.isArray(skelData.draw_order)) {
+            state.drawOrder[dir] = [...skelData.draw_order];
         } else {
             state.drawOrder[dir] = [...DEFAULT_DRAW_ORDER[dir]];
         }
@@ -601,9 +601,11 @@ async function loadSkeleton() {
                 const anchor = (skelData && skelData.parts && skelData.parts[part])
                     ? { x: skelData.parts[part].anchor.x, y: skelData.parts[part].anchor.y }
                     : { ...DEFAULT_ANCHORS[part] };
-                const rotation = (skelData && skelData.parts && skelData.parts[part])
-                    ? (skelData.parts[part].rotation || 0)
-                    : 0;
+                const rotation = (skelData && skelData.bones && skelData.bones[part])
+                    ? (skelData.bones[part].rotation || 0)
+                    : (skelData && skelData.parts && skelData.parts[part])
+                        ? (skelData.parts[part].rotation || 0)
+                        : 0;
                 state.parts[part] = { anchor, rotation, visible: true };
                 resolve(true);
             };
@@ -670,23 +672,54 @@ function exportSkeleton() {
 }
 
 function buildSkeletonJson() {
+    const origParts = (state.skeletonData && state.skeletonData.parts) || {};
     const parts = {};
     for (const [name, pd] of Object.entries(state.parts)) {
-        parts[name] = {
+        const orig = origParts[name] || {};
+        const partEntry = {
             anchor: { x: pd.anchor.x, y: pd.anchor.y },
-            rotation: pd.rotation,
+        };
+        // Preserve existing fields from loaded skeleton data
+        if (orig.file !== undefined) partEntry.file = orig.file;
+        if (orig.width !== undefined) partEntry.width = orig.width;
+        if (orig.height !== undefined) partEntry.height = orig.height;
+        if (orig.source_bbox !== undefined) partEntry.source_bbox = orig.source_bbox;
+        if (orig.source_center !== undefined) partEntry.source_center = orig.source_center;
+        parts[name] = partEntry;
+    }
+
+    // Build bones section with parent, offset, rotation, scale
+    const bones = {};
+    for (const [name, pd] of Object.entries(state.parts)) {
+        const origBones = (state.skeletonData && state.skeletonData.bones) || {};
+        const origBone = origBones[name] || {};
+        bones[name] = {
             parent: BONE_HIERARCHY[name] || null,
-            parentAttach: PARENT_ATTACH[name] || { x: 0, y: 0 }
+            offset_x: origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].x : 0),
+            offset_y: origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].y : 0),
+            rotation: pd.rotation,
+            scale: origBone.scale !== undefined ? origBone.scale : 1.0,
         };
     }
-    return {
+
+    // Build flat draw_order array from current direction's order
+    const draw_order = state.drawOrder[state.direction] || state.drawOrder['down'] || [];
+
+    const result = {
         race: state.race,
         stage: state.stage,
-        parts,
-        drawOrder: state.drawOrder,
-        boneHierarchy: BONE_HIERARCHY,
-        walkKeyframes: WALK_KEYFRAMES
     };
+
+    // Preserve source_size from loaded data
+    if (state.skeletonData && state.skeletonData.source_size !== undefined) {
+        result.source_size = state.skeletonData.source_size;
+    }
+
+    result.parts = parts;
+    result.bones = bones;
+    result.draw_order = draw_order;
+
+    return result;
 }
 
 // ─── Parts List UI ───

@@ -19,17 +19,17 @@
 
 import { RACE_THEME_MAP, THEME_PATHS, EQUIPMENT_ROWS, STAGE_ARMOR_TIER } from '../../data/WeaponThemeData.js';
 import { SPRITE_RACES } from '../../data/SpriteData.js';
-import { EQUIPMENT, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
+import { findEquipmentWithExpansion } from '../../data/EquipmentData.js';
 import { getVisualConfig, getSlotVisualDefaults } from '../../data/EquipmentVisualConfig.js';
 import {
     drawWeaponByConfig, drawHelmetByConfig, drawChestByConfig,
     drawLegsArmorByConfig, drawBootsByConfig, drawGlovesByConfig,
     drawRingByConfig, drawAmuletByConfig, drawCrystalByConfig
 } from './EquipmentRenderers.js';
-import { drawEvolutionEffects } from './EvolutionStageRenderer.js';
+import { drawEvolutionEffects, drawEvolutionAura } from './EvolutionStageRenderer.js';
 import { getTrainerAppearance, getPlayerAppearance, getNPCAppearance } from '../../data/CharacterAppearanceData.js';
 import { drawCharacterOutfit } from './CharacterOutfitRenderer.js';
-import { getRaceName } from '../../data/SpriteTextureHelper.js';
+// getRaceName available from SpriteTextureHelper.js but we use local RACE_NAMES lookup
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -240,7 +240,7 @@ function _loadImage(path) {
  * Returns null on failure.
  */
 function _loadJSON(path) {
-    const resolvedPath = _assetLoader ? `../${path}` : `../${path}`;
+    const resolvedPath = `../${path}`;
     return fetch(resolvedPath)
         .then(resp => {
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -499,9 +499,12 @@ function _drawSkeletalFrame(ctx, skeleton, raceName, stage, direction, frameInde
     const parts = skeleton.parts || {};
     const flipH = direction === DIR_RIGHT;
 
-    // Determine draw order: use skeleton's draw_order if available and matching
-    // direction, otherwise fall back to our direction-aware draw order.
-    const drawOrder = DRAW_ORDER[direction] || DRAW_ORDER[DIR_DOWN];
+    // Determine draw order: use skeleton's draw_order if available,
+    // otherwise fall back to our direction-aware draw order.
+    const skelDrawOrder = skeleton.draw_order;
+    const drawOrder = (Array.isArray(skelDrawOrder) && skelDrawOrder.length > 0)
+        ? skelDrawOrder
+        : (DRAW_ORDER[direction] || DRAW_ORDER[DIR_DOWN]);
 
     // If the skeleton defines extra parts not in our standard draw order,
     // collect them and draw them after standard parts.
