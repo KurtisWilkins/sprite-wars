@@ -36,6 +36,50 @@ import { drawRaceBodyExt } from './RaceBodyRendererExt.js';
 import { drawCharacterOutfit } from './CharacterOutfitRenderer.js';
 import { drawEvolutionEffects, drawEvolutionAura } from './EvolutionStageRenderer.js';
 import { getTrainerAppearance, getPlayerAppearance, getNPCAppearance } from '../../data/CharacterAppearanceData.js';
+import { getRaceSpritePath, getRaceName } from '../../data/SpriteTextureHelper.js';
+
+// ── PNG Sprite Asset Cache ──────────────────────────────────────────────────
+const _spriteImageCache = new Map(); // key: "raceId_stage" -> HTMLImageElement|null
+const _spriteLoadPromises = new Map();
+
+/**
+ * Load a race sprite PNG asynchronously.
+ */
+function _loadRaceSprite(raceId, stage) {
+    const key = `${raceId}_${stage}`;
+    if (_spriteImageCache.has(key)) return Promise.resolve(_spriteImageCache.get(key));
+    if (_spriteLoadPromises.has(key)) return _spriteLoadPromises.get(key);
+
+    const path = getRaceSpritePath(raceId, stage);
+    if (!path) {
+        _spriteImageCache.set(key, null);
+        return Promise.resolve(null);
+    }
+
+    const promise = new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            _spriteImageCache.set(key, img);
+            resolve(img);
+        };
+        img.onerror = () => {
+            console.warn(`[HumanoidSpriteSystem] Failed to load race sprite: ${path}`);
+            _spriteImageCache.set(key, null);
+            resolve(null);
+        };
+        img.src = path;
+    });
+    _spriteLoadPromises.set(key, promise);
+    return promise;
+}
+
+/**
+ * Get cached race sprite (synchronous - returns null if not loaded yet).
+ */
+function _getCachedRaceSprite(raceId, stage) {
+    const key = `${raceId}_${stage}`;
+    return _spriteImageCache.get(key) || null;
+}
 
 // ── Frame Constants ──────────────────────────────────────────────────────────
 const RENDER_SCALE = 4;         // 4× supersampling for high-detail rendering
@@ -172,7 +216,9 @@ function _buildCacheKey(raceId, stage, equipment) {
             if (val) eqParts.push(`${slot}:${typeof val === 'object' ? (val.equipment_id || 0) : val}`);
         }
     }
-    return `${raceId}_${stage}_${eqParts.join('|')}`;
+    // Add _png suffix when PNG sprite is available so procedural and PNG sheets coexist
+    const pngSuffix = _getCachedRaceSprite(raceId, stage) ? '_png' : '';
+    return `${raceId}_${stage}${pngSuffix}_${eqParts.join('|')}`;
 }
 
 /**
@@ -209,6 +255,15 @@ export class HumanoidSpriteSystem {
      * Preload all required assets.
      */
     static async preloadAssets(assets) {
+        // Load PNG sprites for all 24 races x 3 stages
+        const spritePromises = [];
+        for (let raceId = 1; raceId <= 24; raceId++) {
+            for (let stage = 0; stage < 3; stage++) {
+                spritePromises.push(_loadRaceSprite(raceId, stage));
+            }
+        }
+        await Promise.all(spritePromises);
+
         try {
             _bodySheetImage.img = await assets.loadImage('../Sprites/Units/newbodytypes (1).png');
         } catch (e) {
@@ -363,6 +418,8 @@ export class HumanoidSpriteSystem {
     static clearCache() {
         _compositeCache.clear();
         _compositeLRU.length = 0;
+        _spriteImageCache.clear();
+        _spriteLoadPromises.clear();
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -400,16 +457,46 @@ export class HumanoidSpriteSystem {
             weaponType = _guessWeaponType(eqData.weapon.equipment_name);
         }
 
+        // Check if a PNG race sprite is available for the base layer
+        const raceSprite = _getCachedRaceSprite(raceId, stage);
+
         // Generate all 4 directions × 4 walk frames at 4× resolution
         for (let dir = 0; dir < 4; dir++) {
             for (let frame = 0; frame < 4; frame++) {
+                const frameX = frame * FRAME_SIZE;
+                const frameY = dir * FRAME_SIZE;
+
+                // ── Draw PNG sprite as base layer (if available) ──
+                if (raceSprite) {
+                    const bobY = [0, -1, 0, 1][frame]; // subtle idle bob for static image
+                    ctx.save();
+                    ctx.translate(frameX, frameY);
+
+                    if (dir === DIR_RIGHT) {
+                        // Flip horizontally for right-facing
+                        ctx.translate(FRAME_SIZE, 0);
+                        ctx.scale(-1, 1);
+                    }
+
+                    // Draw sprite centered in frame, scaled to leave margin for equipment overlays
+                    const spriteSize = FRAME_SIZE * 0.85;
+                    const offsetX = (FRAME_SIZE - spriteSize) / 2;
+                    const offsetY = (FRAME_SIZE - spriteSize) / 2 + bobY;
+
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(raceSprite, offsetX, offsetY, spriteSize, spriteSize);
+                    ctx.restore();
+                }
+
+                // ── Draw body (procedural fallback) + equipment overlays ──
                 ctx.save();
-                // Translate to frame position on sheet, then scale up for high-res rendering
-                ctx.translate(frame * FRAME_SIZE, dir * FRAME_SIZE);
+                ctx.translate(frameX, frameY);
                 ctx.scale(RENDER_SCALE, RENDER_SCALE);
                 // Draw in logical 64×64 coordinate space (auto-scaled to 256×256 pixels)
+                // When raceSprite is available, _drawHumanoidFrame skips the procedural body
                 this._drawHumanoidFrame(ctx, 0, 0, dir, frame, stage, colors, armorTier,
-                    themeImg, raceTheme, weaponType, eqData, raceId);
+                    themeImg, raceTheme, weaponType, eqData, raceId, !!raceSprite);
                 ctx.restore();
             }
         }
@@ -422,7 +509,7 @@ export class HumanoidSpriteSystem {
      * Uses RaceBodyRenderer for unique race shapes, then overlays equipment.
      */
     static _drawHumanoidFrame(ctx, fx, fy, dir, frame, stage, colors, armorTier,
-                               themeImg, raceTheme, weaponType, eqData, raceId) {
+                               themeImg, raceTheme, weaponType, eqData, raceId, usePngBase = false) {
         // Scale factor based on evolution stage (stage 3 = slightly larger)
         const scale = 0.9 + (stage - 1) * 0.05;
 
@@ -432,8 +519,18 @@ export class HumanoidSpriteSystem {
 
         // ────────────────────────────────────────────────────────
         // Draw race-specific body and get anchor points for equipment
+        // When usePngBase is true, the PNG was already drawn as the base layer
+        // at FRAME_SIZE resolution — skip procedural body but still compute anchors
         // ────────────────────────────────────────────────────────
-        const anchors = _drawRaceSpecificBody(ctx, raceId, cx, groundY, dir, frame, scale, colors);
+        let anchors;
+        if (usePngBase) {
+            // Compute anchor points without drawing the procedural body
+            // Use _buildCharacterAnchors which calculates positions without rendering
+            anchors = _buildCharacterAnchors(cx, groundY, scale, frame);
+        } else {
+            // Fallback: draw procedural body and get anchors from it
+            anchors = _drawRaceSpecificBody(ctx, raceId, cx, groundY, dir, frame, scale, colors);
+        }
 
         // Extract anchor points
         const { headX, headY, headW, headH, torsoX, torsoY, torsoW, torsoH,
