@@ -283,26 +283,37 @@ func _create_race_card(race_id: int, race_name: String, race_description: String
 	var top_row := HBoxContainer.new()
 	top_row.add_theme_constant_override("separation", 14)
 
-	# Sprite preview placeholder (colored rect with race initial)
+	# Sprite portrait using SpriteTextureLoader
 	var selected_element: String = _race_selected_element.get(race_id, "Fire")
 	if not _race_selected_element.has(race_id):
 		_race_selected_element[race_id] = "Fire"
 
-	var sprite_preview := ColorRect.new()
-	sprite_preview.custom_minimum_size = Vector2(80.0, 80.0)
+	var portrait_bg := ColorRect.new()
+	portrait_bg.custom_minimum_size = Vector2(80.0, 80.0)
 	var preview_color: Color = ELEMENT_COLORS.get(selected_element, Color(0.5, 0.5, 0.5))
-	sprite_preview.color = Color(preview_color.r, preview_color.g, preview_color.b, 0.3)
-	# Add race initial letter on top
-	var initial_label := Label.new()
-	initial_label.text = race_name[0] if race_name.length() > 0 else "?"
-	initial_label.add_theme_font_size_override("font_size", 36)
-	initial_label.add_theme_color_override("font_color", Color.WHITE)
-	initial_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	initial_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	initial_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	sprite_preview.add_child(initial_label)
+	portrait_bg.color = Color(preview_color.r, preview_color.g, preview_color.b, 0.15)
 
-	top_row.add_child(sprite_preview)
+	var sprite_portrait := TextureRect.new()
+	sprite_portrait.custom_minimum_size = Vector2(80.0, 80.0)
+	sprite_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	sprite_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	sprite_portrait.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var race_tex: Texture2D = SpriteTextureLoader.get_race_texture(race_id, 0)
+	if race_tex != null:
+		sprite_portrait.texture = race_tex
+	else:
+		# Fallback: show race initial letter
+		var initial_label := Label.new()
+		initial_label.text = race_name[0] if race_name.length() > 0 else "?"
+		initial_label.add_theme_font_size_override("font_size", 36)
+		initial_label.add_theme_color_override("font_color", Color.WHITE)
+		initial_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		initial_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		initial_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+		portrait_bg.add_child(initial_label)
+	portrait_bg.add_child(sprite_portrait)
+
+	top_row.add_child(portrait_bg)
 
 	# Info column next to sprite preview
 	var info_col := VBoxContainer.new()
@@ -978,11 +989,11 @@ func _create_equipment_card(equip: Dictionary) -> PanelContainer:
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 6)
 
-	# Top row with slot icon + equipment info
+	# Top row with equipment icon + equipment info
 	var top_equip_row := HBoxContainer.new()
 	top_equip_row.add_theme_constant_override("separation", 12)
 
-	# Slot type icon
+	# Equipment icon (PNG or fallback to slot emoji)
 	var slot_type: String = str(equip.get("slot_type", ""))
 	var rarity: String = str(equip.get("rarity", "common"))
 	var rarity_color: Color = RARITY_COLORS.get(rarity, RARITY_COLORS.get("common", Color(0.55, 0.55, 0.55)))
@@ -1003,12 +1014,30 @@ func _create_equipment_card(equip: Dictionary) -> PanelContainer:
 	icon_bg_style.corner_radius_bottom_right = 8
 	icon_container.add_theme_stylebox_override("panel", icon_bg_style)
 
-	var slot_icon_label := Label.new()
-	slot_icon_label.text = slot_icon_text
-	slot_icon_label.add_theme_font_size_override("font_size", 22)
-	slot_icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	slot_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	icon_container.add_child(slot_icon_label)
+	var equip_icon_path: String = str(equip.get("icon_path", ""))
+	if not equip_icon_path.is_empty() and ResourceLoader.exists(equip_icon_path):
+		var equip_icon_tex: Texture2D = load(equip_icon_path) as Texture2D
+		if equip_icon_tex != null:
+			var equip_icon_rect := TextureRect.new()
+			equip_icon_rect.texture = equip_icon_tex
+			equip_icon_rect.custom_minimum_size = Vector2(36.0, 36.0)
+			equip_icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			equip_icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon_container.add_child(equip_icon_rect)
+		else:
+			var slot_icon_label := Label.new()
+			slot_icon_label.text = slot_icon_text
+			slot_icon_label.add_theme_font_size_override("font_size", 22)
+			slot_icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			slot_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			icon_container.add_child(slot_icon_label)
+	else:
+		var slot_icon_label := Label.new()
+		slot_icon_label.text = slot_icon_text
+		slot_icon_label.add_theme_font_size_override("font_size", 22)
+		slot_icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		slot_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		icon_container.add_child(slot_icon_label)
 	top_equip_row.add_child(icon_container)
 
 	# Equipment name and info column

@@ -146,6 +146,8 @@ func place_sprite_visual(unit_id: int, pos: Vector2i, texture: Texture2D) -> voi
 
 	var sprite := Sprite2D.new()
 	sprite.texture = texture
+	if texture == null:
+		push_warning("GridDisplay: place_sprite_visual called with null texture for unit %d" % unit_id)
 	if texture != null:
 		# Scale sprite to fit within cell, leaving a small margin.
 		var target_size: float = cell_size.x * 0.85
