@@ -2321,3 +2321,21 @@ static func get_slot_types() -> Array[String]:
 ## Return all valid rarity tiers in ascending order.
 static func get_rarity_tiers() -> Array[String]:
 	return ["common", "uncommon", "rare", "epic", "legendary"]
+
+
+## Get all equipment including expansion items (977 additional from asset PNGs).
+## Merges base 144 items (IDs 1001-1190) with expansion (IDs 2001-2977).
+static func get_all_equipment_with_expansion() -> Array:
+	var all := get_all_equipment()
+	all.append_array(EquipmentExpansion.get_expanded_equipment())
+	return all
+
+
+## Look up any equipment by ID, including expansion items.
+static func find_equipment_with_expansion(equipment_id: int) -> Dictionary:
+	if equipment_id >= 2001:
+		for item in EquipmentExpansion.get_expanded_equipment():
+			if item["equipment_id"] == equipment_id:
+				return item
+		return {}
+	return find_equipment(equipment_id)

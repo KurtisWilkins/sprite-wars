@@ -8,6 +8,7 @@
  * All rendered into the #battle-hud div using DOM manipulation.
  */
 import { eventBus, GameEvents } from '../../core/EventBus.js';
+import { getRaceSpritePath, getPortraitPath } from '../../data/SpriteTextureHelper.js';
 
 // -- Color Constants (matching BattleEventFeed colors) ---------------------------
 

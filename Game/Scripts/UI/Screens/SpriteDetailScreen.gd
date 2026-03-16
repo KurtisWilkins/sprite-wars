@@ -401,6 +401,11 @@ func _update_stats_display() -> void:
 	if _sprite_instance == null:
 		return
 
+	# Load sprite art using SpriteTextureLoader.
+	var portrait_tex: Texture2D = SpriteTextureLoader.get_portrait_texture(_sprite_instance)
+	if portrait_tex != null:
+		sprite_art.texture = portrait_tex
+
 	# Name.
 	_name_edit.text = _sprite_instance.nickname
 
