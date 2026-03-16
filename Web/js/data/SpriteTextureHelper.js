@@ -18,7 +18,7 @@ export function getRaceSpritePath(raceId, stage) {
     const name = getRaceName(raceId);
     if (name === 'Unknown') return null;
     const s = Math.max(0, Math.min(2, stage));
-    return `Sprites/Characters/${name}/Stage${s}/${name}_stage${s}.png`;
+    return `Sprites/Characters/${name}/${name}_S${s+1}_Idle.png`;
 }
 
 export function getFormSpritePath(formId) {

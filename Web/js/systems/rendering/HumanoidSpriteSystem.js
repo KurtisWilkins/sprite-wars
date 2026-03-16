@@ -175,8 +175,6 @@ const _compositeCache = new Map();  // cacheKey → HTMLCanvasElement (1024×102
 const _compositeLRU = [];           // LRU order: most recent at end
 const MAX_CACHE_ENTRIES = 30;       // Cap at ~120MB (30 × 4MB per 1024×1024 sheet)
 const _themeImageCache = new Map(); // themePath → HTMLImageElement
-const _bodySheetImage = { img: null };
-
 // ── Element Skin Colors ─────────────────────────────────────────────────────
 const ELEMENT_SKIN = {
     Fire:     { skin: '#e8a060', mid: '#c87840', outline: '#8b5a2b', hair: '#cc3322', eye: '#ff4400' },
@@ -263,12 +261,6 @@ export class HumanoidSpriteSystem {
             }
         }
         await Promise.all(spritePromises);
-
-        try {
-            _bodySheetImage.img = await assets.loadImage('../Sprites/Units/newbodytypes (1).png');
-        } catch (e) {
-            console.warn('HumanoidSpriteSystem: Could not load body types sheet', e);
-        }
 
         const themePromises = [];
         const loadedThemes = new Set();
