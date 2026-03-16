@@ -1324,27 +1324,42 @@ async function saveSkeleton() {
             result = JSON.parse(respText);
         } catch (parseErr) {
             const errMsg = 'Server returned invalid response (HTTP ' + resp.status + '): ' + respText.substring(0, 100);
-            toast('Save failed: ' + errMsg);
-            statusMsg.textContent = 'Save failed';
             addLogEntry('error', errMsg);
+            // Fallback: offer file download when server save fails
+            addLogEntry('save', 'Falling back to file download...');
+            _downloadSkeletonFallback(data);
             return;
         }
         if (result.success) {
-            addLogEntry('save', 'Skeleton saved: ' + result.file);
+            addLogEntry('save', 'Skeleton saved: ' + result.file + (result.commit ? ' (commit: ' + result.commit.substring(0, 7) + ')' : ''));
             toast('Skeleton saved successfully');
             statusMsg.textContent = 'Saved';
         } else {
             const errMsg = 'Save failed: ' + (result.error || 'Unknown error');
-            toast(errMsg);
-            statusMsg.textContent = 'Save failed';
             addLogEntry('error', errMsg);
+            // Fallback: offer file download
+            addLogEntry('save', 'Falling back to file download...');
+            _downloadSkeletonFallback(data);
         }
     } catch (e) {
         const errMsg = 'Save network error: ' + e.message;
-        toast(errMsg);
-        statusMsg.textContent = 'Save error';
         addLogEntry('error', errMsg);
+        // Fallback: offer file download when network/server unavailable
+        addLogEntry('save', 'Falling back to file download...');
+        _downloadSkeletonFallback(data);
     }
+}
+
+function _downloadSkeletonFallback(data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = state.race + '_S' + state.stage + '_skeleton.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Server save unavailable — downloaded skeleton file instead');
+    statusMsg.textContent = 'Downloaded (server unavailable)';
 }
 
 function exportSkeleton() {
