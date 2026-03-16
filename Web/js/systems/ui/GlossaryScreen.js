@@ -12,6 +12,7 @@
 import { SPRITE_RACES } from '../../data/SpriteData.js';
 import { ABILITIES } from '../../data/AbilityData.js';
 import { EQUIPMENT, SLOT_TYPES, getAllEquipmentWithExpansion } from '../../data/EquipmentData.js';
+import { getEquipmentAssets, getEquipmentAssetsBySlot, ASSET_CATEGORIES, CATEGORY_TO_SLOT } from '../../data/EquipmentAssetRegistry.js';
 import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js';
 import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
 
@@ -187,6 +188,17 @@ function capitalizeWords(str) {
         .replace(/\b\w/g, c => c.toUpperCase());
 }
 
+// -- Helper: Format equipment asset category label --------------------------------
+
+function _formatCategoryLabel(category) {
+    // Convert camelCase/PascalCase folder names to readable labels
+    // e.g. "MeleeWeapon1H" -> "Melee Weapon 1H", "AbandonedWorkshop" -> "Abandoned Workshop"
+    return category
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/(\d)([A-Za-z])/g, '$1 $2')
+        .replace(/([A-Za-z])(\d)/g, '$1 $2');
+}
+
 // -- Helper: Create element badge -----------------------------------------------
 
 function createElementBadge(elementName, opts = {}) {
@@ -306,6 +318,12 @@ export class GlossaryScreen {
         this._equipListContainer = null;
         /** @private — tracks selected element per race for sprite display */
         this._raceSelectedElement = {};
+        /** @private — 'items' or 'sprites' sub-tab within Equipment */
+        this._equipSubTab = 'items';
+        /** @private — sprite category filter ('all' or an ASSET_CATEGORIES value) */
+        this._spriteCategoryFilter = 'all';
+        /** @private */
+        this._spriteGridContainer = null;
     }
 
     /**
@@ -963,6 +981,77 @@ export class GlossaryScreen {
 
     /** @private */
     _renderEquipmentTab() {
+        // ── Sub-tab toggle: Items | Sprites ──
+        const subTabRow = document.createElement('div');
+        Object.assign(subTabRow.style, {
+            display: 'flex',
+            gap: '8px',
+            marginBottom: '14px',
+        });
+
+        this._equipSubTabButtons = {};
+        for (const sub of [{ key: 'items', label: 'Items' }, { key: 'sprites', label: 'Sprites' }]) {
+            const btn = document.createElement('button');
+            btn.textContent = sub.label;
+            Object.assign(btn.style, {
+                flex: '1',
+                padding: '10px 16px',
+                border: '3px solid #1A1A1A',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                fontFamily: 'Arial, Helvetica, sans-serif',
+                cursor: 'pointer',
+                color: '#FFFFFF',
+                transition: 'background 0.15s, transform 0.1s',
+                userSelect: 'none',
+                WebkitTapHighlightColor: 'transparent',
+                minHeight: '44px',
+            });
+            btn.addEventListener('mouseenter', () => { btn.style.filter = 'brightness(1.15)'; });
+            btn.addEventListener('mouseleave', () => { btn.style.filter = ''; btn.style.transform = ''; });
+            btn.addEventListener('mousedown', () => { btn.style.transform = 'scale(0.97)'; });
+            btn.addEventListener('mouseup', () => { btn.style.transform = ''; });
+
+            btn.addEventListener('click', () => {
+                this._equipSubTab = sub.key;
+                this._updateEquipSubTabStyles();
+                this._renderEquipmentSubContent();
+            });
+            this._equipSubTabButtons[sub.key] = btn;
+            subTabRow.appendChild(btn);
+        }
+        this._contentArea.appendChild(subTabRow);
+
+        // Container for sub-tab content
+        this._equipSubContentArea = document.createElement('div');
+        this._contentArea.appendChild(this._equipSubContentArea);
+
+        this._updateEquipSubTabStyles();
+        this._renderEquipmentSubContent();
+    }
+
+    /** @private */
+    _updateEquipSubTabStyles() {
+        for (const [key, btn] of Object.entries(this._equipSubTabButtons)) {
+            btn.style.background = key === this._equipSubTab ? COLORS.accent : '#3D3060';
+        }
+    }
+
+    /** @private */
+    _renderEquipmentSubContent() {
+        if (!this._equipSubContentArea) return;
+        this._equipSubContentArea.innerHTML = '';
+
+        if (this._equipSubTab === 'items') {
+            this._renderEquipmentItemsContent();
+        } else {
+            this._renderEquipmentSpritesContent();
+        }
+    }
+
+    /** @private — renders the original equipment items list with slot filters */
+    _renderEquipmentItemsContent() {
         // Filter row
         const filterRow = document.createElement('div');
         Object.assign(filterRow.style, {
@@ -1009,14 +1098,193 @@ export class GlossaryScreen {
             filterRow.appendChild(btn);
         }
 
-        this._contentArea.appendChild(filterRow);
+        this._equipSubContentArea.appendChild(filterRow);
 
         // Equipment list container
         this._equipListContainer = document.createElement('div');
-        this._contentArea.appendChild(this._equipListContainer);
+        this._equipSubContentArea.appendChild(this._equipListContainer);
 
         this._updateEquipFilterStyles();
         this._renderEquipmentList();
+    }
+
+    /** @private — renders the Sprites sub-tab with all 977 equipment sprites */
+    _renderEquipmentSpritesContent() {
+        // Category filter row
+        const filterRow = document.createElement('div');
+        Object.assign(filterRow.style, {
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '6px',
+            marginBottom: '14px',
+        });
+
+        this._spriteCatFilterButtons = {};
+        const catFilters = ['all', ...ASSET_CATEGORIES];
+
+        for (const cat of catFilters) {
+            const btn = document.createElement('button');
+            const label = cat === 'all' ? 'All' : _formatCategoryLabel(cat);
+            btn.textContent = label;
+            Object.assign(btn.style, {
+                padding: '6px 12px',
+                border: '3px solid #1A1A1A',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                fontFamily: 'Arial, Helvetica, sans-serif',
+                cursor: 'pointer',
+                color: '#FFFFFF',
+                transition: 'background 0.15s, transform 0.1s',
+                userSelect: 'none',
+                WebkitTapHighlightColor: 'transparent',
+                minHeight: '38px',
+            });
+            btn.addEventListener('mouseenter', () => { btn.style.filter = 'brightness(1.15)'; });
+            btn.addEventListener('mouseleave', () => { btn.style.filter = ''; btn.style.transform = ''; });
+            btn.addEventListener('mousedown', () => { btn.style.transform = 'scale(0.97)'; });
+            btn.addEventListener('mouseup', () => { btn.style.transform = ''; });
+
+            btn.addEventListener('click', () => {
+                this._spriteCategoryFilter = cat;
+                this._updateSpriteCatFilterStyles();
+                this._renderSpriteGrid();
+            });
+
+            this._spriteCatFilterButtons[cat] = btn;
+            filterRow.appendChild(btn);
+        }
+
+        this._equipSubContentArea.appendChild(filterRow);
+
+        // Sprite count indicator
+        this._spriteCountEl = document.createElement('div');
+        Object.assign(this._spriteCountEl.style, {
+            fontSize: '13px',
+            color: COLORS.textSecondary,
+            marginBottom: '10px',
+        });
+        this._equipSubContentArea.appendChild(this._spriteCountEl);
+
+        // Grid container
+        this._spriteGridContainer = document.createElement('div');
+        Object.assign(this._spriteGridContainer.style, {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+            gap: '8px',
+        });
+        this._equipSubContentArea.appendChild(this._spriteGridContainer);
+
+        this._updateSpriteCatFilterStyles();
+        this._renderSpriteGrid();
+    }
+
+    /** @private */
+    _updateSpriteCatFilterStyles() {
+        for (const [key, btn] of Object.entries(this._spriteCatFilterButtons)) {
+            btn.style.background = key === this._spriteCategoryFilter ? COLORS.accent : '#3D3060';
+        }
+    }
+
+    /** @private */
+    _renderSpriteGrid() {
+        if (!this._spriteGridContainer) return;
+        this._spriteGridContainer.innerHTML = '';
+
+        let assets = getEquipmentAssets();
+        if (this._spriteCategoryFilter !== 'all') {
+            assets = assets.filter(a => a.category === this._spriteCategoryFilter);
+        }
+
+        // Update count
+        if (this._spriteCountEl) {
+            this._spriteCountEl.textContent = `Showing ${assets.length} sprite${assets.length !== 1 ? 's' : ''}`;
+        }
+
+        for (const asset of assets) {
+            const cell = document.createElement('div');
+            Object.assign(cell.style, {
+                background: COLORS.bgCard,
+                borderRadius: '8px',
+                border: '2px solid #1A1A1A',
+                padding: '8px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                overflow: 'hidden',
+            });
+
+            // Thumbnail 40x40
+            const imgWrap = document.createElement('div');
+            Object.assign(imgWrap.style, {
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                flexShrink: '0',
+            });
+
+            const img = document.createElement('img');
+            img.src = asset.path.replace(/^\.\.\//g, '');
+            img.alt = asset.name;
+            img.loading = 'lazy';
+            Object.assign(img.style, {
+                width: '40px',
+                height: '40px',
+                objectFit: 'contain',
+                imageRendering: 'crisp-edges',
+            });
+            img.onerror = () => {
+                img.style.display = 'none';
+                imgWrap.textContent = '?';
+                imgWrap.style.fontSize = '20px';
+                imgWrap.style.color = COLORS.textDim;
+            };
+            imgWrap.appendChild(img);
+            cell.appendChild(imgWrap);
+
+            // Name
+            const nameEl = document.createElement('div');
+            nameEl.textContent = asset.name;
+            Object.assign(nameEl.style, {
+                fontSize: '11px',
+                fontWeight: 'bold',
+                color: COLORS.textPrimary,
+                textAlign: 'center',
+                lineHeight: '1.2',
+                wordBreak: 'break-word',
+                maxWidth: '100%',
+            });
+            cell.appendChild(nameEl);
+
+            // Category label
+            const catEl = document.createElement('div');
+            catEl.textContent = _formatCategoryLabel(asset.category);
+            Object.assign(catEl.style, {
+                fontSize: '10px',
+                color: COLORS.textDim,
+                textAlign: 'center',
+            });
+            cell.appendChild(catEl);
+
+            this._spriteGridContainer.appendChild(cell);
+        }
+
+        if (assets.length === 0) {
+            const emptyEl = document.createElement('div');
+            emptyEl.textContent = 'No sprites found for this category.';
+            Object.assign(emptyEl.style, {
+                textAlign: 'center',
+                color: COLORS.textDim,
+                fontSize: '15px',
+                padding: '40px 16px',
+                gridColumn: '1 / -1',
+            });
+            this._spriteGridContainer.appendChild(emptyEl);
+        }
     }
 
     /** @private */

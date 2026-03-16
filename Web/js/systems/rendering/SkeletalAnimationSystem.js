@@ -325,7 +325,7 @@ function _getCachedPartImage(raceName, stage, partName) {
  *   2. The animation keyframe delta (rotation, tx, ty) for the current walk frame
  *
  * Returns a Map<partName, { worldX, worldY, worldRotation, worldScale }> in the
- * skeleton's source coordinate space (typically 96x96).
+ * skeleton's source coordinate space (typically 128x128).
  *
  * @param {object} skeleton - Parsed skeleton.json data
  * @param {number} frameIndex - Walk frame index (0-3)
@@ -944,30 +944,30 @@ function _buildFallbackSkeleton(raceName, stage) {
     return {
         race: raceName,
         stage: stage,
-        source_size: 96,
+        source_size: 128,
         parts: {
-            head:       { file: `${raceName}_S${stage}_head.png`,       width: 35, height: 42, anchor: { x: 18, y: 40 } },
-            torso:      { file: `${raceName}_S${stage}_torso.png`,      width: 20, height: 21, anchor: { x: 10, y: 10 } },
-            left_arm:   { file: `${raceName}_S${stage}_left_arm.png`,   width: 8,  height: 20, anchor: { x: 4,  y: 2  } },
-            right_arm:  { file: `${raceName}_S${stage}_right_arm.png`,  width: 8,  height: 20, anchor: { x: 4,  y: 2  } },
-            left_leg:   { file: `${raceName}_S${stage}_left_leg.png`,   width: 8,  height: 20, anchor: { x: 4,  y: 2  } },
-            right_leg:  { file: `${raceName}_S${stage}_right_leg.png`,  width: 8,  height: 20, anchor: { x: 4,  y: 2  } },
-            left_hand:  { file: `${raceName}_S${stage}_left_hand.png`,  width: 6,  height: 6,  anchor: { x: 3,  y: 1  } },
-            right_hand: { file: `${raceName}_S${stage}_right_hand.png`, width: 6,  height: 6,  anchor: { x: 3,  y: 1  } },
-            left_foot:  { file: `${raceName}_S${stage}_left_foot.png`,  width: 8,  height: 5,  anchor: { x: 4,  y: 1  } },
-            right_foot: { file: `${raceName}_S${stage}_right_foot.png`, width: 8,  height: 5,  anchor: { x: 4,  y: 1  } },
+            head:       { file: `${raceName}_S${stage}_head.png`,       width: 41, height: 42, anchor: { x: 20, y: 38 } },
+            torso:      { file: `${raceName}_S${stage}_torso.png`,      width: 15, height: 15, anchor: { x: 7,  y: 7  } },
+            left_arm:   { file: `${raceName}_S${stage}_left_arm.png`,   width: 24, height: 26, anchor: { x: 18, y: 4  } },
+            right_arm:  { file: `${raceName}_S${stage}_right_arm.png`,  width: 19, height: 16, anchor: { x: 5,  y: 3  } },
+            left_leg:   { file: `${raceName}_S${stage}_left_leg.png`,   width: 12, height: 12, anchor: { x: 6,  y: 2  } },
+            right_leg:  { file: `${raceName}_S${stage}_right_leg.png`,  width: 9,  height: 10, anchor: { x: 4,  y: 2  } },
+            left_hand:  { file: `${raceName}_S${stage}_left_hand.png`,  width: 23, height: 17, anchor: { x: 11, y: 3  } },
+            right_hand: { file: `${raceName}_S${stage}_right_hand.png`, width: 17, height: 18, anchor: { x: 8,  y: 3  } },
+            left_foot:  { file: `${raceName}_S${stage}_left_foot.png`,  width: 13, height: 14, anchor: { x: 6,  y: 3  } },
+            right_foot: { file: `${raceName}_S${stage}_right_foot.png`, width: 14, height: 17, anchor: { x: 7,  y: 3  } },
         },
         bones: {
-            torso:      { parent: null,       offset_x: 0.50, offset_y: 0.45, rotation: 0, scale: 1.0 },
-            head:       { parent: 'torso',    offset_x: 0.00, offset_y: -0.28, rotation: 0, scale: 1.0 },
-            left_arm:   { parent: 'torso',    offset_x: -0.11, offset_y: -0.06, rotation: 0, scale: 1.0 },
-            right_arm:  { parent: 'torso',    offset_x: 0.11,  offset_y: -0.06, rotation: 0, scale: 1.0 },
-            left_leg:   { parent: 'torso',    offset_x: -0.05, offset_y: 0.17,  rotation: 0, scale: 1.0 },
-            right_leg:  { parent: 'torso',    offset_x: 0.05,  offset_y: 0.17,  rotation: 0, scale: 1.0 },
-            left_hand:  { parent: 'left_arm', offset_x: 0.00,  offset_y: 0.14,  rotation: 0, scale: 1.0 },
-            right_hand: { parent: 'right_arm',offset_x: 0.00,  offset_y: 0.14,  rotation: 0, scale: 1.0 },
-            left_foot:  { parent: 'left_leg', offset_x: 0.00,  offset_y: 0.14,  rotation: 0, scale: 1.0 },
-            right_foot: { parent: 'right_leg',offset_x: 0.00,  offset_y: 0.14,  rotation: 0, scale: 1.0 },
+            torso:      { parent: null,        offset_x: 0.562, offset_y: 0.656, rotation: 0, scale: 1.0 },
+            head:       { parent: 'torso',     offset_x: 0.5,   offset_y: 0.371, rotation: 0, scale: 1.0 },
+            left_arm:   { parent: 'torso',     offset_x: 0.215, offset_y: 0.23,  rotation: 0, scale: 1.0 },
+            right_arm:  { parent: 'torso',     offset_x: 0.844, offset_y: 0.473, rotation: 0, scale: 1.0 },
+            left_leg:   { parent: 'torso',     offset_x: 0.113, offset_y: 0.887, rotation: 0, scale: 1.0 },
+            right_leg:  { parent: 'torso',     offset_x: 0.859, offset_y: 0.652, rotation: 0, scale: 1.0 },
+            left_hand:  { parent: 'left_arm',  offset_x: 0.227, offset_y: 0.602, rotation: 0, scale: 1.0 },
+            right_hand: { parent: 'right_arm', offset_x: 0.867, offset_y: 0.152, rotation: 0, scale: 1.0 },
+            left_foot:  { parent: 'left_leg',  offset_x: 0.336, offset_y: 0.902, rotation: 0, scale: 1.0 },
+            right_foot: { parent: 'right_leg', offset_x: 0.574, offset_y: 0.883, rotation: 0, scale: 1.0 },
         },
         draw_order: [
             'left_leg', 'right_leg', 'left_foot', 'right_foot',
