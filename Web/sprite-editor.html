@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sprite Wars — Sprite Part Editor</title>
+    <title>Sprite Wars &#8212; Sprite Part Editor</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -42,12 +42,12 @@
         #main-canvas { image-rendering: pixelated; cursor: crosshair; }
         .canvas-info { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 4px; font-size: 11px; color: var(--text-dim); }
         .canvas-controls { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 4px; }
-        .canvas-controls button { background: var(--bg-panel); color: var(--text); border: 1px solid var(--border); padding: 4px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; min-width: 40px; }
+        .canvas-controls button { background: var(--bg-panel); color: var(--text); border: 1px solid var(--border); padding: 4px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; }
         .canvas-controls button:hover { background: var(--accent); }
         .canvas-controls button.active { background: var(--accent2); }
         .sidebar-right { grid-row: 2; background: var(--bg-panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
         .tab-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-        .tab-bar button { flex: 1; background: none; border: none; color: var(--text-dim); padding: 8px 4px; font-size: 11px; cursor: pointer; border-bottom: 2px solid transparent; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tab-bar button { flex: 1; background: none; border: none; color: var(--text-dim); padding: 8px 4px; font-size: 12px; cursor: pointer; border-bottom: 2px solid transparent; text-transform: uppercase; letter-spacing: 0.5px; }
         .tab-bar button:hover { color: var(--text); }
         .tab-bar button.active { color: var(--accent); border-bottom-color: var(--accent); }
         .tab-content { flex: 1; overflow-y: auto; padding: 8px 12px; }
@@ -111,7 +111,7 @@
             <option value="3">Stage 3</option>
         </select>
         <button id="btn-load" title="Load skeleton from server">Load</button>
-        <button id="btn-save" title="Save skeleton + config">Save</button>
+        <button id="btn-save" title="Save skeleton + config to server">Save</button>
         <button id="btn-export" title="Download skeleton.json">Export</button>
         <button id="btn-undo" title="Undo (Ctrl+Z)">Undo</button>
         <span class="spacer"></span>
@@ -130,8 +130,8 @@
     <div class="canvas-area">
         <canvas id="main-canvas" width="512" height="512"></canvas>
         <div class="canvas-controls">
-            <button id="btn-grid" title="Toggle pixel grid">Grid</button>
-            <button id="btn-crosshair" title="Toggle center crosshair">Cross</button>
+            <button id="btn-grid" title="Toggle grid">Grid</button>
+            <button id="btn-crosshair" title="Toggle crosshair">Cross</button>
             <button id="btn-onion" title="Toggle onion skinning">Onion</button>
             <button id="btn-zoom-in" title="Zoom in">+</button>
             <button id="btn-zoom-out" title="Zoom out">-</button>
@@ -144,20 +144,18 @@
             <button class="active" data-tab="props-tab">Properties</button>
             <button data-tab="equip-tab">Equipment</button>
             <button data-tab="mapping-tab">Mapping</button>
-            <button data-tab="log-tab">Log</button>
         </div>
         <div class="tab-content">
             <div class="tab-panel active" id="props-tab">
-                <div id="props-panel"><div class="no-selection">Select a part to edit.</div></div>
+                <div id="props-panel">
+                    <div class="no-selection">Select a part to edit.</div>
+                </div>
             </div>
             <div class="tab-panel" id="equip-tab">
                 <div id="equip-panel"></div>
             </div>
             <div class="tab-panel" id="mapping-tab">
                 <div id="mapping-panel"></div>
-            </div>
-            <div class="tab-panel" id="log-tab">
-                <div id="log-panel"><div class="no-selection">No log entries yet.</div></div>
             </div>
         </div>
     </div>
@@ -203,12 +201,10 @@
     </div>
 </div>
 <div class="toast" id="toast"></div>
-
 <script>
-// ═══════════════════════════════════════════════════════════════
-// Sprite Part Editor — Enhanced with Body Part Reassignment,
-// Equipment Editor, Animation Preview, and Save/Load Persistence
-// ═══════════════════════════════════════════════════════════════
+// =====================================================================
+// Sprite Part Editor - Complete Rewrite
+// =====================================================================
 
 const RACES = {
     1: 'Human', 2: 'Elf', 3: 'Demon', 4: 'Devil', 5: 'CatMan',
@@ -230,76 +226,97 @@ const PART_COLORS = {
 };
 
 const BONE_HIERARCHY = {
-    torso: null, head: 'torso',
-    left_arm: 'torso', right_arm: 'torso',
-    left_hand: 'left_arm', right_hand: 'right_arm',
-    left_leg: 'torso', right_leg: 'torso',
-    left_foot: 'left_leg', right_foot: 'right_leg',
-    tail: 'torso', wings: 'torso', accessory: 'head'
+    torso: null,
+    head: 'torso',
+    left_arm: 'torso',
+    right_arm: 'torso',
+    left_hand: 'left_arm',
+    right_hand: 'right_arm',
+    left_leg: 'torso',
+    right_leg: 'torso',
+    left_foot: 'left_leg',
+    right_foot: 'right_leg',
+    tail: 'torso',
+    wings: 'torso',
+    accessory: 'head'
 };
 
 const DEFAULT_ANCHORS = {
-    torso: { x: 16, y: 16 }, head: { x: 16, y: 28 },
-    left_arm: { x: 24, y: 20 }, right_arm: { x: 8, y: 20 },
-    left_hand: { x: 24, y: 12 }, right_hand: { x: 8, y: 12 },
-    left_leg: { x: 20, y: 8 }, right_leg: { x: 12, y: 8 },
-    left_foot: { x: 20, y: 2 }, right_foot: { x: 12, y: 2 },
-    tail: { x: 16, y: 12 }, wings: { x: 16, y: 24 }, accessory: { x: 16, y: 30 }
+    torso:      { x: 16, y: 16 },
+    head:       { x: 16, y: 28 },
+    left_arm:   { x: 24, y: 20 },
+    right_arm:  { x: 8, y: 20 },
+    left_hand:  { x: 24, y: 12 },
+    right_hand: { x: 8, y: 12 },
+    left_leg:   { x: 20, y: 8 },
+    right_leg:  { x: 12, y: 8 },
+    left_foot:  { x: 20, y: 2 },
+    right_foot: { x: 12, y: 2 },
+    tail:       { x: 16, y: 12 },
+    wings:      { x: 16, y: 24 },
+    accessory:  { x: 16, y: 30 }
 };
 
 const PARENT_ATTACH = {
-    head: { x: 0, y: 8 }, left_arm: { x: 8, y: 4 }, right_arm: { x: -8, y: 4 },
-    left_hand: { x: 0, y: -8 }, right_hand: { x: 0, y: -8 },
-    left_leg: { x: 4, y: -8 }, right_leg: { x: -4, y: -8 },
-    left_foot: { x: 0, y: -8 }, right_foot: { x: 0, y: -8 },
-    tail: { x: 0, y: -4 }, wings: { x: 0, y: 6 }, accessory: { x: 0, y: 4 }
+    head:       { x: 0, y: 8 },
+    left_arm:   { x: 8, y: 4 },
+    right_arm:  { x: -8, y: 4 },
+    left_hand:  { x: 0, y: -8 },
+    right_hand: { x: 0, y: -8 },
+    left_leg:   { x: 4, y: -8 },
+    right_leg:  { x: -4, y: -8 },
+    left_foot:  { x: 0, y: -8 },
+    right_foot: { x: 0, y: -8 },
+    tail:       { x: 0, y: -4 },
+    wings:      { x: 0, y: 6 },
+    accessory:  { x: 0, y: 4 }
 };
 
 const DEFAULT_DRAW_ORDER = {
-    down: ['left_foot','right_foot','left_leg','right_leg','tail','torso','left_arm','right_arm','left_hand','right_hand','wings','head','accessory'],
-    up: ['accessory','head','left_hand','right_hand','left_arm','right_arm','wings','torso','tail','left_foot','right_foot','left_leg','right_leg'],
-    left: ['right_foot','right_leg','right_hand','right_arm','tail','torso','wings','left_arm','left_hand','left_foot','left_leg','head','accessory'],
+    down:  ['left_foot','right_foot','left_leg','right_leg','tail','torso','left_arm','right_arm','left_hand','right_hand','wings','head','accessory'],
+    up:    ['accessory','head','left_hand','right_hand','left_arm','right_arm','wings','torso','tail','left_foot','right_foot','left_leg','right_leg'],
+    left:  ['right_foot','right_leg','right_hand','right_arm','tail','torso','wings','left_arm','left_hand','left_foot','left_leg','head','accessory'],
     right: ['left_foot','left_leg','left_hand','left_arm','tail','torso','wings','right_arm','right_hand','right_foot','right_leg','head','accessory'],
 };
 
-// ─── Animation Keyframes ───
+// Animation Keyframes - 5 animation types, 4 keyframes each
 const ANIM_KEYFRAMES = {
     walk: [
-        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
-        { torso: {y: -1}, head: {rot: -2}, left_arm: {rot: -18}, right_arm: {rot: 18}, left_leg: {rot: 22}, right_leg: {rot: -15} },
-        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
-        { torso: {y: -1}, head: {rot: 2}, left_arm: {rot: 18}, right_arm: {rot: -18}, left_leg: {rot: -15}, right_leg: {rot: 22} },
+        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0}, left_hand: {rot: 0}, right_hand: {rot: 0}, left_foot: {rot: 0}, right_foot: {rot: 0}, tail: {rot: 0}, wings: {rot: 0} },
+        { torso: {y: -1}, head: {rot: -2}, left_arm: {rot: -18}, right_arm: {rot: 18}, left_leg: {rot: 22}, right_leg: {rot: -15}, left_hand: {rot: -10}, right_hand: {rot: 10}, left_foot: {rot: 12}, right_foot: {rot: -8}, tail: {rot: 5}, wings: {rot: -3} },
+        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0}, left_hand: {rot: 0}, right_hand: {rot: 0}, left_foot: {rot: 0}, right_foot: {rot: 0}, tail: {rot: 0}, wings: {rot: 0} },
+        { torso: {y: -1}, head: {rot: 2}, left_arm: {rot: 18}, right_arm: {rot: -18}, left_leg: {rot: -15}, right_leg: {rot: 22}, left_hand: {rot: 10}, right_hand: {rot: -10}, left_foot: {rot: -8}, right_foot: {rot: 12}, tail: {rot: -5}, wings: {rot: 3} },
     ],
     idle: [
-        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
-        { torso: {y: -0.5}, head: {rot: -1}, left_arm: {rot: -3}, right_arm: {rot: 3}, left_leg: {rot: 0}, right_leg: {rot: 0} },
-        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
-        { torso: {y: -0.5}, head: {rot: 1}, left_arm: {rot: 3}, right_arm: {rot: -3}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0}, left_hand: {rot: 0}, right_hand: {rot: 0}, tail: {rot: 0}, wings: {rot: 0} },
+        { torso: {y: -0.5}, head: {rot: -1}, left_arm: {rot: -3}, right_arm: {rot: 3}, left_leg: {rot: 0}, right_leg: {rot: 0}, left_hand: {rot: -2}, right_hand: {rot: 2}, tail: {rot: 2}, wings: {rot: -2} },
+        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0}, left_hand: {rot: 0}, right_hand: {rot: 0}, tail: {rot: 0}, wings: {rot: 0} },
+        { torso: {y: -0.5}, head: {rot: 1}, left_arm: {rot: 3}, right_arm: {rot: -3}, left_leg: {rot: 0}, right_leg: {rot: 0}, left_hand: {rot: 2}, right_hand: {rot: -2}, tail: {rot: -2}, wings: {rot: 2} },
     ],
     attack: [
-        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
-        { torso: {y: -1}, head: {rot: -5}, left_arm: {rot: -30}, right_arm: {rot: 45}, left_leg: {rot: 10}, right_leg: {rot: -5} },
-        { torso: {y: 1}, head: {rot: 3}, left_arm: {rot: 10}, right_arm: {rot: -60}, left_leg: {rot: -5}, right_leg: {rot: 10} },
-        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: -30}, left_leg: {rot: 5}, right_leg: {rot: -5}, left_hand: {rot: 0}, right_hand: {rot: -20}, tail: {rot: 0}, wings: {rot: 0} },
+        { torso: {y: -1}, head: {rot: -3}, left_arm: {rot: 10}, right_arm: {rot: -90}, left_leg: {rot: 10}, right_leg: {rot: -10}, left_hand: {rot: 5}, right_hand: {rot: -45}, tail: {rot: -8}, wings: {rot: 5} },
+        { torso: {y: 1}, head: {rot: 5}, left_arm: {rot: -5}, right_arm: {rot: 45}, left_leg: {rot: -8}, right_leg: {rot: 15}, left_hand: {rot: -3}, right_hand: {rot: 30}, tail: {rot: 10}, wings: {rot: -8} },
+        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0}, left_hand: {rot: 0}, right_hand: {rot: 0}, tail: {rot: 0}, wings: {rot: 0} },
     ],
     hit: [
-        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
-        { torso: {y: 2}, head: {rot: 10}, left_arm: {rot: 15}, right_arm: {rot: -20}, left_leg: {rot: 5}, right_leg: {rot: -5} },
-        { torso: {y: 1}, head: {rot: -5}, left_arm: {rot: -5}, right_arm: {rot: 5}, left_leg: {rot: -3}, right_leg: {rot: 3} },
-        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0}, left_hand: {rot: 0}, right_hand: {rot: 0}, tail: {rot: 0}, wings: {rot: 0} },
+        { torso: {y: -2}, head: {rot: -10}, left_arm: {rot: 15}, right_arm: {rot: -15}, left_leg: {rot: -5}, right_leg: {rot: 5}, left_hand: {rot: 10}, right_hand: {rot: -10}, tail: {rot: -12}, wings: {rot: 10} },
+        { torso: {y: -1}, head: {rot: 8}, left_arm: {rot: -10}, right_arm: {rot: 10}, left_leg: {rot: 3}, right_leg: {rot: -3}, left_hand: {rot: -5}, right_hand: {rot: 5}, tail: {rot: 8}, wings: {rot: -5} },
+        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0}, left_hand: {rot: 0}, right_hand: {rot: 0}, tail: {rot: 0}, wings: {rot: 0} },
     ],
     death: [
-        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
-        { torso: {y: 3}, head: {rot: 15}, left_arm: {rot: 30}, right_arm: {rot: -40}, left_leg: {rot: 20}, right_leg: {rot: -15} },
-        { torso: {y: 6}, head: {rot: 30}, left_arm: {rot: 60}, right_arm: {rot: -70}, left_leg: {rot: 45}, right_leg: {rot: -30} },
-        { torso: {y: 10}, head: {rot: 45}, left_arm: {rot: 80}, right_arm: {rot: -80}, left_leg: {rot: 60}, right_leg: {rot: -45} },
+        { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0}, left_hand: {rot: 0}, right_hand: {rot: 0}, tail: {rot: 0}, wings: {rot: 0} },
+        { torso: {y: -2}, head: {rot: -15}, left_arm: {rot: 20}, right_arm: {rot: -20}, left_leg: {rot: -5}, right_leg: {rot: 5}, left_hand: {rot: 15}, right_hand: {rot: -15}, tail: {rot: -10}, wings: {rot: 15} },
+        { torso: {y: -4}, head: {rot: -30}, left_arm: {rot: 45}, right_arm: {rot: -45}, left_leg: {rot: -15}, right_leg: {rot: 15}, left_hand: {rot: 30}, right_hand: {rot: -30}, tail: {rot: -20}, wings: {rot: 30} },
+        { torso: {y: -6}, head: {rot: -60}, left_arm: {rot: 70}, right_arm: {rot: -70}, left_leg: {rot: -30}, right_leg: {rot: 30}, left_hand: {rot: 50}, right_hand: {rot: -50}, tail: {rot: -30}, wings: {rot: 45} },
     ],
 };
 
-// ─── Equipment Data ───
+// Equipment data
 const EQUIPMENT_ITEMS = {
     weapon: [
-        { id: 0, name: '(None)', shape: null, color: null, glowColor: null },
+        { id: 0, name: '(None)', shape: null, color: null },
         { id: 1001, name: 'Iron Sword', shape: 'sword', color: '#A8A8A8', glowColor: null },
         { id: 1003, name: 'Flame Sword', shape: 'sword', color: '#E85820', glowColor: '#FF6600' },
         { id: 1005, name: 'Shadow Edge', shape: 'sword', color: '#3C2A4A', glowColor: '#8844AA' },
@@ -308,61 +325,79 @@ const EQUIPMENT_ITEMS = {
         { id: 1105, name: 'Storm Staff', shape: 'staff', color: '#6B8E9B', glowColor: '#00CCFF' },
     ],
     helmet: [
-        { id: 0, name: '(None)', shape: null, color: null, glowColor: null },
-        { id: 1011, name: 'Leather Cap', shape: 'cap', color: '#8B6914', glowColor: null },
-        { id: 1013, name: 'Iron Helm', shape: 'helm', color: '#A0A0A0', glowColor: null },
+        { id: 0, name: '(None)', shape: null, color: null },
+        { id: 1011, name: 'Leather Cap', shape: 'cap', color: '#8B6914' },
+        { id: 1013, name: 'Iron Helm', shape: 'helm', color: '#A0A0A0' },
         { id: 1015, name: 'Crown of Flames', shape: 'crown', color: '#FFD700', glowColor: '#FF4400' },
     ],
     chest: [
-        { id: 0, name: '(None)', shape: null, color: null, glowColor: null },
-        { id: 1021, name: 'Cloth Tunic', shape: 'tunic', color: '#7A6B3A', glowColor: null },
-        { id: 1023, name: 'Chainmail', shape: 'chainmail', color: '#B8B8B8', glowColor: null },
+        { id: 0, name: '(None)', shape: null, color: null },
+        { id: 1021, name: 'Cloth Tunic', shape: 'tunic', color: '#7A6B3A' },
+        { id: 1023, name: 'Chainmail', shape: 'chainmail', color: '#B8B8B8' },
         { id: 1025, name: 'Dragon Plate', shape: 'plate', color: '#CC2200', glowColor: '#FF4400' },
     ],
     legs: [
-        { id: 0, name: '(None)', shape: null, color: null, glowColor: null },
-        { id: 1031, name: 'Cloth Pants', shape: 'pants', color: '#6B5B3A', glowColor: null },
-        { id: 1033, name: 'Iron Greaves', shape: 'greaves', color: '#A0A0A0', glowColor: null },
+        { id: 0, name: '(None)', shape: null, color: null },
+        { id: 1031, name: 'Cloth Pants', shape: 'pants', color: '#6B5B3A' },
+        { id: 1033, name: 'Iron Greaves', shape: 'greaves', color: '#A0A0A0' },
     ],
     boots: [
-        { id: 0, name: '(None)', shape: null, color: null, glowColor: null },
-        { id: 1041, name: 'Leather Boots', shape: 'boots_eq', color: '#8B6914', glowColor: null },
-        { id: 1043, name: 'Steel Sabatons', shape: 'sabatons', color: '#B8B8B8', glowColor: null },
+        { id: 0, name: '(None)', shape: null, color: null },
+        { id: 1041, name: 'Leather Boots', shape: 'boots', color: '#8B6914' },
+        { id: 1043, name: 'Steel Sabatons', shape: 'sabatons', color: '#B8B8B8' },
     ],
     gloves: [
-        { id: 0, name: '(None)', shape: null, color: null, glowColor: null },
-        { id: 1051, name: 'Cloth Gloves', shape: 'gloves_eq', color: '#7A6B3A', glowColor: null },
-        { id: 1053, name: 'Gauntlets', shape: 'gauntlets', color: '#A0A0A0', glowColor: null },
+        { id: 0, name: '(None)', shape: null, color: null },
+        { id: 1051, name: 'Cloth Gloves', shape: 'gloves', color: '#7A6B3A' },
+        { id: 1053, name: 'Gauntlets', shape: 'gauntlets', color: '#A0A0A0' },
     ],
 };
 
 const EQUIP_ATTACH = {
-    weapon: 'right_hand', helmet: 'head', chest: 'torso',
-    legs: 'left_leg', boots: 'left_foot', gloves: 'left_hand',
+    weapon: 'right_hand',
+    helmet: 'head',
+    chest: 'torso',
+    legs: 'left_leg',
+    boots: 'left_foot',
+    gloves: 'left_hand',
 };
 
-// ─── State ───
+// State
 let state = {
-    race: 'Human', stage: 1, selectedPart: null,
-    parts: {}, drawOrder: {},
-    playing: false, animFrame: 0, animTime: 0, speed: 1,
-    direction: 'down', animType: 'walk',
-    dragging: null, images: {}, skeletonData: null,
-    partMapping: {}, equipment: {}, equipmentOffsets: {},
-    showGrid: false, showCrosshair: false, showOnion: false,
-    zoom: 4, loop: true,
+    race: 'Human',
+    stage: 1,
+    selectedPart: null,
+    parts: {},
+    drawOrder: {},
+    playing: false,
+    animFrame: 0,
+    animTime: 0,
+    speed: 1,
+    direction: 'down',
+    animType: 'walk',
+    dragging: null,
+    images: {},
+    skeletonData: null,
+    partMapping: {},
+    equipment: {},
+    equipmentOffsets: {},
+    showGrid: false,
+    showCrosshair: false,
+    showOnion: false,
+    zoom: 4,
+    loop: true,
 };
 
-// ─── Undo System ───
+// Undo system
 const undoStack = [];
 const MAX_UNDO = 20;
 
-function pushUndo(desc) {
+function pushUndo(description) {
     undoStack.push({
-        desc,
+        desc: description,
         parts: JSON.parse(JSON.stringify(state.parts)),
-        partMapping: { ...state.partMapping },
-        equipment: { ...state.equipment },
+        partMapping: JSON.parse(JSON.stringify(state.partMapping)),
+        equipment: JSON.parse(JSON.stringify(state.equipment)),
         equipmentOffsets: JSON.parse(JSON.stringify(state.equipmentOffsets)),
         drawOrder: JSON.parse(JSON.stringify(state.drawOrder)),
     });
@@ -370,258 +405,280 @@ function pushUndo(desc) {
 }
 
 function popUndo() {
-    if (!undoStack.length) { toast('Nothing to undo'); return; }
-    const snap = undoStack.pop();
+    if (undoStack.length === 0) { toast('Nothing to undo'); return; }
+    var snap = undoStack.pop();
     state.parts = snap.parts;
     state.partMapping = snap.partMapping;
     state.equipment = snap.equipment;
     state.equipmentOffsets = snap.equipmentOffsets;
     state.drawOrder = snap.drawOrder;
-    rebuildPartsList(); updatePropsPanel(); updateMappingPanel(); updateEquipPanel(); render();
+    rebuildPartsList();
+    updatePropsPanel();
+    updateMappingPanel();
+    updateEquipPanel();
+    render();
     toast('Undo: ' + snap.desc);
 }
 
-// ─── DOM Refs ───
-const $ = id => document.getElementById(id);
-const canvas = $('main-canvas');
-const ctx = canvas.getContext('2d');
-const raceSelect = $('race-select');
-const stageSelect = $('stage-select');
-const partsList = $('parts-list');
-const propsPanel = $('props-panel');
-const canvasInfo = $('canvas-info');
-const statusMsg = $('status-msg');
-const dirSelect = $('dir-select');
-const animSelect = $('anim-select');
-const speedSlider = $('speed-slider');
-const speedVal = $('speed-val');
-const frameInfo = $('frame-info');
-const toastEl = $('toast');
-const CHAR_CENTER_X = 256;
-const CHAR_CENTER_Y = 256;
+// DOM Refs
+var $ = function(id) { return document.getElementById(id); };
+var canvas = $('main-canvas');
+var ctx = canvas.getContext('2d');
+var raceSelect = $('race-select');
+var stageSelect = $('stage-select');
+var partsList = $('parts-list');
+var propsPanel = $('props-panel');
+var canvasInfo = $('canvas-info');
+var statusMsg = $('status-msg');
+var dirSelect = $('dir-select');
+var animSelect = $('anim-select');
+var speedSlider = $('speed-slider');
+var speedVal = $('speed-val');
+var frameInfo = $('frame-info');
+var toastEl = $('toast');
+var mappingPanel = $('mapping-panel');
+var equipPanel = $('equip-panel');
 
-// ─── Toast ───
-let toastTimeout;
+// Toast
+var toastTimeout;
 function toast(msg) {
     toastEl.textContent = msg;
     toastEl.classList.add('show');
     clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 2500);
+    toastTimeout = setTimeout(function() { toastEl.classList.remove('show'); }, 2500);
 }
 
-// ─── Error Log System ───
-const errorLog = [];
-function addLogEntry(level, msg) {
-    const entry = { time: new Date().toLocaleTimeString(), level, msg };
-    errorLog.push(entry);
-    if (errorLog.length > 100) errorLog.shift();
-    console.log('[' + level.toUpperCase() + '] ' + msg);
-    updateLogPanel();
-}
-
-function updateLogPanel() {
-    const panel = $('log-panel');
-    if (!panel) return;
-    if (errorLog.length === 0) {
-        panel.innerHTML = '<div class="no-selection">No log entries yet.</div>';
-        return;
-    }
-    const colors = { error: '#e94560', warning: '#f59e0b', info: '#0ea5e9' };
-    panel.innerHTML = errorLog.slice().reverse().map(e =>
-        '<div style="font-size:11px;padding:3px 0;border-bottom:1px solid var(--border);word-break:break-all;">'
-        + '<span style="color:' + (colors[e.level] || '#8899aa') + ';font-weight:600;">[' + e.level.toUpperCase() + ']</span> '
-        + '<span style="color:var(--text-dim);">' + e.time + '</span> '
-        + e.msg
-        + '</div>'
-    ).join('');
-}
-
-// ─── Tab Switching ───
+// Tab Switching
 function switchTab(tabId) {
-    document.querySelectorAll('.tab-bar button').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === tabId));
-    if (tabId === 'log-tab') updateLogPanel();
+    document.querySelectorAll('.tab-bar button').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+    });
+    document.querySelectorAll('.tab-panel').forEach(function(panel) {
+        panel.classList.toggle('active', panel.id === tabId);
+    });
 }
 
-// ─── Get mapped image for a slot ───
-function getImageForSlot(slotName) {
-    const src = state.partMapping[slotName] || slotName;
-    return state.images[src] || null;
-}
-
-// ─── Init ───
+// Init
 function init() {
-    for (const [id, name] of Object.entries(RACES)) {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = id + '. ' + name;
+    // Populate race dropdown
+    for (var id in RACES) {
+        var opt = document.createElement('option');
+        opt.value = RACES[id];
+        opt.textContent = id + '. ' + RACES[id];
         raceSelect.appendChild(opt);
     }
 
+    // Initialize equipment state
+    for (var slotType in EQUIPMENT_ITEMS) {
+        state.equipment[slotType] = 0;
+        state.equipmentOffsets[slotType] = { x: 0, y: 0 };
+    }
+
+    // Events - toolbar
     $('btn-load').addEventListener('click', loadSkeleton);
     $('btn-save').addEventListener('click', saveSkeleton);
     $('btn-export').addEventListener('click', exportSkeleton);
     $('btn-undo').addEventListener('click', popUndo);
-    $('btn-play').addEventListener('click', togglePlay);
-    $('btn-stop').addEventListener('click', stopPlay);
-    $('btn-step-back').addEventListener('click', () => stepFrame(-1));
-    $('btn-step-fwd').addEventListener('click', () => stepFrame(1));
-    dirSelect.addEventListener('change', () => { state.direction = dirSelect.value; rebuildPartsList(); render(); });
-    animSelect.addEventListener('change', () => { state.animType = animSelect.value; state.animFrame = 0; state.animTime = 0; render(); });
-    speedSlider.addEventListener('input', () => { state.speed = parseFloat(speedSlider.value); speedVal.textContent = state.speed.toFixed(1) + 'x'; });
+    raceSelect.addEventListener('change', function() { state.race = raceSelect.value; });
+    stageSelect.addEventListener('change', function() { state.stage = parseInt(stageSelect.value); });
     $('chk-bones').addEventListener('change', render);
     $('chk-anchors').addEventListener('change', render);
-    $('chk-loop').addEventListener('change', () => { state.loop = $('chk-loop').checked; });
-    raceSelect.addEventListener('change', () => { state.race = raceSelect.value; });
-    stageSelect.addEventListener('change', () => { state.stage = parseInt(stageSelect.value); });
 
-    // Canvas controls
-    $('btn-grid').addEventListener('click', () => { state.showGrid = !state.showGrid; $('btn-grid').classList.toggle('active', state.showGrid); render(); });
-    $('btn-crosshair').addEventListener('click', () => { state.showCrosshair = !state.showCrosshair; $('btn-crosshair').classList.toggle('active', state.showCrosshair); render(); });
-    $('btn-onion').addEventListener('click', () => { state.showOnion = !state.showOnion; $('btn-onion').classList.toggle('active', state.showOnion); render(); });
-    $('btn-zoom-in').addEventListener('click', () => { if (state.zoom < 8) { state.zoom *= 2; updateCanvasSize(); } });
-    $('btn-zoom-out').addEventListener('click', () => { if (state.zoom > 1) { state.zoom /= 2; updateCanvasSize(); } });
+    // Events - status bar
+    $('btn-play').addEventListener('click', togglePlay);
+    $('btn-stop').addEventListener('click', stopPlay);
+    $('btn-step-back').addEventListener('click', function() { stepFrame(-1); });
+    $('btn-step-fwd').addEventListener('click', function() { stepFrame(1); });
+    animSelect.addEventListener('change', function() { state.animType = animSelect.value; state.animFrame = 0; state.animTime = 0; render(); });
+    dirSelect.addEventListener('change', function() { state.direction = dirSelect.value; rebuildPartsList(); render(); });
+    speedSlider.addEventListener('input', function() { state.speed = parseFloat(speedSlider.value); speedVal.textContent = state.speed.toFixed(1) + 'x'; });
+    $('chk-loop').addEventListener('change', function() { state.loop = $('chk-loop').checked; });
 
-    // Tab switching
-    document.querySelectorAll('.tab-bar button').forEach(btn => {
-        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    // Events - canvas controls
+    $('btn-grid').addEventListener('click', function() { state.showGrid = !state.showGrid; $('btn-grid').classList.toggle('active', state.showGrid); render(); });
+    $('btn-crosshair').addEventListener('click', function() { state.showCrosshair = !state.showCrosshair; $('btn-crosshair').classList.toggle('active', state.showCrosshair); render(); });
+    $('btn-onion').addEventListener('click', function() { state.showOnion = !state.showOnion; $('btn-onion').classList.toggle('active', state.showOnion); render(); });
+    $('btn-zoom-in').addEventListener('click', function() { setZoom(state.zoom * 2); });
+    $('btn-zoom-out').addEventListener('click', function() { setZoom(state.zoom / 2); });
+
+    // Events - tab switching
+    document.querySelectorAll('.tab-bar button').forEach(function(btn) {
+        btn.addEventListener('click', function() { switchTab(btn.dataset.tab); });
     });
 
-    // Canvas mouse
+    // Canvas mouse events
     canvas.addEventListener('mousedown', onCanvasMouseDown);
     canvas.addEventListener('mousemove', onCanvasMouseMove);
     canvas.addEventListener('mouseup', onCanvasMouseUp);
     canvas.addEventListener('mouseleave', onCanvasMouseUp);
 
     // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-        if (e.ctrlKey && e.key === 'z') { e.preventDefault(); popUndo(); }
-        else if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveSkeleton(); }
-        else if (e.key === ' ') { e.preventDefault(); togglePlay(); }
-        else if (e.key === 'ArrowLeft') { e.preventDefault(); stepFrame(-1); }
-        else if (e.key === 'ArrowRight') { e.preventDefault(); stepFrame(1); }
-        else if (e.key === '1') dirSelect.value = 'down';
-        else if (e.key === '2') dirSelect.value = 'left';
-        else if (e.key === '3') dirSelect.value = 'right';
-        else if (e.key === '4') dirSelect.value = 'up';
-        if (['1','2','3','4'].includes(e.key)) { state.direction = dirSelect.value; rebuildPartsList(); render(); }
-    });
+    document.addEventListener('keydown', onKeyDown);
 
+    // Build initial panels
     updateEquipPanel();
     updateMappingPanel();
-    updateCanvasSize();
+
+    // Start render loop
     requestAnimationFrame(tick);
 }
 
-function updateCanvasSize() {
-    const size = 64 * state.zoom;
-    canvas.width = size;
-    canvas.height = size;
-    $('zoom-label').textContent = state.zoom + 'x';
+// Zoom
+function setZoom(z) {
+    z = Math.max(1, Math.min(8, z));
+    state.zoom = z;
+    $('zoom-label').textContent = z + 'x';
     render();
 }
 
-// ─── Load / Save ───
+// Keyboard Shortcuts
+function onKeyDown(e) {
+    if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        popUndo();
+        return;
+    }
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        saveSkeleton();
+        return;
+    }
+    if (e.key === ' ' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
+        e.preventDefault();
+        togglePlay();
+        return;
+    }
+    if (e.key === 'ArrowLeft' && e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+        stepFrame(-1);
+        return;
+    }
+    if (e.key === 'ArrowRight' && e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+        stepFrame(1);
+        return;
+    }
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
+        if (e.key === '1') { setZoom(1); return; }
+        if (e.key === '2') { setZoom(2); return; }
+        if (e.key === '3') { setZoom(4); return; }
+        if (e.key === '4') { setZoom(8); return; }
+    }
+}
+
+// Load Skeleton
 async function loadSkeleton() {
-    const race = state.race;
-    const stage = state.stage;
+    var race = state.race;
+    var stage = state.stage;
     statusMsg.textContent = 'Loading ' + race + ' S' + stage + '...';
-    addLogEntry('info', 'Loading ' + race + ' S' + stage + '...');
+
     state.parts = {};
     state.images = {};
     state.selectedPart = null;
     state.skeletonData = null;
     state.partMapping = {};
-    state.equipment = {};
-    state.equipmentOffsets = {};
 
-    // Load skeleton JSON
-    const skelUrl = '../Sprites/Characters/' + race + '/parts/' + race + '_S' + stage + '_skeleton.json';
-    let skelData = null;
+    var skelUrl = '../Sprites/Characters/' + race + '/parts/' + race + '_S' + stage + '_skeleton.json';
+    var skelData = null;
     try {
-        const resp = await fetch(skelUrl);
+        var resp = await fetch(skelUrl);
         if (resp.ok) {
-            const text = await resp.text();
+            var text = await resp.text();
             try {
                 skelData = JSON.parse(text);
                 state.skeletonData = skelData;
             } catch (parseErr) {
                 toast('Warning: skeleton JSON is corrupt, using defaults');
-                console.error('Skeleton parse error:', parseErr, 'Raw:', text.substring(0, 200));
-                addLogEntry('error', 'Skeleton JSON parse error: ' + parseErr.message + ' | Raw: ' + text.substring(0, 100));
+                console.error('[Load] Skeleton JSON parse error:', parseErr.message, '| Raw:', text.substring(0, 100));
             }
         }
-    } catch (e) { addLogEntry('warn', 'Skeleton load: ' + e.message); }
+    } catch (e) { console.warn('[Load] Skeleton fetch:', e.message); }
 
-    // Init draw order
-    state.drawOrder = {};
-    for (const dir of ['down','up','left','right']) {
-        if (skelData && skelData.draw_order && Array.isArray(skelData.draw_order)) {
-            state.drawOrder[dir] = [...skelData.draw_order];
-        } else {
-            state.drawOrder[dir] = [...DEFAULT_DRAW_ORDER[dir]];
-        }
-    }
-
-    // Load part images
-    const loadPromises = [];
-    for (const part of BODY_PARTS) {
-        const imgUrl = '../Sprites/Characters/' + race + '/parts/' + race + '_S' + stage + '_' + part + '.png';
-        const img = new Image();
-        const p = new Promise(resolve => {
-            img.onload = () => {
-                state.images[part] = img;
-                const anchor = (skelData && skelData.parts && skelData.parts[part])
-                    ? { x: skelData.parts[part].anchor.x, y: skelData.parts[part].anchor.y }
-                    : { ...DEFAULT_ANCHORS[part] };
-                const rotation = (skelData && skelData.bones && skelData.bones[part])
-                    ? (skelData.bones[part].rotation || 0)
-                    : (skelData && skelData.parts && skelData.parts[part])
-                        ? (skelData.parts[part].rotation || 0) : 0;
-                state.parts[part] = { anchor, rotation, visible: true };
-                resolve(true);
-            };
-            img.onerror = () => resolve(false);
-        });
-        img.src = imgUrl;
-        loadPromises.push(p);
-    }
-
-    const results = await Promise.all(loadPromises);
-    const loadedCount = results.filter(Boolean).length;
-
-    // Clean draw order
-    for (const dir of ['down','up','left','right']) {
-        state.drawOrder[dir] = state.drawOrder[dir].filter(p => state.images[p]);
-        for (const part of BODY_PARTS) {
-            if (state.images[part] && !state.drawOrder[dir].includes(part)) {
-                state.drawOrder[dir].push(part);
-            }
-        }
-    }
-
-    // Load editor config
+    // Try loading editor config
     try {
-        const cfgResp = await fetch('/api/editor-config/load?race=' + encodeURIComponent(race) + '&stage=' + stage);
+        var cfgResp = await fetch('/api/editor-config/load?race=' + encodeURIComponent(race) + '&stage=' + stage);
         if (cfgResp.ok) {
-            const cfgText = await cfgResp.text();
-            const cfgData = JSON.parse(cfgText);
-            if (cfgData && cfgData.config) {
-                const cfg = cfgData.config;
-                if (cfg.part_mapping) state.partMapping = cfg.part_mapping;
-                if (cfg.equipment_loadout) state.equipment = cfg.equipment_loadout;
-                if (cfg.equipment_offsets) state.equipmentOffsets = cfg.equipment_offsets;
-                if (cfg.bone_hierarchy) {
-                    for (const [bone, parent] of Object.entries(cfg.bone_hierarchy)) {
-                        BONE_HIERARCHY[bone] = parent;
+            var cfgText = await cfgResp.text();
+            var cfg = JSON.parse(cfgText);
+            if (cfg && cfg.config) {
+                if (cfg.config.part_mapping) state.partMapping = cfg.config.part_mapping;
+                if (cfg.config.partMapping) state.partMapping = cfg.config.partMapping;
+                if (cfg.config.equipment_loadout) state.equipment = cfg.config.equipment_loadout;
+                if (cfg.config.equipment) state.equipment = cfg.config.equipment;
+                if (cfg.config.equipment_offsets) state.equipmentOffsets = cfg.config.equipment_offsets;
+                if (cfg.config.equipmentOffsets) state.equipmentOffsets = cfg.config.equipmentOffsets;
+                if (cfg.config.bone_hierarchy) {
+                    for (var bone in cfg.config.bone_hierarchy) {
+                        BONE_HIERARCHY[bone] = cfg.config.bone_hierarchy[bone];
                     }
                 }
             }
         }
-    } catch (e) { addLogEntry('warn', 'Config load: ' + e.message); }
+    } catch (e) { console.warn('[Load] Config:', e.message); }
+
+    // Ensure equipment state initialized
+    for (var st in EQUIPMENT_ITEMS) {
+        if (state.equipment[st] === undefined) state.equipment[st] = 0;
+        if (!state.equipmentOffsets[st]) state.equipmentOffsets[st] = { x: 0, y: 0 };
+    }
+
+    // Initialize draw order
+    state.drawOrder = {};
+    var dirs = ['down','up','left','right'];
+    for (var di = 0; di < dirs.length; di++) {
+        var dir = dirs[di];
+        if (skelData && skelData.draw_order && Array.isArray(skelData.draw_order)) {
+            state.drawOrder[dir] = skelData.draw_order.slice();
+        } else {
+            state.drawOrder[dir] = DEFAULT_DRAW_ORDER[dir].slice();
+        }
+    }
+
+    // Load part images
+    var loadPromises = [];
+    for (var pi = 0; pi < BODY_PARTS.length; pi++) {
+        var part = BODY_PARTS[pi];
+        (function(part) {
+            var imgUrl = '../Sprites/Characters/' + race + '/parts/' + race + '_S' + stage + '_' + part + '.png';
+            var img = new Image();
+            var p = new Promise(function(resolve) {
+                img.onload = function() {
+                    state.images[part] = img;
+                    var anchor = (skelData && skelData.parts && skelData.parts[part])
+                        ? { x: skelData.parts[part].anchor.x, y: skelData.parts[part].anchor.y }
+                        : { x: DEFAULT_ANCHORS[part].x, y: DEFAULT_ANCHORS[part].y };
+                    var rotation = (skelData && skelData.bones && skelData.bones[part])
+                        ? (skelData.bones[part].rotation || 0)
+                        : (skelData && skelData.parts && skelData.parts[part])
+                            ? (skelData.parts[part].rotation || 0)
+                            : 0;
+                    state.parts[part] = { anchor: anchor, rotation: rotation, visible: true };
+                    resolve(true);
+                };
+                img.onerror = function() { resolve(false); };
+            });
+            img.src = imgUrl;
+            loadPromises.push(p);
+        })(part);
+    }
+
+    var results = await Promise.all(loadPromises);
+    var loadedCount = results.filter(Boolean).length;
+
+    // Fix draw order
+    for (var di2 = 0; di2 < dirs.length; di2++) {
+        var d = dirs[di2];
+        state.drawOrder[d] = state.drawOrder[d].filter(function(p) { return state.images[p]; });
+        for (var pi2 = 0; pi2 < BODY_PARTS.length; pi2++) {
+            var bp = BODY_PARTS[pi2];
+            if (state.images[bp] && state.drawOrder[d].indexOf(bp) === -1) {
+                state.drawOrder[d].push(bp);
+            }
+        }
+    }
 
     rebuildPartsList();
+    updatePropsPanel();
     updateMappingPanel();
     updateEquipPanel();
     canvasInfo.textContent = race + ' Stage ' + stage + ' \u2014 ' + loadedCount + ' parts loaded';
@@ -630,120 +687,90 @@ async function loadSkeleton() {
     render();
 }
 
+// Save Skeleton
 async function saveSkeleton() {
-    const data = buildSkeletonJson();
+    var data = buildSkeletonJson();
     statusMsg.textContent = 'Saving...';
     console.log('[Save] Building skeleton JSON for', state.race, 'S' + state.stage);
 
     // Validate JSON before sending
-    let bodyStr;
+    var bodyStr;
     try {
-        bodyStr = JSON.stringify({ race: state.race, stage: state.stage, data });
+        bodyStr = JSON.stringify({ race: state.race, stage: state.stage, data: data });
         JSON.parse(bodyStr); // round-trip validation
         console.log('[Save] JSON validation passed, payload size:', bodyStr.length, 'bytes');
     } catch (jsonErr) {
-        const errMsg = 'Save aborted: invalid JSON — ' + jsonErr.message;
+        var errMsg = 'Save aborted: invalid JSON — ' + jsonErr.message;
         toast(errMsg);
         statusMsg.textContent = 'Save error (bad JSON)';
         console.error('[Save] JSON validation FAILED:', jsonErr);
-        console.error('[Save] Raw data object:', JSON.stringify(data, (k, v) => typeof v === 'number' && !isFinite(v) ? '***NaN/Inf***' : v, 2));
-        addLogEntry('error', errMsg);
+        console.error('[Save] Raw data:', JSON.stringify(data, function(k, v) { return typeof v === 'number' && !isFinite(v) ? '***NaN/Inf***' : v; }, 2));
         return;
     }
 
     // Save skeleton
     try {
-        const resp = await fetch('/api/skeleton/save', {
+        var skelResp = await fetch('/api/skeleton/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: bodyStr
         });
-        const respText = await resp.text();
-        console.log('[Save] Skeleton response:', resp.status, respText.substring(0, 200));
-        let result;
+        var respText = await skelResp.text();
+        console.log('[Save] Skeleton response:', skelResp.status, respText.substring(0, 200));
+        var skelResult;
         try {
-            result = JSON.parse(respText);
+            skelResult = JSON.parse(respText);
         } catch (parseErr) {
-            const errMsg = 'Save failed: server returned invalid response (HTTP ' + resp.status + '): ' + respText.substring(0, 100);
-            toast(errMsg);
+            toast('Save failed: server returned invalid response (HTTP ' + skelResp.status + '): ' + respText.substring(0, 100));
             statusMsg.textContent = 'Save failed';
-            console.error('[Save] Server response parse error:', parseErr, 'Raw:', respText);
-            addLogEntry('error', errMsg);
+            console.error('[Save] Response parse error:', parseErr, 'Raw:', respText);
             return;
         }
-        if (!result.success) {
-            const errMsg = 'Skeleton save failed: ' + (result.error || 'Unknown');
-            toast(errMsg);
+        if (!skelResult.success) {
+            toast('Skeleton save failed: ' + (skelResult.error || 'Unknown'));
             statusMsg.textContent = 'Save failed';
-            addLogEntry('error', errMsg);
             return;
         }
-        console.log('[Save] Skeleton saved OK:', result.file);
+        console.log('[Save] Skeleton saved OK:', skelResult.file);
     } catch (e) {
-        const errMsg = 'Save network error: ' + e.message;
-        toast(errMsg);
+        toast('Save network error: ' + e.message);
         statusMsg.textContent = 'Save error';
         console.error('[Save] Network error:', e);
-        addLogEntry('error', errMsg);
         return;
     }
 
     // Save editor config
-    let cfgBodyStr;
     try {
-        cfgBodyStr = JSON.stringify({
+        var cfgBodyStr = JSON.stringify({
             race: state.race, stage: state.stage,
             config: {
                 part_mapping: state.partMapping,
                 equipment_loadout: state.equipment,
                 equipment_offsets: state.equipmentOffsets,
-                bone_hierarchy: { ...BONE_HIERARCHY },
+                bone_hierarchy: Object.assign({}, BONE_HIERARCHY),
             }
         });
-    } catch (jsonErr) {
-        console.error('[Save] Config JSON build failed:', jsonErr);
-        addLogEntry('error', 'Config JSON build failed: ' + jsonErr.message);
+        var cfgResp = await fetch('/api/editor-config/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: cfgBodyStr
+        });
+        var cfgText = await cfgResp.text();
+        console.log('[Save] Config response:', cfgResp.status, cfgText.substring(0, 200));
+    } catch (cfgErr) {
+        console.error('[Save] Config save error:', cfgErr);
     }
 
-    if (cfgBodyStr) {
-        try {
-            const cfgResp = await fetch('/api/editor-config/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: cfgBodyStr
-            });
-            const cfgText = await cfgResp.text();
-            console.log('[Save] Config response:', cfgResp.status, cfgText.substring(0, 200));
-            let cfgResult;
-            try { cfgResult = JSON.parse(cfgText); } catch (e) {
-                console.error('[Save] Config response parse error:', e, 'Raw:', cfgText);
-                addLogEntry('error', 'Config save: server returned invalid response');
-            }
-            if (cfgResult && !cfgResult.success) {
-                addLogEntry('warning', 'Config save failed: ' + (cfgResult.error || 'Unknown'));
-            }
-        } catch (e) {
-            console.error('[Save] Config save error:', e);
-            addLogEntry('warning', 'Config save network error: ' + e.message);
-        }
-    }
-
-    toast('Saved successfully');
+    toast('Skeleton + config saved successfully');
     statusMsg.textContent = 'Saved';
-    addLogEntry('info', 'Saved ' + state.race + ' S' + state.stage + ' successfully');
 }
 
+// Export Skeleton
 function exportSkeleton() {
-    const data = buildSkeletonJson();
-    data.editor_config = {
-        part_mapping: state.partMapping,
-        equipment_loadout: state.equipment,
-        equipment_offsets: state.equipmentOffsets,
-        bone_hierarchy: { ...BONE_HIERARCHY },
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    var data = buildSkeletonJson();
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
     a.href = url;
     a.download = state.race + '_S' + state.stage + '_skeleton.json';
     a.click();
@@ -751,12 +778,16 @@ function exportSkeleton() {
     toast('Exported skeleton.json');
 }
 
+// Build Skeleton JSON
 function buildSkeletonJson() {
-    const origParts = (state.skeletonData && state.skeletonData.parts) || {};
-    const parts = {};
-    for (const [name, pd] of Object.entries(state.parts)) {
-        const orig = origParts[name] || {};
-        const partEntry = { anchor: { x: pd.anchor.x, y: pd.anchor.y } };
+    var origParts = (state.skeletonData && state.skeletonData.parts) || {};
+    var parts = {};
+    for (var name in state.parts) {
+        var pd = state.parts[name];
+        var orig = origParts[name] || {};
+        var partEntry = {
+            anchor: { x: pd.anchor.x, y: pd.anchor.y },
+        };
         if (orig.file !== undefined) partEntry.file = orig.file;
         if (orig.width !== undefined) partEntry.width = orig.width;
         if (orig.height !== undefined) partEntry.height = orig.height;
@@ -765,420 +796,396 @@ function buildSkeletonJson() {
         parts[name] = partEntry;
     }
 
-    const source_size = (state.skeletonData && state.skeletonData.source_size) || 1;
-    const bones = {};
-    for (const [name, pd] of Object.entries(state.parts)) {
-        const origBones = (state.skeletonData && state.skeletonData.bones) || {};
-        const origBone = origBones[name] || {};
-        const parentName = BONE_HIERARCHY[name] || null;
-        let offset_x, offset_y;
-        const orig = origParts[name] || {};
-        // source_center may be array [x,y] or object {x,y} — normalize access
-        const sc = orig.source_center;
-        const scX = sc ? (Array.isArray(sc) ? sc[0] : sc.x) : undefined;
-        const scY = sc ? (Array.isArray(sc) ? sc[1] : sc.y) : undefined;
+    var source_size = (state.skeletonData && state.skeletonData.source_size) || 1;
+    var bones = {};
+    for (var bname in state.parts) {
+        var bpd = state.parts[bname];
+        var origBones = (state.skeletonData && state.skeletonData.bones) || {};
+        var origBone = origBones[bname] || {};
+        var parentName = BONE_HIERARCHY[bname] || null;
+        var borig = origParts[bname] || {};
+
+        var offset_x, offset_y;
+        // source_center may be array [x,y] or object {x,y} — normalize
+        var sc = borig.source_center;
+        var scX = sc ? (Array.isArray(sc) ? sc[0] : sc.x) : undefined;
+        var scY = sc ? (Array.isArray(sc) ? sc[1] : sc.y) : undefined;
         if (scX !== undefined && parentName === null) {
             offset_x = Math.round((scX / source_size) * 1000) / 1000;
             offset_y = Math.round((scY / source_size) * 1000) / 1000;
         } else if (scX !== undefined && parentName !== null) {
-            const parentOrig = origParts[parentName] || {};
-            const psc = parentOrig.source_center;
-            const pscX = psc ? (Array.isArray(psc) ? psc[0] : psc.x) : undefined;
-            const pscY = psc ? (Array.isArray(psc) ? psc[1] : psc.y) : undefined;
+            var parentOrig = origParts[parentName] || {};
+            var psc = parentOrig.source_center;
+            var pscX = psc ? (Array.isArray(psc) ? psc[0] : psc.x) : undefined;
+            var pscY = psc ? (Array.isArray(psc) ? psc[1] : psc.y) : undefined;
             if (pscX !== undefined) {
                 offset_x = Math.round(((scX / source_size) - (pscX / source_size)) * 1000) / 1000;
                 offset_y = Math.round(((scY / source_size) - (pscY / source_size)) * 1000) / 1000;
             } else {
-                offset_x = origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].x : 0);
-                offset_y = origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].y : 0);
+                offset_x = origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[bname] ? PARENT_ATTACH[bname].x : 0);
+                offset_y = origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[bname] ? PARENT_ATTACH[bname].y : 0);
             }
         } else {
-            offset_x = origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].x : 0);
-            offset_y = origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].y : 0);
+            offset_x = origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[bname] ? PARENT_ATTACH[bname].x : 0);
+            offset_y = origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[bname] ? PARENT_ATTACH[bname].y : 0);
         }
-        // Guard against NaN
+        // Guard against NaN from malformed data
         if (!isFinite(offset_x)) offset_x = 0;
         if (!isFinite(offset_y)) offset_y = 0;
-        bones[name] = { parent: parentName, offset_x, offset_y, rotation: pd.rotation || 0, scale: origBone.scale !== undefined ? origBone.scale : 1.0 };
+
+        bones[bname] = {
+            parent: parentName,
+            offset_x: offset_x,
+            offset_y: offset_y,
+            rotation: bpd.rotation,
+            scale: origBone.scale !== undefined ? origBone.scale : 1.0,
+        };
     }
 
-    const draw_order = state.drawOrder[state.direction] || state.drawOrder['down'] || [];
-    const result = { race: state.race, stage: state.stage };
-    if (state.skeletonData && state.skeletonData.source_size !== undefined) result.source_size = state.skeletonData.source_size;
+    var draw_order = state.drawOrder[state.direction] || state.drawOrder['down'] || [];
+
+    var result = {
+        race: state.race,
+        stage: state.stage,
+    };
+    if (state.skeletonData && state.skeletonData.source_size !== undefined) {
+        result.source_size = state.skeletonData.source_size;
+    }
     result.parts = parts;
     result.bones = bones;
     result.draw_order = draw_order;
     return result;
 }
 
-// ─── Parts List UI ───
+// Parts List (Left Sidebar)
 function rebuildPartsList() {
     partsList.innerHTML = '';
-    const order = state.drawOrder[state.direction] || [];
-    order.forEach((partName) => {
-        const mappedImg = getImageForSlot(partName);
-        if (!mappedImg && !state.images[partName]) return;
-        const pd = state.parts[partName];
-        if (!pd) return;
+    var order = state.drawOrder[state.direction] || [];
 
-        const item = document.createElement('div');
-        item.className = 'part-item' + (state.selectedPart === partName ? ' selected' : '');
-        item.dataset.part = partName;
-        item.draggable = true;
+    for (var i = 0; i < order.length; i++) {
+        (function(partName, index) {
+            if (!state.images[partName]) return;
+            var pd = state.parts[partName];
+            if (!pd) return;
 
-        const handle = document.createElement('span');
-        handle.className = 'drag-handle';
-        handle.textContent = '\u2630';
+            var item = document.createElement('div');
+            item.className = 'part-item' + (state.selectedPart === partName ? ' selected' : '');
+            item.dataset.part = partName;
+            item.draggable = true;
 
-        const thumb = document.createElement('div');
-        thumb.className = 'part-thumb';
-        const dispImg = getImageForSlot(partName) || state.images[partName];
-        if (dispImg) {
-            const thumbImg = document.createElement('img');
-            thumbImg.src = dispImg.src;
+            var handle = document.createElement('span');
+            handle.className = 'drag-handle';
+            handle.textContent = '\u2630';
+
+            var thumb = document.createElement('div');
+            thumb.className = 'part-thumb';
+            var thumbImg = document.createElement('img');
+            var mappedPart = state.partMapping[partName] || partName;
+            var mappedImg = state.images[mappedPart] || state.images[partName];
+            if (mappedImg) thumbImg.src = mappedImg.src;
             thumb.appendChild(thumbImg);
-        }
 
-        const nameEl = document.createElement('span');
-        nameEl.className = 'part-name';
-        const mapped = state.partMapping[partName];
-        nameEl.textContent = partName.replace(/_/g, ' ') + (mapped && mapped !== partName ? ' \u2190 ' + mapped.replace(/_/g, ' ') : '');
+            var nameEl = document.createElement('span');
+            nameEl.className = 'part-name';
+            var displayName = partName.replace(/_/g, ' ');
+            if (state.partMapping[partName] && state.partMapping[partName] !== partName) {
+                displayName += ' \u2190 ' + state.partMapping[partName].replace(/_/g, ' ');
+            }
+            nameEl.textContent = displayName;
 
-        const vis = document.createElement('span');
-        vis.className = 'part-vis' + (pd.visible ? '' : ' hidden-part');
-        vis.textContent = pd.visible ? '\u{1F441}' : '\u2014';
-        vis.title = 'Toggle visibility';
-        vis.addEventListener('click', (e) => { e.stopPropagation(); pd.visible = !pd.visible; rebuildPartsList(); render(); });
+            var vis = document.createElement('span');
+            vis.className = 'part-vis' + (pd.visible ? '' : ' hidden-part');
+            vis.textContent = pd.visible ? '\u25C9' : '\u25CE';
+            vis.title = 'Toggle visibility';
+            vis.addEventListener('click', function(e) {
+                e.stopPropagation();
+                pd.visible = !pd.visible;
+                rebuildPartsList();
+                render();
+            });
 
-        item.appendChild(handle);
-        item.appendChild(thumb);
-        item.appendChild(nameEl);
-        item.appendChild(vis);
+            item.appendChild(handle);
+            item.appendChild(thumb);
+            item.appendChild(nameEl);
+            item.appendChild(vis);
 
-        item.addEventListener('click', () => { state.selectedPart = partName; rebuildPartsList(); updatePropsPanel(); render(); });
+            item.addEventListener('click', function() {
+                state.selectedPart = partName;
+                rebuildPartsList();
+                updatePropsPanel();
+                render();
+            });
 
-        item.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', partName); item.classList.add('dragging'); });
-        item.addEventListener('dragend', () => { item.classList.remove('dragging'); document.querySelectorAll('.drop-indicator').forEach(el => el.remove()); });
-        item.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
-        item.addEventListener('drop', (e) => {
-            e.preventDefault();
-            const draggedPart = e.dataTransfer.getData('text/plain');
-            if (draggedPart === partName) return;
-            pushUndo('reorder ' + draggedPart);
-            const order = state.drawOrder[state.direction];
-            const fromIdx = order.indexOf(draggedPart);
-            const toIdx = order.indexOf(partName);
-            if (fromIdx < 0 || toIdx < 0) return;
-            order.splice(fromIdx, 1);
-            order.splice(toIdx, 0, draggedPart);
-            rebuildPartsList(); render();
-        });
+            item.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', partName);
+                item.style.opacity = '0.4';
+            });
+            item.addEventListener('dragend', function() {
+                item.style.opacity = '1';
+                document.querySelectorAll('.drop-indicator').forEach(function(el) { el.remove(); });
+            });
+            item.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            });
+            item.addEventListener('drop', function(e) {
+                e.preventDefault();
+                var draggedPart = e.dataTransfer.getData('text/plain');
+                if (draggedPart === partName) return;
+                pushUndo('reorder parts');
+                var ord = state.drawOrder[state.direction];
+                var fromIdx = ord.indexOf(draggedPart);
+                var toIdx = ord.indexOf(partName);
+                if (fromIdx < 0 || toIdx < 0) return;
+                ord.splice(fromIdx, 1);
+                ord.splice(toIdx, 0, draggedPart);
+                rebuildPartsList();
+                render();
+            });
 
-        partsList.appendChild(item);
-    });
+            partsList.appendChild(item);
+        })(order[i], i);
+    }
 }
 
-// ─── Properties Panel ───
+// Properties Panel (Props Tab)
 function updatePropsPanel() {
-    const part = state.selectedPart;
+    var part = state.selectedPart;
     if (!part || !state.parts[part]) {
         propsPanel.innerHTML = '<div class="no-selection">Select a part to edit.</div>';
         return;
     }
-    const pd = state.parts[part];
-    propsPanel.innerHTML = '<div class="prop-group"><h3>' + part.replace(/_/g, ' ') + '</h3>'
-        + '<div class="prop-row"><label>Anchor X:</label><input type="number" id="prop-ax" value="' + pd.anchor.x + '" step="1"></div>'
-        + '<div class="prop-row"><label>Anchor Y:</label><input type="number" id="prop-ay" value="' + pd.anchor.y + '" step="1"></div>'
-        + '</div>'
-        + '<div class="prop-group"><h3>Bone Rotation</h3>'
-        + '<div class="prop-row"><label>Default:</label><input type="range" id="prop-rot" min="-180" max="180" step="1" value="' + pd.rotation + '"><span class="range-val" id="prop-rot-val">' + pd.rotation + '\u00B0</span></div>'
-        + '</div>'
-        + '<div class="prop-group"><h3>Hierarchy</h3>'
-        + '<div class="prop-row"><label>Parent:</label><span style="color:var(--text-dim)">' + (BONE_HIERARCHY[part] || '(root)') + '</span></div>'
-        + '<div class="prop-row"><label>Attach X:</label><input type="number" id="prop-pax" value="' + ((PARENT_ATTACH[part] || {x:0}).x) + '" step="1"></div>'
-        + '<div class="prop-row"><label>Attach Y:</label><input type="number" id="prop-pay" value="' + ((PARENT_ATTACH[part] || {y:0}).y) + '" step="1"></div>'
-        + '</div>'
-        + '<div class="prop-group"><h3>Draw Order</h3>'
-        + '<div class="prop-row"><label>Direction:</label><span style="color:var(--text-dim)">' + state.direction + '</span></div>'
-        + '<div class="prop-row"><label>Index:</label><span style="color:var(--text-dim)">' + ((state.drawOrder[state.direction] || []).indexOf(part)) + '</span></div>'
-        + '</div>';
 
-    $('prop-ax').addEventListener('change', (e) => { pushUndo('anchor ' + part); pd.anchor.x = parseInt(e.target.value) || 0; render(); });
-    $('prop-ay').addEventListener('change', (e) => { pushUndo('anchor ' + part); pd.anchor.y = parseInt(e.target.value) || 0; render(); });
-    $('prop-rot').addEventListener('input', (e) => { pd.rotation = parseInt(e.target.value) || 0; $('prop-rot-val').textContent = pd.rotation + '\u00B0'; render(); });
-    $('prop-rot').addEventListener('change', () => { pushUndo('rotate ' + part); });
-    $('prop-pax').addEventListener('change', (e) => { pushUndo('attach ' + part); if (!PARENT_ATTACH[part]) PARENT_ATTACH[part] = { x: 0, y: 0 }; PARENT_ATTACH[part].x = parseInt(e.target.value) || 0; render(); });
-    $('prop-pay').addEventListener('change', (e) => { pushUndo('attach ' + part); if (!PARENT_ATTACH[part]) PARENT_ATTACH[part] = { x: 0, y: 0 }; PARENT_ATTACH[part].y = parseInt(e.target.value) || 0; render(); });
+    var pd = state.parts[part];
+    var drawIdx = (state.drawOrder[state.direction] || []).indexOf(part);
+    var maxIdx = (state.drawOrder[state.direction] || []).length - 1;
+
+    propsPanel.innerHTML = '<div class="prop-group">' +
+        '<h3>' + part.replace(/_/g, ' ') + '</h3>' +
+        '<div class="prop-row"><label>Anchor X:</label><input type="number" id="prop-ax" value="' + pd.anchor.x + '" step="1"></div>' +
+        '<div class="prop-row"><label>Anchor Y:</label><input type="number" id="prop-ay" value="' + pd.anchor.y + '" step="1"></div>' +
+        '</div>' +
+        '<div class="prop-group">' +
+        '<h3>Bone Rotation</h3>' +
+        '<div class="prop-row"><label>Default:</label><input type="range" id="prop-rot" min="-180" max="180" step="1" value="' + pd.rotation + '"><span class="range-val" id="prop-rot-val">' + pd.rotation + '\u00B0</span></div>' +
+        '</div>' +
+        '<div class="prop-group">' +
+        '<h3>Hierarchy</h3>' +
+        '<div class="prop-row"><label>Parent:</label><span style="color:var(--text-dim)">' + (BONE_HIERARCHY[part] || '(root)') + '</span></div>' +
+        '<div class="prop-row"><label>Attach X:</label><input type="number" id="prop-pax" value="' + (PARENT_ATTACH[part] || {x:0}).x + '" step="1"></div>' +
+        '<div class="prop-row"><label>Attach Y:</label><input type="number" id="prop-pay" value="' + (PARENT_ATTACH[part] || {y:0}).y + '" step="1"></div>' +
+        '</div>' +
+        '<div class="prop-group">' +
+        '<h3>Draw Order</h3>' +
+        '<div class="prop-row"><label>Direction:</label><span style="color:var(--text-dim)">' + state.direction + '</span></div>' +
+        '<div class="prop-row"><label>Index:</label><input type="number" id="prop-draworder" value="' + drawIdx + '" min="0" max="' + maxIdx + '" step="1"></div>' +
+        '</div>';
+
+    $('prop-ax').addEventListener('change', function(e) {
+        pushUndo('anchor X');
+        pd.anchor.x = parseInt(e.target.value) || 0;
+        render();
+    });
+    $('prop-ay').addEventListener('change', function(e) {
+        pushUndo('anchor Y');
+        pd.anchor.y = parseInt(e.target.value) || 0;
+        render();
+    });
+    $('prop-rot').addEventListener('input', function(e) {
+        pd.rotation = parseInt(e.target.value) || 0;
+        $('prop-rot-val').textContent = pd.rotation + '\u00B0';
+        render();
+    });
+    $('prop-rot').addEventListener('change', function() {
+        pushUndo('rotation');
+    });
+    $('prop-pax').addEventListener('change', function(e) {
+        pushUndo('attach offset X');
+        if (!PARENT_ATTACH[part]) PARENT_ATTACH[part] = { x: 0, y: 0 };
+        PARENT_ATTACH[part].x = parseInt(e.target.value) || 0;
+        render();
+    });
+    $('prop-pay').addEventListener('change', function(e) {
+        pushUndo('attach offset Y');
+        if (!PARENT_ATTACH[part]) PARENT_ATTACH[part] = { x: 0, y: 0 };
+        PARENT_ATTACH[part].y = parseInt(e.target.value) || 0;
+        render();
+    });
+    $('prop-draworder').addEventListener('change', function(e) {
+        pushUndo('draw order');
+        var newIdx = parseInt(e.target.value) || 0;
+        var ord = state.drawOrder[state.direction];
+        var curIdx = ord.indexOf(part);
+        if (curIdx < 0 || newIdx === curIdx) return;
+        ord.splice(curIdx, 1);
+        var clampIdx = Math.max(0, Math.min(ord.length, newIdx));
+        ord.splice(clampIdx, 0, part);
+        rebuildPartsList();
+        render();
+    });
 }
 
-// ─── Equipment Panel ───
+// Equipment Panel (Equip Tab)
 function updateEquipPanel() {
-    const panel = $('equip-panel');
-    panel.innerHTML = '';
-    for (const [slotType, items] of Object.entries(EQUIPMENT_ITEMS)) {
-        const div = document.createElement('div');
-        div.className = 'equip-slot';
-        const currentId = state.equipment[slotType] || 0;
-        const currentItem = items.find(i => i.id === currentId) || items[0];
+    var html = '<div class="prop-group"><h3>Equipment Slots</h3></div>';
 
-        let colorPreview = '';
+    for (var slotType in EQUIPMENT_ITEMS) {
+        var items = EQUIPMENT_ITEMS[slotType];
+        var currentId = state.equipment[slotType] || 0;
+        var currentItem = items.find(function(it) { return it.id === currentId; });
+        var offset = state.equipmentOffsets[slotType] || { x: 0, y: 0 };
+
+        html += '<div class="equip-slot"><h4>' + slotType;
         if (currentItem && currentItem.color) {
-            colorPreview = '<span class="color-preview" style="background:' + currentItem.color + '"></span>';
+            html += ' <span class="color-preview" style="background:' + currentItem.color + '"></span>';
         }
+        html += '</h4><select data-slot="' + slotType + '">';
+        for (var ii = 0; ii < items.length; ii++) {
+            html += '<option value="' + items[ii].id + '"' + (items[ii].id === currentId ? ' selected' : '') + '>' + items[ii].name + '</option>';
+        }
+        html += '</select>' +
+            '<div class="equip-offset">' +
+            '<label>X:</label><input type="number" data-slot-offset-x="' + slotType + '" value="' + offset.x + '" step="1">' +
+            '<label>Y:</label><input type="number" data-slot-offset-y="' + slotType + '" value="' + offset.y + '" step="1">' +
+            '</div></div>';
+    }
 
-        div.innerHTML = '<h4>' + slotType + ' ' + colorPreview + '</h4>'
-            + '<select data-slot="' + slotType + '">'
-            + items.map(i => '<option value="' + i.id + '"' + (i.id === currentId ? ' selected' : '') + '>' + i.name + '</option>').join('')
-            + '</select>'
-            + '<div class="equip-offset">'
-            + '<label>X:</label><input type="number" data-slot-offset="' + slotType + '-x" value="' + ((state.equipmentOffsets[slotType] || {}).x || 0) + '" step="1">'
-            + '<label>Y:</label><input type="number" data-slot-offset="' + slotType + '-y" value="' + ((state.equipmentOffsets[slotType] || {}).y || 0) + '" step="1">'
-            + '</div>';
-        panel.appendChild(div);
+    equipPanel.innerHTML = html;
 
-        div.querySelector('select').addEventListener('change', (e) => {
-            pushUndo('equip ' + slotType);
-            state.equipment[slotType] = parseInt(e.target.value);
+    equipPanel.querySelectorAll('select[data-slot]').forEach(function(sel) {
+        sel.addEventListener('change', function(e) {
+            pushUndo('equip ' + sel.dataset.slot);
+            state.equipment[sel.dataset.slot] = parseInt(e.target.value);
             updateEquipPanel();
             render();
         });
-        const offX = div.querySelector('[data-slot-offset="' + slotType + '-x"]');
-        const offY = div.querySelector('[data-slot-offset="' + slotType + '-y"]');
-        offX.addEventListener('change', (e) => {
-            pushUndo('equip offset ' + slotType);
-            if (!state.equipmentOffsets[slotType]) state.equipmentOffsets[slotType] = { x: 0, y: 0 };
-            state.equipmentOffsets[slotType].x = parseInt(e.target.value) || 0;
+    });
+    equipPanel.querySelectorAll('input[data-slot-offset-x]').forEach(function(inp) {
+        inp.addEventListener('change', function(e) {
+            pushUndo('equip offset');
+            var slot = inp.dataset.slotOffsetX;
+            if (!state.equipmentOffsets[slot]) state.equipmentOffsets[slot] = { x: 0, y: 0 };
+            state.equipmentOffsets[slot].x = parseInt(e.target.value) || 0;
             render();
         });
-        offY.addEventListener('change', (e) => {
-            pushUndo('equip offset ' + slotType);
-            if (!state.equipmentOffsets[slotType]) state.equipmentOffsets[slotType] = { x: 0, y: 0 };
-            state.equipmentOffsets[slotType].y = parseInt(e.target.value) || 0;
+    });
+    equipPanel.querySelectorAll('input[data-slot-offset-y]').forEach(function(inp) {
+        inp.addEventListener('change', function(e) {
+            pushUndo('equip offset');
+            var slot = inp.dataset.slotOffsetY;
+            if (!state.equipmentOffsets[slot]) state.equipmentOffsets[slot] = { x: 0, y: 0 };
+            state.equipmentOffsets[slot].y = parseInt(e.target.value) || 0;
             render();
         });
-    }
+    });
 }
 
-// ─── Mapping Panel ───
+// Mapping Panel (Mapping Tab)
 function updateMappingPanel() {
-    const panel = $('mapping-panel');
-    panel.innerHTML = '';
+    var loadedParts = Object.keys(state.images);
+    if (loadedParts.length === 0) {
+        mappingPanel.innerHTML = '<div class="no-selection">Load a skeleton first.</div>';
+        return;
+    }
 
-    // Copy Body From section
-    const copyGroup = document.createElement('div');
-    copyGroup.className = 'prop-group';
-    copyGroup.innerHTML = '<h3>Copy Body From Race</h3><div class="prop-row"><label>Source:</label><select id="copy-body-select">'
-        + '<option value="">(Select race...)</option>'
-        + Object.values(RACES).map(r => '<option value="' + r + '">' + r + '</option>').join('')
-        + '</select></div><div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Copies all body part textures except head from the selected race.</div>';
-    panel.appendChild(copyGroup);
+    var html = '<div class="prop-group"><h3>Texture Mapping</h3>' +
+        '<div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;">Reassign which texture is used for each body part slot.</div></div>';
 
-    const copySelect = copyGroup.querySelector('#copy-body-select');
-    copySelect.addEventListener('change', async () => {
-        const sourceRace = copySelect.value;
-        if (!sourceRace) return;
-        pushUndo('copy body from ' + sourceRace);
-        await copyBodyFrom(sourceRace);
-        copySelect.value = '';
-    });
+    for (var bi = 0; bi < BODY_PARTS.length; bi++) {
+        var part = BODY_PARTS[bi];
+        if (!state.images[part] && !state.partMapping[part]) continue;
+        var currentSource = state.partMapping[part] || part;
 
-    // Duplicate Part section
-    const dupGroup = document.createElement('div');
-    dupGroup.className = 'prop-group';
-    dupGroup.innerHTML = '<h3>Duplicate Part Image</h3>'
-        + '<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Clone a part\'s image to use in another slot (e.g. duplicate left leg for right leg).</div>'
-        + '<div class="prop-row"><label>Source:</label><select id="dup-source">'
-        + '<option value="">(Select...)</option>'
-        + Object.keys(state.images).map(p => '<option value="' + p + '">' + p.replace(/_/g, ' ') + '</option>').join('')
-        + '</select></div>'
-        + '<div class="prop-row"><label>Target slot:</label><select id="dup-target">'
-        + '<option value="">(Select...)</option>'
-        + BODY_PARTS.map(p => '<option value="' + p + '">' + p.replace(/_/g, ' ') + '</option>').join('')
-        + '</select></div>'
-        + '<div class="prop-row"><label></label><button id="btn-duplicate" style="background:var(--bg-input);color:var(--text);border:1px solid var(--border);padding:4px 12px;border-radius:4px;cursor:pointer;">Duplicate</button></div>';
-    panel.appendChild(dupGroup);
-
-    const btnDup = dupGroup.querySelector('#btn-duplicate');
-    btnDup.addEventListener('click', () => {
-        const src = dupGroup.querySelector('#dup-source').value;
-        const tgt = dupGroup.querySelector('#dup-target').value;
-        if (!src || !tgt) { toast('Select both source and target'); return; }
-        if (!state.images[src]) { toast('Source image not loaded'); return; }
-        pushUndo('duplicate ' + src + ' to ' + tgt);
-        // Clone the image for the target slot
-        const cloneKey = '_dup_' + src + '_to_' + tgt;
-        state.images[cloneKey] = state.images[src];
-        state.partMapping[tgt] = cloneKey;
-        // Ensure target slot exists in parts
-        if (!state.parts[tgt]) {
-            state.parts[tgt] = { anchor: { ...DEFAULT_ANCHORS[tgt] }, rotation: 0, visible: true };
-            // Add to draw order if missing
-            for (const dir of ['down','up','left','right']) {
-                if (!state.drawOrder[dir].includes(tgt)) state.drawOrder[dir].push(tgt);
-            }
+        html += '<div class="mapping-row">' +
+            '<span class="slot-label">' + part.replace(/_/g, ' ') + '</span>' +
+            '<select data-mapping-slot="' + part + '">';
+        for (var si = 0; si < BODY_PARTS.length; si++) {
+            var srcPart = BODY_PARTS[si];
+            if (!state.images[srcPart]) continue;
+            html += '<option value="' + srcPart + '"' + (srcPart === currentSource ? ' selected' : '') + '>' + srcPart.replace(/_/g, ' ') + '</option>';
         }
-        rebuildPartsList(); updateMappingPanel(); render();
-        toast('Duplicated ' + src.replace(/_/g, ' ') + ' to ' + tgt.replace(/_/g, ' '));
-    });
-
-    // Bone Hierarchy Reassignment section
-    const hierGroup = document.createElement('div');
-    hierGroup.className = 'prop-group';
-    hierGroup.innerHTML = '<h3>Bone Hierarchy</h3>'
-        + '<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Reassign parent bones. Change which joint a body part is attached to.</div>';
-
-    for (const part of BODY_PARTS) {
-        if (!state.parts[part]) continue;
-        const currentParent = BONE_HIERARCHY[part];
-        const row = document.createElement('div');
-        row.className = 'mapping-row';
-        const parentOptions = ['(root)', ...BODY_PARTS.filter(p => p !== part && state.parts[p])];
-        row.innerHTML = '<span class="slot-label">' + part.replace(/_/g, ' ') + '</span>'
-            + '<select data-hier-slot="' + part + '">'
-            + parentOptions.map(p => {
-                const val = p === '(root)' ? '' : p;
-                const label = p === '(root)' ? '(root)' : p.replace(/_/g, ' ');
-                const selected = (currentParent === null && val === '') || (currentParent === val) ? ' selected' : '';
-                return '<option value="' + val + '"' + selected + '>' + label + '</option>';
-            }).join('')
-            + '</select>';
-        hierGroup.appendChild(row);
+        html += '</select>' +
+            '<button class="reset-btn" data-mapping-reset="' + part + '" title="Reset to default">\u21BA</button>' +
+            '</div>';
     }
-    panel.appendChild(hierGroup);
 
-    // Wire hierarchy dropdowns
-    panel.querySelectorAll('[data-hier-slot]').forEach(sel => {
-        sel.addEventListener('change', (e) => {
-            const part = sel.dataset.hierSlot;
-            const newParent = e.target.value || null;
-            // Prevent circular references
-            if (newParent) {
-                let check = newParent;
-                const visited = new Set();
-                while (check) {
-                    if (check === part) { toast('Cannot create circular hierarchy'); e.target.value = BONE_HIERARCHY[part] || ''; return; }
-                    if (visited.has(check)) break;
-                    visited.add(check);
-                    check = BONE_HIERARCHY[check];
-                }
-            }
-            pushUndo('reparent ' + part);
-            BONE_HIERARCHY[part] = newParent;
-            rebuildPartsList(); render();
-            toast(part.replace(/_/g, ' ') + ' now attached to ' + (newParent ? newParent.replace(/_/g, ' ') : 'root'));
-        });
-    });
-
-    // Swap Parts section
-    const swapGroup = document.createElement('div');
-    swapGroup.className = 'prop-group';
-    swapGroup.innerHTML = '<h3>Swap Two Parts</h3>'
-        + '<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Swap images and anchors between two body part slots.</div>'
-        + '<div class="prop-row"><label>Part A:</label><select id="swap-a">'
-        + '<option value="">(Select...)</option>'
-        + BODY_PARTS.filter(p => state.parts[p]).map(p => '<option value="' + p + '">' + p.replace(/_/g, ' ') + '</option>').join('')
-        + '</select></div>'
-        + '<div class="prop-row"><label>Part B:</label><select id="swap-b">'
-        + '<option value="">(Select...)</option>'
-        + BODY_PARTS.filter(p => state.parts[p]).map(p => '<option value="' + p + '">' + p.replace(/_/g, ' ') + '</option>').join('')
-        + '</select></div>'
-        + '<div class="prop-row"><label></label><button id="btn-swap" style="background:var(--bg-input);color:var(--text);border:1px solid var(--border);padding:4px 12px;border-radius:4px;cursor:pointer;">Swap</button></div>';
-    panel.appendChild(swapGroup);
-
-    swapGroup.querySelector('#btn-swap').addEventListener('click', () => {
-        const a = swapGroup.querySelector('#swap-a').value;
-        const b = swapGroup.querySelector('#swap-b').value;
-        if (!a || !b || a === b) { toast('Select two different parts'); return; }
-        pushUndo('swap ' + a + ' <-> ' + b);
-        // Swap images
-        const imgA = state.images[a]; const imgB = state.images[b];
-        state.images[a] = imgB; state.images[b] = imgA;
-        // Swap part mapping references
-        const mapA = state.partMapping[a]; const mapB = state.partMapping[b];
-        if (mapA || mapB) { state.partMapping[a] = mapB || b; state.partMapping[b] = mapA || a; }
-        // Swap anchors
-        const ancA = { ...state.parts[a].anchor }; const ancB = { ...state.parts[b].anchor };
-        state.parts[a].anchor = ancB; state.parts[b].anchor = ancA;
-        // Swap rotations
-        const rotA = state.parts[a].rotation; state.parts[a].rotation = state.parts[b].rotation; state.parts[b].rotation = rotA;
-        rebuildPartsList(); updatePropsPanel(); updateMappingPanel(); render();
-        toast('Swapped ' + a.replace(/_/g, ' ') + ' and ' + b.replace(/_/g, ' '));
-    });
-
-    // Part Texture Mapping section
-    const mapGroup = document.createElement('div');
-    mapGroup.className = 'prop-group';
-    mapGroup.innerHTML = '<h3>Body Part Texture Mapping</h3><div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Reassign which texture image is used for each body part slot.</div>';
-
-    const loadedParts = Object.keys(state.images);
-    for (const part of BODY_PARTS) {
-        if (!state.parts[part]) continue;
-        const row = document.createElement('div');
-        row.className = 'mapping-row';
-        const currentSource = state.partMapping[part] || part;
-
-        row.innerHTML = '<span class="slot-label">' + part.replace(/_/g, ' ') + '</span>'
-            + '<select data-map-slot="' + part + '">'
-            + loadedParts.map(p => '<option value="' + p + '"' + (p === currentSource ? ' selected' : '') + '>' + p.replace(/_/g, ' ') + '</option>').join('')
-            + '</select>'
-            + '<button class="reset-btn" data-reset-slot="' + part + '" title="Reset to default">\u21A9</button>';
-
-        mapGroup.appendChild(row);
+    // Copy Body From
+    html += '<div class="prop-group" style="margin-top:16px;"><h3>Copy Body From</h3>' +
+        '<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Load another race\'s body images (except head).</div>' +
+        '<select id="copy-body-select" style="width:100%;background:var(--bg-input);color:var(--text);border:1px solid var(--border);padding:4px 6px;border-radius:3px;font-size:12px;">' +
+        '<option value="">-- Select Source Race --</option>';
+    for (var rid in RACES) {
+        if (RACES[rid] !== state.race) {
+            html += '<option value="' + RACES[rid] + '">' + rid + '. ' + RACES[rid] + '</option>';
+        }
     }
-    panel.appendChild(mapGroup);
+    html += '</select></div>';
 
-    // Wire mapping dropdowns
-    panel.querySelectorAll('[data-map-slot]').forEach(sel => {
-        sel.addEventListener('change', (e) => {
-            const slot = sel.dataset.mapSlot;
-            const source = e.target.value;
-            pushUndo('remap ' + slot);
-            if (source === slot) {
-                delete state.partMapping[slot];
+    mappingPanel.innerHTML = html;
+
+    mappingPanel.querySelectorAll('select[data-mapping-slot]').forEach(function(sel) {
+        sel.addEventListener('change', function(e) {
+            var slotName = sel.dataset.mappingSlot;
+            var newSource = e.target.value;
+            pushUndo('remap ' + slotName);
+            if (newSource === slotName) {
+                delete state.partMapping[slotName];
             } else {
-                state.partMapping[slot] = source;
+                state.partMapping[slotName] = newSource;
             }
             rebuildPartsList();
             render();
         });
     });
 
-    // Wire reset buttons
-    panel.querySelectorAll('[data-reset-slot]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const slot = btn.dataset.resetSlot;
-            pushUndo('reset mapping ' + slot);
-            delete state.partMapping[slot];
+    mappingPanel.querySelectorAll('button[data-mapping-reset]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var slotName = btn.dataset.mappingReset;
+            pushUndo('reset mapping ' + slotName);
+            delete state.partMapping[slotName];
             updateMappingPanel();
             rebuildPartsList();
             render();
         });
     });
+
+    var copySelect = $('copy-body-select');
+    if (copySelect) {
+        copySelect.addEventListener('change', function(e) {
+            if (e.target.value) {
+                copyBodyFrom(e.target.value);
+                e.target.value = '';
+            }
+        });
+    }
 }
 
+// Copy Body From
 async function copyBodyFrom(sourceRace) {
-    const stage = state.stage;
+    pushUndo('copy body from ' + sourceRace);
     statusMsg.textContent = 'Copying body from ' + sourceRace + '...';
 
-    // Load source images (all except head)
-    const partsToLoad = BODY_PARTS.filter(p => p !== 'head');
-    const loadPromises = [];
-    for (const part of partsToLoad) {
-        const imgUrl = '../Sprites/Characters/' + sourceRace + '/parts/' + sourceRace + '_S' + stage + '_' + part + '.png';
-        const img = new Image();
-        const p = new Promise(resolve => {
-            img.onload = () => {
-                state.images['_ext_' + sourceRace + '_' + part] = img;
-                state.partMapping[part] = '_ext_' + sourceRace + '_' + part;
-                resolve(true);
-            };
-            img.onerror = () => resolve(false);
-        });
-        img.src = imgUrl;
-        loadPromises.push(p);
+    var nonHeadParts = BODY_PARTS.filter(function(p) { return p !== 'head' && p !== 'accessory'; });
+    var loadPromises = [];
+
+    for (var i = 0; i < nonHeadParts.length; i++) {
+        (function(part) {
+            var imgUrl = '../Sprites/Characters/' + sourceRace + '/parts/' + sourceRace + '_S' + state.stage + '_' + part + '.png';
+            var img = new Image();
+            var p = new Promise(function(resolve) {
+                img.onload = function() {
+                    state.images[part] = img;
+                    resolve(true);
+                };
+                img.onerror = function() { resolve(false); };
+            });
+            img.src = imgUrl;
+            loadPromises.push(p);
+        })(nonHeadParts[i]);
     }
-    const results = await Promise.all(loadPromises);
-    const loaded = results.filter(Boolean).length;
+
+    var results = await Promise.all(loadPromises);
+    var loaded = results.filter(Boolean).length;
 
     rebuildPartsList();
     updateMappingPanel();
@@ -1187,7 +1194,7 @@ async function copyBodyFrom(sourceRace) {
     statusMsg.textContent = 'Body copied from ' + sourceRace;
 }
 
-// ─── Animation ───
+// Animation
 function togglePlay() {
     state.playing = !state.playing;
     $('btn-play').textContent = state.playing ? 'Pause' : 'Play';
@@ -1198,29 +1205,32 @@ function stopPlay() {
     state.animFrame = 0;
     state.animTime = 0;
     $('btn-play').textContent = 'Play';
-    const kfs = ANIM_KEYFRAMES[state.animType] || ANIM_KEYFRAMES.walk;
+    var kfs = getActiveKeyframes();
     frameInfo.textContent = 'Frame: 0/' + kfs.length;
     render();
 }
 
 function stepFrame(delta) {
-    const kfs = ANIM_KEYFRAMES[state.animType] || ANIM_KEYFRAMES.walk;
+    var kfs = getActiveKeyframes();
     state.animFrame = ((state.animFrame + delta) % kfs.length + kfs.length) % kfs.length;
     state.animTime = state.animFrame;
     frameInfo.textContent = 'Frame: ' + state.animFrame + '/' + kfs.length;
     render();
 }
 
-let lastTime = 0;
+function getActiveKeyframes() {
+    return ANIM_KEYFRAMES[state.animType] || ANIM_KEYFRAMES.walk;
+}
+
+var lastTime = 0;
 function tick(time) {
     if (state.playing) {
-        const dt = (time - lastTime) / 1000;
-        const kfs = ANIM_KEYFRAMES[state.animType] || ANIM_KEYFRAMES.walk;
-        const baseSpeed = state.animType === 'idle' ? 2 : 4;
-        state.animTime += dt * state.speed * baseSpeed;
+        var dt = (time - lastTime) / 1000;
+        var kfs = getActiveKeyframes();
+        state.animTime += dt * state.speed * 4;
 
         if (!state.loop && state.animTime >= kfs.length) {
-            state.animTime = kfs.length - 0.01;
+            state.animTime = kfs.length - 0.001;
             state.playing = false;
             $('btn-play').textContent = 'Play';
         }
@@ -1234,69 +1244,88 @@ function tick(time) {
 }
 
 function getAnimatedTransform(partName) {
-    const kfs = ANIM_KEYFRAMES[state.animType] || ANIM_KEYFRAMES.walk;
-    const frame = kfs[state.animFrame % kfs.length];
-    const nextFrame = kfs[(state.animFrame + 1) % kfs.length];
-    const t = (state.animTime % 1);
-    const kf = frame[partName];
-    const nkf = nextFrame[partName];
+    var kfs = getActiveKeyframes();
+    var frame = kfs[state.animFrame];
+    var nextIdx = (state.animFrame + 1) % kfs.length;
+    var nextFrame = kfs[nextIdx];
+    var t = state.animTime % 1;
+    var kf = frame ? frame[partName] : null;
+    var nkf = nextFrame ? nextFrame[partName] : null;
     if (!kf) return { rot: 0, y: 0 };
-    const rot = (kf.rot || 0) + ((nkf ? (nkf.rot || 0) : 0) - (kf.rot || 0)) * t;
-    const y = (kf.y || 0) + ((nkf ? (nkf.y || 0) : 0) - (kf.y || 0)) * t;
-    return { rot, y };
+
+    var rot = (kf.rot || 0) + ((nkf ? (nkf.rot || 0) : 0) - (kf.rot || 0)) * t;
+    var y = (kf.y || 0) + ((nkf ? (nkf.y || 0) : 0) - (kf.y || 0)) * t;
+    return { rot: rot, y: y };
 }
 
-// ─── Canvas Mouse Interaction ───
+// Canvas Interaction
+var CHAR_CENTER_X = 256;
+var CHAR_CENTER_Y = 256;
+
 function getPartWorldPos(partName) {
-    const pd = state.parts[partName];
+    var pd = state.parts[partName];
     if (!pd) return { x: CHAR_CENTER_X, y: CHAR_CENTER_Y };
-    const ax = pd.anchor.x;
-    const ay = pd.anchor.y;
-    const torsoAnim = state.playing ? getAnimatedTransform('torso') : { rot: 0, y: 0 };
-    const Z = state.zoom;
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2;
-    const sx = cx + (ax - 16) * Z;
-    const sy = cy - (ay - 16) * Z - (torsoAnim.y || 0) * Z;
-    return { x: sx, y: sy };
+
+    var torsoAnim = state.playing ? getAnimatedTransform('torso') : { rot: 0, y: 0 };
+    var ax = pd.anchor.x;
+    var ay = pd.anchor.y;
+    var S = state.zoom;
+    var sx = CHAR_CENTER_X + (ax - 16) * S;
+    var sy = CHAR_CENTER_Y - (ay - 16) * S - (torsoAnim.y || 0) * S;
+    var anim = state.playing ? getAnimatedTransform(partName) : { rot: 0, y: 0 };
+
+    return { x: sx, y: sy + (anim.y || 0) * S };
 }
 
 function onCanvasMouseDown(e) {
-    const rect = canvas.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
-    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
-    const order = state.drawOrder[state.direction] || [];
+    var rect = canvas.getBoundingClientRect();
+    var mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    var my = (e.clientY - rect.top) * (canvas.height / rect.height);
+    var S = state.zoom;
 
-    for (let i = order.length - 1; i >= 0; i--) {
-        const partName = order[i];
-        const pd = state.parts[partName];
+    var order = state.drawOrder[state.direction] || [];
+    // Check anchors
+    for (var i = order.length - 1; i >= 0; i--) {
+        var partName = order[i];
+        var pd = state.parts[partName];
         if (!pd || !pd.visible) continue;
-        const img = getImageForSlot(partName);
-        if (!img) continue;
-        const pos = getPartWorldPos(partName);
-        const dist = Math.sqrt((mx - pos.x) ** 2 + (my - pos.y) ** 2);
+        var mappedPart = state.partMapping[partName] || partName;
+        if (!state.images[mappedPart] && !state.images[partName]) continue;
+
+        var pos = getPartWorldPos(partName);
+        var dist = Math.sqrt(Math.pow(mx - pos.x, 2) + Math.pow(my - pos.y, 2));
         if (dist < 12) {
+            pushUndo('drag anchor');
             state.selectedPart = partName;
-            state.dragging = { part: partName, startMX: mx, startMY: my, startAX: pd.anchor.x, startAY: pd.anchor.y };
-            pushUndo('drag ' + partName);
-            rebuildPartsList(); updatePropsPanel(); render();
+            state.dragging = {
+                part: partName,
+                startMX: mx, startMY: my,
+                startAX: pd.anchor.x, startAY: pd.anchor.y
+            };
+            rebuildPartsList();
+            updatePropsPanel();
+            render();
             return;
         }
     }
 
-    for (let i = order.length - 1; i >= 0; i--) {
-        const partName = order[i];
-        const pd = state.parts[partName];
-        if (!pd || !pd.visible) continue;
-        const img = getImageForSlot(partName);
+    // Check sprites
+    for (var j = order.length - 1; j >= 0; j--) {
+        var pn = order[j];
+        var ppd = state.parts[pn];
+        if (!ppd || !ppd.visible) continue;
+        var mp = state.partMapping[pn] || pn;
+        var img = state.images[mp] || state.images[pn];
         if (!img) continue;
-        const pos = getPartWorldPos(partName);
-        const Z = state.zoom;
-        const hw = (img.width / 2) * Z;
-        const hh = (img.height / 2) * Z;
-        if (mx >= pos.x - hw && mx <= pos.x + hw && my >= pos.y - hh && my <= pos.y + hh) {
-            state.selectedPart = partName;
-            rebuildPartsList(); updatePropsPanel(); render();
+
+        var ppos = getPartWorldPos(pn);
+        var hw = (img.width / 2) * S;
+        var hh = (img.height / 2) * S;
+        if (mx >= ppos.x - hw && mx <= ppos.x + hw && my >= ppos.y - hh && my <= ppos.y + hh) {
+            state.selectedPart = pn;
+            rebuildPartsList();
+            updatePropsPanel();
+            render();
             return;
         }
     }
@@ -1304,98 +1333,331 @@ function onCanvasMouseDown(e) {
 
 function onCanvasMouseMove(e) {
     if (!state.dragging) return;
-    const rect = canvas.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
-    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
-    const d = state.dragging;
-    const Z = state.zoom;
-    const dx = (mx - d.startMX) / Z;
-    const dy = -(my - d.startMY) / Z;
-    const pd = state.parts[d.part];
+    var rect = canvas.getBoundingClientRect();
+    var mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    var my = (e.clientY - rect.top) * (canvas.height / rect.height);
+    var S = state.zoom;
+
+    var d = state.dragging;
+    var dx = (mx - d.startMX) / S;
+    var dy = -(my - d.startMY) / S;
+    var pd = state.parts[d.part];
     pd.anchor.x = Math.round(d.startAX + dx);
     pd.anchor.y = Math.round(d.startAY + dy);
-    updatePropsPanel(); render();
+
+    updatePropsPanel();
+    render();
 }
 
-function onCanvasMouseUp() { state.dragging = null; }
+function onCanvasMouseUp() {
+    state.dragging = null;
+}
 
-// ─── Canvas Rendering ───
+// Equipment Overlay Drawing
+function drawEquipmentOverlay(partName, sx, sy, totalRot) {
+    var S = state.zoom;
+    for (var slotType in EQUIP_ATTACH) {
+        var attachPart = EQUIP_ATTACH[slotType];
+        var shouldDraw = (partName === attachPart);
+        // Mirror parts for legs/boots/gloves
+        var mirrorMap = {
+            'left_leg': 'right_leg',
+            'left_foot': 'right_foot',
+            'left_hand': 'right_hand',
+        };
+        if (mirrorMap[attachPart] === partName) shouldDraw = true;
+        if (!shouldDraw) continue;
+
+        var itemId = state.equipment[slotType] || 0;
+        if (itemId === 0) continue;
+
+        var items = EQUIPMENT_ITEMS[slotType];
+        var item = null;
+        for (var ii = 0; ii < items.length; ii++) {
+            if (items[ii].id === itemId) { item = items[ii]; break; }
+        }
+        if (!item || !item.shape) continue;
+
+        var offset = state.equipmentOffsets[slotType] || { x: 0, y: 0 };
+        var ox = offset.x * (S / 4);
+        var oy = -offset.y * (S / 4);
+
+        ctx.save();
+        ctx.translate(sx + ox, sy + oy);
+        ctx.rotate(totalRot);
+
+        // Draw glow
+        if (item.glowColor) {
+            ctx.beginPath();
+            ctx.arc(0, 0, S * 3, 0, Math.PI * 2);
+            ctx.fillStyle = item.glowColor;
+            ctx.globalAlpha = 0.2;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1.5;
+        ctx.fillStyle = item.color;
+
+        switch (item.shape) {
+            case 'sword':
+                ctx.fillRect(-S * 0.3, -S * 4, S * 0.6, S * 3.5);
+                ctx.strokeRect(-S * 0.3, -S * 4, S * 0.6, S * 3.5);
+                ctx.fillStyle = '#5A3A1A';
+                ctx.fillRect(-S * 0.4, -S * 0.5, S * 0.8, S * 1.2);
+                ctx.strokeRect(-S * 0.4, -S * 0.5, S * 0.8, S * 1.2);
+                ctx.fillStyle = item.color;
+                ctx.fillRect(-S * 0.7, -S * 0.6, S * 1.4, S * 0.3);
+                ctx.strokeRect(-S * 0.7, -S * 0.6, S * 1.4, S * 0.3);
+                break;
+            case 'katana':
+                ctx.fillRect(-S * 0.2, -S * 5, S * 0.4, S * 4.5);
+                ctx.strokeRect(-S * 0.2, -S * 5, S * 0.4, S * 4.5);
+                ctx.fillStyle = '#3A2A0A';
+                ctx.fillRect(-S * 0.3, -S * 0.5, S * 0.6, S * 1.5);
+                ctx.strokeRect(-S * 0.3, -S * 0.5, S * 0.6, S * 1.5);
+                break;
+            case 'axe':
+                ctx.fillStyle = '#5A3A1A';
+                ctx.fillRect(-S * 0.2, -S * 3.5, S * 0.4, S * 3.5);
+                ctx.strokeRect(-S * 0.2, -S * 3.5, S * 0.4, S * 3.5);
+                ctx.fillStyle = item.color;
+                ctx.beginPath();
+                ctx.arc(-S * 0.2, -S * 3.5, S * 1.2, -Math.PI * 0.7, Math.PI * 0.2);
+                ctx.fill();
+                ctx.stroke();
+                break;
+            case 'staff':
+                ctx.fillRect(-S * 0.15, -S * 5, S * 0.3, S * 5.5);
+                ctx.strokeRect(-S * 0.15, -S * 5, S * 0.3, S * 5.5);
+                ctx.fillStyle = item.glowColor || '#AADDFF';
+                ctx.beginPath();
+                ctx.arc(0, -S * 5.3, S * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                break;
+            case 'cap':
+                ctx.beginPath();
+                ctx.arc(0, -S * 0.5, S * 1.5, Math.PI, 0);
+                ctx.fill();
+                ctx.stroke();
+                break;
+            case 'helm':
+                ctx.fillRect(-S * 1.5, -S * 1.8, S * 3, S * 1.8);
+                ctx.strokeRect(-S * 1.5, -S * 1.8, S * 3, S * 1.8);
+                ctx.fillStyle = '#222';
+                ctx.fillRect(-S * 0.8, -S * 0.8, S * 1.6, S * 0.3);
+                break;
+            case 'crown':
+                ctx.fillRect(-S * 1.3, -S * 0.8, S * 2.6, S * 0.5);
+                ctx.strokeRect(-S * 1.3, -S * 0.8, S * 2.6, S * 0.5);
+                for (var ci = -1; ci <= 1; ci++) {
+                    ctx.beginPath();
+                    ctx.moveTo(ci * S * 0.8 - S * 0.3, -S * 0.8);
+                    ctx.lineTo(ci * S * 0.8, -S * 1.6);
+                    ctx.lineTo(ci * S * 0.8 + S * 0.3, -S * 0.8);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+                break;
+            case 'tunic':
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(-S * 1.5, -S * 1.5, S * 3, S * 3);
+                ctx.strokeRect(-S * 1.5, -S * 1.5, S * 3, S * 3);
+                ctx.globalAlpha = 1;
+                break;
+            case 'chainmail':
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(-S * 1.6, -S * 1.6, S * 3.2, S * 3.2);
+                ctx.strokeRect(-S * 1.6, -S * 1.6, S * 3.2, S * 3.2);
+                ctx.globalAlpha = 0.3;
+                for (var cr = -1; cr <= 1; cr++) {
+                    for (var cc = -1; cc <= 1; cc++) {
+                        ctx.beginPath();
+                        ctx.arc(cc * S * 0.8, cr * S * 0.8, S * 0.2, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                }
+                ctx.globalAlpha = 1;
+                break;
+            case 'plate':
+                ctx.globalAlpha = 0.6;
+                ctx.fillRect(-S * 1.7, -S * 1.7, S * 3.4, S * 3.4);
+                ctx.strokeRect(-S * 1.7, -S * 1.7, S * 3.4, S * 3.4);
+                ctx.strokeRect(-S * 1.2, -S * 1.2, S * 2.4, S * 2.4);
+                ctx.globalAlpha = 1;
+                break;
+            case 'pants':
+            case 'greaves':
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(-S * 0.8, -S * 1.2, S * 1.6, S * 2.4);
+                ctx.strokeRect(-S * 0.8, -S * 1.2, S * 1.6, S * 2.4);
+                ctx.globalAlpha = 1;
+                break;
+            case 'boots':
+            case 'sabatons':
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(-S * 0.8, -S * 0.6, S * 1.6, S * 1.2);
+                ctx.strokeRect(-S * 0.8, -S * 0.6, S * 1.6, S * 1.2);
+                ctx.globalAlpha = 1;
+                break;
+            case 'gloves':
+            case 'gauntlets':
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(-S * 0.6, -S * 0.6, S * 1.2, S * 1.2);
+                ctx.strokeRect(-S * 0.6, -S * 0.6, S * 1.2, S * 1.2);
+                ctx.globalAlpha = 1;
+                break;
+        }
+        ctx.restore();
+    }
+}
+
+// Canvas Rendering
 function render() {
-    const W = canvas.width;
-    const H = canvas.height;
-    const Z = state.zoom;
-    const cx = W / 2;
-    const cy = H / 2;
-
-    ctx.clearRect(0, 0, W, H);
+    var S = state.zoom;
+    ctx.clearRect(0, 0, 512, 512);
 
     // Checkerboard
-    const checkSize = Math.max(8, Z * 2);
-    for (let y = 0; y < H; y += checkSize) {
-        for (let x = 0; x < W; x += checkSize) {
-            ctx.fillStyle = ((x + y) / checkSize) % 2 === 0 ? '#2a2a3e' : '#222238';
-            ctx.fillRect(x, y, checkSize, checkSize);
+    var checkSize = 16;
+    for (var cy = 0; cy < 512; cy += checkSize) {
+        for (var cx = 0; cx < 512; cx += checkSize) {
+            ctx.fillStyle = ((cx + cy) / checkSize) % 2 === 0 ? '#2a2a3e' : '#222238';
+            ctx.fillRect(cx, cy, checkSize, checkSize);
         }
     }
 
     // Grid overlay
     if (state.showGrid) {
         ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-        ctx.lineWidth = 1;
-        for (let x = 0; x < W; x += Z) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-        for (let y = 0; y < H; y += Z) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+        ctx.lineWidth = 0.5;
+        var gridStep = S * 4;
+        for (var gx = CHAR_CENTER_X % gridStep; gx < 512; gx += gridStep) {
+            ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, 512); ctx.stroke();
+        }
+        for (var gy = CHAR_CENTER_Y % gridStep; gy < 512; gy += gridStep) {
+            ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(512, gy); ctx.stroke();
+        }
     }
 
     // Crosshair
     if (state.showCrosshair) {
-        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.strokeStyle = 'rgba(233,69,96,0.4)';
         ctx.lineWidth = 1;
-        ctx.setLineDash([4, 4]);
-        ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath(); ctx.moveTo(CHAR_CENTER_X, 0); ctx.lineTo(CHAR_CENTER_X, 512); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, CHAR_CENTER_Y); ctx.lineTo(512, CHAR_CENTER_Y); ctx.stroke();
         ctx.setLineDash([]);
     }
 
     if (Object.keys(state.parts).length === 0) return;
 
-    const order = state.drawOrder[state.direction] || [];
-    const showBones = $('chk-bones').checked;
-    const showAnchors = $('chk-anchors').checked;
-    const torsoAnim = state.playing ? getAnimatedTransform('torso') : { rot: 0, y: 0 };
+    var order = state.drawOrder[state.direction] || [];
+    var showBones = $('chk-bones').checked;
+    var showAnchors = $('chk-anchors').checked;
+    var torsoAnim = state.playing ? getAnimatedTransform('torso') : { rot: 0, y: 0 };
 
-    // Onion skinning - draw previous frame ghosted
+    // Onion skinning
     if (state.showOnion && state.playing) {
-        const savedFrame = state.animFrame;
-        const savedTime = state.animTime;
-        const kfs = ANIM_KEYFRAMES[state.animType] || ANIM_KEYFRAMES.walk;
-        state.animFrame = (savedFrame - 1 + kfs.length) % kfs.length;
-        state.animTime = state.animFrame;
-        ctx.globalAlpha = 0.2;
-        drawSprites(order, cx, cy, Z);
-        ctx.globalAlpha = 1;
-        state.animFrame = savedFrame;
-        state.animTime = savedTime;
+        var kfs = getActiveKeyframes();
+        var prevFrame = (state.animFrame - 1 + kfs.length) % kfs.length;
+        var nextFrame2 = (state.animFrame + 1) % kfs.length;
+        var ghostFrames = [prevFrame, nextFrame2];
+
+        for (var gi = 0; gi < ghostFrames.length; gi++) {
+            var savedAnimFrame = state.animFrame;
+            var savedAnimTime = state.animTime;
+            state.animFrame = ghostFrames[gi];
+            state.animTime = ghostFrames[gi];
+
+            ctx.globalAlpha = 0.15;
+            for (var oi = 0; oi < order.length; oi++) {
+                var opn = order[oi];
+                var opd = state.parts[opn];
+                if (!opd || !opd.visible) continue;
+                var omp = state.partMapping[opn] || opn;
+                var oimg = state.images[omp] || state.images[opn];
+                if (!oimg) continue;
+
+                var oTorsoAnim = getAnimatedTransform('torso');
+                var oax = opd.anchor.x;
+                var oay = opd.anchor.y;
+                var osx = CHAR_CENTER_X + (oax - 16) * S;
+                var osy = CHAR_CENTER_Y - (oay - 16) * S - (oTorsoAnim.y || 0) * S;
+                var oAnim = getAnimatedTransform(opn);
+                var oTotalRot = (opd.rotation + (oAnim.rot || 0)) * Math.PI / 180;
+
+                ctx.save();
+                ctx.translate(osx, osy + (oAnim.y || 0) * S);
+                ctx.rotate(oTotalRot);
+                var ow = oimg.width * S;
+                var oh = oimg.height * S;
+                ctx.drawImage(oimg, -ow / 2, -oh / 2, ow, oh);
+                ctx.restore();
+            }
+            ctx.globalAlpha = 1;
+
+            state.animFrame = savedAnimFrame;
+            state.animTime = savedAnimTime;
+        }
     }
 
-    // Draw sprites
-    drawSprites(order, cx, cy, Z);
+    // Draw parts
+    for (var pi = 0; pi < order.length; pi++) {
+        var partName = order[pi];
+        var pd = state.parts[partName];
+        if (!pd || !pd.visible) continue;
+        var mappedPart = state.partMapping[partName] || partName;
+        var img = state.images[mappedPart] || state.images[partName];
+        if (!img) continue;
 
-    // Draw equipment overlays
-    drawAllEquipment(order, cx, cy, Z, torsoAnim);
+        var ax = pd.anchor.x;
+        var ay = pd.anchor.y;
+        var sx = CHAR_CENTER_X + (ax - 16) * S;
+        var sy = CHAR_CENTER_Y - (ay - 16) * S - (torsoAnim.y || 0) * S;
 
-    // Draw bones
+        var anim = state.playing ? getAnimatedTransform(partName) : { rot: 0, y: 0 };
+        var totalRot = (pd.rotation + (anim.rot || 0)) * Math.PI / 180;
+
+        ctx.save();
+        ctx.translate(sx, sy + (anim.y || 0) * S);
+        ctx.rotate(totalRot);
+
+        var w = img.width * S;
+        var h = img.height * S;
+        ctx.drawImage(img, -w / 2, -h / 2, w, h);
+
+        if (partName === state.selectedPart) {
+            ctx.strokeStyle = PART_COLORS[partName] || '#fff';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.strokeRect(-w / 2 - 2, -h / 2 - 2, w + 4, h + 4);
+            ctx.setLineDash([]);
+        }
+
+        ctx.restore();
+
+        // Equipment overlays
+        drawEquipmentOverlay(partName, sx, sy + (anim.y || 0) * S, totalRot);
+    }
+
+    // Bones
     if (showBones) {
-        for (const partName of order) {
-            const pd = state.parts[partName];
-            if (!pd || !pd.visible) continue;
-            const parent = BONE_HIERARCHY[partName];
+        for (var bi = 0; bi < order.length; bi++) {
+            var bpn = order[bi];
+            var bpd = state.parts[bpn];
+            if (!bpd || !bpd.visible) continue;
+            var parent = BONE_HIERARCHY[bpn];
             if (!parent || !state.parts[parent]) continue;
-            const childPos = getPartWorldPos(partName);
-            const parentPos = getPartWorldPos(parent);
+
+            var childPos = getPartWorldPos(bpn);
+            var parentPos = getPartWorldPos(parent);
+
             ctx.beginPath();
             ctx.moveTo(parentPos.x, parentPos.y);
             ctx.lineTo(childPos.x, childPos.y);
-            ctx.strokeStyle = PART_COLORS[partName] || '#fff';
+            ctx.strokeStyle = PART_COLORS[bpn] || '#fff';
             ctx.lineWidth = 1.5;
             ctx.globalAlpha = 0.6;
             ctx.stroke();
@@ -1403,25 +1665,29 @@ function render() {
         }
     }
 
-    // Draw anchors
+    // Anchors
     if (showAnchors) {
-        for (const partName of order) {
-            const pd = state.parts[partName];
-            if (!pd || !pd.visible) continue;
-            const pos = getPartWorldPos(partName);
-            const color = PART_COLORS[partName] || '#fff';
-            const isSelected = partName === state.selectedPart;
-            const radius = isSelected ? 6 : 4;
+        for (var ai = 0; ai < order.length; ai++) {
+            var apn = order[ai];
+            var apd = state.parts[apn];
+            if (!apd || !apd.visible) continue;
+
+            var apos = getPartWorldPos(apn);
+            var color = PART_COLORS[apn] || '#fff';
+            var isSelected = apn === state.selectedPart;
+            var radius = isSelected ? 6 : 4;
+
             ctx.beginPath();
-            ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+            ctx.arc(apos.x, apos.y, radius, 0, Math.PI * 2);
             ctx.fillStyle = color;
             ctx.fill();
             ctx.strokeStyle = '#000';
             ctx.lineWidth = 1;
             ctx.stroke();
+
             if (isSelected) {
                 ctx.beginPath();
-                ctx.arc(pos.x, pos.y, radius + 3, 0, Math.PI * 2);
+                ctx.arc(apos.x, apos.y, radius + 3, 0, Math.PI * 2);
                 ctx.strokeStyle = color;
                 ctx.lineWidth = 1;
                 ctx.setLineDash([3, 3]);
@@ -1432,257 +1698,9 @@ function render() {
     }
 }
 
-function drawSprites(order, cx, cy, Z) {
-    const torsoAnim = state.playing ? getAnimatedTransform('torso') : { rot: 0, y: 0 };
-    for (const partName of order) {
-        const pd = state.parts[partName];
-        if (!pd || !pd.visible) continue;
-        const img = getImageForSlot(partName);
-        if (!img) continue;
-        const ax = pd.anchor.x;
-        const ay = pd.anchor.y;
-        const sx = cx + (ax - 16) * Z;
-        const sy = cy - (ay - 16) * Z - (torsoAnim.y || 0) * Z;
-        const anim = state.playing ? getAnimatedTransform(partName) : { rot: 0, y: 0 };
-        const totalRot = (pd.rotation + (anim.rot || 0)) * Math.PI / 180;
-        ctx.save();
-        ctx.translate(sx, sy + (anim.y || 0) * Z);
-        ctx.rotate(totalRot);
-        const w = img.width * Z;
-        const h = img.height * Z;
-        ctx.drawImage(img, -w / 2, -h / 2, w, h);
-        if (partName === state.selectedPart) {
-            ctx.strokeStyle = PART_COLORS[partName] || '#fff';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([4, 4]);
-            ctx.strokeRect(-w / 2 - 2, -h / 2 - 2, w + 4, h + 4);
-            ctx.setLineDash([]);
-        }
-        ctx.restore();
-    }
-}
-
-function drawAllEquipment(order, cx, cy, Z, torsoAnim) {
-    for (const [slotType, itemId] of Object.entries(state.equipment)) {
-        if (!itemId) continue;
-        const items = EQUIPMENT_ITEMS[slotType];
-        if (!items) continue;
-        const item = items.find(i => i.id === itemId);
-        if (!item || !item.shape) continue;
-
-        const attachPart = EQUIP_ATTACH[slotType];
-        if (!attachPart || !state.parts[attachPart]) continue;
-        const pd = state.parts[attachPart];
-        if (!pd.visible) continue;
-
-        const offset = state.equipmentOffsets[slotType] || { x: 0, y: 0 };
-        const pos = getPartWorldPos(attachPart);
-        const anim = state.playing ? getAnimatedTransform(attachPart) : { rot: 0, y: 0 };
-        const totalRot = (pd.rotation + (anim.rot || 0)) * Math.PI / 180;
-
-        ctx.save();
-        ctx.translate(pos.x + offset.x * Z, pos.y + (anim.y || 0) * Z + offset.y * Z);
-        ctx.rotate(totalRot);
-
-        // Glow effect
-        if (item.glowColor) {
-            ctx.beginPath();
-            ctx.arc(0, 0, Z * 3, 0, Math.PI * 2);
-            ctx.fillStyle = item.glowColor;
-            ctx.globalAlpha = 0.15;
-            ctx.fill();
-            ctx.globalAlpha = 1;
-        }
-
-        ctx.fillStyle = item.color;
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 1.5;
-        ctx.lineJoin = 'round';
-
-        drawEquipShape(item.shape, Z);
-
-        ctx.restore();
-
-        // For legs/boots/gloves, draw on mirrored part too
-        if (slotType === 'legs' && state.parts['right_leg'] && state.parts['right_leg'].visible) {
-            drawMirroredEquip(item, 'right_leg', offset, Z);
-        }
-        if (slotType === 'boots' && state.parts['right_foot'] && state.parts['right_foot'].visible) {
-            drawMirroredEquip(item, 'right_foot', offset, Z);
-        }
-        if (slotType === 'gloves' && state.parts['right_hand'] && state.parts['right_hand'].visible) {
-            drawMirroredEquip(item, 'right_hand', offset, Z);
-        }
-    }
-}
-
-function drawMirroredEquip(item, partName, offset, Z) {
-    const pd = state.parts[partName];
-    if (!pd || !pd.visible) return;
-    const pos = getPartWorldPos(partName);
-    const anim = state.playing ? getAnimatedTransform(partName) : { rot: 0, y: 0 };
-    const totalRot = (pd.rotation + (anim.rot || 0)) * Math.PI / 180;
-    ctx.save();
-    ctx.translate(pos.x + offset.x * Z, pos.y + (anim.y || 0) * Z + offset.y * Z);
-    ctx.rotate(totalRot);
-    if (item.glowColor) {
-        ctx.beginPath();
-        ctx.arc(0, 0, Z * 3, 0, Math.PI * 2);
-        ctx.fillStyle = item.glowColor;
-        ctx.globalAlpha = 0.15;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-    }
-    ctx.fillStyle = item.color;
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 1.5;
-    ctx.lineJoin = 'round';
-    drawEquipShape(item.shape, Z);
-    ctx.restore();
-}
-
-function drawEquipShape(shape, Z) {
-    const s = Z;
-    switch (shape) {
-        case 'sword':
-            ctx.fillRect(-s * 0.4, -s * 4, s * 0.8, s * 3.5);
-            ctx.strokeRect(-s * 0.4, -s * 4, s * 0.8, s * 3.5);
-            ctx.fillStyle = '#6B4226';
-            ctx.fillRect(-s * 0.6, -s * 0.5, s * 1.2, s * 1.5);
-            ctx.strokeRect(-s * 0.6, -s * 0.5, s * 1.2, s * 1.5);
-            ctx.fillStyle = '#7A7A7A';
-            ctx.fillRect(-s * 1, -s * 0.5, s * 2, s * 0.4);
-            ctx.strokeRect(-s * 1, -s * 0.5, s * 2, s * 0.4);
-            break;
-        case 'katana':
-            ctx.fillRect(-s * 0.3, -s * 5, s * 0.6, s * 4.5);
-            ctx.strokeRect(-s * 0.3, -s * 5, s * 0.6, s * 4.5);
-            ctx.fillStyle = '#4A3520';
-            ctx.fillRect(-s * 0.4, -s * 0.5, s * 0.8, s * 2);
-            ctx.strokeRect(-s * 0.4, -s * 0.5, s * 0.8, s * 2);
-            break;
-        case 'axe':
-            ctx.fillRect(-s * 0.3, -s * 3.5, s * 0.6, s * 4);
-            ctx.strokeRect(-s * 0.3, -s * 3.5, s * 0.6, s * 4);
-            ctx.beginPath();
-            ctx.moveTo(-s * 0.3, -s * 3.5);
-            ctx.lineTo(-s * 1.5, -s * 2.5);
-            ctx.lineTo(-s * 1.5, -s * 1);
-            ctx.lineTo(-s * 0.3, -s * 0.5);
-            ctx.closePath();
-            ctx.fill(); ctx.stroke();
-            break;
-        case 'staff':
-            ctx.fillRect(-s * 0.2, -s * 4, s * 0.4, s * 5);
-            ctx.strokeRect(-s * 0.2, -s * 4, s * 0.4, s * 5);
-            ctx.beginPath();
-            ctx.arc(0, -s * 4, s * 0.8, 0, Math.PI * 2);
-            ctx.fill(); ctx.stroke();
-            break;
-        case 'cap':
-            ctx.fillRect(-s * 2, -s * 0.8, s * 4, s * 1);
-            ctx.strokeRect(-s * 2, -s * 0.8, s * 4, s * 1);
-            ctx.fillRect(-s * 1.5, -s * 1.5, s * 3, s * 0.7);
-            ctx.strokeRect(-s * 1.5, -s * 1.5, s * 3, s * 0.7);
-            break;
-        case 'helm':
-            ctx.beginPath();
-            ctx.arc(0, -s * 0.5, s * 2, Math.PI, 0);
-            ctx.fill(); ctx.stroke();
-            ctx.fillRect(-s * 2, -s * 0.5, s * 4, s * 0.6);
-            ctx.strokeRect(-s * 2, -s * 0.5, s * 4, s * 0.6);
-            break;
-        case 'crown':
-            ctx.fillRect(-s * 1.8, -s * 0.5, s * 3.6, s * 0.8);
-            ctx.strokeRect(-s * 1.8, -s * 0.5, s * 3.6, s * 0.8);
-            for (let i = -1; i <= 1; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * s * 1.2 - s * 0.3, -s * 0.5);
-                ctx.lineTo(i * s * 1.2, -s * 1.8);
-                ctx.lineTo(i * s * 1.2 + s * 0.3, -s * 0.5);
-                ctx.fill(); ctx.stroke();
-            }
-            break;
-        case 'tunic':
-            ctx.globalAlpha = 0.5;
-            ctx.fillRect(-s * 2, -s * 1.5, s * 4, s * 3);
-            ctx.strokeRect(-s * 2, -s * 1.5, s * 4, s * 3);
-            ctx.globalAlpha = 1;
-            break;
-        case 'chainmail':
-            ctx.globalAlpha = 0.5;
-            ctx.fillRect(-s * 2, -s * 1.5, s * 4, s * 3);
-            ctx.strokeRect(-s * 2, -s * 1.5, s * 4, s * 3);
-            // Chain pattern
-            ctx.strokeStyle = '#999';
-            ctx.lineWidth = 0.5;
-            for (let r = -1; r < 2; r++) {
-                for (let c = -1; c < 2; c++) {
-                    ctx.beginPath();
-                    ctx.arc(c * s * 1.2, r * s * 0.8, s * 0.3, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-            }
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 1.5;
-            ctx.globalAlpha = 1;
-            break;
-        case 'plate':
-            ctx.globalAlpha = 0.6;
-            ctx.fillRect(-s * 2.2, -s * 1.8, s * 4.4, s * 3.6);
-            ctx.strokeRect(-s * 2.2, -s * 1.8, s * 4.4, s * 3.6);
-            ctx.fillStyle = '#fff';
-            ctx.globalAlpha = 0.15;
-            ctx.fillRect(-s * 1.5, -s * 1.2, s * 1, s * 2);
-            ctx.globalAlpha = 1;
-            break;
-        case 'pants':
-            ctx.globalAlpha = 0.5;
-            ctx.fillRect(-s * 1, -s * 1, s * 2, s * 2.5);
-            ctx.strokeRect(-s * 1, -s * 1, s * 2, s * 2.5);
-            ctx.globalAlpha = 1;
-            break;
-        case 'greaves':
-            ctx.globalAlpha = 0.6;
-            ctx.fillRect(-s * 1.2, -s * 1.2, s * 2.4, s * 2.8);
-            ctx.strokeRect(-s * 1.2, -s * 1.2, s * 2.4, s * 2.8);
-            ctx.globalAlpha = 1;
-            break;
-        case 'boots_eq':
-            ctx.globalAlpha = 0.6;
-            ctx.fillRect(-s * 1, -s * 0.5, s * 2, s * 1.5);
-            ctx.strokeRect(-s * 1, -s * 0.5, s * 2, s * 1.5);
-            ctx.globalAlpha = 1;
-            break;
-        case 'sabatons':
-            ctx.globalAlpha = 0.7;
-            ctx.fillRect(-s * 1.2, -s * 0.6, s * 2.4, s * 1.8);
-            ctx.strokeRect(-s * 1.2, -s * 0.6, s * 2.4, s * 1.8);
-            ctx.fillStyle = '#fff';
-            ctx.globalAlpha = 0.1;
-            ctx.fillRect(-s * 0.8, -s * 0.3, s * 0.5, s * 0.5);
-            ctx.globalAlpha = 1;
-            break;
-        case 'gloves_eq':
-            ctx.globalAlpha = 0.6;
-            ctx.fillRect(-s * 0.8, -s * 0.8, s * 1.6, s * 1.2);
-            ctx.strokeRect(-s * 0.8, -s * 0.8, s * 1.6, s * 1.2);
-            ctx.globalAlpha = 1;
-            break;
-        case 'gauntlets':
-            ctx.globalAlpha = 0.7;
-            ctx.fillRect(-s * 1, -s * 1, s * 2, s * 1.5);
-            ctx.strokeRect(-s * 1, -s * 1, s * 2, s * 1.5);
-            ctx.fillStyle = '#fff';
-            ctx.globalAlpha = 0.1;
-            ctx.fillRect(-s * 0.5, -s * 0.6, s * 0.3, s * 0.3);
-            ctx.globalAlpha = 1;
-            break;
-    }
-}
-
-// ─── Kick off ───
+// Kick off
 init();
+
 </script>
 </body>
 </html>
