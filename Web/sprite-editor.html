@@ -508,8 +508,17 @@ async function loadSkeleton() {
     let skelData = null;
     try {
         const resp = await fetch(skelUrl);
-        if (resp.ok) { skelData = await resp.json(); state.skeletonData = skelData; }
-    } catch (e) { /* no skeleton yet */ }
+        if (resp.ok) {
+            const text = await resp.text();
+            try {
+                skelData = JSON.parse(text);
+                state.skeletonData = skelData;
+            } catch (parseErr) {
+                toast('Warning: skeleton JSON is corrupt, using defaults');
+                console.error('Skeleton parse error:', parseErr, 'Raw:', text.substring(0, 200));
+            }
+        }
+    } catch (e) { /* no skeleton file yet */ }
 
     // Init draw order
     state.drawOrder = {};
@@ -568,6 +577,11 @@ async function loadSkeleton() {
                 if (cfg.part_mapping) state.partMapping = cfg.part_mapping;
                 if (cfg.equipment_loadout) state.equipment = cfg.equipment_loadout;
                 if (cfg.equipment_offsets) state.equipmentOffsets = cfg.equipment_offsets;
+                if (cfg.bone_hierarchy) {
+                    for (const [bone, parent] of Object.entries(cfg.bone_hierarchy)) {
+                        BONE_HIERARCHY[bone] = parent;
+                    }
+                }
             }
         }
     } catch (e) { /* no config */ }
@@ -585,12 +599,24 @@ async function saveSkeleton() {
     const data = buildSkeletonJson();
     statusMsg.textContent = 'Saving...';
 
+    // Validate JSON before sending
+    let bodyStr;
+    try {
+        bodyStr = JSON.stringify({ race: state.race, stage: state.stage, data });
+        JSON.parse(bodyStr); // round-trip validation
+    } catch (jsonErr) {
+        toast('Save aborted: invalid JSON — ' + jsonErr.message);
+        statusMsg.textContent = 'Save error (bad JSON)';
+        console.error('JSON validation failed:', jsonErr, data);
+        return;
+    }
+
     // Save skeleton
     try {
         const resp = await fetch('/api/skeleton/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ race: state.race, stage: state.stage, data })
+            body: bodyStr
         });
         const result = await resp.json();
         if (!result.success) { toast('Skeleton save failed: ' + (result.error || 'Unknown')); statusMsg.textContent = 'Save failed'; return; }
@@ -607,6 +633,7 @@ async function saveSkeleton() {
                     part_mapping: state.partMapping,
                     equipment_loadout: state.equipment,
                     equipment_offsets: state.equipmentOffsets,
+                    bone_hierarchy: { ...BONE_HIERARCHY },
                 }
             })
         });
@@ -624,6 +651,7 @@ function exportSkeleton() {
         part_mapping: state.partMapping,
         equipment_loadout: state.equipment,
         equipment_offsets: state.equipmentOffsets,
+        bone_hierarchy: { ...BONE_HIERARCHY },
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -657,14 +685,21 @@ function buildSkeletonJson() {
         const parentName = BONE_HIERARCHY[name] || null;
         let offset_x, offset_y;
         const orig = origParts[name] || {};
-        if (orig.source_center !== undefined && parentName === null) {
-            offset_x = Math.round((orig.source_center.x / source_size) * 1000) / 1000;
-            offset_y = Math.round((orig.source_center.y / source_size) * 1000) / 1000;
-        } else if (orig.source_center !== undefined && parentName !== null) {
+        // source_center may be array [x,y] or object {x,y} — normalize access
+        const sc = orig.source_center;
+        const scX = sc ? (Array.isArray(sc) ? sc[0] : sc.x) : undefined;
+        const scY = sc ? (Array.isArray(sc) ? sc[1] : sc.y) : undefined;
+        if (scX !== undefined && parentName === null) {
+            offset_x = Math.round((scX / source_size) * 1000) / 1000;
+            offset_y = Math.round((scY / source_size) * 1000) / 1000;
+        } else if (scX !== undefined && parentName !== null) {
             const parentOrig = origParts[parentName] || {};
-            if (parentOrig.source_center !== undefined) {
-                offset_x = Math.round(((orig.source_center.x / source_size) - (parentOrig.source_center.x / source_size)) * 1000) / 1000;
-                offset_y = Math.round(((orig.source_center.y / source_size) - (parentOrig.source_center.y / source_size)) * 1000) / 1000;
+            const psc = parentOrig.source_center;
+            const pscX = psc ? (Array.isArray(psc) ? psc[0] : psc.x) : undefined;
+            const pscY = psc ? (Array.isArray(psc) ? psc[1] : psc.y) : undefined;
+            if (pscX !== undefined) {
+                offset_x = Math.round(((scX / source_size) - (pscX / source_size)) * 1000) / 1000;
+                offset_y = Math.round(((scY / source_size) - (pscY / source_size)) * 1000) / 1000;
             } else {
                 offset_x = origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].x : 0);
                 offset_y = origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].y : 0);
@@ -673,7 +708,10 @@ function buildSkeletonJson() {
             offset_x = origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].x : 0);
             offset_y = origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].y : 0);
         }
-        bones[name] = { parent: parentName, offset_x, offset_y, rotation: pd.rotation, scale: origBone.scale !== undefined ? origBone.scale : 1.0 };
+        // Guard against NaN
+        if (!isFinite(offset_x)) offset_x = 0;
+        if (!isFinite(offset_y)) offset_y = 0;
+        bones[name] = { parent: parentName, offset_x, offset_y, rotation: pd.rotation || 0, scale: origBone.scale !== undefined ? origBone.scale : 1.0 };
     }
 
     const draw_order = state.drawOrder[state.direction] || state.drawOrder['down'] || [];
@@ -856,7 +894,130 @@ function updateMappingPanel() {
         copySelect.value = '';
     });
 
-    // Part mapping section
+    // Duplicate Part section
+    const dupGroup = document.createElement('div');
+    dupGroup.className = 'prop-group';
+    dupGroup.innerHTML = '<h3>Duplicate Part Image</h3>'
+        + '<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Clone a part\'s image to use in another slot (e.g. duplicate left leg for right leg).</div>'
+        + '<div class="prop-row"><label>Source:</label><select id="dup-source">'
+        + '<option value="">(Select...)</option>'
+        + Object.keys(state.images).map(p => '<option value="' + p + '">' + p.replace(/_/g, ' ') + '</option>').join('')
+        + '</select></div>'
+        + '<div class="prop-row"><label>Target slot:</label><select id="dup-target">'
+        + '<option value="">(Select...)</option>'
+        + BODY_PARTS.map(p => '<option value="' + p + '">' + p.replace(/_/g, ' ') + '</option>').join('')
+        + '</select></div>'
+        + '<div class="prop-row"><label></label><button id="btn-duplicate" style="background:var(--bg-input);color:var(--text);border:1px solid var(--border);padding:4px 12px;border-radius:4px;cursor:pointer;">Duplicate</button></div>';
+    panel.appendChild(dupGroup);
+
+    const btnDup = dupGroup.querySelector('#btn-duplicate');
+    btnDup.addEventListener('click', () => {
+        const src = dupGroup.querySelector('#dup-source').value;
+        const tgt = dupGroup.querySelector('#dup-target').value;
+        if (!src || !tgt) { toast('Select both source and target'); return; }
+        if (!state.images[src]) { toast('Source image not loaded'); return; }
+        pushUndo('duplicate ' + src + ' to ' + tgt);
+        // Clone the image for the target slot
+        const cloneKey = '_dup_' + src + '_to_' + tgt;
+        state.images[cloneKey] = state.images[src];
+        state.partMapping[tgt] = cloneKey;
+        // Ensure target slot exists in parts
+        if (!state.parts[tgt]) {
+            state.parts[tgt] = { anchor: { ...DEFAULT_ANCHORS[tgt] }, rotation: 0, visible: true };
+            // Add to draw order if missing
+            for (const dir of ['down','up','left','right']) {
+                if (!state.drawOrder[dir].includes(tgt)) state.drawOrder[dir].push(tgt);
+            }
+        }
+        rebuildPartsList(); updateMappingPanel(); render();
+        toast('Duplicated ' + src.replace(/_/g, ' ') + ' to ' + tgt.replace(/_/g, ' '));
+    });
+
+    // Bone Hierarchy Reassignment section
+    const hierGroup = document.createElement('div');
+    hierGroup.className = 'prop-group';
+    hierGroup.innerHTML = '<h3>Bone Hierarchy</h3>'
+        + '<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Reassign parent bones. Change which joint a body part is attached to.</div>';
+
+    for (const part of BODY_PARTS) {
+        if (!state.parts[part]) continue;
+        const currentParent = BONE_HIERARCHY[part];
+        const row = document.createElement('div');
+        row.className = 'mapping-row';
+        const parentOptions = ['(root)', ...BODY_PARTS.filter(p => p !== part && state.parts[p])];
+        row.innerHTML = '<span class="slot-label">' + part.replace(/_/g, ' ') + '</span>'
+            + '<select data-hier-slot="' + part + '">'
+            + parentOptions.map(p => {
+                const val = p === '(root)' ? '' : p;
+                const label = p === '(root)' ? '(root)' : p.replace(/_/g, ' ');
+                const selected = (currentParent === null && val === '') || (currentParent === val) ? ' selected' : '';
+                return '<option value="' + val + '"' + selected + '>' + label + '</option>';
+            }).join('')
+            + '</select>';
+        hierGroup.appendChild(row);
+    }
+    panel.appendChild(hierGroup);
+
+    // Wire hierarchy dropdowns
+    panel.querySelectorAll('[data-hier-slot]').forEach(sel => {
+        sel.addEventListener('change', (e) => {
+            const part = sel.dataset.hierSlot;
+            const newParent = e.target.value || null;
+            // Prevent circular references
+            if (newParent) {
+                let check = newParent;
+                const visited = new Set();
+                while (check) {
+                    if (check === part) { toast('Cannot create circular hierarchy'); e.target.value = BONE_HIERARCHY[part] || ''; return; }
+                    if (visited.has(check)) break;
+                    visited.add(check);
+                    check = BONE_HIERARCHY[check];
+                }
+            }
+            pushUndo('reparent ' + part);
+            BONE_HIERARCHY[part] = newParent;
+            rebuildPartsList(); render();
+            toast(part.replace(/_/g, ' ') + ' now attached to ' + (newParent ? newParent.replace(/_/g, ' ') : 'root'));
+        });
+    });
+
+    // Swap Parts section
+    const swapGroup = document.createElement('div');
+    swapGroup.className = 'prop-group';
+    swapGroup.innerHTML = '<h3>Swap Two Parts</h3>'
+        + '<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Swap images and anchors between two body part slots.</div>'
+        + '<div class="prop-row"><label>Part A:</label><select id="swap-a">'
+        + '<option value="">(Select...)</option>'
+        + BODY_PARTS.filter(p => state.parts[p]).map(p => '<option value="' + p + '">' + p.replace(/_/g, ' ') + '</option>').join('')
+        + '</select></div>'
+        + '<div class="prop-row"><label>Part B:</label><select id="swap-b">'
+        + '<option value="">(Select...)</option>'
+        + BODY_PARTS.filter(p => state.parts[p]).map(p => '<option value="' + p + '">' + p.replace(/_/g, ' ') + '</option>').join('')
+        + '</select></div>'
+        + '<div class="prop-row"><label></label><button id="btn-swap" style="background:var(--bg-input);color:var(--text);border:1px solid var(--border);padding:4px 12px;border-radius:4px;cursor:pointer;">Swap</button></div>';
+    panel.appendChild(swapGroup);
+
+    swapGroup.querySelector('#btn-swap').addEventListener('click', () => {
+        const a = swapGroup.querySelector('#swap-a').value;
+        const b = swapGroup.querySelector('#swap-b').value;
+        if (!a || !b || a === b) { toast('Select two different parts'); return; }
+        pushUndo('swap ' + a + ' <-> ' + b);
+        // Swap images
+        const imgA = state.images[a]; const imgB = state.images[b];
+        state.images[a] = imgB; state.images[b] = imgA;
+        // Swap part mapping references
+        const mapA = state.partMapping[a]; const mapB = state.partMapping[b];
+        if (mapA || mapB) { state.partMapping[a] = mapB || b; state.partMapping[b] = mapA || a; }
+        // Swap anchors
+        const ancA = { ...state.parts[a].anchor }; const ancB = { ...state.parts[b].anchor };
+        state.parts[a].anchor = ancB; state.parts[b].anchor = ancA;
+        // Swap rotations
+        const rotA = state.parts[a].rotation; state.parts[a].rotation = state.parts[b].rotation; state.parts[b].rotation = rotA;
+        rebuildPartsList(); updatePropsPanel(); updateMappingPanel(); render();
+        toast('Swapped ' + a.replace(/_/g, ' ') + ' and ' + b.replace(/_/g, ' '));
+    });
+
+    // Part Texture Mapping section
     const mapGroup = document.createElement('div');
     mapGroup.className = 'prop-group';
     mapGroup.innerHTML = '<h3>Body Part Texture Mapping</h3><div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Reassign which texture image is used for each body part slot.</div>';
