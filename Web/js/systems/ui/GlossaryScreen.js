@@ -12,7 +12,7 @@
 import { SPRITE_RACES } from '../../data/SpriteData.js';
 import { ABILITIES } from '../../data/AbilityData.js';
 import { EQUIPMENT, SLOT_TYPES, getAllEquipmentWithExpansion } from '../../data/EquipmentData.js';
-import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
+import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js';
 import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
 
 // -- Shared Style Constants ------------------------------------------------------
@@ -242,7 +242,7 @@ function drawSpritePreview(canvas, raceId, elementName) {
 
         // Draw the frame using HumanoidSpriteSystem (chibi sized)
         const spriteSize = size * 0.9;
-        HumanoidSpriteSystem.drawFrame(ctx, raceId, 1, 0, 0, (size - spriteSize) / 2, (size - spriteSize) / 2, spriteSize);
+        SkeletalAnimationSystem.drawFrame(ctx, raceId, 1, 0, 0, (size - spriteSize) / 2, (size - spriteSize) / 2, spriteSize);
     } catch (e) {
         // Fallback: draw a colored circle with race initial
         const race = SPRITE_RACES.find(r => r.race_id === raceId);

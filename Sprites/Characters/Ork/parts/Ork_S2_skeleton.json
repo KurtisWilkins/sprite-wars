@@ -1,0 +1,227 @@
+{
+  "race": "Ork",
+  "stage": 2,
+  "source_size": 96,
+  "parts": {
+    "head": {
+      "file": "Ork_S2_head.png",
+      "width": 34,
+      "height": 28,
+      "source_bbox": [
+        15,
+        10,
+        44,
+        33
+      ],
+      "source_center": [
+        30.0,
+        22.0
+      ],
+      "anchor": {
+        "x": 17,
+        "y": 24
+      }
+    },
+    "torso": {
+      "file": "Ork_S2_torso.png",
+      "width": 57,
+      "height": 60,
+      "source_bbox": [
+        15,
+        34,
+        67,
+        89
+      ],
+      "source_center": [
+        41.5,
+        62.0
+      ],
+      "anchor": {
+        "x": 28,
+        "y": 30
+      }
+    },
+    "left_arm": {
+      "file": "Ork_S2_left_arm.png",
+      "width": 20,
+      "height": 21,
+      "source_bbox": [
+        13,
+        14,
+        28,
+        30
+      ],
+      "source_center": [
+        20.5,
+        22.0
+      ],
+      "anchor": {
+        "x": 14,
+        "y": 3
+      }
+    },
+    "right_hand": {
+      "file": "Ork_S2_right_hand.png",
+      "width": 14,
+      "height": 15,
+      "source_bbox": [
+        78,
+        9,
+        87,
+        19
+      ],
+      "source_center": [
+        82.5,
+        14.0
+      ],
+      "anchor": {
+        "x": 7,
+        "y": 3
+      }
+    },
+    "right_arm": {
+      "file": "Ork_S2_right_arm.png",
+      "width": 15,
+      "height": 14,
+      "source_bbox": [
+        76,
+        41,
+        86,
+        50
+      ],
+      "source_center": [
+        81.0,
+        45.5
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 3
+      }
+    },
+    "left_foot": {
+      "file": "Ork_S2_left_foot.png",
+      "width": 11,
+      "height": 11,
+      "source_bbox": [
+        29,
+        84,
+        35,
+        90
+      ],
+      "source_center": [
+        32.0,
+        87.0
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 2
+      }
+    },
+    "left_leg": {
+      "file": "Ork_S2_left_leg.png",
+      "width": 10,
+      "height": 9,
+      "source_bbox": [
+        8,
+        83,
+        13,
+        87
+      ],
+      "source_center": [
+        10.5,
+        85.0
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 2
+      }
+    },
+    "right_leg": {
+      "file": "Ork_S2_right_leg.png",
+      "width": 8,
+      "height": 8,
+      "source_bbox": [
+        81,
+        61,
+        84,
+        64
+      ],
+      "source_center": [
+        82.5,
+        62.5
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 2
+      }
+    }
+  },
+  "bones": {
+    "head": {
+      "parent": "torso",
+      "offset_x": 0.312,
+      "offset_y": 0.229,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "torso": {
+      "parent": null,
+      "offset_x": 0.432,
+      "offset_y": 0.646,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_arm": {
+      "parent": "torso",
+      "offset_x": 0.214,
+      "offset_y": 0.229,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_hand": {
+      "parent": "right_arm",
+      "offset_x": 0.859,
+      "offset_y": 0.146,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_arm": {
+      "parent": "torso",
+      "offset_x": 0.844,
+      "offset_y": 0.474,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_foot": {
+      "parent": "left_leg",
+      "offset_x": 0.333,
+      "offset_y": 0.906,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_leg": {
+      "parent": "torso",
+      "offset_x": 0.109,
+      "offset_y": 0.885,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_leg": {
+      "parent": "torso",
+      "offset_x": 0.859,
+      "offset_y": 0.651,
+      "rotation": 0,
+      "scale": 1.0
+    }
+  },
+  "draw_order": [
+    "left_leg",
+    "right_leg",
+    "left_foot",
+    "torso",
+    "left_arm",
+    "right_arm",
+    "right_hand",
+    "head"
+  ]
+}

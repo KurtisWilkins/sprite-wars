@@ -12,7 +12,7 @@
  */
 
 import { eventBus, GameEvents } from '../../core/EventBus.js';
-import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
+import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js';
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../../data/SpriteData.js';
 import { ABILITIES } from '../../data/AbilityData.js';
 import { EQUIPMENT, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
@@ -313,7 +313,7 @@ export class SpriteInspectPanel {
         canvas.height = 288;
         canvas.style.cssText = 'position: absolute; top: 0; left: 0; width: 160px; height: 180px; z-index: 1;';
         const ctx = canvas.getContext('2d');
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             ctx, d.raceId, d.evolutionStage, d.facing, 0,
             128, 230, 210,
             { equipment: d.equipment || {} }
@@ -685,7 +685,7 @@ export class SpriteInspectPanel {
             width: 72px; height: 84px;
         `;
         const dollCtx = dollCanvas.getContext('2d');
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             dollCtx, d.raceId, d.evolutionStage, d.facing, 0,
             36, 66, 64,
             { equipment: equipment }
@@ -1011,7 +1011,7 @@ export class SpriteInspectPanel {
             miniCanvas.height = 54;
             miniCanvas.style.cssText = 'width: 48px; height: 54px;';
             const mCtx = miniCanvas.getContext('2d');
-            HumanoidSpriteSystem.drawWithEquipment(
+            SkeletalAnimationSystem.drawWithEquipment(
                 mCtx, d.raceId, stageNum, 0, 0,
                 24, 44, 42,
                 { equipment: {} }

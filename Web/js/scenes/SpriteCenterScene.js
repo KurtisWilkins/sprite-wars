@@ -22,7 +22,7 @@ import { ABILITIES } from '../data/AbilityData.js';
 import { LEARNSETS } from '../data/LearnsetData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
 import { EQUIPMENT, findEquipmentWithExpansion } from '../data/EquipmentData.js';
-import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
 import { getRaceSpritePath, getFormSpritePath } from '../data/SpriteTextureHelper.js';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────

@@ -10,7 +10,7 @@
  * designed for mobile-first layout. Screens are registered with ScreenManager.
  */
 import { eventBus, GameEvents } from '../../core/EventBus.js';
-import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
+import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js';
 import { EQUIPMENT, SLOT_TYPES, RARITY_TIERS, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
 import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
 
@@ -471,7 +471,7 @@ export class TeamScreen {
                 zIndex: '1',
             });
             const pCtx = portrait.getContext('2d');
-            HumanoidSpriteSystem.drawWithEquipment(
+            SkeletalAnimationSystem.drawWithEquipment(
                 pCtx, sRaceId, sStage, 0, 0, 28, 48, 50, { equipment: sEquip }
             );
             portraitWrap.appendChild(portrait);
@@ -1511,7 +1511,7 @@ export class InventoryScreen {
                 zIndex: '1',
             });
             const pCtx = portrait.getContext('2d');
-            HumanoidSpriteSystem.drawWithEquipment(
+            SkeletalAnimationSystem.drawWithEquipment(
                 pCtx, sRaceId, sStage, 0, 0, 22, 36, 40, { equipment: sprite.equipment || {} }
             );
             portraitWrap2.appendChild(portrait);

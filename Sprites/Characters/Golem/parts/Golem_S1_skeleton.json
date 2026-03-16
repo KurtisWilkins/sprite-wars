@@ -1,0 +1,254 @@
+{
+  "race": "Golem",
+  "stage": 1,
+  "source_size": 64,
+  "parts": {
+    "head": {
+      "file": "Golem_S1_head.png",
+      "width": 37,
+      "height": 53,
+      "source_bbox": [
+        12,
+        4,
+        44,
+        52
+      ],
+      "source_center": [
+        28.0,
+        28.0
+      ],
+      "anchor": {
+        "x": 18,
+        "y": 48
+      }
+    },
+    "torso": {
+      "file": "Golem_S1_torso.png",
+      "width": 9,
+      "height": 11,
+      "source_bbox": [
+        34,
+        51,
+        38,
+        57
+      ],
+      "source_center": [
+        36.0,
+        54.0
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 5
+      }
+    },
+    "right_hand": {
+      "file": "Golem_S1_right_hand.png",
+      "width": 10,
+      "height": 11,
+      "source_bbox": [
+        49,
+        12,
+        54,
+        18
+      ],
+      "source_center": [
+        51.5,
+        15.0
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 2
+      }
+    },
+    "right_arm": {
+      "file": "Golem_S1_right_arm.png",
+      "width": 10,
+      "height": 10,
+      "source_bbox": [
+        48,
+        30,
+        53,
+        35
+      ],
+      "source_center": [
+        50.5,
+        32.5
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 2
+      }
+    },
+    "left_arm": {
+      "file": "Golem_S1_left_arm.png",
+      "width": 9,
+      "height": 8,
+      "source_bbox": [
+        21,
+        55,
+        25,
+        58
+      ],
+      "source_center": [
+        23.0,
+        56.5
+      ],
+      "anchor": {
+        "x": 6,
+        "y": 2
+      }
+    },
+    "left_hand": {
+      "file": "Golem_S1_left_hand.png",
+      "width": 8,
+      "height": 11,
+      "source_bbox": [
+        25,
+        50,
+        28,
+        56
+      ],
+      "source_center": [
+        26.5,
+        53.0
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    "left_leg": {
+      "file": "Golem_S1_left_leg.png",
+      "width": 8,
+      "height": 7,
+      "source_bbox": [
+        9,
+        54,
+        12,
+        56
+      ],
+      "source_center": [
+        10.5,
+        55.0
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    "left_foot": {
+      "file": "Golem_S1_left_foot.png",
+      "width": 6,
+      "height": 8,
+      "source_bbox": [
+        30,
+        31,
+        31,
+        34
+      ],
+      "source_center": [
+        30.5,
+        32.5
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 2
+      }
+    },
+    "right_leg": {
+      "file": "Golem_S1_right_leg.png",
+      "width": 7,
+      "height": 6,
+      "source_bbox": [
+        50,
+        42,
+        52,
+        43
+      ],
+      "source_center": [
+        51.0,
+        42.5
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 2
+      }
+    }
+  },
+  "bones": {
+    "head": {
+      "parent": "torso",
+      "offset_x": 0.438,
+      "offset_y": 0.438,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "torso": {
+      "parent": null,
+      "offset_x": 0.562,
+      "offset_y": 0.844,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_hand": {
+      "parent": "right_arm",
+      "offset_x": 0.805,
+      "offset_y": 0.234,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_arm": {
+      "parent": "torso",
+      "offset_x": 0.789,
+      "offset_y": 0.508,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_arm": {
+      "parent": "torso",
+      "offset_x": 0.359,
+      "offset_y": 0.883,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_hand": {
+      "parent": "left_arm",
+      "offset_x": 0.414,
+      "offset_y": 0.828,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_leg": {
+      "parent": "torso",
+      "offset_x": 0.164,
+      "offset_y": 0.859,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_foot": {
+      "parent": "left_leg",
+      "offset_x": 0.477,
+      "offset_y": 0.508,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_leg": {
+      "parent": "torso",
+      "offset_x": 0.797,
+      "offset_y": 0.664,
+      "rotation": 0,
+      "scale": 1.0
+    }
+  },
+  "draw_order": [
+    "left_leg",
+    "right_leg",
+    "left_foot",
+    "torso",
+    "left_arm",
+    "right_arm",
+    "left_hand",
+    "right_hand",
+    "head"
+  ]
+}

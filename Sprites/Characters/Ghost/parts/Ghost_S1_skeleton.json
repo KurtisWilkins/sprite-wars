@@ -1,0 +1,220 @@
+{
+  "race": "Ghost",
+  "stage": 1,
+  "source_size": 64,
+  "parts": {
+    "head": {
+      "file": "Ghost_S1_head.png",
+      "width": 27,
+      "height": 11,
+      "source_bbox": [
+        12,
+        4,
+        34,
+        10
+      ],
+      "source_center": [
+        23.5,
+        7.5
+      ],
+      "anchor": {
+        "x": 13,
+        "y": 8
+      }
+    },
+    "torso": {
+      "file": "Ghost_S1_torso.png",
+      "width": 37,
+      "height": 26,
+      "source_bbox": [
+        12,
+        11,
+        44,
+        32
+      ],
+      "source_center": [
+        28.5,
+        22.0
+      ],
+      "anchor": {
+        "x": 18,
+        "y": 13
+      }
+    },
+    "left_arm": {
+      "file": "Ghost_S1_left_arm.png",
+      "width": 12,
+      "height": 10,
+      "source_bbox": [
+        13,
+        37,
+        20,
+        42
+      ],
+      "source_center": [
+        16.5,
+        39.5
+      ],
+      "anchor": {
+        "x": 8,
+        "y": 2
+      }
+    },
+    "right_hand": {
+      "file": "Ghost_S1_right_hand.png",
+      "width": 10,
+      "height": 11,
+      "source_bbox": [
+        49,
+        12,
+        54,
+        18
+      ],
+      "source_center": [
+        51.5,
+        15.0
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 2
+      }
+    },
+    "right_arm": {
+      "file": "Ghost_S1_right_arm.png",
+      "width": 10,
+      "height": 10,
+      "source_bbox": [
+        48,
+        30,
+        53,
+        35
+      ],
+      "source_center": [
+        50.5,
+        32.5
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 2
+      }
+    },
+    "right_foot": {
+      "file": "Ghost_S1_right_foot.png",
+      "width": 9,
+      "height": 9,
+      "source_bbox": [
+        33,
+        41,
+        37,
+        45
+      ],
+      "source_center": [
+        35.0,
+        43.0
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    "right_leg": {
+      "file": "Ghost_S1_right_leg.png",
+      "width": 7,
+      "height": 6,
+      "source_bbox": [
+        50,
+        42,
+        52,
+        43
+      ],
+      "source_center": [
+        51.0,
+        42.5
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 2
+      }
+    },
+    "extra_0": {
+      "file": "Ghost_S1_extra_0.png",
+      "width": 5,
+      "height": 5,
+      "source_bbox": [
+        35,
+        54,
+        35,
+        54
+      ],
+      "source_center": [
+        35.0,
+        54.0
+      ],
+      "anchor": {
+        "x": 2,
+        "y": 2
+      },
+      "attach_to": "head"
+    }
+  },
+  "bones": {
+    "head": {
+      "parent": "torso",
+      "offset_x": 0.367,
+      "offset_y": 0.117,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "torso": {
+      "parent": null,
+      "offset_x": 0.445,
+      "offset_y": 0.344,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_arm": {
+      "parent": "torso",
+      "offset_x": 0.258,
+      "offset_y": 0.617,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_hand": {
+      "parent": "right_arm",
+      "offset_x": 0.805,
+      "offset_y": 0.234,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_arm": {
+      "parent": "torso",
+      "offset_x": 0.789,
+      "offset_y": 0.508,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_foot": {
+      "parent": "right_leg",
+      "offset_x": 0.547,
+      "offset_y": 0.672,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_leg": {
+      "parent": "torso",
+      "offset_x": 0.797,
+      "offset_y": 0.664,
+      "rotation": 0,
+      "scale": 1.0
+    }
+  },
+  "draw_order": [
+    "right_leg",
+    "right_foot",
+    "torso",
+    "left_arm",
+    "right_arm",
+    "right_hand",
+    "head"
+  ]
+}

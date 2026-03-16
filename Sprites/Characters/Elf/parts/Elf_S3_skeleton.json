@@ -1,0 +1,301 @@
+{
+  "race": "Elf",
+  "stage": 3,
+  "source_size": 128,
+  "parts": {
+    "head": {
+      "file": "Elf_S3_head.png",
+      "width": 33,
+      "height": 19,
+      "source_bbox": [
+        42,
+        13,
+        70,
+        27
+      ],
+      "source_center": [
+        56.5,
+        20.5
+      ],
+      "anchor": {
+        "x": 16,
+        "y": 16
+      }
+    },
+    "torso": {
+      "file": "Elf_S3_torso.png",
+      "width": 47,
+      "height": 49,
+      "source_bbox": [
+        42,
+        28,
+        84,
+        72
+      ],
+      "source_center": [
+        63.5,
+        50.5
+      ],
+      "anchor": {
+        "x": 23,
+        "y": 24
+      }
+    },
+    "left_arm": {
+      "file": "Elf_S3_left_arm.png",
+      "width": 24,
+      "height": 26,
+      "source_bbox": [
+        18,
+        19,
+        37,
+        40
+      ],
+      "source_center": [
+        27.5,
+        29.5
+      ],
+      "anchor": {
+        "x": 18,
+        "y": 4
+      }
+    },
+    "left_hand": {
+      "file": "Elf_S3_left_hand.png",
+      "width": 23,
+      "height": 17,
+      "source_bbox": [
+        20,
+        71,
+        38,
+        83
+      ],
+      "source_center": [
+        29.0,
+        77.0
+      ],
+      "anchor": {
+        "x": 11,
+        "y": 3
+      }
+    },
+    "right_hand": {
+      "file": "Elf_S3_right_hand.png",
+      "width": 17,
+      "height": 18,
+      "source_bbox": [
+        105,
+        13,
+        117,
+        26
+      ],
+      "source_center": [
+        111.0,
+        19.5
+      ],
+      "anchor": {
+        "x": 8,
+        "y": 3
+      }
+    },
+    "right_arm": {
+      "file": "Elf_S3_right_arm.png",
+      "width": 19,
+      "height": 16,
+      "source_bbox": [
+        101,
+        55,
+        115,
+        66
+      ],
+      "source_center": [
+        108.0,
+        60.5
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 3
+      }
+    },
+    "right_foot": {
+      "file": "Elf_S3_right_foot.png",
+      "width": 14,
+      "height": 17,
+      "source_bbox": [
+        69,
+        107,
+        78,
+        119
+      ],
+      "source_center": [
+        73.5,
+        113.0
+      ],
+      "anchor": {
+        "x": 7,
+        "y": 3
+      }
+    },
+    "right_leg": {
+      "file": "Elf_S3_right_leg.png",
+      "width": 15,
+      "height": 15,
+      "source_bbox": [
+        67,
+        79,
+        77,
+        89
+      ],
+      "source_center": [
+        72.0,
+        84.0
+      ],
+      "anchor": {
+        "x": 7,
+        "y": 3
+      }
+    },
+    "left_foot": {
+      "file": "Elf_S3_left_foot.png",
+      "width": 13,
+      "height": 14,
+      "source_bbox": [
+        39,
+        111,
+        47,
+        120
+      ],
+      "source_center": [
+        43.0,
+        115.5
+      ],
+      "anchor": {
+        "x": 6,
+        "y": 3
+      }
+    },
+    "left_leg": {
+      "file": "Elf_S3_left_leg.png",
+      "width": 12,
+      "height": 12,
+      "source_bbox": [
+        11,
+        110,
+        18,
+        117
+      ],
+      "source_center": [
+        14.5,
+        113.5
+      ],
+      "anchor": {
+        "x": 6,
+        "y": 2
+      }
+    },
+    "extra_0": {
+      "file": "Elf_S3_extra_0.png",
+      "width": 9,
+      "height": 10,
+      "source_bbox": [
+        108,
+        81,
+        112,
+        86
+      ],
+      "source_center": [
+        110.0,
+        83.5
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 5
+      },
+      "attach_to": "head"
+    }
+  },
+  "bones": {
+    "head": {
+      "parent": "torso",
+      "offset_x": 0.441,
+      "offset_y": 0.16,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "torso": {
+      "parent": null,
+      "offset_x": 0.496,
+      "offset_y": 0.395,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_arm": {
+      "parent": "torso",
+      "offset_x": 0.215,
+      "offset_y": 0.23,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_hand": {
+      "parent": "left_arm",
+      "offset_x": 0.227,
+      "offset_y": 0.602,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_hand": {
+      "parent": "right_arm",
+      "offset_x": 0.867,
+      "offset_y": 0.152,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_arm": {
+      "parent": "torso",
+      "offset_x": 0.844,
+      "offset_y": 0.473,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_foot": {
+      "parent": "right_leg",
+      "offset_x": 0.574,
+      "offset_y": 0.883,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_leg": {
+      "parent": "torso",
+      "offset_x": 0.562,
+      "offset_y": 0.656,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_foot": {
+      "parent": "left_leg",
+      "offset_x": 0.336,
+      "offset_y": 0.902,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_leg": {
+      "parent": "torso",
+      "offset_x": 0.113,
+      "offset_y": 0.887,
+      "rotation": 0,
+      "scale": 1.0
+    }
+  },
+  "draw_order": [
+    "left_leg",
+    "right_leg",
+    "left_foot",
+    "right_foot",
+    "torso",
+    "left_arm",
+    "right_arm",
+    "left_hand",
+    "right_hand",
+    "head"
+  ]
+}

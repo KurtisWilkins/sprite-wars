@@ -1,0 +1,464 @@
+{
+  "version": 2,
+  "total_races": 24,
+  "total_sprites": 72,
+  "total_parts_extracted": 848,
+  "races": {
+    "Human": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Human/parts/Human_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Human/parts/",
+          "num_parts": 9
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Human/parts/Human_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Human/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Human/parts/Human_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Human/parts/",
+          "num_parts": 11
+        }
+      }
+    },
+    "Elf": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Elf/parts/Elf_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Elf/parts/",
+          "num_parts": 9
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Elf/parts/Elf_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Elf/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Elf/parts/Elf_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Elf/parts/",
+          "num_parts": 11
+        }
+      }
+    },
+    "Demon": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Demon/parts/Demon_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Demon/parts/",
+          "num_parts": 10
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Demon/parts/Demon_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Demon/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Demon/parts/Demon_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Demon/parts/",
+          "num_parts": 11
+        }
+      }
+    },
+    "Devil": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Devil/parts/Devil_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Devil/parts/",
+          "num_parts": 10
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Devil/parts/Devil_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Devil/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Devil/parts/Devil_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Devil/parts/",
+          "num_parts": 11
+        }
+      }
+    },
+    "CatMan": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/CatMan/parts/CatMan_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/CatMan/parts/",
+          "num_parts": 10
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/CatMan/parts/CatMan_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/CatMan/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/CatMan/parts/CatMan_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/CatMan/parts/",
+          "num_parts": 11
+        }
+      }
+    },
+    "BearMan": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/BearMan/parts/BearMan_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/BearMan/parts/",
+          "num_parts": 10
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/BearMan/parts/BearMan_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/BearMan/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/BearMan/parts/BearMan_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/BearMan/parts/",
+          "num_parts": 11
+        }
+      }
+    },
+    "WolfMan": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/WolfMan/parts/WolfMan_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/WolfMan/parts/",
+          "num_parts": 10
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/WolfMan/parts/WolfMan_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/WolfMan/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/WolfMan/parts/WolfMan_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/WolfMan/parts/",
+          "num_parts": 10
+        }
+      }
+    },
+    "MonkeyMan": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/MonkeyMan/parts/MonkeyMan_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/MonkeyMan/parts/",
+          "num_parts": 10
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/MonkeyMan/parts/MonkeyMan_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/MonkeyMan/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/MonkeyMan/parts/MonkeyMan_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/MonkeyMan/parts/",
+          "num_parts": 10
+        }
+      }
+    },
+    "BugMan": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/BugMan/parts/BugMan_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/BugMan/parts/",
+          "num_parts": 14
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/BugMan/parts/BugMan_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/BugMan/parts/",
+          "num_parts": 14
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/BugMan/parts/BugMan_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/BugMan/parts/",
+          "num_parts": 14
+        }
+      }
+    },
+    "BirdMan": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/BirdMan/parts/BirdMan_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/BirdMan/parts/",
+          "num_parts": 9
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/BirdMan/parts/BirdMan_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/BirdMan/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/BirdMan/parts/BirdMan_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/BirdMan/parts/",
+          "num_parts": 11
+        }
+      }
+    },
+    "Ent": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Ent/parts/Ent_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Ent/parts/",
+          "num_parts": 23
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Ent/parts/Ent_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Ent/parts/",
+          "num_parts": 21
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Ent/parts/Ent_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Ent/parts/",
+          "num_parts": 17
+        }
+      }
+    },
+    "FishMan": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/FishMan/parts/FishMan_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/FishMan/parts/",
+          "num_parts": 14
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/FishMan/parts/FishMan_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/FishMan/parts/",
+          "num_parts": 17
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/FishMan/parts/FishMan_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/FishMan/parts/",
+          "num_parts": 18
+        }
+      }
+    },
+    "Ghost": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Ghost/parts/Ghost_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Ghost/parts/",
+          "num_parts": 8
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Ghost/parts/Ghost_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Ghost/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Ghost/parts/Ghost_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Ghost/parts/",
+          "num_parts": 11
+        }
+      }
+    },
+    "Golem": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Golem/parts/Golem_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Golem/parts/",
+          "num_parts": 9
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Golem/parts/Golem_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Golem/parts/",
+          "num_parts": 11
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Golem/parts/Golem_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Golem/parts/",
+          "num_parts": 13
+        }
+      }
+    },
+    "LizardMan": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/LizardMan/parts/LizardMan_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/LizardMan/parts/",
+          "num_parts": 37
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/LizardMan/parts/LizardMan_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/LizardMan/parts/",
+          "num_parts": 14
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/LizardMan/parts/LizardMan_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/LizardMan/parts/",
+          "num_parts": 13
+        }
+      }
+    },
+    "Minotaur": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Minotaur/parts/Minotaur_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Minotaur/parts/",
+          "num_parts": 10
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Minotaur/parts/Minotaur_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Minotaur/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Minotaur/parts/Minotaur_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Minotaur/parts/",
+          "num_parts": 12
+        }
+      }
+    },
+    "Mummy": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Mummy/parts/Mummy_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Mummy/parts/",
+          "num_parts": 9
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Mummy/parts/Mummy_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Mummy/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Mummy/parts/Mummy_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Mummy/parts/",
+          "num_parts": 11
+        }
+      }
+    },
+    "Ork": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Ork/parts/Ork_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Ork/parts/",
+          "num_parts": 7
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Ork/parts/Ork_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Ork/parts/",
+          "num_parts": 8
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Ork/parts/Ork_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Ork/parts/",
+          "num_parts": 10
+        }
+      }
+    },
+    "RatMan": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/RatMan/parts/RatMan_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/RatMan/parts/",
+          "num_parts": 15
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/RatMan/parts/RatMan_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/RatMan/parts/",
+          "num_parts": 14
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/RatMan/parts/RatMan_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/RatMan/parts/",
+          "num_parts": 16
+        }
+      }
+    },
+    "Robot": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Robot/parts/Robot_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Robot/parts/",
+          "num_parts": 7
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Robot/parts/Robot_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Robot/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Robot/parts/Robot_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Robot/parts/",
+          "num_parts": 11
+        }
+      }
+    },
+    "Skeleton": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Skeleton/parts/Skeleton_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Skeleton/parts/",
+          "num_parts": 9
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Skeleton/parts/Skeleton_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Skeleton/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Skeleton/parts/Skeleton_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Skeleton/parts/",
+          "num_parts": 11
+        }
+      }
+    },
+    "SharkMan": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/SharkMan/parts/SharkMan_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/SharkMan/parts/",
+          "num_parts": 15
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/SharkMan/parts/SharkMan_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/SharkMan/parts/",
+          "num_parts": 16
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/SharkMan/parts/SharkMan_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/SharkMan/parts/",
+          "num_parts": 17
+        }
+      }
+    },
+    "TurtleMan": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/TurtleMan/parts/TurtleMan_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/TurtleMan/parts/",
+          "num_parts": 9
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/TurtleMan/parts/TurtleMan_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/TurtleMan/parts/",
+          "num_parts": 9
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/TurtleMan/parts/TurtleMan_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/TurtleMan/parts/",
+          "num_parts": 10
+        }
+      }
+    },
+    "Zombie": {
+      "stages": {
+        "1": {
+          "skeleton": "Sprites/Characters/Zombie/parts/Zombie_S1_skeleton.json",
+          "parts_dir": "Sprites/Characters/Zombie/parts/",
+          "num_parts": 9
+        },
+        "2": {
+          "skeleton": "Sprites/Characters/Zombie/parts/Zombie_S2_skeleton.json",
+          "parts_dir": "Sprites/Characters/Zombie/parts/",
+          "num_parts": 10
+        },
+        "3": {
+          "skeleton": "Sprites/Characters/Zombie/parts/Zombie_S3_skeleton.json",
+          "parts_dir": "Sprites/Characters/Zombie/parts/",
+          "num_parts": 11
+        }
+      }
+    }
+  }
+}

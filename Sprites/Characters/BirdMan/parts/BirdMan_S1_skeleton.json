@@ -1,0 +1,254 @@
+{
+  "race": "BirdMan",
+  "stage": 1,
+  "source_size": 64,
+  "parts": {
+    "head": {
+      "file": "BirdMan_S1_head.png",
+      "width": 28,
+      "height": 13,
+      "source_bbox": [
+        8,
+        4,
+        31,
+        12
+      ],
+      "source_center": [
+        20.0,
+        8.5
+      ],
+      "anchor": {
+        "x": 14,
+        "y": 10
+      }
+    },
+    "torso": {
+      "file": "BirdMan_S1_torso.png",
+      "width": 41,
+      "height": 34,
+      "source_bbox": [
+        8,
+        13,
+        44,
+        42
+      ],
+      "source_center": [
+        26.5,
+        28.0
+      ],
+      "anchor": {
+        "x": 20,
+        "y": 17
+      }
+    },
+    "right_wing": {
+      "file": "BirdMan_S1_right_wing.png",
+      "width": 15,
+      "height": 21,
+      "source_bbox": [
+        45,
+        23,
+        55,
+        39
+      ],
+      "source_center": [
+        50.0,
+        31.0
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 7
+      }
+    },
+    "right_hand": {
+      "file": "BirdMan_S1_right_hand.png",
+      "width": 10,
+      "height": 11,
+      "source_bbox": [
+        49,
+        12,
+        54,
+        18
+      ],
+      "source_center": [
+        51.5,
+        15.0
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 2
+      }
+    },
+    "right_foot": {
+      "file": "BirdMan_S1_right_foot.png",
+      "width": 9,
+      "height": 9,
+      "source_bbox": [
+        34,
+        53,
+        38,
+        57
+      ],
+      "source_center": [
+        36.0,
+        55.0
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    "right_arm": {
+      "file": "BirdMan_S1_right_arm.png",
+      "width": 9,
+      "height": 9,
+      "source_bbox": [
+        33,
+        41,
+        37,
+        45
+      ],
+      "source_center": [
+        35.0,
+        43.0
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 2
+      }
+    },
+    "left_foot": {
+      "file": "BirdMan_S1_left_foot.png",
+      "width": 9,
+      "height": 8,
+      "source_bbox": [
+        21,
+        55,
+        25,
+        58
+      ],
+      "source_center": [
+        23.0,
+        56.5
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    "left_leg": {
+      "file": "BirdMan_S1_left_leg.png",
+      "width": 8,
+      "height": 7,
+      "source_bbox": [
+        9,
+        54,
+        12,
+        56
+      ],
+      "source_center": [
+        10.5,
+        55.0
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    "right_leg": {
+      "file": "BirdMan_S1_right_leg.png",
+      "width": 7,
+      "height": 6,
+      "source_bbox": [
+        50,
+        42,
+        52,
+        43
+      ],
+      "source_center": [
+        51.0,
+        42.5
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 2
+      }
+    }
+  },
+  "bones": {
+    "head": {
+      "parent": "torso",
+      "offset_x": 0.312,
+      "offset_y": 0.133,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "torso": {
+      "parent": null,
+      "offset_x": 0.414,
+      "offset_y": 0.438,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_wing": {
+      "parent": "torso",
+      "offset_x": 0.781,
+      "offset_y": 0.484,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_hand": {
+      "parent": "right_arm",
+      "offset_x": 0.805,
+      "offset_y": 0.234,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_foot": {
+      "parent": "right_leg",
+      "offset_x": 0.562,
+      "offset_y": 0.859,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_arm": {
+      "parent": "torso",
+      "offset_x": 0.547,
+      "offset_y": 0.672,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_foot": {
+      "parent": "left_leg",
+      "offset_x": 0.359,
+      "offset_y": 0.883,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_leg": {
+      "parent": "torso",
+      "offset_x": 0.164,
+      "offset_y": 0.859,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_leg": {
+      "parent": "torso",
+      "offset_x": 0.797,
+      "offset_y": 0.664,
+      "rotation": 0,
+      "scale": 1.0
+    }
+  },
+  "draw_order": [
+    "right_wing",
+    "left_leg",
+    "right_leg",
+    "left_foot",
+    "right_foot",
+    "torso",
+    "right_arm",
+    "right_hand",
+    "head"
+  ]
+}

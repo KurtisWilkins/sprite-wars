@@ -1,0 +1,267 @@
+{
+  "race": "Zombie",
+  "stage": 2,
+  "source_size": 96,
+  "parts": {
+    "head": {
+      "file": "Zombie_S2_head.png",
+      "width": 36,
+      "height": 42,
+      "source_bbox": [
+        32,
+        11,
+        63,
+        48
+      ],
+      "source_center": [
+        47.5,
+        29.5
+      ],
+      "anchor": {
+        "x": 18,
+        "y": 38
+      }
+    },
+    "torso": {
+      "file": "Zombie_S2_torso.png",
+      "width": 16,
+      "height": 12,
+      "source_bbox": [
+        16,
+        54,
+        27,
+        61
+      ],
+      "source_center": [
+        21.5,
+        57.5
+      ],
+      "anchor": {
+        "x": 8,
+        "y": 6
+      }
+    },
+    "right_hand": {
+      "file": "Zombie_S2_right_hand.png",
+      "width": 13,
+      "height": 14,
+      "source_bbox": [
+        79,
+        10,
+        87,
+        19
+      ],
+      "source_center": [
+        83.0,
+        14.5
+      ],
+      "anchor": {
+        "x": 6,
+        "y": 3
+      }
+    },
+    "right_arm": {
+      "file": "Zombie_S2_right_arm.png",
+      "width": 13,
+      "height": 12,
+      "source_bbox": [
+        78,
+        42,
+        86,
+        49
+      ],
+      "source_center": [
+        82.0,
+        45.5
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 2
+      }
+    },
+    "right_foot": {
+      "file": "Zombie_S2_right_foot.png",
+      "width": 10,
+      "height": 14,
+      "source_bbox": [
+        53,
+        80,
+        58,
+        89
+      ],
+      "source_center": [
+        55.5,
+        84.5
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 3
+      }
+    },
+    "right_leg": {
+      "file": "Zombie_S2_right_leg.png",
+      "width": 10,
+      "height": 11,
+      "source_bbox": [
+        51,
+        60,
+        56,
+        66
+      ],
+      "source_center": [
+        53.5,
+        63.0
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 2
+      }
+    },
+    "left_foot": {
+      "file": "Zombie_S2_left_foot.png",
+      "width": 10,
+      "height": 11,
+      "source_bbox": [
+        30,
+        83,
+        35,
+        89
+      ],
+      "source_center": [
+        32.5,
+        86.0
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 2
+      }
+    },
+    "left_arm": {
+      "file": "Zombie_S2_left_arm.png",
+      "width": 10,
+      "height": 9,
+      "source_bbox": [
+        8,
+        83,
+        13,
+        87
+      ],
+      "source_center": [
+        10.5,
+        85.0
+      ],
+      "anchor": {
+        "x": 6,
+        "y": 2
+      }
+    },
+    "extra_0": {
+      "file": "Zombie_S2_extra_0.png",
+      "width": 18,
+      "height": 21,
+      "source_bbox": [
+        14,
+        14,
+        27,
+        30
+      ],
+      "source_center": [
+        20.5,
+        22.0
+      ],
+      "anchor": {
+        "x": 9,
+        "y": 10
+      },
+      "attach_to": "head"
+    },
+    "extra_1": {
+      "file": "Zombie_S2_extra_1.png",
+      "width": 8,
+      "height": 8,
+      "source_bbox": [
+        81,
+        61,
+        84,
+        64
+      ],
+      "source_center": [
+        82.5,
+        62.5
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 4
+      },
+      "attach_to": "head"
+    }
+  },
+  "bones": {
+    "head": {
+      "parent": "torso",
+      "offset_x": 0.495,
+      "offset_y": 0.307,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "torso": {
+      "parent": null,
+      "offset_x": 0.224,
+      "offset_y": 0.599,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_hand": {
+      "parent": "right_arm",
+      "offset_x": 0.865,
+      "offset_y": 0.151,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_arm": {
+      "parent": "torso",
+      "offset_x": 0.854,
+      "offset_y": 0.474,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_foot": {
+      "parent": "right_leg",
+      "offset_x": 0.578,
+      "offset_y": 0.88,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_leg": {
+      "parent": "torso",
+      "offset_x": 0.557,
+      "offset_y": 0.656,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_foot": {
+      "parent": "left_leg",
+      "offset_x": 0.339,
+      "offset_y": 0.896,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_arm": {
+      "parent": "torso",
+      "offset_x": 0.109,
+      "offset_y": 0.885,
+      "rotation": 0,
+      "scale": 1.0
+    }
+  },
+  "draw_order": [
+    "right_leg",
+    "left_foot",
+    "right_foot",
+    "torso",
+    "left_arm",
+    "right_arm",
+    "right_hand",
+    "head"
+  ]
+}

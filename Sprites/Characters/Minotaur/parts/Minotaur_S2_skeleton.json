@@ -1,0 +1,281 @@
+{
+  "race": "Minotaur",
+  "stage": 2,
+  "source_size": 96,
+  "parts": {
+    "head": {
+      "file": "Minotaur_S2_head.png",
+      "width": 37,
+      "height": 23,
+      "source_bbox": [
+        15,
+        0,
+        47,
+        18
+      ],
+      "source_center": [
+        31.5,
+        9.5
+      ],
+      "anchor": {
+        "x": 18,
+        "y": 20
+      }
+    },
+    "torso": {
+      "file": "Minotaur_S2_torso.png",
+      "width": 56,
+      "height": 64,
+      "source_bbox": [
+        15,
+        19,
+        66,
+        78
+      ],
+      "source_center": [
+        41.0,
+        49.0
+      ],
+      "anchor": {
+        "x": 28,
+        "y": 32
+      }
+    },
+    "left_arm": {
+      "file": "Minotaur_S2_left_arm.png",
+      "width": 20,
+      "height": 21,
+      "source_bbox": [
+        13,
+        14,
+        28,
+        30
+      ],
+      "source_center": [
+        20.5,
+        22.0
+      ],
+      "anchor": {
+        "x": 14,
+        "y": 3
+      }
+    },
+    "right_foot": {
+      "file": "Minotaur_S2_right_foot.png",
+      "width": 14,
+      "height": 18,
+      "source_bbox": [
+        50,
+        80,
+        59,
+        93
+      ],
+      "source_center": [
+        54.5,
+        86.5
+      ],
+      "anchor": {
+        "x": 7,
+        "y": 3
+      }
+    },
+    "left_foot": {
+      "file": "Minotaur_S2_left_foot.png",
+      "width": 15,
+      "height": 14,
+      "source_bbox": [
+        29,
+        84,
+        39,
+        93
+      ],
+      "source_center": [
+        34.0,
+        88.5
+      ],
+      "anchor": {
+        "x": 7,
+        "y": 3
+      }
+    },
+    "right_hand": {
+      "file": "Minotaur_S2_right_hand.png",
+      "width": 14,
+      "height": 15,
+      "source_bbox": [
+        78,
+        9,
+        87,
+        19
+      ],
+      "source_center": [
+        82.5,
+        14.0
+      ],
+      "anchor": {
+        "x": 7,
+        "y": 3
+      }
+    },
+    "right_arm": {
+      "file": "Minotaur_S2_right_arm.png",
+      "width": 15,
+      "height": 14,
+      "source_bbox": [
+        76,
+        41,
+        86,
+        50
+      ],
+      "source_center": [
+        81.0,
+        45.5
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 3
+      }
+    },
+    "left_hand": {
+      "file": "Minotaur_S2_left_hand.png",
+      "width": 18,
+      "height": 19,
+      "source_bbox": [
+        20,
+        0,
+        33,
+        14
+      ],
+      "source_center": [
+        26.5,
+        7.0
+      ],
+      "anchor": {
+        "x": 9,
+        "y": 3
+      }
+    },
+    "left_leg": {
+      "file": "Minotaur_S2_left_leg.png",
+      "width": 10,
+      "height": 9,
+      "source_bbox": [
+        8,
+        83,
+        13,
+        87
+      ],
+      "source_center": [
+        10.5,
+        85.0
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 2
+      }
+    },
+    "right_leg": {
+      "file": "Minotaur_S2_right_leg.png",
+      "width": 8,
+      "height": 8,
+      "source_bbox": [
+        81,
+        61,
+        84,
+        64
+      ],
+      "source_center": [
+        82.5,
+        62.5
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 2
+      }
+    }
+  },
+  "bones": {
+    "head": {
+      "parent": "torso",
+      "offset_x": 0.328,
+      "offset_y": 0.099,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "torso": {
+      "parent": null,
+      "offset_x": 0.427,
+      "offset_y": 0.51,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_arm": {
+      "parent": "torso",
+      "offset_x": 0.214,
+      "offset_y": 0.229,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_foot": {
+      "parent": "right_leg",
+      "offset_x": 0.568,
+      "offset_y": 0.901,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_foot": {
+      "parent": "left_leg",
+      "offset_x": 0.354,
+      "offset_y": 0.922,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_hand": {
+      "parent": "right_arm",
+      "offset_x": 0.859,
+      "offset_y": 0.146,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_arm": {
+      "parent": "torso",
+      "offset_x": 0.844,
+      "offset_y": 0.474,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_hand": {
+      "parent": "left_arm",
+      "offset_x": 0.276,
+      "offset_y": 0.073,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_leg": {
+      "parent": "torso",
+      "offset_x": 0.109,
+      "offset_y": 0.885,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_leg": {
+      "parent": "torso",
+      "offset_x": 0.859,
+      "offset_y": 0.651,
+      "rotation": 0,
+      "scale": 1.0
+    }
+  },
+  "draw_order": [
+    "left_leg",
+    "right_leg",
+    "left_foot",
+    "right_foot",
+    "torso",
+    "left_arm",
+    "right_arm",
+    "left_hand",
+    "right_hand",
+    "head"
+  ]
+}

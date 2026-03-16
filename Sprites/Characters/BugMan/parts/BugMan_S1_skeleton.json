@@ -1,0 +1,361 @@
+{
+  "race": "BugMan",
+  "stage": 1,
+  "source_size": 64,
+  "parts": {
+    "head": {
+      "file": "BugMan_S1_head.png",
+      "width": 22,
+      "height": 12,
+      "source_bbox": [
+        10,
+        0,
+        27,
+        7
+      ],
+      "source_center": [
+        19.0,
+        4.0
+      ],
+      "anchor": {
+        "x": 11,
+        "y": 9
+      }
+    },
+    "torso": {
+      "file": "BugMan_S1_torso.png",
+      "width": 39,
+      "height": 29,
+      "source_bbox": [
+        10,
+        8,
+        44,
+        32
+      ],
+      "source_center": [
+        27.5,
+        20.5
+      ],
+      "anchor": {
+        "x": 19,
+        "y": 14
+      }
+    },
+    "left_foot": {
+      "file": "BugMan_S1_left_foot.png",
+      "width": 24,
+      "height": 10,
+      "source_bbox": [
+        21,
+        53,
+        40,
+        58
+      ],
+      "source_center": [
+        30.5,
+        55.5
+      ],
+      "anchor": {
+        "x": 12,
+        "y": 2
+      }
+    },
+    "right_arm": {
+      "file": "BugMan_S1_right_arm.png",
+      "width": 12,
+      "height": 13,
+      "source_bbox": [
+        46,
+        20,
+        53,
+        28
+      ],
+      "source_center": [
+        49.5,
+        24.0
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 2
+      }
+    },
+    "left_leg": {
+      "file": "BugMan_S1_left_leg.png",
+      "width": 22,
+      "height": 9,
+      "source_bbox": [
+        23,
+        41,
+        40,
+        45
+      ],
+      "source_center": [
+        31.5,
+        43.0
+      ],
+      "anchor": {
+        "x": 11,
+        "y": 2
+      }
+    },
+    "left_arm": {
+      "file": "BugMan_S1_left_arm.png",
+      "width": 12,
+      "height": 10,
+      "source_bbox": [
+        13,
+        37,
+        20,
+        42
+      ],
+      "source_center": [
+        16.5,
+        39.5
+      ],
+      "anchor": {
+        "x": 8,
+        "y": 2
+      }
+    },
+    "right_hand": {
+      "file": "BugMan_S1_right_hand.png",
+      "width": 22,
+      "height": 7,
+      "source_bbox": [
+        23,
+        48,
+        40,
+        50
+      ],
+      "source_center": [
+        31.5,
+        49.0
+      ],
+      "anchor": {
+        "x": 11,
+        "y": 2
+      }
+    },
+    "right_leg": {
+      "file": "BugMan_S1_right_leg.png",
+      "width": 10,
+      "height": 11,
+      "source_bbox": [
+        49,
+        12,
+        54,
+        18
+      ],
+      "source_center": [
+        51.5,
+        15.0
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 2
+      }
+    },
+    "right_foot": {
+      "file": "BugMan_S1_right_foot.png",
+      "width": 22,
+      "height": 7,
+      "source_bbox": [
+        23,
+        32,
+        40,
+        34
+      ],
+      "source_center": [
+        31.5,
+        33.0
+      ],
+      "anchor": {
+        "x": 11,
+        "y": 2
+      }
+    },
+    "left_hand": {
+      "file": "BugMan_S1_left_hand.png",
+      "width": 6,
+      "height": 11,
+      "source_bbox": [
+        22,
+        0,
+        23,
+        6
+      ],
+      "source_center": [
+        22.5,
+        3.0
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 2
+      }
+    },
+    "extra_0": {
+      "file": "BugMan_S1_extra_0.png",
+      "width": 10,
+      "height": 10,
+      "source_bbox": [
+        48,
+        30,
+        53,
+        35
+      ],
+      "source_center": [
+        50.5,
+        32.5
+      ],
+      "anchor": {
+        "x": 5,
+        "y": 5
+      },
+      "attach_to": "head"
+    },
+    "extra_1": {
+      "file": "BugMan_S1_extra_1.png",
+      "width": 22,
+      "height": 7,
+      "source_bbox": [
+        23,
+        37,
+        40,
+        39
+      ],
+      "source_center": [
+        31.5,
+        38.0
+      ],
+      "anchor": {
+        "x": 11,
+        "y": 3
+      },
+      "attach_to": "head"
+    },
+    "extra_2": {
+      "file": "BugMan_S1_extra_2.png",
+      "width": 8,
+      "height": 7,
+      "source_bbox": [
+        9,
+        54,
+        12,
+        56
+      ],
+      "source_center": [
+        10.5,
+        55.0
+      ],
+      "anchor": {
+        "x": 4,
+        "y": 3
+      },
+      "attach_to": "head"
+    },
+    "extra_3": {
+      "file": "BugMan_S1_extra_3.png",
+      "width": 7,
+      "height": 6,
+      "source_bbox": [
+        50,
+        42,
+        52,
+        43
+      ],
+      "source_center": [
+        51.0,
+        42.5
+      ],
+      "anchor": {
+        "x": 3,
+        "y": 3
+      },
+      "attach_to": "head"
+    }
+  },
+  "bones": {
+    "head": {
+      "parent": "torso",
+      "offset_x": 0.297,
+      "offset_y": 0.062,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "torso": {
+      "parent": null,
+      "offset_x": 0.43,
+      "offset_y": 0.32,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_foot": {
+      "parent": "left_leg",
+      "offset_x": 0.477,
+      "offset_y": 0.867,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_arm": {
+      "parent": "torso",
+      "offset_x": 0.773,
+      "offset_y": 0.375,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_leg": {
+      "parent": "torso",
+      "offset_x": 0.492,
+      "offset_y": 0.672,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_arm": {
+      "parent": "torso",
+      "offset_x": 0.258,
+      "offset_y": 0.617,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_hand": {
+      "parent": "right_arm",
+      "offset_x": 0.492,
+      "offset_y": 0.766,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_leg": {
+      "parent": "torso",
+      "offset_x": 0.805,
+      "offset_y": 0.234,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "right_foot": {
+      "parent": "right_leg",
+      "offset_x": 0.492,
+      "offset_y": 0.516,
+      "rotation": 0,
+      "scale": 1.0
+    },
+    "left_hand": {
+      "parent": "left_arm",
+      "offset_x": 0.352,
+      "offset_y": 0.047,
+      "rotation": 0,
+      "scale": 1.0
+    }
+  },
+  "draw_order": [
+    "left_leg",
+    "right_leg",
+    "left_foot",
+    "right_foot",
+    "torso",
+    "left_arm",
+    "right_arm",
+    "left_hand",
+    "right_hand",
+    "head"
+  ]
+}
