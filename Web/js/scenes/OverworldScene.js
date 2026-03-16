@@ -1198,7 +1198,8 @@ export class OverworldScene extends Scene {
                     gridY: 11,
                     type: 'talk',
                     facing: 'left',
-                    spritePath: 'Sprites/Characters/Demon/Demon_S1_Idle.png',
+                    raceId: 3,
+                    stage: 1,
                     dialogue: [
                         'You dare enter the Blazecore Sanctum?',
                         'The guardian awaits at the northern chamber.',
@@ -1213,7 +1214,8 @@ export class OverworldScene extends Scene {
                     gridY: 22,
                     type: 'heal',
                     facing: 'up',
-                    spritePath: 'Sprites/Characters/Devil/Devil_S1_Idle.png',
+                    raceId: 4,
+                    stage: 1,
                     dialogue: [
                         'The flames spare those who show respect.',
                         'Rest here and regain your strength.',
@@ -2642,7 +2644,7 @@ export class OverworldScene extends Scene {
         const camY = Math.round(this._camera.y);
         const halfSize = PLAYER_SIZE / 2;
 
-        // Use AQ-style HumanoidSpriteSystem for the player character
+        // Use AQ-style SkeletalAnimationSystem for the player character
         const dirMap = { down: 0, left: 1, right: 2, up: 3 };
         const dir = dirMap[this._player.facing] || 0;
         const animFrame = this._player.moving ? (this._player.animFrame % 4) : 0;
@@ -2694,7 +2696,7 @@ export class OverworldScene extends Scene {
     }
 
     _renderNpc(renderer, npc) {
-        // Try AQ-style HumanoidSpriteSystem rendering for NPCs with race data
+        // Try AQ-style SkeletalAnimationSystem rendering for NPCs with race data
         if (npc.raceId) {
             try {
                 const ctx = renderer.ctx || renderer._ctx;

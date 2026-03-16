@@ -31,6 +31,9 @@ import { getTrainerAppearance, getPlayerAppearance, getNPCAppearance } from '../
 import { drawCharacterOutfit } from './CharacterOutfitRenderer.js';
 // getRaceName available from SpriteTextureHelper.js but we use local RACE_NAMES lookup
 
+/** Cache-busting version — change this value to invalidate all composite caches. */
+const CACHE_VERSION = '2026-03-16-v2';
+
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const RENDER_SCALE = 4;            // 4x supersampling (logical 64 -> 256px frames)
@@ -679,7 +682,7 @@ function _buildCacheKey(raceId, stage, equipment) {
             if (val) eqParts.push(`${slot}:${typeof val === 'object' ? (val.equipment_id || 0) : val}`);
         }
     }
-    return `skel_${raceId}_${stage}_${eqParts.join('|')}`;
+    return `skel_v${CACHE_VERSION}_${raceId}_${stage}_${eqParts.join('|')}`;
 }
 
 /**
@@ -1202,6 +1205,16 @@ export class SkeletalAnimationSystem {
         _themeImageCache.clear();
         _manifest = null;
         _assetLoader = null;
+    }
+
+    /**
+     * Lightweight cache reset for scene transitions.
+     * Clears composite sheet cache only — part images and skeleton JSON remain
+     * valid across scenes and are kept to avoid redundant network loads.
+     */
+    static onSceneChange() {
+        _compositeCache.clear();
+        _compositeLRU.length = 0;
     }
 
     /**
