@@ -15,7 +15,7 @@
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { CONSUMABLES, CRYSTALS } from '../data/ItemData.js';
-import { EQUIPMENT } from '../data/EquipmentData.js';
+import { EQUIPMENT, getAllEquipmentWithExpansion } from '../data/EquipmentData.js';
 import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
 
 // ── Constants ───────────────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ for (const crystal of CRYSTALS) {
 }
 
 const EQUIPMENT_MAP = {};
-for (const eq of EQUIPMENT) {
+for (const eq of getAllEquipmentWithExpansion()) {
     EQUIPMENT_MAP[eq.equipment_id] = eq;
 }
 

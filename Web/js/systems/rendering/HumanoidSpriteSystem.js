@@ -24,7 +24,7 @@
 
 import { RACE_THEME_MAP, THEME_PATHS, EQUIPMENT_ROWS, STAGE_ARMOR_TIER } from '../../data/WeaponThemeData.js';
 import { SPRITE_RACES } from '../../data/SpriteData.js';
-import { EQUIPMENT } from '../../data/EquipmentData.js';
+import { EQUIPMENT, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
 import { getVisualConfig, getSlotVisualDefaults } from '../../data/EquipmentVisualConfig.js';
 import {
     drawWeaponByConfig, drawHelmetByConfig, drawChestByConfig,
@@ -181,7 +181,7 @@ function _buildCacheKey(raceId, stage, equipment) {
 function _getEquipData(eqIdOrData) {
     if (!eqIdOrData) return null;
     if (typeof eqIdOrData === 'object') return eqIdOrData;
-    return EQUIPMENT.find(e => e.equipment_id === eqIdOrData) || null;
+    return findEquipmentWithExpansion(eqIdOrData) || null;
 }
 
 /**

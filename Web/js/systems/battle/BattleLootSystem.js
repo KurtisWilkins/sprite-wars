@@ -12,7 +12,7 @@
  *   const display = formatLootForDisplay(loot);
  */
 
-import { EQUIPMENT, RARITY_TIERS } from '../../data/EquipmentData.js';
+import { EQUIPMENT, RARITY_TIERS, getAllEquipmentWithExpansion } from '../../data/EquipmentData.js';
 import { eventBus } from '../../core/EventBus.js';
 
 // ── Drop Rate Configuration ────────────────────────────────────────────────
@@ -135,7 +135,7 @@ function _getCandidates(rarity, playerLevel, battleElement) {
     const maxLevel = playerLevel + LEVEL_TOLERANCE;
     const candidates = [];
 
-    for (const eq of EQUIPMENT) {
+    for (const eq of getAllEquipmentWithExpansion()) {
         // Must match rarity
         if (eq.rarity !== rarity) continue;
 

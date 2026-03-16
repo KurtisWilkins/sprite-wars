@@ -21,7 +21,7 @@ import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
 import { ABILITIES } from '../data/AbilityData.js';
 import { LEARNSETS } from '../data/LearnsetData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
-import { EQUIPMENT } from '../data/EquipmentData.js';
+import { EQUIPMENT, findEquipmentWithExpansion } from '../data/EquipmentData.js';
 import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -1898,7 +1898,7 @@ export class SpriteCenterScene extends Scene {
         }
 
         const eqId = equipment[slotDef.key];
-        const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
+        const eqData = eqId ? (typeof eqId === 'object' ? eqId : findEquipmentWithExpansion(eqId)) : null;
         const rarityColor = eqData ? (RARITY_COLORS[eqData.rarity] || '#888') : '#555';
         const rarity = eqData ? (eqData.rarity || 'common') : null;
 
@@ -2078,7 +2078,7 @@ export class SpriteCenterScene extends Scene {
 
         for (const slot of equipSlots) {
             const eqId = equipment[slot.key];
-            const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
+            const eqData = eqId ? (typeof eqId === 'object' ? eqId : findEquipmentWithExpansion(eqId)) : null;
             if (!eqData) continue;
 
             if (eqData.stat_bonuses) {
@@ -2230,7 +2230,7 @@ export class SpriteCenterScene extends Scene {
             // Entry can be a numeric ID or a full equipment object
             const eqId = typeof entry === 'number' ? entry : (entry.equipment_id || entry.equipmentId);
             const resolved = typeof entry === 'number'
-                ? EQUIPMENT.find(e => e.equipment_id === eqId)
+                ? findEquipmentWithExpansion(eqId)
                 : entry;
             if (!resolved) continue;
             if ((resolved.slot_type || '') !== slot.key) continue;

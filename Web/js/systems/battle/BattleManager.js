@@ -19,7 +19,7 @@ import { DamageCalculator } from './DamageCalculator.js';
 import { AbilityExecutor } from './AbilityExecutor.js';
 import { StatusEffectSystem } from './StatusEffectSystem.js';
 import { BattleAI } from './BattleAI.js';
-import { EQUIPMENT } from '../../data/EquipmentData.js';
+import { EQUIPMENT, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
 
 // -- Event Log Constants (matching BattleEventLog from GDScript) ----------------
 const EVENT_BATTLE_START = 'battle_start';
@@ -729,7 +729,7 @@ export class BattleManager {
         for (const slot of ['weapon', 'helmet', 'chest', 'legs', 'boots', 'gloves', 'ring', 'amulet', 'crystal']) {
             const eqId = equipment[slot];
             if (eqId && eqId !== -1) {
-                const eqData = EQUIPMENT.find(e => e.equipment_id === eqId);
+                const eqData = findEquipmentWithExpansion(eqId);
                 if (eqData) result.push(eqData);
             }
         }

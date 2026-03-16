@@ -21,7 +21,7 @@
 
 import { assetRegistry } from '../../data/AssetRegistry.js';
 import { SPRITE_RACES } from '../../data/SpriteData.js';
-import { EQUIPMENT } from '../../data/EquipmentData.js';
+import { EQUIPMENT, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
 import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 
 // ── Element colors ──────────────────────────────────────────────────────────
@@ -342,7 +342,7 @@ export class UnitRenderer {
         for (const slotKey of Object.keys(equipment)) {
             const eqId = equipment[slotKey];
             if (!eqId) continue;
-            const eqData = typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId);
+            const eqData = typeof eqId === 'object' ? eqId : findEquipmentWithExpansion(eqId);
             if (eqData && rarityRank[eqData.rarity] > rarityRank[bestRarity]) {
                 bestRarity = eqData.rarity;
             }
@@ -714,7 +714,7 @@ export class UnitRenderer {
     static _getEquipmentData(eqIdOrData) {
         if (!eqIdOrData) return null;
         if (typeof eqIdOrData === 'object') return eqIdOrData;
-        return EQUIPMENT.find(e => e.equipment_id === eqIdOrData) || null;
+        return findEquipmentWithExpansion(eqIdOrData) || null;
     }
 
     /**
