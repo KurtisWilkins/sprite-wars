@@ -347,10 +347,17 @@ export class BattleUI {
      * @param {number} maxHp
      * @param {number} currentHp
      */
-    registerUnit(unitId, gridPos, textureUrl, team, maxHp, currentHp) {
+    registerUnit(unitId, gridPos, textureUrl, team, maxHp, currentHp, unitData) {
+        // Resolve portrait from race sprite path if no textureUrl provided
+        let resolvedUrl = textureUrl;
+        if (!resolvedUrl && unitData) {
+            const path = getPortraitPath(unitData);
+            if (path) resolvedUrl = path;
+        }
+
         this._trackedUnits.set(unitId, {
             gridPos,
-            textureUrl,
+            textureUrl: resolvedUrl,
             team,
             maxHp,
             currentHp,
@@ -360,7 +367,7 @@ export class BattleUI {
         this._createHealthBar(unitId, maxHp, currentHp, team);
 
         // Add to turn order bar
-        this._addTurnOrderPortrait(unitId, textureUrl, team);
+        this._addTurnOrderPortrait(unitId, resolvedUrl, team);
     }
 
     /**

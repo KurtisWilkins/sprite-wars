@@ -13,6 +13,7 @@ import { SPRITE_RACES } from '../../data/SpriteData.js';
 import { ABILITIES } from '../../data/AbilityData.js';
 import { EQUIPMENT, SLOT_TYPES } from '../../data/EquipmentData.js';
 import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
+import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
 
 // -- Shared Style Constants ------------------------------------------------------
 
@@ -494,6 +495,25 @@ export class GlossaryScreen {
             });
             drawSpritePreview(previewCanvas, race.race_id, this._raceSelectedElement[race.race_id]);
             topRow.appendChild(previewCanvas);
+
+            // Race portrait image from sprite assets
+            const portraitPath = getRaceSpritePath(race.race_id, 0);
+            if (portraitPath) {
+                const portraitImg = document.createElement('img');
+                portraitImg.src = portraitPath;
+                Object.assign(portraitImg.style, {
+                    width: '48px',
+                    height: '48px',
+                    objectFit: 'contain',
+                    borderRadius: '6px',
+                    border: '2px solid #1A1A1A',
+                    background: 'rgba(0,0,0,0.3)',
+                    flexShrink: '0',
+                    imageRendering: 'crisp-edges',
+                });
+                portraitImg.onerror = () => { portraitImg.style.display = 'none'; };
+                topRow.appendChild(portraitImg);
+            }
 
             // Info column
             const infoCol = document.createElement('div');
