@@ -338,11 +338,18 @@ def save_parts(assigned, extras, race_name, stage, img_size, base_dir):
             'y': int(comp['height'] * rel[1]) + 2,
         }
 
+        # Expand source_bbox by 2px padding to match the padded PNG dimensions
+        padded_bbox = (
+            max(0, comp['bbox'][0] - 2),
+            max(0, comp['bbox'][1] - 2),
+            min(img_size - 1, comp['bbox'][2] + 2),
+            min(img_size - 1, comp['bbox'][3] + 2),
+        )
         skeleton['parts'][part_name] = {
             'file': filename,
             'width': comp['width'] + 4,
             'height': comp['height'] + 4,
-            'source_bbox': comp['bbox'],
+            'source_bbox': list(padded_bbox),
             'source_center': [round(comp['cx'], 1), round(comp['cy'], 1)],
             'anchor': anchor,
         }

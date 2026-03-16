@@ -144,6 +144,7 @@
             <button class="active" data-tab="props-tab">Properties</button>
             <button data-tab="equip-tab">Equipment</button>
             <button data-tab="mapping-tab">Mapping</button>
+            <button data-tab="log-tab">Log</button>
         </div>
         <div class="tab-content">
             <div class="tab-panel active" id="props-tab">
@@ -154,6 +155,9 @@
             </div>
             <div class="tab-panel" id="mapping-tab">
                 <div id="mapping-panel"></div>
+            </div>
+            <div class="tab-panel" id="log-tab">
+                <div id="log-panel"><div class="no-selection">No log entries yet.</div></div>
             </div>
         </div>
     </div>
@@ -405,10 +409,38 @@ function toast(msg) {
     toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 2500);
 }
 
+// ─── Error Log System ───
+const errorLog = [];
+function addLogEntry(level, msg) {
+    const entry = { time: new Date().toLocaleTimeString(), level, msg };
+    errorLog.push(entry);
+    if (errorLog.length > 100) errorLog.shift();
+    console.log('[' + level.toUpperCase() + '] ' + msg);
+    updateLogPanel();
+}
+
+function updateLogPanel() {
+    const panel = $('log-panel');
+    if (!panel) return;
+    if (errorLog.length === 0) {
+        panel.innerHTML = '<div class="no-selection">No log entries yet.</div>';
+        return;
+    }
+    const colors = { error: '#e94560', warning: '#f59e0b', info: '#0ea5e9' };
+    panel.innerHTML = errorLog.slice().reverse().map(e =>
+        '<div style="font-size:11px;padding:3px 0;border-bottom:1px solid var(--border);word-break:break-all;">'
+        + '<span style="color:' + (colors[e.level] || '#8899aa') + ';font-weight:600;">[' + e.level.toUpperCase() + ']</span> '
+        + '<span style="color:var(--text-dim);">' + e.time + '</span> '
+        + e.msg
+        + '</div>'
+    ).join('');
+}
+
 // ─── Tab Switching ───
 function switchTab(tabId) {
     document.querySelectorAll('.tab-bar button').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === tabId));
+    if (tabId === 'log-tab') updateLogPanel();
 }
 
 // ─── Get mapped image for a slot ───
@@ -495,6 +527,7 @@ async function loadSkeleton() {
     const race = state.race;
     const stage = state.stage;
     statusMsg.textContent = 'Loading ' + race + ' S' + stage + '...';
+    addLogEntry('info', 'Loading ' + race + ' S' + stage + '...');
     state.parts = {};
     state.images = {};
     state.selectedPart = null;
@@ -516,6 +549,7 @@ async function loadSkeleton() {
             } catch (parseErr) {
                 toast('Warning: skeleton JSON is corrupt, using defaults');
                 console.error('Skeleton parse error:', parseErr, 'Raw:', text.substring(0, 200));
+                addLogEntry('error', 'Skeleton JSON parse error: ' + parseErr.message + ' | Raw: ' + text.substring(0, 100));
             }
         }
     } catch (e) { /* no skeleton file yet */ }
@@ -598,16 +632,21 @@ async function loadSkeleton() {
 async function saveSkeleton() {
     const data = buildSkeletonJson();
     statusMsg.textContent = 'Saving...';
+    console.log('[Save] Building skeleton JSON for', state.race, 'S' + state.stage);
 
     // Validate JSON before sending
     let bodyStr;
     try {
         bodyStr = JSON.stringify({ race: state.race, stage: state.stage, data });
         JSON.parse(bodyStr); // round-trip validation
+        console.log('[Save] JSON validation passed, payload size:', bodyStr.length, 'bytes');
     } catch (jsonErr) {
-        toast('Save aborted: invalid JSON — ' + jsonErr.message);
+        const errMsg = 'Save aborted: invalid JSON — ' + jsonErr.message;
+        toast(errMsg);
         statusMsg.textContent = 'Save error (bad JSON)';
-        console.error('JSON validation failed:', jsonErr, data);
+        console.error('[Save] JSON validation FAILED:', jsonErr);
+        console.error('[Save] Raw data object:', JSON.stringify(data, (k, v) => typeof v === 'number' && !isFinite(v) ? '***NaN/Inf***' : v, 2));
+        addLogEntry('error', errMsg);
         return;
     }
 
@@ -618,31 +657,79 @@ async function saveSkeleton() {
             headers: { 'Content-Type': 'application/json' },
             body: bodyStr
         });
-        const result = await resp.json();
-        if (!result.success) { toast('Skeleton save failed: ' + (result.error || 'Unknown')); statusMsg.textContent = 'Save failed'; return; }
-    } catch (e) { toast('Save error: ' + e.message); statusMsg.textContent = 'Save error'; return; }
+        const respText = await resp.text();
+        console.log('[Save] Skeleton response:', resp.status, respText.substring(0, 200));
+        let result;
+        try {
+            result = JSON.parse(respText);
+        } catch (parseErr) {
+            const errMsg = 'Save failed: server returned invalid response (HTTP ' + resp.status + '): ' + respText.substring(0, 100);
+            toast(errMsg);
+            statusMsg.textContent = 'Save failed';
+            console.error('[Save] Server response parse error:', parseErr, 'Raw:', respText);
+            addLogEntry('error', errMsg);
+            return;
+        }
+        if (!result.success) {
+            const errMsg = 'Skeleton save failed: ' + (result.error || 'Unknown');
+            toast(errMsg);
+            statusMsg.textContent = 'Save failed';
+            addLogEntry('error', errMsg);
+            return;
+        }
+        console.log('[Save] Skeleton saved OK:', result.file);
+    } catch (e) {
+        const errMsg = 'Save network error: ' + e.message;
+        toast(errMsg);
+        statusMsg.textContent = 'Save error';
+        console.error('[Save] Network error:', e);
+        addLogEntry('error', errMsg);
+        return;
+    }
 
     // Save editor config
+    let cfgBodyStr;
     try {
-        const cfgResp = await fetch('/api/editor-config/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                race: state.race, stage: state.stage,
-                config: {
-                    part_mapping: state.partMapping,
-                    equipment_loadout: state.equipment,
-                    equipment_offsets: state.equipmentOffsets,
-                    bone_hierarchy: { ...BONE_HIERARCHY },
-                }
-            })
+        cfgBodyStr = JSON.stringify({
+            race: state.race, stage: state.stage,
+            config: {
+                part_mapping: state.partMapping,
+                equipment_loadout: state.equipment,
+                equipment_offsets: state.equipmentOffsets,
+                bone_hierarchy: { ...BONE_HIERARCHY },
+            }
         });
-        const cfgResult = await cfgResp.json();
-        if (!cfgResult.success) { toast('Config save failed'); }
-    } catch (e) { toast('Config save warning: ' + e.message); }
+    } catch (jsonErr) {
+        console.error('[Save] Config JSON build failed:', jsonErr);
+        addLogEntry('error', 'Config JSON build failed: ' + jsonErr.message);
+    }
+
+    if (cfgBodyStr) {
+        try {
+            const cfgResp = await fetch('/api/editor-config/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: cfgBodyStr
+            });
+            const cfgText = await cfgResp.text();
+            console.log('[Save] Config response:', cfgResp.status, cfgText.substring(0, 200));
+            let cfgResult;
+            try { cfgResult = JSON.parse(cfgText); } catch (e) {
+                console.error('[Save] Config response parse error:', e, 'Raw:', cfgText);
+                addLogEntry('error', 'Config save: server returned invalid response');
+            }
+            if (cfgResult && !cfgResult.success) {
+                addLogEntry('warning', 'Config save failed: ' + (cfgResult.error || 'Unknown'));
+            }
+        } catch (e) {
+            console.error('[Save] Config save error:', e);
+            addLogEntry('warning', 'Config save network error: ' + e.message);
+        }
+    }
 
     toast('Saved successfully');
     statusMsg.textContent = 'Saved';
+    addLogEntry('info', 'Saved ' + state.race + ' S' + state.stage + ' successfully');
 }
 
 function exportSkeleton() {

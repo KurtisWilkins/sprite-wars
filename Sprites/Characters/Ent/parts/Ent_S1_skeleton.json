@@ -8,10 +8,10 @@
       "width": 27,
       "height": 11,
       "source_bbox": [
-        12,
-        4,
-        34,
-        10
+        10,
+        2,
+        36,
+        12
       ],
       "source_center": [
         23.5,
@@ -27,14 +27,14 @@
       "width": 37,
       "height": 26,
       "source_bbox": [
-        12,
-        11,
-        44,
-        32
+        10,
+        9,
+        46,
+        34
       ],
       "source_center": [
         28.5,
-        22
+        22.0
       ],
       "anchor": {
         "x": 18,
@@ -46,10 +46,10 @@
       "width": 12,
       "height": 10,
       "source_bbox": [
-        13,
-        37,
-        20,
-        42
+        11,
+        35,
+        22,
+        44
       ],
       "source_center": [
         16.5,
@@ -65,10 +65,10 @@
       "width": 10,
       "height": 12,
       "source_bbox": [
-        34,
-        53,
-        39,
-        60
+        32,
+        51,
+        41,
+        62
       ],
       "source_center": [
         36.5,
@@ -84,14 +84,14 @@
       "width": 10,
       "height": 11,
       "source_bbox": [
-        49,
-        12,
-        54,
-        18
+        47,
+        10,
+        56,
+        20
       ],
       "source_center": [
         51.5,
-        15
+        15.0
       ],
       "anchor": {
         "x": 5,
@@ -103,14 +103,14 @@
       "width": 12,
       "height": 9,
       "source_bbox": [
-        30,
-        41,
-        37,
-        45
+        28,
+        39,
+        39,
+        47
       ],
       "source_center": [
         33.5,
-        43
+        43.0
       ],
       "anchor": {
         "x": 6,
@@ -122,10 +122,10 @@
       "width": 10,
       "height": 10,
       "source_bbox": [
-        48,
-        30,
-        53,
-        35
+        46,
+        28,
+        55,
+        37
       ],
       "source_center": [
         50.5,
@@ -141,13 +141,13 @@
       "width": 11,
       "height": 10,
       "source_bbox": [
-        21,
-        55,
-        27,
-        60
+        19,
+        53,
+        29,
+        62
       ],
       "source_center": [
-        24,
+        24.0,
         57.5
       ],
       "anchor": {
@@ -160,14 +160,14 @@
       "width": 8,
       "height": 7,
       "source_bbox": [
-        9,
-        54,
-        12,
-        56
+        7,
+        52,
+        14,
+        58
       ],
       "source_center": [
         10.5,
-        55
+        55.0
       ],
       "anchor": {
         "x": 4,
@@ -206,7 +206,7 @@
       ],
       "source_center": [
         31.5,
-        58
+        58.0
       ],
       "anchor": {
         "x": 4,
@@ -225,7 +225,7 @@
         43
       ],
       "source_center": [
-        51,
+        51.0,
         42.5
       ],
       "anchor": {
@@ -246,7 +246,7 @@
       ],
       "source_center": [
         30.5,
-        46
+        46.0
       ],
       "anchor": {
         "x": 4,
@@ -265,8 +265,8 @@
         30
       ],
       "source_center": [
-        30,
-        30
+        30.0,
+        30.0
       ],
       "anchor": {
         "x": 3,
@@ -285,8 +285,8 @@
         33
       ],
       "source_center": [
-        30,
-        33
+        30.0,
+        33.0
       ],
       "anchor": {
         "x": 3,
@@ -305,8 +305,8 @@
         38
       ],
       "source_center": [
-        31,
-        38
+        31.0,
+        38.0
       ],
       "anchor": {
         "x": 3,
@@ -325,8 +325,8 @@
         49
       ],
       "source_center": [
-        30,
-        49
+        30.0,
+        49.0
       ],
       "anchor": {
         "x": 3,
@@ -345,8 +345,8 @@
         51
       ],
       "source_center": [
-        29,
-        51
+        29.0,
+        51.0
       ],
       "anchor": {
         "x": 3,
@@ -366,7 +366,7 @@
       ],
       "source_center": [
         28.5,
-        35
+        35.0
       ],
       "anchor": {
         "x": 3,
@@ -386,7 +386,7 @@
       ],
       "source_center": [
         32.5,
-        36
+        36.0
       ],
       "anchor": {
         "x": 3,
@@ -405,8 +405,8 @@
         43
       ],
       "source_center": [
-        31,
-        43
+        31.0,
+        43.0
       ],
       "anchor": {
         "x": 2,
@@ -425,8 +425,8 @@
         44
       ],
       "source_center": [
-        30,
-        44
+        30.0,
+        44.0
       ],
       "anchor": {
         "x": 2,
@@ -445,8 +445,8 @@
         52
       ],
       "source_center": [
-        33,
-        52
+        33.0,
+        52.0
       ],
       "anchor": {
         "x": 2,
@@ -458,66 +458,66 @@
   "bones": {
     "head": {
       "parent": "torso",
-      "offset_x": -0.078,
-      "offset_y": -0.227,
+      "offset_x": 0.367,
+      "offset_y": 0.117,
       "rotation": 0,
-      "scale": 1
+      "scale": 1.0
     },
     "torso": {
       "parent": null,
       "offset_x": 0.445,
       "offset_y": 0.344,
       "rotation": 0,
-      "scale": 1
+      "scale": 1.0
     },
     "left_arm": {
       "parent": "torso",
-      "offset_x": -0.187,
-      "offset_y": 0.273,
+      "offset_x": 0.258,
+      "offset_y": 0.617,
       "rotation": 0,
-      "scale": 1
+      "scale": 1.0
     },
     "right_foot": {
       "parent": "right_leg",
-      "offset_x": 0.047,
-      "offset_y": 0.211,
+      "offset_x": 0.57,
+      "offset_y": 0.883,
       "rotation": 0,
-      "scale": 1
+      "scale": 1.0
     },
     "right_hand": {
       "parent": "right_arm",
-      "offset_x": 0.016,
-      "offset_y": -0.274,
+      "offset_x": 0.805,
+      "offset_y": 0.234,
       "rotation": 0,
-      "scale": 1
+      "scale": 1.0
     },
     "right_leg": {
       "parent": "torso",
-      "offset_x": 0.078,
-      "offset_y": 0.328,
+      "offset_x": 0.523,
+      "offset_y": 0.672,
       "rotation": 0,
-      "scale": 1
+      "scale": 1.0
     },
     "right_arm": {
       "parent": "torso",
-      "offset_x": 0.344,
-      "offset_y": 0.164,
+      "offset_x": 0.789,
+      "offset_y": 0.508,
       "rotation": 0,
-      "scale": 1
+      "scale": 1.0
     },
     "left_foot": {
       "parent": "left_leg",
-      "offset_x": 0.211,
-      "offset_y": 0.039,
+      "offset_x": 0.375,
+      "offset_y": 0.898,
       "rotation": 0,
-      "scale": 1
+      "scale": 1.0
     },
     "left_leg": {
       "parent": "torso",
-      "offset_x": -0.281,
-      "offset_y": 0.515,
+      "offset_x": 0.164,
+      "offset_y": 0.859,
       "rotation": 0,
-      "scale": 1
+      "scale": 1.0
     }
   },
   "draw_order": [
