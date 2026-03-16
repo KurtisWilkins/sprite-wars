@@ -1064,7 +1064,7 @@ export class GlossaryScreen {
                 alignItems: 'flex-start',
             });
 
-            // Slot icon
+            // Equipment icon — prefer PNG asset, fall back to emoji
             const iconContainer = document.createElement('div');
             const slotIcon = SLOT_ICONS[equip.slot_type] || '\u2753';
             const rarityColor = RARITY_COLORS[equip.rarity] || '#888';
@@ -1079,8 +1079,22 @@ export class GlossaryScreen {
                 justifyContent: 'center',
                 fontSize: '20px',
                 flexShrink: '0',
+                overflow: 'hidden',
             });
-            iconContainer.textContent = slotIcon;
+            if (equip.icon_path) {
+                const eqImg = document.createElement('img');
+                eqImg.src = equip.icon_path.replace(/^\.\.\//g, '');
+                Object.assign(eqImg.style, {
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    imageRendering: 'crisp-edges',
+                });
+                eqImg.onerror = () => { eqImg.style.display = 'none'; iconContainer.textContent = slotIcon; };
+                iconContainer.appendChild(eqImg);
+            } else {
+                iconContainer.textContent = slotIcon;
+            }
             card.appendChild(iconContainer);
 
             // Info column

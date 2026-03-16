@@ -12,6 +12,7 @@
 import { eventBus, GameEvents } from '../../core/EventBus.js';
 import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
 import { EQUIPMENT, SLOT_TYPES, RARITY_TIERS } from '../../data/EquipmentData.js';
+import { getRaceSpritePath } from '../../data/SpriteTextureHelper.js';
 
 // -- Shared Style Constants ------------------------------------------------------
 
