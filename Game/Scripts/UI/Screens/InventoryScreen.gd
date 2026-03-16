@@ -342,7 +342,7 @@ func populate_items(category: String) -> void:
 
 ## Populate the equipment tab with all equipment from the database.
 func _populate_equipment_items() -> void:
-	var all_equipment: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+	var all_equipment: Array[Dictionary] = EquipmentDatabase.get_all_equipment_with_expansion()
 
 	if all_equipment.is_empty():
 		var empty_label := Label.new()
@@ -511,7 +511,7 @@ func _show_equipment_detail(equip_data: Dictionary) -> void:
 func show_item_detail(item_id: int) -> void:
 	# Try to look up as equipment first.
 	if current_tab == "equipment":
-		var all_equip: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+		var all_equip: Array[Dictionary] = EquipmentDatabase.get_all_equipment_with_expansion()
 		for equip in all_equip:
 			if int(equip.get("equipment_id", -1)) == item_id:
 				_show_equipment_detail(equip)

@@ -414,7 +414,7 @@ const SLOT_EMOJIS: Dictionary = {
 
 ## Look up equipment data by ID from the EquipmentDatabase.
 func _lookup_equipment(equipment_id: int) -> Dictionary:
-	var all_equip: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+	var all_equip: Array[Dictionary] = EquipmentDatabase.get_all_equipment_with_expansion()
 	for equip in all_equip:
 		if int(equip.get("equipment_id", -1)) == equipment_id:
 			return equip
