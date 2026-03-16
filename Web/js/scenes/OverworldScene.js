@@ -270,6 +270,9 @@ export class OverworldScene extends Scene {
             this._generatedSpriteSheets = [];
         }
 
+        // Preload PNG race sprites for HumanoidSpriteSystem rendering.
+        await HumanoidSpriteSystem.preloadAssets(this.engine.assets);
+
         // Pre-calculate player sprite frame dimensions (same logic as NPCs).
         if (this._player.spriteImg) {
             this._player.spriteRows = 4;
