@@ -12,10 +12,11 @@
  */
 
 import { eventBus, GameEvents } from '../../core/EventBus.js';
-import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
+import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js';
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../../data/SpriteData.js';
 import { ABILITIES } from '../../data/AbilityData.js';
-import { EQUIPMENT } from '../../data/EquipmentData.js';
+import { EQUIPMENT, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
+
 
 // ── Colors ──────────────────────────────────────────────────────────────────
 
@@ -284,18 +285,23 @@ export class SpriteInspectPanel {
         const previewRow = document.createElement('div');
         previewRow.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-bottom: 12px;';
 
-        // Canvas
+        // Canvas container with race sprite background
+        const canvasWrap = document.createElement('div');
+        canvasWrap.style.cssText = 'position: relative; width: 160px; height: 180px; flex-shrink: 0; overflow: hidden;';
+
+        // Canvas (full sprite rendering via SkeletalAnimationSystem)
         const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 288;
-        canvas.style.cssText = 'width: 160px; height: 180px; flex-shrink: 0;';
+        canvas.style.cssText = 'position: absolute; top: 0; left: 0; width: 160px; height: 180px; z-index: 1;';
         const ctx = canvas.getContext('2d');
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             ctx, d.raceId, d.evolutionStage, d.facing, 0,
             128, 230, 210,
             { equipment: d.equipment || {} }
         );
-        previewRow.appendChild(canvas);
+        canvasWrap.appendChild(canvas);
+        previewRow.appendChild(canvasWrap);
 
         // Info col
         const infoCol = document.createElement('div');
@@ -661,7 +667,7 @@ export class SpriteInspectPanel {
             width: 72px; height: 84px;
         `;
         const dollCtx = dollCanvas.getContext('2d');
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             dollCtx, d.raceId, d.evolutionStage, d.facing, 0,
             36, 66, 64,
             { equipment: equipment }
@@ -691,7 +697,7 @@ export class SpriteInspectPanel {
         for (const slot of allSlots) {
             const pos = slotLayout[slot];
             const eqId = equipment[slot];
-            const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
+            const eqData = eqId ? (typeof eqId === 'object' ? eqId : findEquipmentWithExpansion(eqId)) : null;
             const hasItem = !!eqData;
             const rarityColor = hasItem ? (RARITY_COLORS[eqData.rarity] || '#888') : '#333';
             const icon = SLOT_ICONS[slot] || '\u2B24';
@@ -716,7 +722,21 @@ export class SpriteInspectPanel {
                 ${pos.bottom ? `bottom: ${pos.bottom};` : ''}
                 transform: translate(${pos.tx}, ${pos.ty});
             `;
-            slotEl.textContent = icon;
+            // Use equipment icon image if available, otherwise emoji
+            const eqIconPath = hasItem && (eqData.icon_path || eqData.iconPath);
+            if (eqIconPath) {
+                const eqIconImg = document.createElement('img');
+                eqIconImg.src = eqIconPath.replace(/^\.\.\//g, '');
+                Object.assign(eqIconImg.style, {
+                    width: '100%', height: '100%',
+                    objectFit: 'contain',
+                    imageRendering: 'crisp-edges',
+                });
+                eqIconImg.onerror = () => { eqIconImg.style.display = 'none'; slotEl.textContent = icon; };
+                slotEl.appendChild(eqIconImg);
+            } else {
+                slotEl.textContent = icon;
+            }
 
             // Hover effect for equipped items
             if (hasItem) {
@@ -752,7 +772,7 @@ export class SpriteInspectPanel {
             if (!eqId) continue;
             hasAny = true;
 
-            const eqData = typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId);
+            const eqData = typeof eqId === 'object' ? eqId : findEquipmentWithExpansion(eqId);
             if (!eqData) continue;
 
             const rarityColor = RARITY_COLORS[eqData.rarity] || '#888';
@@ -973,7 +993,7 @@ export class SpriteInspectPanel {
             miniCanvas.height = 54;
             miniCanvas.style.cssText = 'width: 48px; height: 54px;';
             const mCtx = miniCanvas.getContext('2d');
-            HumanoidSpriteSystem.drawWithEquipment(
+            SkeletalAnimationSystem.drawWithEquipment(
                 mCtx, d.raceId, stageNum, 0, 0,
                 24, 44, 42,
                 { equipment: {} }

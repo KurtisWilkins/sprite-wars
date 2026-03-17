@@ -33,103 +33,104 @@ class AssetRegistry {
   // form_id = race_id * 3 - 2 (stage 1), race_id * 3 - 1 (stage 2), race_id * 3 (stage 3)
   // 24 races x 3 evolution stages = 72 forms
   // -------------------------------------------------------------------------
+  /** @deprecated Legacy Idle PNG paths — use SkeletalAnimationSystem instead. Kept only for reference. */
   static CHARACTER_SPRITES = {
-    // Race 1 — Bug Man (Fire / Barbarian)
-    1:  "../Sprites/Characters/FlameSpike_Flynn/FlameSpike_Flynn_Walk_Down.png",
-    2:  "../Sprites/Characters/EmberCrest_Knight_Aldric/EmberCrest_Knight_Aldric_Walk_Down.png",
-    3:  "../Sprites/Characters/CrimsonScarlet_Knight_Hugo/CrimsonScarlet_Knight_Hugo_Walk_Down.png",
-    // Race 2 — Bear Man (Water / Paladin)
-    4:  "../Sprites/Characters/AzureBare_Knight_Hartford/AzureBare_Knight_Hartford_Walk_Down.png",
-    5:  "../Sprites/Characters/AzureGuard_Knight_Beaumont/AzureGuard_Knight_Beaumont_Walk_Down.png",
-    6:  "../Sprites/Characters/AzureShield_Knight_Bexley/AzureShield_Knight_Bexley_Walk_Down.png",
-    // Race 3 — Bird Man (Plant / Javelin)
-    7:  "../Sprites/Characters/GreenVest_Forrest/GreenVest_Forrest_Walk_Down.png",
-    8:  "../Sprites/Characters/WoodlandTunic_Sage/WoodlandTunic_Sage_Walk_Down.png",
-    9:  "../Sprites/Characters/CobaltPlume_Knight_Ashford/CobaltPlume_Knight_Ashford_Walk_Down.png",
-    // Race 4 — Demon (Ice / Assassin)
-    10: "../Sprites/Characters/DarkTeal_Storm/DarkTeal_Storm_Walk_Down.png",
-    11: "../Sprites/Characters/TealShadow_Dusk/TealShadow_Dusk_Walk_Down.png",
-    12: "../Sprites/Characters/ShadowBare_Knight_Callum/ShadowBare_Knight_Callum_Walk_Down.png",
-    // Race 5 — Devil (Wind / Archer)
-    13: "../Sprites/Characters/BlueCap_Marcus/BlueCap_Marcus_Walk_Down.png",
-    14: "../Sprites/Characters/BlueCap_Toby/BlueCap_Toby_Walk_Down.png",
-    15: "../Sprites/Characters/AzurePlume_Knight_Winston/AzurePlume_Knight_Winston_Walk_Down.png",
-    // Race 6 — Cat Man (Earth / Fighter)
-    16: "../Sprites/Characters/IronHelm_Knight_Garrett/IronHelm_Knight_Garrett_Walk_Down.png",
-    17: "../Sprites/Characters/CopperBare_Knight_Desmond/CopperBare_Knight_Desmond_Walk_Down.png",
-    18: "../Sprites/Characters/IronCrest_Knight_Orion/IronCrest_Knight_Orion_Walk_Down.png",
-    // Race 7 — Elf (Electric / Wizard)
-    19: "../Sprites/Characters/SkyTurban_Cyrus/SkyTurban_Cyrus_Walk_Down.png",
-    20: "../Sprites/Characters/GingerSuit_Ashton/GingerSuit_Ashton_Walk_Down.png",
-    21: "../Sprites/Characters/GoldSuit_Sterling/GoldSuit_Sterling_Walk_Down.png",
-    // Race 8 — Ent (Dark / Assassin)
-    22: "../Sprites/Characters/PhantomCloak_Raven/PhantomCloak_Raven_Walk_Down.png",
-    23: "../Sprites/Characters/NightHelm_Ember/NightHelm_Ember_Walk_Down.png",
-    24: "../Sprites/Characters/ShadowBare_Knight_Lennox/ShadowBare_Knight_Lennox_Walk_Down.png",
-    // Race 9 — Fish Man (Light / Cleric)
-    25: "../Sprites/Characters/SunnyHat_Goldie/SunnyHat_Goldie_Walk_Down.png",
-    26: "../Sprites/Characters/GoldenBare_Knight_Matthias/GoldenBare_Knight_Matthias_Walk_Down.png",
-    27: "../Sprites/Characters/GoldenHelm_Knight_Galahad/GoldenHelm_Knight_Galahad_Walk_Down.png",
-    // Race 10 — Ghost (Fairy / Alchemist)
-    28: "../Sprites/Characters/CrimsonPuff_Ruby/CrimsonPuff_Ruby_Walk_Down.png",
-    29: "../Sprites/Characters/GoldenBraid_Celeste/GoldenBraid_Celeste_Walk_Down.png",
-    30: "../Sprites/Characters/RoseFluff_Plum/RoseFluff_Plum_Walk_Down.png",
-    // Race 11 — Golem (Solar / Wizard)
-    31: "../Sprites/Characters/MidnightHair_Violet/MidnightHair_Violet_Walk_Down.png",
-    32: "../Sprites/Characters/CeruleanBare_Knight_Cromwell/CeruleanBare_Knight_Cromwell_Walk_Down.png",
-    33: "../Sprites/Characters/SapphirePlume_Knight_Montague/SapphirePlume_Knight_Montague_Walk_Down.png",
-    // Race 12 — Human (Lunar / Barbarian)
-    34: "../Sprites/Characters/WildSpike_Blaze/WildSpike_Blaze_Walk_Down.png",
-    35: "../Sprites/Characters/EmberHelm_Knight_Darius/EmberHelm_Knight_Darius_Walk_Down.png",
-    36: "../Sprites/Characters/EmberScarlet_Knight_Felix/EmberScarlet_Knight_Felix_Walk_Down.png",
-    // Race 13 — Lizard Man (Metal / Fighter)
-    37: "../Sprites/Characters/IronHelm_Knight_Roland/IronHelm_Knight_Roland_Walk_Down.png",
-    38: "../Sprites/Characters/CopperBare_Knight_Warren/CopperBare_Knight_Warren_Walk_Down.png",
-    39: "../Sprites/Characters/IronCrest_Knight_Tristan/IronCrest_Knight_Tristan_Walk_Down.png",
-    // Race 14 — Minotaur (Poison / Javelin)
-    40: "../Sprites/Characters/MaroonHood_Jasmine/MaroonHood_Jasmine_Walk_Down.png",
-    41: "../Sprites/Characters/DarkRose_Hazel/DarkRose_Hazel_Walk_Down.png",
-    42: "../Sprites/Characters/MaroonPlume_Knight_Drake/MaroonPlume_Knight_Drake_Walk_Down.png",
-    // Race 15 — Monkey Man (Fire / Paladin)
-    43: "../Sprites/Characters/ScarletBare_Knight_Corbin/ScarletBare_Knight_Corbin_Walk_Down.png",
-    44: "../Sprites/Characters/ScarletGuard_Knight_Emeric/ScarletGuard_Knight_Emeric_Walk_Down.png",
-    45: "../Sprites/Characters/ScarletShield_Knight_Beckett/ScarletShield_Knight_Beckett_Walk_Down.png",
-    // Race 16 — Mummy (Water / Archer)
-    46: "../Sprites/Characters/RedCapRound_Porter/RedCapRound_Porter_Walk_Down.png",
-    47: "../Sprites/Characters/AzureHelm_Knight_Edmund/AzureHelm_Knight_Edmund_Walk_Down.png",
-    48: "../Sprites/Characters/AzureCrest_Knight_Mercer/AzureCrest_Knight_Mercer_Walk_Down.png",
-    // Race 17 — Ork (Fire+Electric / Wizard)
-    49: "../Sprites/Characters/CrimsonHat_Miles/CrimsonHat_Miles_Walk_Down.png",
-    50: "../Sprites/Characters/EmberHelm_Knight_Silas/EmberHelm_Knight_Silas_Walk_Down.png",
-    51: "../Sprites/Characters/EmberCrest_Knight_Dorian/EmberCrest_Knight_Dorian_Walk_Down.png",
-    // Race 18 — Rat Man (Poison+Plant / Spearman)
-    52: "../Sprites/Characters/RedWrap_Jasper/RedWrap_Jasper_Walk_Down.png",
-    53: "../Sprites/Characters/MaroonPlume_Knight_Rowan/MaroonPlume_Knight_Rowan_Walk_Down.png",
-    54: "../Sprites/Characters/MaroonScarlet_Knight_Ignatius/MaroonScarlet_Knight_Ignatius_Walk_Down.png",
-    // Race 19 — Robot (Dark+Fire / Spearman)
-    55: "../Sprites/Characters/RedBand_Kai/RedBand_Kai_Walk_Down.png",
-    56: "../Sprites/Characters/ScarletIron_Knight_Barrett/ScarletIron_Knight_Barrett_Walk_Down.png",
-    57: "../Sprites/Characters/ScarletCrest_Knight_Magnus/ScarletCrest_Knight_Magnus_Walk_Down.png",
-    // Race 20 — Shark Man (Ice+Fairy / Cleric)
-    58: "../Sprites/Characters/PeachBonnet_Pippin/PeachBonnet_Pippin_Walk_Down.png",
-    59: "../Sprites/Characters/CeruleanBare_Knight_Lowell/CeruleanBare_Knight_Lowell_Walk_Down.png",
-    60: "../Sprites/Characters/RadiantPlume_Knight_Cassander/RadiantPlume_Knight_Cassander_Walk_Down.png",
-    // Race 21 — Skeleton (Metal+Wind / Barbarian)
-    61: "../Sprites/Characters/AuburnBob_Hector/AuburnBob_Hector_Walk_Down.png",
-    62: "../Sprites/Characters/CobaltHelm_Knight_Harding/CobaltHelm_Knight_Harding_Walk_Down.png",
-    63: "../Sprites/Characters/CobaltCrest_Knight_Pembroke/CobaltCrest_Knight_Pembroke_Walk_Down.png",
-    // Race 22 — Turtle Man (Solar+Plant / Alchemist)
-    64: "../Sprites/Characters/CurlyAfro_Maggie/CurlyAfro_Maggie_Walk_Down.png",
-    65: "../Sprites/Characters/DarkLocks_Kira/DarkLocks_Kira_Walk_Down.png",
-    66: "../Sprites/Characters/GoldenPony_Rosie/GoldenPony_Rosie_Walk_Down.png",
-    // Race 23 — Wolf Man (Light+Lunar / Paladin) — legendary phoenix
-    67: "../Sprites/Characters/GoldenArmor_Aurum/GoldenArmor_Aurum_Walk_Down.png",
-    68: "../Sprites/Characters/GoldenGuard_Knight_Montgomery/GoldenGuard_Knight_Montgomery_Walk_Down.png",
-    69: "../Sprites/Characters/GoldenShield_Knight_Alistair/GoldenShield_Knight_Alistair_Walk_Down.png",
-    // Race 24 — Zombie (Dark+Solar / Alchemist) — legendary dragon
-    70: "../Sprites/Characters/SolarBare_Knight_Leonidas/SolarBare_Knight_Leonidas_Walk_Down.png",
-    71: "../Sprites/Characters/SolarHelm_Knight_Valerian/SolarHelm_Knight_Valerian_Walk_Down.png",
-    72: "../Sprites/Characters/RadiantCrest_Knight_Theodoric/RadiantCrest_Knight_Theodoric_Walk_Down.png",
+    // Race 1 — Human
+    1:  "../Sprites/Characters/Human/Human_S1_Idle.png",
+    2:  "../Sprites/Characters/Human/Human_S2_Idle.png",
+    3:  "../Sprites/Characters/Human/Human_S3_Idle.png",
+    // Race 2 — Elf
+    4:  "../Sprites/Characters/Elf/Elf_S1_Idle.png",
+    5:  "../Sprites/Characters/Elf/Elf_S2_Idle.png",
+    6:  "../Sprites/Characters/Elf/Elf_S3_Idle.png",
+    // Race 3 — Demon
+    7:  "../Sprites/Characters/Demon/Demon_S1_Idle.png",
+    8:  "../Sprites/Characters/Demon/Demon_S2_Idle.png",
+    9:  "../Sprites/Characters/Demon/Demon_S3_Idle.png",
+    // Race 4 — Devil
+    10: "../Sprites/Characters/Devil/Devil_S1_Idle.png",
+    11: "../Sprites/Characters/Devil/Devil_S2_Idle.png",
+    12: "../Sprites/Characters/Devil/Devil_S3_Idle.png",
+    // Race 5 — CatMan
+    13: "../Sprites/Characters/CatMan/CatMan_S1_Idle.png",
+    14: "../Sprites/Characters/CatMan/CatMan_S2_Idle.png",
+    15: "../Sprites/Characters/CatMan/CatMan_S3_Idle.png",
+    // Race 6 — BearMan
+    16: "../Sprites/Characters/BearMan/BearMan_S1_Idle.png",
+    17: "../Sprites/Characters/BearMan/BearMan_S2_Idle.png",
+    18: "../Sprites/Characters/BearMan/BearMan_S3_Idle.png",
+    // Race 7 — WolfMan
+    19: "../Sprites/Characters/WolfMan/WolfMan_S1_Idle.png",
+    20: "../Sprites/Characters/WolfMan/WolfMan_S2_Idle.png",
+    21: "../Sprites/Characters/WolfMan/WolfMan_S3_Idle.png",
+    // Race 8 — MonkeyMan
+    22: "../Sprites/Characters/MonkeyMan/MonkeyMan_S1_Idle.png",
+    23: "../Sprites/Characters/MonkeyMan/MonkeyMan_S2_Idle.png",
+    24: "../Sprites/Characters/MonkeyMan/MonkeyMan_S3_Idle.png",
+    // Race 9 — BugMan
+    25: "../Sprites/Characters/BugMan/BugMan_S1_Idle.png",
+    26: "../Sprites/Characters/BugMan/BugMan_S2_Idle.png",
+    27: "../Sprites/Characters/BugMan/BugMan_S3_Idle.png",
+    // Race 10 — BirdMan
+    28: "../Sprites/Characters/BirdMan/BirdMan_S1_Idle.png",
+    29: "../Sprites/Characters/BirdMan/BirdMan_S2_Idle.png",
+    30: "../Sprites/Characters/BirdMan/BirdMan_S3_Idle.png",
+    // Race 11 — Ent
+    31: "../Sprites/Characters/Ent/Ent_S1_Idle.png",
+    32: "../Sprites/Characters/Ent/Ent_S2_Idle.png",
+    33: "../Sprites/Characters/Ent/Ent_S3_Idle.png",
+    // Race 12 — FishMan
+    34: "../Sprites/Characters/FishMan/FishMan_S1_Idle.png",
+    35: "../Sprites/Characters/FishMan/FishMan_S2_Idle.png",
+    36: "../Sprites/Characters/FishMan/FishMan_S3_Idle.png",
+    // Race 13 — Ghost
+    37: "../Sprites/Characters/Ghost/Ghost_S1_Idle.png",
+    38: "../Sprites/Characters/Ghost/Ghost_S2_Idle.png",
+    39: "../Sprites/Characters/Ghost/Ghost_S3_Idle.png",
+    // Race 14 — Golem
+    40: "../Sprites/Characters/Golem/Golem_S1_Idle.png",
+    41: "../Sprites/Characters/Golem/Golem_S2_Idle.png",
+    42: "../Sprites/Characters/Golem/Golem_S3_Idle.png",
+    // Race 15 — LizardMan
+    43: "../Sprites/Characters/LizardMan/LizardMan_S1_Idle.png",
+    44: "../Sprites/Characters/LizardMan/LizardMan_S2_Idle.png",
+    45: "../Sprites/Characters/LizardMan/LizardMan_S3_Idle.png",
+    // Race 16 — Minotaur
+    46: "../Sprites/Characters/Minotaur/Minotaur_S1_Idle.png",
+    47: "../Sprites/Characters/Minotaur/Minotaur_S2_Idle.png",
+    48: "../Sprites/Characters/Minotaur/Minotaur_S3_Idle.png",
+    // Race 17 — Mummy
+    49: "../Sprites/Characters/Mummy/Mummy_S1_Idle.png",
+    50: "../Sprites/Characters/Mummy/Mummy_S2_Idle.png",
+    51: "../Sprites/Characters/Mummy/Mummy_S3_Idle.png",
+    // Race 18 — Ork
+    52: "../Sprites/Characters/Ork/Ork_S1_Idle.png",
+    53: "../Sprites/Characters/Ork/Ork_S2_Idle.png",
+    54: "../Sprites/Characters/Ork/Ork_S3_Idle.png",
+    // Race 19 — RatMan
+    55: "../Sprites/Characters/RatMan/RatMan_S1_Idle.png",
+    56: "../Sprites/Characters/RatMan/RatMan_S2_Idle.png",
+    57: "../Sprites/Characters/RatMan/RatMan_S3_Idle.png",
+    // Race 20 — Robot
+    58: "../Sprites/Characters/Robot/Robot_S1_Idle.png",
+    59: "../Sprites/Characters/Robot/Robot_S2_Idle.png",
+    60: "../Sprites/Characters/Robot/Robot_S3_Idle.png",
+    // Race 21 — Skeleton
+    61: "../Sprites/Characters/Skeleton/Skeleton_S1_Idle.png",
+    62: "../Sprites/Characters/Skeleton/Skeleton_S2_Idle.png",
+    63: "../Sprites/Characters/Skeleton/Skeleton_S3_Idle.png",
+    // Race 22 — SharkMan
+    64: "../Sprites/Characters/SharkMan/SharkMan_S1_Idle.png",
+    65: "../Sprites/Characters/SharkMan/SharkMan_S2_Idle.png",
+    66: "../Sprites/Characters/SharkMan/SharkMan_S3_Idle.png",
+    // Race 23 — TurtleMan
+    67: "../Sprites/Characters/TurtleMan/TurtleMan_S1_Idle.png",
+    68: "../Sprites/Characters/TurtleMan/TurtleMan_S2_Idle.png",
+    69: "../Sprites/Characters/TurtleMan/TurtleMan_S3_Idle.png",
+    // Race 24 — Zombie
+    70: "../Sprites/Characters/Zombie/Zombie_S1_Idle.png",
+    71: "../Sprites/Characters/Zombie/Zombie_S2_Idle.png",
+    72: "../Sprites/Characters/Zombie/Zombie_S3_Idle.png",
   };
 
   // -------------------------------------------------------------------------
@@ -137,102 +138,102 @@ class AssetRegistry {
   // Used to resolve attack, death, and directional animation strips
   // -------------------------------------------------------------------------
   static CHARACTER_SPRITE_DIRS = {
-    // Race 1 — Bug Man (Fire / Barbarian)
-    1:  "FlameSpike_Flynn",
-    2:  "EmberCrest_Knight_Aldric",
-    3:  "CrimsonScarlet_Knight_Hugo",
-    // Race 2 — Bear Man (Water / Paladin)
-    4:  "AzureBare_Knight_Hartford",
-    5:  "AzureGuard_Knight_Beaumont",
-    6:  "AzureShield_Knight_Bexley",
-    // Race 3 — Bird Man (Plant / Javelin)
-    7:  "GreenVest_Forrest",
-    8:  "WoodlandTunic_Sage",
-    9:  "CobaltPlume_Knight_Ashford",
-    // Race 4 — Demon (Ice / Assassin)
-    10: "DarkTeal_Storm",
-    11: "TealShadow_Dusk",
-    12: "ShadowBare_Knight_Callum",
-    // Race 5 — Devil (Wind / Archer)
-    13: "BlueCap_Marcus",
-    14: "BlueCap_Toby",
-    15: "AzurePlume_Knight_Winston",
-    // Race 6 — Cat Man (Earth / Fighter)
-    16: "IronHelm_Knight_Garrett",
-    17: "CopperBare_Knight_Desmond",
-    18: "IronCrest_Knight_Orion",
-    // Race 7 — Elf (Electric / Wizard)
-    19: "SkyTurban_Cyrus",
-    20: "GingerSuit_Ashton",
-    21: "GoldSuit_Sterling",
-    // Race 8 — Ent (Dark / Assassin)
-    22: "PhantomCloak_Raven",
-    23: "NightHelm_Ember",
-    24: "ShadowBare_Knight_Lennox",
-    // Race 9 — Fish Man (Light / Cleric)
-    25: "SunnyHat_Goldie",
-    26: "GoldenBare_Knight_Matthias",
-    27: "GoldenHelm_Knight_Galahad",
-    // Race 10 — Ghost (Fairy / Alchemist)
-    28: "CrimsonPuff_Ruby",
-    29: "GoldenBraid_Celeste",
-    30: "RoseFluff_Plum",
-    // Race 11 — Golem (Solar / Wizard)
-    31: "MidnightHair_Violet",
-    32: "CeruleanBare_Knight_Cromwell",
-    33: "SapphirePlume_Knight_Montague",
-    // Race 12 — Human (Lunar / Barbarian)
-    34: "WildSpike_Blaze",
-    35: "EmberHelm_Knight_Darius",
-    36: "EmberScarlet_Knight_Felix",
-    // Race 13 — Lizard Man (Metal / Fighter)
-    37: "IronHelm_Knight_Roland",
-    38: "CopperBare_Knight_Warren",
-    39: "IronCrest_Knight_Tristan",
-    // Race 14 — Minotaur (Poison / Javelin)
-    40: "MaroonHood_Jasmine",
-    41: "DarkRose_Hazel",
-    42: "MaroonPlume_Knight_Drake",
-    // Race 15 — Monkey Man (Fire / Paladin)
-    43: "ScarletBare_Knight_Corbin",
-    44: "ScarletGuard_Knight_Emeric",
-    45: "ScarletShield_Knight_Beckett",
-    // Race 16 — Mummy (Water / Archer)
-    46: "RedCapRound_Porter",
-    47: "AzureHelm_Knight_Edmund",
-    48: "AzureCrest_Knight_Mercer",
-    // Race 17 — Ork (Fire+Electric / Wizard)
-    49: "CrimsonHat_Miles",
-    50: "EmberHelm_Knight_Silas",
-    51: "EmberCrest_Knight_Dorian",
-    // Race 18 — Rat Man (Poison+Plant / Spearman)
-    52: "RedWrap_Jasper",
-    53: "MaroonPlume_Knight_Rowan",
-    54: "MaroonScarlet_Knight_Ignatius",
-    // Race 19 — Robot (Dark+Fire / Spearman)
-    55: "RedBand_Kai",
-    56: "ScarletIron_Knight_Barrett",
-    57: "ScarletCrest_Knight_Magnus",
-    // Race 20 — Shark Man (Ice+Fairy / Cleric)
-    58: "PeachBonnet_Pippin",
-    59: "CeruleanBare_Knight_Lowell",
-    60: "RadiantPlume_Knight_Cassander",
-    // Race 21 — Skeleton (Metal+Wind / Barbarian)
-    61: "AuburnBob_Hector",
-    62: "CobaltHelm_Knight_Harding",
-    63: "CobaltCrest_Knight_Pembroke",
-    // Race 22 — Turtle Man (Solar+Plant / Alchemist)
-    64: "CurlyAfro_Maggie",
-    65: "DarkLocks_Kira",
-    66: "GoldenPony_Rosie",
-    // Race 23 — Wolf Man (Light+Lunar / Paladin) — legendary phoenix
-    67: "GoldenArmor_Aurum",
-    68: "GoldenGuard_Knight_Montgomery",
-    69: "GoldenShield_Knight_Alistair",
-    // Race 24 — Zombie (Dark+Solar / Alchemist) — legendary dragon
-    70: "SolarBare_Knight_Leonidas",
-    71: "SolarHelm_Knight_Valerian",
-    72: "RadiantCrest_Knight_Theodoric",
+    // Race 1 — Human
+    1:  "Human",
+    2:  "Human",
+    3:  "Human",
+    // Race 2 — Elf
+    4:  "Elf",
+    5:  "Elf",
+    6:  "Elf",
+    // Race 3 — Demon
+    7:  "Demon",
+    8:  "Demon",
+    9:  "Demon",
+    // Race 4 — Devil
+    10: "Devil",
+    11: "Devil",
+    12: "Devil",
+    // Race 5 — CatMan
+    13: "CatMan",
+    14: "CatMan",
+    15: "CatMan",
+    // Race 6 — BearMan
+    16: "BearMan",
+    17: "BearMan",
+    18: "BearMan",
+    // Race 7 — WolfMan
+    19: "WolfMan",
+    20: "WolfMan",
+    21: "WolfMan",
+    // Race 8 — MonkeyMan
+    22: "MonkeyMan",
+    23: "MonkeyMan",
+    24: "MonkeyMan",
+    // Race 9 — BugMan
+    25: "BugMan",
+    26: "BugMan",
+    27: "BugMan",
+    // Race 10 — BirdMan
+    28: "BirdMan",
+    29: "BirdMan",
+    30: "BirdMan",
+    // Race 11 — Ent
+    31: "Ent",
+    32: "Ent",
+    33: "Ent",
+    // Race 12 — FishMan
+    34: "FishMan",
+    35: "FishMan",
+    36: "FishMan",
+    // Race 13 — Ghost
+    37: "Ghost",
+    38: "Ghost",
+    39: "Ghost",
+    // Race 14 — Golem
+    40: "Golem",
+    41: "Golem",
+    42: "Golem",
+    // Race 15 — LizardMan
+    43: "LizardMan",
+    44: "LizardMan",
+    45: "LizardMan",
+    // Race 16 — Minotaur
+    46: "Minotaur",
+    47: "Minotaur",
+    48: "Minotaur",
+    // Race 17 — Mummy
+    49: "Mummy",
+    50: "Mummy",
+    51: "Mummy",
+    // Race 18 — Ork
+    52: "Ork",
+    53: "Ork",
+    54: "Ork",
+    // Race 19 — RatMan
+    55: "RatMan",
+    56: "RatMan",
+    57: "RatMan",
+    // Race 20 — Robot
+    58: "Robot",
+    59: "Robot",
+    60: "Robot",
+    // Race 21 — Skeleton
+    61: "Skeleton",
+    62: "Skeleton",
+    63: "Skeleton",
+    // Race 22 — SharkMan
+    64: "SharkMan",
+    65: "SharkMan",
+    66: "SharkMan",
+    // Race 23 — TurtleMan
+    67: "TurtleMan",
+    68: "TurtleMan",
+    69: "TurtleMan",
+    // Race 24 — Zombie
+    70: "Zombie",
+    71: "Zombie",
+    72: "Zombie",
   };
 
   // -------------------------------------------------------------------------
@@ -762,6 +763,7 @@ class AssetRegistry {
   }
 
   /**
+   * @deprecated Legacy Idle PNG lookup — use SkeletalAnimationSystem instead.
    * Returns the sprite path for a specific form_id (1-72).
    * @param {number} formId
    * @returns {string}
@@ -781,6 +783,7 @@ class AssetRegistry {
   }
 
   /**
+   * @deprecated Legacy Idle PNG lookup — use SkeletalAnimationSystem instead.
    * Returns an array of [stage1_path, stage2_path, stage3_path] for the given race_id (1-24).
    * @param {number} raceId
    * @returns {string[]}

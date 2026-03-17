@@ -342,7 +342,7 @@ func populate_items(category: String) -> void:
 
 ## Populate the equipment tab with all equipment from the database.
 func _populate_equipment_items() -> void:
-	var all_equipment: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+	var all_equipment: Array[Dictionary] = EquipmentDatabase.get_all_equipment_with_expansion()
 
 	if all_equipment.is_empty():
 		var empty_label := Label.new()
@@ -387,14 +387,33 @@ func _create_equipment_cell(equip_data: Dictionary) -> PanelContainer:
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 
-	# Slot icon label.
+	# Equipment icon PNG (or fallback to slot type label).
 	var slot_type: String = str(equip_data.get("slot_type", "weapon"))
-	var slot_label := Label.new()
-	slot_label.text = slot_type.capitalize()
-	slot_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	slot_label.add_theme_font_size_override("font_size", 10)
-	slot_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
-	vbox.add_child(slot_label)
+	var equip_icon_path: String = str(equip_data.get("icon_path", ""))
+	if not equip_icon_path.is_empty() and ResourceLoader.exists(equip_icon_path):
+		var equip_icon_tex: Texture2D = load(equip_icon_path) as Texture2D
+		if equip_icon_tex != null:
+			var icon_rect := TextureRect.new()
+			icon_rect.texture = equip_icon_tex
+			icon_rect.custom_minimum_size = Vector2(48.0, 48.0)
+			icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			vbox.add_child(icon_rect)
+		else:
+			var slot_label := Label.new()
+			slot_label.text = slot_type.capitalize()
+			slot_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			slot_label.add_theme_font_size_override("font_size", 10)
+			slot_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+			vbox.add_child(slot_label)
+	else:
+		var slot_label := Label.new()
+		slot_label.text = slot_type.capitalize()
+		slot_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		slot_label.add_theme_font_size_override("font_size", 10)
+		slot_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
+		vbox.add_child(slot_label)
 
 	# Equipment name.
 	var name_label := Label.new()
@@ -492,7 +511,7 @@ func _show_equipment_detail(equip_data: Dictionary) -> void:
 func show_item_detail(item_id: int) -> void:
 	# Try to look up as equipment first.
 	if current_tab == "equipment":
-		var all_equip: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+		var all_equip: Array[Dictionary] = EquipmentDatabase.get_all_equipment_with_expansion()
 		for equip in all_equip:
 			if int(equip.get("equipment_id", -1)) == item_id:
 				_show_equipment_detail(equip)

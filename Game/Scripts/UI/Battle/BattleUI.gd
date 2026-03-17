@@ -255,6 +255,23 @@ func register_unit(unit_id: int, grid_pos: Vector2i, texture: Texture2D, team: i
 		"status_effects": extra_data.get("status_effects", []),
 	}
 
+	# Fallback: load race sprite texture if none provided.
+	if texture == null:
+		var sprite_inst: Resource = extra_data.get("sprite_instance")
+		if sprite_inst != null and sprite_inst is SpriteInstance:
+			texture = SpriteTextureLoader.get_portrait_texture(sprite_inst)
+		if texture == null:
+			# Try loading from race_id and form_id in extra_data.
+			var race_id: int = extra_data.get("race_id", 0)
+			var form_id: int = extra_data.get("form_id", 0)
+			if form_id > 0:
+				texture = SpriteTextureLoader.get_form_texture(form_id)
+			elif race_id > 0:
+				var stage: int = extra_data.get("stage", 0)
+				texture = SpriteTextureLoader.get_race_texture(race_id, stage)
+		# Update tracked unit texture.
+		_tracked_units[unit_id]["texture"] = texture
+
 	# Place visual on grid.
 	grid_display.place_sprite_visual(unit_id, grid_pos, texture)
 
@@ -888,6 +905,12 @@ func _show_unit_inspect(unit_id: int) -> void:
 
 	# -- Portrait --
 	_inspect_portrait.texture = data.get("texture", null)
+
+	# Fallback: try loading race texture if portrait texture is null.
+	if _inspect_portrait.texture == null:
+		var sprite_inst: Resource = data.get("sprite_instance")
+		if sprite_inst != null and sprite_inst is SpriteInstance:
+			_inspect_portrait.texture = SpriteTextureLoader.get_portrait_texture(sprite_inst)
 
 	# -- Name (gold color for allies, red for enemies) --
 	var unit_name: String = str(data.get("name", "Unknown"))

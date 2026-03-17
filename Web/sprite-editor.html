@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprite Wars &#8212; Enhanced Sprite Part Editor</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-dark: #1a1a2e;
+            --bg-panel: #16213e;
+            --bg-input: #0f3460;
+            --accent: #e94560;
+            --accent2: #0ea5e9;
+            --text: #e0e0e0;
+            --text-dim: #8899aa;
+            --border: #2a2a4a;
+            --sidebar-w: 300px;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ══ Layout ══ */
+        .app {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr var(--sidebar-w);
+            grid-template-rows: 48px 1fr 56px;
+            height: 100vh;
+        }
+
+        /* ══ Toolbar ══ */
+        .toolbar {
+            grid-column: 1 / -1;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 10px;
+            overflow-x: auto;
+        }
+        .toolbar h1 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-right: 12px;
+            white-space: nowrap;
+        }
+        .toolbar select, .toolbar button, .toolbar input {
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .toolbar select { cursor: pointer; }
+        .toolbar button { cursor: pointer; white-space: nowrap; }
+        .toolbar button:hover { background: var(--accent); }
+        .toolbar .spacer { flex: 1; min-width: 8px; }
+        .toolbar a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .toolbar a:hover { color: var(--text); }
+        .toolbar label { font-size: 12px; white-space: nowrap; }
+        .toolbar .sep {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        /* ══ Left Sidebar: Parts List ══ */
+        .sidebar-left {
+            grid-row: 2;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .sidebar-left h2, .sidebar-right h2 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 12px;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .parts-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .part-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            user-select: none;
+            font-size: 12px;
+        }
+        .part-item:hover { background: rgba(255,255,255,0.05); }
+        .part-item.selected { border-color: var(--accent); background: rgba(233,69,96,0.1); }
+        .part-item.dragging { opacity: 0.4; }
+        .part-item .drag-handle {
+            cursor: grab;
+            color: var(--text-dim);
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .part-item .part-thumb {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-dark);
+            border-radius: 3px;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .part-item .part-thumb img {
+            max-width: 100%;
+            max-height: 100%;
+            image-rendering: pixelated;
+        }
+        .part-item .part-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .part-item .part-vis {
+            cursor: pointer;
+            color: var(--text-dim);
+            font-size: 13px;
+            flex-shrink: 0;
+            padding: 2px;
+        }
+        .part-item .part-vis.hidden-part { opacity: 0.3; }
+
+        /* ══ Canvas Area ══ */
+        .canvas-area {
+            grid-row: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            background: var(--bg-dark);
+        }
+        #main-canvas {
+            image-rendering: pixelated;
+            cursor: crosshair;
+        }
+        .canvas-info {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+        .canvas-controls {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .canvas-controls button {
+            background: rgba(22,33,62,0.9);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .canvas-controls button:hover { background: var(--accent); }
+        .canvas-controls button.active { background: var(--accent2); }
+
+        /* ══ Right Sidebar: Tabbed Panel ══ */
+        .sidebar-right {
+            grid-row: 2;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .tab-bar {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 8px 4px;
+            text-align: center;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-dim);
+            cursor: pointer;
+            border: none;
+            background: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px;
+            display: none;
+        }
+        .tab-content.active { display: block; }
+        .prop-group {
+            margin-bottom: 14px;
+        }
+        .prop-group h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent2);
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+        }
+        .prop-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 5px;
+        }
+        .prop-row label {
+            width: 72px;
+            font-size: 11px;
+            color: var(--text-dim);
+            flex-shrink: 0;
+        }
+        .prop-row input[type="number"] {
+            width: 56px;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 3px 5px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+        .prop-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent);
+        }
+        .prop-row .range-val {
+            width: 36px;
+            text-align: right;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+        .prop-row select {
+            flex: 1;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 3px 5px;
+            border-radius: 3px;
+            font-size: 11px;
+            min-width: 0;
+        }
+        .prop-row input[type="checkbox"] {
+            accent-color: var(--accent);
+        }
+        .no-selection {
+            color: var(--text-dim);
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .mapping-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 5px;
+            padding: 3px 0;
+        }
+        .mapping-row .map-label {
+            width: 80px;
+            font-size: 11px;
+            color: var(--text-dim);
+            flex-shrink: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mapping-row select {
+            flex: 1;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 3px 5px;
+            border-radius: 3px;
+            font-size: 11px;
+            min-width: 0;
+        }
+        .mapping-row select.remapped {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+        .equip-slot {
+            margin-bottom: 10px;
+            padding: 6px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 4px;
+        }
+        .equip-slot h4 {
+            font-size: 11px;
+            color: var(--accent2);
+            margin-bottom: 4px;
+            text-transform: capitalize;
+        }
+        .equip-slot select {
+            width: 100%;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 3px 5px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        .offset-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+        .offset-row label { width: auto; font-size: 10px; }
+        .offset-row input[type="number"] {
+            width: 44px;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 10px;
+        }
+
+        /* ══ Status Bar / Animation Panel ══ */
+        .statusbar {
+            grid-column: 1 / -1;
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-dim);
+            overflow-x: auto;
+        }
+        .statusbar .status-section {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+        .statusbar button {
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .statusbar button:hover { background: var(--accent); }
+        .statusbar button.active { background: var(--accent2); }
+        .statusbar select {
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+        .statusbar input[type="range"] {
+            width: 70px;
+            accent-color: var(--accent);
+        }
+        .statusbar label { font-size: 11px; white-space: nowrap; }
+        .statusbar .spacer { flex: 1; min-width: 4px; }
+        .statusbar .sep {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        /* ══ Scrollbar ══ */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+        /* ══ Drop indicator ══ */
+        .drop-indicator {
+            height: 2px;
+            background: var(--accent);
+            margin: 0 4px;
+        }
+
+        /* ══ Toast ══ */
+        .toast {
+            position: fixed;
+            bottom: 68px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent2);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+
+        /* ══ Keyboard shortcuts hint ══ */
+        .kb-hint {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 10px;
+            color: var(--text-dim);
+            background: rgba(22,33,62,0.85);
+            padding: 6px 8px;
+            border-radius: 4px;
+            line-height: 1.6;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .kb-hint.visible { opacity: 1; pointer-events: auto; }
+
+        /* ══ Responsive ══ */
+        @media (max-width: 900px) {
+            .app {
+                grid-template-columns: 1fr;
+                grid-template-rows: 48px auto 300px 56px;
+            }
+            .sidebar-left { grid-row: 3; border-right: none; border-top: 1px solid var(--border); }
+            .sidebar-right { display: none; }
+            .canvas-area { grid-row: 2; }
+            .statusbar { grid-row: 4; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <h1>Sprite Part Editor</h1>
+        <label>Race:</label>
+        <select id="race-select"></select>
+        <label>Stage:</label>
+        <select id="stage-select">
+            <option value="1">Stage 1</option>
+            <option value="2">Stage 2</option>
+            <option value="3">Stage 3</option>
+        </select>
+        <button id="btn-load" title="Load skeleton from server (Ctrl+L)">Load</button>
+        <button id="btn-save" title="Save skeleton to server (Ctrl+S)">Save</button>
+        <button id="btn-export" title="Download skeleton.json">Export</button>
+        <button id="btn-download-logs" title="Download editor logs">Logs</button>
+        <span class="sep"></span>
+        <label>Show:</label>
+        <label><input type="checkbox" id="chk-bones" checked> Bones</label>
+        <label><input type="checkbox" id="chk-anchors" checked> Anchors</label>
+        <span class="sep"></span>
+        <button id="btn-undo" title="Undo (Ctrl+Z)">Undo</button>
+        <button id="btn-redo" title="Redo (Ctrl+Y)">Redo</button>
+        <span class="spacer"></span>
+        <a href="index.html">Back to Game</a>
+        <a href="tile-admin.html">Tile Admin</a>
+    </div>
+
+    <!-- Left Sidebar: Parts -->
+    <div class="sidebar-left">
+        <h2>Parts / Draw Order</h2>
+        <div class="parts-list" id="parts-list">
+            <div class="no-selection">Select a race and stage, then click Load.</div>
+        </div>
+    </div>
+
+    <!-- Main Canvas -->
+    <div class="canvas-area">
+        <canvas id="main-canvas" width="512" height="512"></canvas>
+        <div class="canvas-info" id="canvas-info">No data loaded</div>
+        <div class="canvas-controls">
+            <button id="btn-zoom-in" title="Zoom in">Zoom +</button>
+            <button id="btn-zoom-out" title="Zoom out">Zoom -</button>
+            <button id="btn-zoom-reset" title="Reset zoom">100%</button>
+            <button id="btn-grid" title="Toggle grid overlay">Grid</button>
+            <button id="btn-crosshair" title="Toggle center crosshair">Center</button>
+            <button id="btn-kb-help" title="Show keyboard shortcuts">Keys?</button>
+        </div>
+        <div class="kb-hint" id="kb-hint">
+            <b>Keyboard Shortcuts</b><br>
+            Space: Play/Pause<br>
+            Left/Right: Step Frame<br>
+            1-4: Direction (D/L/R/U)<br>
+            Ctrl+S: Save<br>
+            Ctrl+Z: Undo<br>
+            Ctrl+Y / Ctrl+Shift+Z: Redo<br>
+            G: Toggle Grid<br>
+            +/-: Zoom In/Out
+        </div>
+    </div>
+
+    <!-- Right Sidebar: Tabbed -->
+    <div class="sidebar-right">
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="tab-properties">Properties</button>
+            <button class="tab-btn" data-tab="tab-equipment">Equipment</button>
+            <button class="tab-btn" data-tab="tab-mapping">Mapping</button>
+            <button class="tab-btn" data-tab="tab-log">Log</button>
+        </div>
+        <div class="tab-content active" id="tab-properties">
+            <div class="no-selection">Select a part to edit.</div>
+        </div>
+        <div class="tab-content" id="tab-equipment">
+            <div id="equipment-panel"></div>
+        </div>
+        <div class="tab-content" id="tab-mapping">
+            <div id="mapping-panel"></div>
+        </div>
+        <div class="tab-content" id="tab-log">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--accent2);">Event Log</span>
+                <button id="btn-clear-log" style="font-size:11px;background:var(--bg-input);color:var(--text);border:1px solid var(--border);padding:2px 8px;border-radius:3px;cursor:pointer;">Clear</button>
+            </div>
+            <div id="log-panel" style="font-family:monospace;font-size:11px;line-height:1.6;"></div>
+        </div>
+    </div>
+
+    <!-- Status Bar / Animation Controls -->
+    <div class="statusbar">
+        <div class="status-section">
+            <button id="btn-play" title="Space">Play</button>
+            <button id="btn-stop" title="Stop animation">Stop</button>
+            <button id="btn-step-back" title="Previous frame (Left)">|&lt;</button>
+            <button id="btn-step-fwd" title="Next frame (Right)">&gt;|</button>
+        </div>
+        <span class="sep"></span>
+        <div class="status-section">
+            <label>Anim:</label>
+            <select id="anim-type-select">
+                <option value="walk">Walk</option>
+                <option value="idle">Idle</option>
+                <option value="attack">Attack</option>
+                <option value="hit">Hit</option>
+                <option value="death">Death</option>
+            </select>
+        </div>
+        <div class="status-section">
+            <label>Dir:</label>
+            <select id="dir-select">
+                <option value="down">Down</option>
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+                <option value="up">Up</option>
+            </select>
+        </div>
+        <div class="status-section">
+            <label>Speed:</label>
+            <input type="range" id="speed-slider" min="0.1" max="3" step="0.1" value="1" style="width:70px">
+            <span id="speed-val">1.0x</span>
+        </div>
+        <div class="status-section">
+            <label><input type="checkbox" id="chk-loop" checked> Loop</label>
+        </div>
+        <div class="status-section">
+            <label><input type="checkbox" id="chk-onion"> Onion</label>
+        </div>
+        <div class="status-section">
+            <span id="frame-info">Frame: 0/4</span>
+        </div>
+        <span class="spacer"></span>
+        <span id="status-msg">Ready</span>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// =====================================================================
+// Sprite Wars - Enhanced Sprite Part Editor
+// =====================================================================
+
+// ── Constants ──
+
+const RACES = {
+    1: 'Human', 2: 'Elf', 3: 'Demon', 4: 'Devil', 5: 'CatMan',
+    6: 'BearMan', 7: 'WolfMan', 8: 'MonkeyMan', 9: 'BugMan', 10: 'BirdMan',
+    11: 'Ent', 12: 'FishMan', 13: 'Ghost', 14: 'Golem', 15: 'LizardMan',
+    16: 'Minotaur', 17: 'Mummy', 18: 'Ork', 19: 'RatMan', 20: 'Robot',
+    21: 'Skeleton', 22: 'SharkMan', 23: 'TurtleMan', 24: 'Zombie',
+};
+
+const BODY_PARTS = [
+    'head', 'torso', 'left_arm', 'right_arm', 'left_leg', 'right_leg',
+    'left_hand', 'right_hand', 'left_foot', 'right_foot', 'tail', 'wings', 'accessory'
+];
+
+const PART_COLORS = {
+    head: '#e94560', torso: '#0ea5e9', left_arm: '#f59e0b', right_arm: '#10b981',
+    left_leg: '#8b5cf6', right_leg: '#ec4899', left_hand: '#f97316', right_hand: '#14b8a6',
+    left_foot: '#a855f7', right_foot: '#f43f5e', tail: '#6366f1', wings: '#22d3ee', accessory: '#84cc16'
+};
+
+const BONE_HIERARCHY = {
+    torso: null,
+    head: 'torso',
+    left_arm: 'torso',
+    right_arm: 'torso',
+    left_hand: 'left_arm',
+    right_hand: 'right_arm',
+    left_leg: 'torso',
+    right_leg: 'torso',
+    left_foot: 'left_leg',
+    right_foot: 'right_leg',
+    tail: 'torso',
+    wings: 'torso',
+    accessory: 'head'
+};
+
+const DEFAULT_ANCHORS = {
+    torso:      { x: 16, y: 16 },
+    head:       { x: 16, y: 28 },
+    left_arm:   { x: 24, y: 20 },
+    right_arm:  { x: 8, y: 20 },
+    left_hand:  { x: 24, y: 12 },
+    right_hand: { x: 8, y: 12 },
+    left_leg:   { x: 20, y: 8 },
+    right_leg:  { x: 12, y: 8 },
+    left_foot:  { x: 20, y: 2 },
+    right_foot: { x: 12, y: 2 },
+    tail:       { x: 16, y: 12 },
+    wings:      { x: 16, y: 24 },
+    accessory:  { x: 16, y: 30 }
+};
+
+// Bone connection offsets on parent
+const PARENT_ATTACH = {
+    head:       { x: 0, y: 8 },
+    left_arm:   { x: 8, y: 4 },
+    right_arm:  { x: -8, y: 4 },
+    left_hand:  { x: 0, y: -8 },
+    right_hand: { x: 0, y: -8 },
+    left_leg:   { x: 4, y: -8 },
+    right_leg:  { x: -4, y: -8 },
+    left_foot:  { x: 0, y: -8 },
+    right_foot: { x: 0, y: -8 },
+    tail:       { x: 0, y: -4 },
+    wings:      { x: 0, y: 6 },
+    accessory:  { x: 0, y: 4 }
+};
+
+// ── Animation Keyframes ──
+
+const WALK_KEYFRAMES = [
+    { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+    { torso: {y: -1}, head: {rot: -2}, left_arm: {rot: -18}, right_arm: {rot: 18}, left_leg: {rot: 22}, right_leg: {rot: -15} },
+    { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+    { torso: {y: -1}, head: {rot: 2}, left_arm: {rot: 18}, right_arm: {rot: -18}, left_leg: {rot: -15}, right_leg: {rot: 22} },
+];
+
+const IDLE_KEYFRAMES = [
+    { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+    { torso: {y: -0.5}, head: {rot: -1}, left_arm: {rot: -3}, right_arm: {rot: 3}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+    { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+    { torso: {y: -0.5}, head: {rot: 1}, left_arm: {rot: 3}, right_arm: {rot: -3}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+];
+
+const ATTACK_KEYFRAMES = [
+    { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+    { torso: {y: -1}, head: {rot: -5}, left_arm: {rot: -30}, right_arm: {rot: 45}, left_leg: {rot: 10}, right_leg: {rot: -5} },
+    { torso: {y: 1}, head: {rot: 3}, left_arm: {rot: 10}, right_arm: {rot: -60}, left_leg: {rot: -5}, right_leg: {rot: 10} },
+    { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+];
+
+const HIT_KEYFRAMES = [
+    { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+    { torso: {y: 2}, head: {rot: 10}, left_arm: {rot: 15}, right_arm: {rot: -20}, left_leg: {rot: 5}, right_leg: {rot: -5} },
+    { torso: {y: 1}, head: {rot: -5}, left_arm: {rot: -5}, right_arm: {rot: 5}, left_leg: {rot: -3}, right_leg: {rot: 3} },
+    { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+];
+
+const DEATH_KEYFRAMES = [
+    { torso: {y: 0}, head: {rot: 0}, left_arm: {rot: 0}, right_arm: {rot: 0}, left_leg: {rot: 0}, right_leg: {rot: 0} },
+    { torso: {y: 3}, head: {rot: 15}, left_arm: {rot: 30}, right_arm: {rot: -40}, left_leg: {rot: 20}, right_leg: {rot: -15} },
+    { torso: {y: 6}, head: {rot: 30}, left_arm: {rot: 60}, right_arm: {rot: -70}, left_leg: {rot: 45}, right_leg: {rot: -30} },
+    { torso: {y: 10}, head: {rot: 45}, left_arm: {rot: 80}, right_arm: {rot: -80}, left_leg: {rot: 60}, right_leg: {rot: -45} },
+];
+
+const ANIM_SETS = {
+    walk: WALK_KEYFRAMES,
+    idle: IDLE_KEYFRAMES,
+    attack: ATTACK_KEYFRAMES,
+    hit: HIT_KEYFRAMES,
+    death: DEATH_KEYFRAMES,
+};
+
+// Default draw order per direction
+const DEFAULT_DRAW_ORDER = {
+    down:  ['left_foot','right_foot','left_leg','right_leg','tail','torso','left_arm','right_arm','left_hand','right_hand','wings','head','accessory'],
+    up:    ['accessory','head','left_hand','right_hand','left_arm','right_arm','wings','torso','tail','left_foot','right_foot','left_leg','right_leg'],
+    left:  ['right_foot','right_leg','right_hand','right_arm','tail','torso','wings','left_arm','left_hand','left_foot','left_leg','head','accessory'],
+    right: ['left_foot','left_leg','left_hand','left_arm','tail','torso','wings','right_arm','right_hand','right_foot','right_leg','head','accessory'],
+};
+
+// ── Equipment Database ──
+
+const EQUIPMENT_ITEMS = {
+    weapon: [
+        { id: 1001, name: 'Iron Sword', shape: 'sword', color: '#A8A8A8', glowColor: null },
+        { id: 1003, name: 'Flame Sword', shape: 'sword', color: '#E85820', glowColor: '#FF6600' },
+        { id: 1005, name: 'Shadow Edge', shape: 'sword', color: '#3C2A4A', glowColor: '#8844AA' },
+        { id: 1101, name: 'Crystal Katana', shape: 'katana', color: '#88DDFF', glowColor: '#44CCFF' },
+        { id: 1103, name: 'Ember Axe', shape: 'axe', color: '#CC4400', glowColor: '#FF6600' },
+        { id: 1105, name: 'Storm Staff', shape: 'staff', color: '#6B8E9B', glowColor: '#00CCFF' },
+    ],
+    helmet: [
+        { id: 1011, name: 'Leather Cap', shape: 'cap', color: '#8B6914' },
+        { id: 1013, name: 'Iron Helm', shape: 'helm', color: '#A0A0A0' },
+        { id: 1015, name: 'Crown of Flames', shape: 'crown', color: '#FFD700', glowColor: '#FF4400' },
+    ],
+    chest: [
+        { id: 1021, name: 'Cloth Tunic', shape: 'tunic', color: '#7A6B3A' },
+        { id: 1023, name: 'Chainmail', shape: 'chainmail', color: '#B8B8B8' },
+        { id: 1025, name: 'Dragon Plate', shape: 'plate', color: '#CC2200', glowColor: '#FF4400' },
+    ],
+    legs: [
+        { id: 1031, name: 'Cloth Pants', shape: 'pants', color: '#6B5B3A' },
+        { id: 1033, name: 'Iron Greaves', shape: 'greaves', color: '#A0A0A0' },
+    ],
+    boots: [
+        { id: 1041, name: 'Leather Boots', shape: 'boots', color: '#8B6914' },
+        { id: 1043, name: 'Steel Sabatons', shape: 'sabatons', color: '#B8B8B8' },
+    ],
+    gloves: [
+        { id: 1051, name: 'Cloth Gloves', shape: 'gloves', color: '#7A6B3A' },
+        { id: 1053, name: 'Gauntlets', shape: 'gauntlets', color: '#A0A0A0' },
+    ],
+};
+
+// Equipment slot -> body part attachment mapping
+const EQUIP_ATTACH = {
+    weapon: 'right_hand',
+    helmet: 'head',
+    chest: 'torso',
+    legs: 'torso',
+    boots: 'left_foot',
+    gloves: 'left_hand',
+};
+
+// ── Default Body Template (from Human S3 tuned export) ──
+// All races share same body layout, only heads differ
+const DEFAULT_BODY_TEMPLATE = {
+    anchors: {
+        head:       { x: 18, y: 29 },
+        torso:      { x: 17, y: 6 },
+        left_arm:   { x: 27, y: 8 },
+        right_arm:  { x: 10, y: 8 },
+        left_hand:  { x: 30, y: 4 },
+        right_hand: { x: 13, y: 1 },
+        left_leg:   { x: 13, y: -5 },
+        right_leg:  { x: 23, y: -6 },
+        left_foot:  { x: 13, y: -11 },
+        right_foot: { x: 23, y: -11 },
+    },
+    bones: {
+        head:       { parent: 'torso',    offset_x: -0.062, offset_y: -0.285 },
+        torso:      { parent: null,       offset_x: 0.563,  offset_y: 0.656 },
+        left_arm:   { parent: 'torso',    offset_x: -0.348, offset_y: -0.426 },
+        right_arm:  { parent: 'torso',    offset_x: 0.281,  offset_y: -0.184 },
+        left_hand:  { parent: 'left_arm', offset_x: 0.012,  offset_y: 0.371 },
+        right_hand: { parent: 'right_arm',offset_x: 0.023,  offset_y: -0.32 },
+        left_leg:   { parent: 'torso',    offset_x: -0.449, offset_y: 0.23 },
+        right_leg:  { parent: 'torso',    offset_x: 0.297,  offset_y: -0.004 },
+        left_foot:  { parent: 'left_leg', offset_x: 0.223,  offset_y: 0.016 },
+        right_foot: { parent: 'right_leg',offset_x: -0.285, offset_y: 0.23 },
+    },
+    part_mapping: {
+        torso: 'left_arm',
+        left_foot: 'right_foot',
+        right_arm: 'torso',
+        left_arm: 'left_leg',
+        left_hand: 'right_arm',
+    },
+    draw_order: [
+        'left_leg', 'right_leg', 'left_foot', 'right_foot',
+        'left_arm', 'left_hand', 'torso',
+        'right_hand', 'right_arm', 'head'
+    ],
+};
+
+// ── Logging System ──
+const editorLog = [];
+
+function addLogEntry(level, msg) {
+    const entry = { time: new Date().toLocaleTimeString(), level: level, msg: msg };
+    editorLog.push(entry);
+    if (editorLog.length > 200) editorLog.shift();
+    console.log('[' + level.toUpperCase() + '] ' + msg);
+    updateLogPanel();
+}
+
+function updateLogPanel() {
+    const panel = document.getElementById('log-panel');
+    if (!panel) return;
+    const colors = { info: '#0ea5e9', warn: '#f59e0b', error: '#e94560', save: '#10b981', load: '#a855f7' };
+    panel.innerHTML = editorLog.slice().reverse().map(e =>
+        '<div style="color:' + (colors[e.level] || 'var(--text-dim)') + ';margin-bottom:2px;">' +
+        '<span style="color:var(--text-dim)">[' + e.time + ']</span> ' +
+        '<span style="font-weight:600">' + e.level.toUpperCase() + '</span> ' + e.msg + '</div>'
+    ).join('');
+}
+
+function downloadLogs() {
+    if (editorLog.length === 0) { toast('No log entries to download'); return; }
+    const lines = editorLog.map(e => '[' + e.time + '] ' + e.level.toUpperCase() + ' ' + e.msg);
+    lines.unshift('Sprite Wars Editor Log — ' + new Date().toISOString());
+    lines.unshift('Race: ' + state.race + ' Stage: ' + state.stage);
+    lines.unshift('---');
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sprite-editor-log_' + new Date().toISOString().replace(/[:.]/g, '-') + '.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Log downloaded');
+}
+
+// ── Zoom Levels ──
+const ZOOM_LEVELS = [0.5, 1, 2, 4];
+
+// ── State ──
+let state = {
+    race: 'Human',
+    stage: 1,
+    selectedPart: null,
+    parts: {},           // { partName: { anchor: {x,y}, rotation, visible } }
+    drawOrder: {},       // per-direction arrays
+    playing: false,
+    animFrame: 0,
+    animTime: 0,
+    animType: 'walk',
+    speed: 1,
+    direction: 'down',
+    loop: true,
+    onionSkin: false,
+    animDone: false,     // for non-looping anims that have finished
+    dragging: null,
+    images: {},          // loaded Image objects keyed by part name
+    originalImages: {},  // backup of original images before remapping
+    skeletonData: null,
+    partMapping: {},     // { slotName: sourcePartName } for texture remapping
+    equipmentLoadout: { weapon: null, helmet: null, chest: null, legs: null, boots: null, gloves: null },
+    equipmentOffsets: { weapon: {x:0,y:0}, helmet: {x:0,y:0}, chest: {x:0,y:0}, legs: {x:0,y:0}, boots: {x:0,y:0}, gloves: {x:0,y:0} },
+    zoomLevel: 1,        // index into ZOOM_LEVELS (1 = 100%)
+    showGrid: false,
+    showCrosshair: false,
+};
+
+// ── Undo/Redo Stack ──
+const MAX_UNDO = 20;
+let undoStack = [];
+let redoStack = [];
+
+function pushUndo(label) {
+    const snapshot = {
+        label: label,
+        parts: JSON.parse(JSON.stringify(state.parts)),
+        partMapping: JSON.parse(JSON.stringify(state.partMapping)),
+        equipmentLoadout: JSON.parse(JSON.stringify(state.equipmentLoadout)),
+        equipmentOffsets: JSON.parse(JSON.stringify(state.equipmentOffsets)),
+        drawOrder: JSON.parse(JSON.stringify(state.drawOrder)),
+    };
+    undoStack.push(snapshot);
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+    redoStack = [];
+}
+
+function doUndo() {
+    if (undoStack.length === 0) { toast('Nothing to undo'); return; }
+    // Save current state to redo
+    redoStack.push({
+        label: 'redo',
+        parts: JSON.parse(JSON.stringify(state.parts)),
+        partMapping: JSON.parse(JSON.stringify(state.partMapping)),
+        equipmentLoadout: JSON.parse(JSON.stringify(state.equipmentLoadout)),
+        equipmentOffsets: JSON.parse(JSON.stringify(state.equipmentOffsets)),
+        drawOrder: JSON.parse(JSON.stringify(state.drawOrder)),
+    });
+    const snap = undoStack.pop();
+    state.parts = snap.parts;
+    state.partMapping = snap.partMapping;
+    state.equipmentLoadout = snap.equipmentLoadout;
+    state.equipmentOffsets = snap.equipmentOffsets;
+    state.drawOrder = snap.drawOrder;
+    applyPartMapping();
+    rebuildPartsList();
+    updateActiveTab();
+    render();
+    toast('Undo: ' + snap.label);
+}
+
+function doRedo() {
+    if (redoStack.length === 0) { toast('Nothing to redo'); return; }
+    undoStack.push({
+        label: 'redo',
+        parts: JSON.parse(JSON.stringify(state.parts)),
+        partMapping: JSON.parse(JSON.stringify(state.partMapping)),
+        equipmentLoadout: JSON.parse(JSON.stringify(state.equipmentLoadout)),
+        equipmentOffsets: JSON.parse(JSON.stringify(state.equipmentOffsets)),
+        drawOrder: JSON.parse(JSON.stringify(state.drawOrder)),
+    });
+    const snap = redoStack.pop();
+    state.parts = snap.parts;
+    state.partMapping = snap.partMapping;
+    state.equipmentLoadout = snap.equipmentLoadout;
+    state.equipmentOffsets = snap.equipmentOffsets;
+    state.drawOrder = snap.drawOrder;
+    applyPartMapping();
+    rebuildPartsList();
+    updateActiveTab();
+    render();
+    toast('Redo');
+}
+
+// ── DOM Refs ──
+const $ = id => document.getElementById(id);
+const canvas = $('main-canvas');
+const ctx = canvas.getContext('2d');
+const raceSelect = $('race-select');
+const stageSelect = $('stage-select');
+const partsList = $('parts-list');
+const canvasInfo = $('canvas-info');
+const statusMsg = $('status-msg');
+const dirSelect = $('dir-select');
+const speedSlider = $('speed-slider');
+const speedVal = $('speed-val');
+const frameInfo = $('frame-info');
+const toastEl = $('toast');
+const animTypeSelect = $('anim-type-select');
+
+// ── Init ──
+function init() {
+    // Populate race dropdown
+    for (const [id, name] of Object.entries(RACES)) {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = id + '. ' + name;
+        raceSelect.appendChild(opt);
+    }
+
+    // Toolbar events
+    $('btn-load').addEventListener('click', loadSkeleton);
+    $('btn-save').addEventListener('click', () => { saveSkeleton(); });
+    $('btn-export').addEventListener('click', exportSkeleton);
+    $('btn-download-logs').addEventListener('click', downloadLogs);
+    $('btn-clear-log').addEventListener('click', () => { editorLog.length = 0; updateLogPanel(); toast('Log cleared'); });
+    $('btn-undo').addEventListener('click', doUndo);
+    $('btn-redo').addEventListener('click', doRedo);
+    $('chk-bones').addEventListener('change', render);
+    $('chk-anchors').addEventListener('change', render);
+    raceSelect.addEventListener('change', () => { state.race = raceSelect.value; });
+    stageSelect.addEventListener('change', () => { state.stage = parseInt(stageSelect.value); });
+
+    // Animation controls
+    $('btn-play').addEventListener('click', togglePlay);
+    $('btn-stop').addEventListener('click', stopAnimation);
+    $('btn-step-back').addEventListener('click', () => stepFrame(-1));
+    $('btn-step-fwd').addEventListener('click', () => stepFrame(1));
+    dirSelect.addEventListener('change', () => {
+        state.direction = dirSelect.value;
+        rebuildPartsList();
+        render();
+    });
+    speedSlider.addEventListener('input', () => {
+        state.speed = parseFloat(speedSlider.value);
+        speedVal.textContent = state.speed.toFixed(1) + 'x';
+    });
+    animTypeSelect.addEventListener('change', () => {
+        state.animType = animTypeSelect.value;
+        state.animFrame = 0;
+        state.animTime = 0;
+        state.animDone = false;
+        updateFrameInfo();
+        render();
+    });
+    $('chk-loop').addEventListener('change', (e) => {
+        state.loop = e.target.checked;
+        state.animDone = false;
+    });
+    $('chk-onion').addEventListener('change', (e) => {
+        state.onionSkin = e.target.checked;
+        render();
+    });
+
+    // Canvas controls
+    $('btn-zoom-in').addEventListener('click', () => zoomChange(1));
+    $('btn-zoom-out').addEventListener('click', () => zoomChange(-1));
+    $('btn-zoom-reset').addEventListener('click', () => { state.zoomLevel = 1; updateZoomLabel(); render(); });
+    $('btn-grid').addEventListener('click', () => { state.showGrid = !state.showGrid; $('btn-grid').classList.toggle('active', state.showGrid); render(); });
+    $('btn-crosshair').addEventListener('click', () => { state.showCrosshair = !state.showCrosshair; $('btn-crosshair').classList.toggle('active', state.showCrosshair); render(); });
+    $('btn-kb-help').addEventListener('click', () => { $('kb-hint').classList.toggle('visible'); });
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            $(btn.dataset.tab).classList.add('active');
+            updateActiveTab();
+        });
+    });
+
+    // Canvas mouse events
+    canvas.addEventListener('mousedown', onCanvasMouseDown);
+    canvas.addEventListener('mousemove', onCanvasMouseMove);
+    canvas.addEventListener('mouseup', onCanvasMouseUp);
+    canvas.addEventListener('mouseleave', onCanvasMouseUp);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', onKeyDown);
+
+    // Start render loop
+    requestAnimationFrame(tick);
+}
+
+function onKeyDown(e) {
+    // Ignore if focus is on an input element
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+
+    if (e.key === ' ') {
+        e.preventDefault();
+        togglePlay();
+    } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        stepFrame(-1);
+    } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        stepFrame(1);
+    } else if (e.key === '1') {
+        dirSelect.value = 'down'; state.direction = 'down'; rebuildPartsList(); render();
+    } else if (e.key === '2') {
+        dirSelect.value = 'left'; state.direction = 'left'; rebuildPartsList(); render();
+    } else if (e.key === '3') {
+        dirSelect.value = 'right'; state.direction = 'right'; rebuildPartsList(); render();
+    } else if (e.key === '4') {
+        dirSelect.value = 'up'; state.direction = 'up'; rebuildPartsList(); render();
+    } else if (e.key === 'g' || e.key === 'G') {
+        state.showGrid = !state.showGrid;
+        $('btn-grid').classList.toggle('active', state.showGrid);
+        render();
+    } else if (e.key === '+' || e.key === '=') {
+        zoomChange(1);
+    } else if (e.key === '-' || e.key === '_') {
+        zoomChange(-1);
+    } else if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        saveSkeleton();
+    } else if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        doUndo();
+    } else if (e.ctrlKey && (e.key === 'y' || (e.key === 'z' && e.shiftKey) || e.key === 'Z')) {
+        e.preventDefault();
+        doRedo();
+    }
+}
+
+function zoomChange(delta) {
+    state.zoomLevel = Math.max(0, Math.min(ZOOM_LEVELS.length - 1, state.zoomLevel + delta));
+    updateZoomLabel();
+    render();
+}
+
+function updateZoomLabel() {
+    $('btn-zoom-reset').textContent = Math.round(ZOOM_LEVELS[state.zoomLevel] * 100) + '%';
+}
+
+// ── Toast ──
+let toastTimeout;
+function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 2500);
+}
+
+// ── Load / Save ──
+
+async function loadSkeleton() {
+    const race = state.race;
+    const stage = state.stage;
+    statusMsg.textContent = 'Loading ' + race + ' S' + stage + '...';
+
+    // Reset state
+    state.parts = {};
+    state.images = {};
+    state.originalImages = {};
+    state.selectedPart = null;
+    state.skeletonData = null;
+    state.partMapping = {};
+    state.equipmentLoadout = { weapon: null, helmet: null, chest: null, legs: null, boots: null, gloves: null };
+    state.equipmentOffsets = { weapon: {x:0,y:0}, helmet: {x:0,y:0}, chest: {x:0,y:0}, legs: {x:0,y:0}, boots: {x:0,y:0}, gloves: {x:0,y:0} };
+    undoStack = [];
+    redoStack = [];
+
+    // Try loading skeleton.json
+    const skelUrl = '../Sprites/Characters/' + race + '/parts/' + race + '_S' + stage + '_skeleton.json';
+    let skelData = null;
+    try {
+        const resp = await fetch(skelUrl);
+        if (resp.ok) {
+            const text = await resp.text();
+            try {
+                skelData = JSON.parse(text);
+                state.skeletonData = skelData;
+                addLogEntry('load', 'Skeleton loaded: ' + skelUrl);
+            } catch (parseErr) {
+                toast('Warning: skeleton JSON is corrupt, using defaults');
+                addLogEntry('error', 'Skeleton JSON parse error: ' + parseErr.message + ' | Raw: ' + text.substring(0, 100));
+            }
+        }
+    } catch (e) { addLogEntry('warn', 'Skeleton fetch: ' + e.message); }
+
+    // Initialize draw order
+    state.drawOrder = {};
+    for (const dir of ['down','up','left','right']) {
+        if (skelData && skelData.draw_order && Array.isArray(skelData.draw_order)) {
+            state.drawOrder[dir] = [...skelData.draw_order];
+        } else {
+            state.drawOrder[dir] = [...DEFAULT_DRAW_ORDER[dir]];
+        }
+    }
+
+    // Load part images
+    const loadPromises = [];
+    for (const part of BODY_PARTS) {
+        const imgUrl = '../Sprites/Characters/' + race + '/parts/' + race + '_S' + stage + '_' + part + '.png';
+        const img = new Image();
+        const p = new Promise(resolve => {
+            img.onload = () => {
+                state.images[part] = img;
+                state.originalImages[part] = img;
+                // Init part data
+                const anchor = (skelData && skelData.parts && skelData.parts[part])
+                    ? { x: skelData.parts[part].anchor.x, y: skelData.parts[part].anchor.y }
+                    : { ...DEFAULT_ANCHORS[part] };
+                const rotation = (skelData && skelData.bones && skelData.bones[part])
+                    ? (skelData.bones[part].rotation || 0)
+                    : (skelData && skelData.parts && skelData.parts[part])
+                        ? (skelData.parts[part].rotation || 0) : 0;
+                state.parts[part] = { anchor: anchor, rotation: rotation, visible: true };
+                resolve(true);
+            };
+            img.onerror = () => resolve(false);
+        });
+        img.src = imgUrl;
+        loadPromises.push(p);
+    }
+
+    const results = await Promise.all(loadPromises);
+    const loadedCount = results.filter(Boolean).length;
+
+    // Remove parts from draw order that have no image
+    for (const dir of ['down','up','left','right']) {
+        state.drawOrder[dir] = state.drawOrder[dir].filter(p => state.images[p]);
+        for (const part of BODY_PARTS) {
+            if (state.images[part] && !state.drawOrder[dir].includes(part)) {
+                state.drawOrder[dir].push(part);
+            }
+        }
+    }
+
+    // Apply default body template anchors (from tuned Human S3 export)
+    // This ensures all races start with the correct body layout
+    const tpl = DEFAULT_BODY_TEMPLATE;
+    for (const [part, anchor] of Object.entries(tpl.anchors)) {
+        if (state.parts[part]) {
+            state.parts[part].anchor = { x: anchor.x, y: anchor.y };
+        }
+    }
+
+    // Apply default part mapping (body reassignment) from template
+    state.partMapping = JSON.parse(JSON.stringify(tpl.part_mapping));
+
+    // Apply default draw order from template
+    for (const dir of ['down','up','left','right']) {
+        state.drawOrder[dir] = tpl.draw_order.filter(p => state.images[p]);
+        // Add any parts not in template
+        for (const part of BODY_PARTS) {
+            if (state.images[part] && !state.drawOrder[dir].includes(part)) {
+                state.drawOrder[dir].push(part);
+            }
+        }
+    }
+
+    // Restore editor_config if present (overrides template defaults)
+    if (skelData && skelData.editor_config) {
+        const ec = skelData.editor_config;
+        if (ec.part_mapping) {
+            state.partMapping = ec.part_mapping;
+        }
+        if (ec.equipment_loadout) {
+            for (const slot of Object.keys(state.equipmentLoadout)) {
+                if (ec.equipment_loadout[slot] !== undefined) {
+                    state.equipmentLoadout[slot] = ec.equipment_loadout[slot];
+                }
+            }
+        }
+        if (ec.equipment_offsets) {
+            for (const slot of Object.keys(state.equipmentOffsets)) {
+                if (ec.equipment_offsets[slot]) {
+                    state.equipmentOffsets[slot] = { ...state.equipmentOffsets[slot], ...ec.equipment_offsets[slot] };
+                }
+            }
+        }
+        if (ec.bone_hierarchy) {
+            for (const [bone, parent] of Object.entries(ec.bone_hierarchy)) {
+                BONE_HIERARCHY[bone] = parent;
+            }
+        }
+    }
+
+    // Apply texture remapping
+    applyPartMapping();
+    addLogEntry('load', 'Loaded ' + race + ' S' + stage + ': ' + loadedCount + ' parts, template applied');
+
+    rebuildPartsList();
+    updateActiveTab();
+    canvasInfo.textContent = race + ' Stage ' + stage + ' \u2014 ' + loadedCount + ' parts loaded';
+    statusMsg.textContent = 'Loaded ' + loadedCount + ' parts';
+    toast('Loaded ' + race + ' S' + stage + ': ' + loadedCount + ' parts');
+    render();
+}
+
+// Apply part texture remapping from state.partMapping
+function applyPartMapping() {
+    for (const [slot, source] of Object.entries(state.partMapping)) {
+        if (source && state.originalImages[source]) {
+            state.images[slot] = state.originalImages[source];
+        } else if (state.originalImages[slot]) {
+            state.images[slot] = state.originalImages[slot];
+        }
+    }
+}
+
+async function saveSkeleton() {
+    const data = buildSkeletonJson();
+    statusMsg.textContent = 'Saving...';
+    addLogEntry('save', 'Building skeleton JSON for ' + state.race + ' S' + state.stage);
+
+    // Validate JSON before sending
+    let bodyStr;
+    try {
+        bodyStr = JSON.stringify({ race: state.race, stage: state.stage, data: data });
+        JSON.parse(bodyStr); // round-trip validation
+        addLogEntry('save', 'JSON validation passed, payload: ' + bodyStr.length + ' bytes');
+    } catch (jsonErr) {
+        const errMsg = 'Save aborted: invalid JSON — ' + jsonErr.message;
+        toast(errMsg);
+        statusMsg.textContent = 'Save error (bad JSON)';
+        addLogEntry('error', errMsg);
+        addLogEntry('error', 'Raw data: ' + JSON.stringify(data, (k, v) => typeof v === 'number' && !isFinite(v) ? '***NaN/Inf***' : v, 2).substring(0, 500));
+        return;
+    }
+
+    // Save skeleton
+    try {
+        const resp = await fetch('/api/skeleton/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: bodyStr
+        });
+        const respText = await resp.text();
+        let result;
+        try {
+            result = JSON.parse(respText);
+        } catch (parseErr) {
+            const errMsg = 'Server returned invalid response (HTTP ' + resp.status + '): ' + respText.substring(0, 100);
+            addLogEntry('error', errMsg);
+            // Fallback: offer file download when server save fails
+            addLogEntry('save', 'Falling back to file download...');
+            _downloadSkeletonFallback(data);
+            return;
+        }
+        if (result.success) {
+            addLogEntry('save', 'Skeleton saved: ' + result.file + (result.commit ? ' (commit: ' + result.commit.substring(0, 7) + ')' : ''));
+            toast('Skeleton saved successfully');
+            statusMsg.textContent = 'Saved';
+        } else {
+            const errMsg = 'Save failed: ' + (result.error || 'Unknown error');
+            addLogEntry('error', errMsg);
+            // Fallback: offer file download
+            addLogEntry('save', 'Falling back to file download...');
+            _downloadSkeletonFallback(data);
+        }
+    } catch (e) {
+        const errMsg = 'Save network error: ' + e.message;
+        addLogEntry('error', errMsg);
+        // Fallback: offer file download when network/server unavailable
+        addLogEntry('save', 'Falling back to file download...');
+        _downloadSkeletonFallback(data);
+    }
+}
+
+function _downloadSkeletonFallback(data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = state.race + '_S' + state.stage + '_skeleton.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Server save unavailable — downloaded skeleton file instead');
+    statusMsg.textContent = 'Downloaded (server unavailable)';
+}
+
+function exportSkeleton() {
+    const data = buildSkeletonJson();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = state.race + '_S' + state.stage + '_skeleton.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Exported skeleton.json');
+}
+
+function buildSkeletonJson() {
+    const origParts = (state.skeletonData && state.skeletonData.parts) || {};
+    const parts = {};
+    for (const [name, pd] of Object.entries(state.parts)) {
+        const orig = origParts[name] || {};
+        const partEntry = {
+            anchor: { x: pd.anchor.x, y: pd.anchor.y },
+        };
+        if (orig.file !== undefined) partEntry.file = orig.file;
+        if (orig.width !== undefined) partEntry.width = orig.width;
+        if (orig.height !== undefined) partEntry.height = orig.height;
+        if (orig.source_bbox !== undefined) partEntry.source_bbox = orig.source_bbox;
+        if (orig.source_center !== undefined) partEntry.source_center = orig.source_center;
+        parts[name] = partEntry;
+    }
+
+    // Build bones
+    const source_size = (state.skeletonData && state.skeletonData.source_size) || 1;
+    const bones = {};
+    for (const [name, pd] of Object.entries(state.parts)) {
+        const origBones = (state.skeletonData && state.skeletonData.bones) || {};
+        const origBone = origBones[name] || {};
+        const parentName = BONE_HIERARCHY[name] || null;
+        let offset_x, offset_y;
+        const orig = origParts[name] || {};
+
+        // source_center may be array [x,y] or object {x,y} — normalize
+        const sc = orig.source_center;
+        const scX = sc ? (Array.isArray(sc) ? sc[0] : sc.x) : undefined;
+        const scY = sc ? (Array.isArray(sc) ? sc[1] : sc.y) : undefined;
+
+        if (scX !== undefined && parentName === null) {
+            offset_x = Math.round((scX / source_size) * 1000) / 1000;
+            offset_y = Math.round((scY / source_size) * 1000) / 1000;
+        } else if (scX !== undefined && parentName !== null) {
+            const parentOrig = origParts[parentName] || {};
+            const psc = parentOrig.source_center;
+            const pscX = psc ? (Array.isArray(psc) ? psc[0] : psc.x) : undefined;
+            const pscY = psc ? (Array.isArray(psc) ? psc[1] : psc.y) : undefined;
+            if (pscX !== undefined) {
+                offset_x = Math.round(((scX / source_size) - (pscX / source_size)) * 1000) / 1000;
+                offset_y = Math.round(((scY / source_size) - (pscY / source_size)) * 1000) / 1000;
+            } else {
+                offset_x = origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].x : 0);
+                offset_y = origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].y : 0);
+            }
+        } else {
+            offset_x = origBone.offset_x !== undefined ? origBone.offset_x : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].x : 0);
+            offset_y = origBone.offset_y !== undefined ? origBone.offset_y : (PARENT_ATTACH[name] ? PARENT_ATTACH[name].y : 0);
+        }
+        // Guard against NaN from malformed data
+        if (!isFinite(offset_x)) offset_x = 0;
+        if (!isFinite(offset_y)) offset_y = 0;
+
+        bones[name] = {
+            parent: parentName,
+            offset_x: offset_x,
+            offset_y: offset_y,
+            rotation: pd.rotation,
+            scale: origBone.scale !== undefined ? origBone.scale : 1.0,
+        };
+    }
+
+    const draw_order = state.drawOrder[state.direction] || state.drawOrder['down'] || [];
+
+    const result = {
+        race: state.race,
+        stage: state.stage,
+    };
+
+    if (state.skeletonData && state.skeletonData.source_size !== undefined) {
+        result.source_size = state.skeletonData.source_size;
+    }
+
+    result.parts = parts;
+    result.bones = bones;
+    result.draw_order = draw_order;
+
+    // Add editor_config
+    result.editor_config = {
+        part_mapping: state.partMapping,
+        equipment_loadout: state.equipmentLoadout,
+        equipment_offsets: state.equipmentOffsets,
+        bone_hierarchy: Object.assign({}, BONE_HIERARCHY),
+    };
+
+    return result;
+}
+
+// ── Parts List UI ──
+
+function rebuildPartsList() {
+    partsList.innerHTML = '';
+    const order = state.drawOrder[state.direction] || [];
+
+    order.forEach((partName, index) => {
+        if (!state.images[partName]) return;
+        const pd = state.parts[partName];
+        if (!pd) return;
+
+        const item = document.createElement('div');
+        item.className = 'part-item' + (state.selectedPart === partName ? ' selected' : '');
+        item.dataset.part = partName;
+        item.draggable = true;
+
+        const handle = document.createElement('span');
+        handle.className = 'drag-handle';
+        handle.textContent = '\u2630';
+
+        const thumb = document.createElement('div');
+        thumb.className = 'part-thumb';
+        const thumbImg = document.createElement('img');
+        thumbImg.src = state.images[partName].src;
+        thumb.appendChild(thumbImg);
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'part-name';
+        let displayName = partName.replace(/_/g, ' ');
+        if (state.partMapping[partName] && state.partMapping[partName] !== partName) {
+            displayName += ' \u2190 ' + state.partMapping[partName].replace(/_/g, ' ');
+        }
+        nameEl.textContent = displayName;
+
+        const vis = document.createElement('span');
+        vis.className = 'part-vis' + (pd.visible ? '' : ' hidden-part');
+        vis.textContent = pd.visible ? '\u25C9' : '\u25CB';
+        vis.title = 'Toggle visibility';
+        vis.addEventListener('click', (e) => {
+            e.stopPropagation();
+            pushUndo('toggle visibility');
+            pd.visible = !pd.visible;
+            rebuildPartsList();
+            render();
+        });
+
+        item.appendChild(handle);
+        item.appendChild(thumb);
+        item.appendChild(nameEl);
+        item.appendChild(vis);
+
+        item.addEventListener('click', () => {
+            state.selectedPart = partName;
+            rebuildPartsList();
+            updateActiveTab();
+            render();
+        });
+
+        // Drag reorder
+        item.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', partName);
+            item.classList.add('dragging');
+        });
+        item.addEventListener('dragend', () => {
+            item.classList.remove('dragging');
+            document.querySelectorAll('.drop-indicator').forEach(el => el.remove());
+        });
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+        item.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const draggedPart = e.dataTransfer.getData('text/plain');
+            const targetPart = partName;
+            if (draggedPart === targetPart) return;
+            pushUndo('reorder parts');
+            const ord = state.drawOrder[state.direction];
+            const fromIdx = ord.indexOf(draggedPart);
+            const toIdx = ord.indexOf(targetPart);
+            if (fromIdx < 0 || toIdx < 0) return;
+            ord.splice(fromIdx, 1);
+            ord.splice(toIdx, 0, draggedPart);
+            rebuildPartsList();
+            render();
+        });
+
+        partsList.appendChild(item);
+    });
+}
+
+// ── Tab Management ──
+
+function updateActiveTab() {
+    const activeTab = document.querySelector('.tab-btn.active');
+    if (!activeTab) return;
+    const tabId = activeTab.dataset.tab;
+    if (tabId === 'tab-properties') updatePropsPanel();
+    else if (tabId === 'tab-equipment') updateEquipmentPanel();
+    else if (tabId === 'tab-mapping') updateMappingPanel();
+}
+
+// ── Properties Panel ──
+
+function updatePropsPanel() {
+    const panel = $('tab-properties');
+    const part = state.selectedPart;
+    if (!part || !state.parts[part]) {
+        panel.innerHTML = '<div class="no-selection">Select a part to edit.</div>';
+        return;
+    }
+
+    const pd = state.parts[part];
+    panel.innerHTML = '<div class="prop-group">' +
+        '<h3>' + part.replace(/_/g, ' ') + '</h3>' +
+        '<div class="prop-row"><label>Anchor X:</label><input type="number" id="prop-ax" value="' + pd.anchor.x + '" step="1"></div>' +
+        '<div class="prop-row"><label>Anchor Y:</label><input type="number" id="prop-ay" value="' + pd.anchor.y + '" step="1"></div>' +
+        '</div>' +
+        '<div class="prop-group">' +
+        '<h3>Bone Rotation</h3>' +
+        '<div class="prop-row"><label>Default:</label><input type="range" id="prop-rot" min="-180" max="180" step="1" value="' + pd.rotation + '"><span class="range-val" id="prop-rot-val">' + pd.rotation + '\u00B0</span></div>' +
+        '</div>' +
+        '<div class="prop-group">' +
+        '<h3>Hierarchy</h3>' +
+        '<div class="prop-row"><label>Parent:</label><span style="color:var(--text-dim)">' + (BONE_HIERARCHY[part] || '(root)') + '</span></div>' +
+        '<div class="prop-row"><label>Attach X:</label><input type="number" id="prop-pax" value="' + ((PARENT_ATTACH[part] || {x:0}).x) + '" step="1"></div>' +
+        '<div class="prop-row"><label>Attach Y:</label><input type="number" id="prop-pay" value="' + ((PARENT_ATTACH[part] || {y:0}).y) + '" step="1"></div>' +
+        '</div>' +
+        '<div class="prop-group">' +
+        '<h3>Source Texture</h3>' +
+        '<div class="prop-row"><label>Texture:</label><select id="prop-texture"></select></div>' +
+        '</div>' +
+        '<div class="prop-group">' +
+        '<h3>Per-Direction Order</h3>' +
+        '<div class="prop-row"><label>Direction:</label><span style="color:var(--text-dim)">' + state.direction + '</span></div>' +
+        '<div class="prop-row"><label>Index:</label><span style="color:var(--text-dim)">' + (state.drawOrder[state.direction] || []).indexOf(part) + '</span></div>' +
+        '</div>';
+
+    // Wire up anchor inputs
+    $('prop-ax').addEventListener('change', (e) => {
+        pushUndo('anchor X');
+        pd.anchor.x = parseInt(e.target.value) || 0;
+        render();
+    });
+    $('prop-ay').addEventListener('change', (e) => {
+        pushUndo('anchor Y');
+        pd.anchor.y = parseInt(e.target.value) || 0;
+        render();
+    });
+    $('prop-rot').addEventListener('input', (e) => {
+        pd.rotation = parseInt(e.target.value) || 0;
+        $('prop-rot-val').textContent = pd.rotation + '\u00B0';
+        render();
+    });
+    $('prop-rot').addEventListener('change', (e) => {
+        pushUndo('rotation');
+    });
+    $('prop-pax').addEventListener('change', (e) => {
+        pushUndo('attach X');
+        if (!PARENT_ATTACH[part]) PARENT_ATTACH[part] = { x: 0, y: 0 };
+        PARENT_ATTACH[part].x = parseInt(e.target.value) || 0;
+        render();
+    });
+    $('prop-pay').addEventListener('change', (e) => {
+        pushUndo('attach Y');
+        if (!PARENT_ATTACH[part]) PARENT_ATTACH[part] = { x: 0, y: 0 };
+        PARENT_ATTACH[part].y = parseInt(e.target.value) || 0;
+        render();
+    });
+
+    // Populate source texture dropdown
+    const texSelect = $('prop-texture');
+    const loadedParts = Object.keys(state.originalImages);
+    loadedParts.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p.replace(/_/g, ' ');
+        if ((state.partMapping[part] || part) === p) opt.selected = true;
+        texSelect.appendChild(opt);
+    });
+    texSelect.addEventListener('change', (e) => {
+        pushUndo('remap texture');
+        const source = e.target.value;
+        if (source === part) {
+            delete state.partMapping[part];
+            state.images[part] = state.originalImages[part];
+        } else {
+            state.partMapping[part] = source;
+            state.images[part] = state.originalImages[source];
+        }
+        rebuildPartsList();
+        render();
+    });
+}
+
+// ── Equipment Panel ──
+
+function updateEquipmentPanel() {
+    const panel = $('equipment-panel');
+    let html = '<div class="prop-group"><h3>Equipment Loadout</h3></div>';
+
+    const slots = ['weapon', 'helmet', 'chest', 'legs', 'boots', 'gloves'];
+    slots.forEach(slot => {
+        const items = EQUIPMENT_ITEMS[slot] || [];
+        const currentId = state.equipmentLoadout[slot];
+        const offset = state.equipmentOffsets[slot] || {x:0,y:0};
+
+        html += '<div class="equip-slot">';
+        html += '<h4>' + slot + '</h4>';
+        html += '<select data-equip-slot="' + slot + '">';
+        html += '<option value="">(none)</option>';
+        items.forEach(item => {
+            const sel = (currentId === item.id) ? ' selected' : '';
+            html += '<option value="' + item.id + '"' + sel + '>' + item.name + '</option>';
+        });
+        html += '</select>';
+        html += '<div class="offset-row">';
+        html += '<label>X:</label><input type="number" data-offset-slot="' + slot + '" data-offset-axis="x" value="' + offset.x + '" step="1">';
+        html += '<label>Y:</label><input type="number" data-offset-slot="' + slot + '" data-offset-axis="y" value="' + offset.y + '" step="1">';
+        html += '</div>';
+        html += '</div>';
+    });
+
+    panel.innerHTML = html;
+
+    // Wire up equipment selects
+    panel.querySelectorAll('select[data-equip-slot]').forEach(sel => {
+        sel.addEventListener('change', (e) => {
+            pushUndo('equip ' + sel.dataset.equipSlot);
+            const val = e.target.value;
+            state.equipmentLoadout[sel.dataset.equipSlot] = val ? parseInt(val) : null;
+            render();
+        });
+    });
+
+    // Wire up offset inputs
+    panel.querySelectorAll('input[data-offset-slot]').forEach(inp => {
+        inp.addEventListener('change', (e) => {
+            pushUndo('equip offset');
+            const slot = inp.dataset.offsetSlot;
+            const axis = inp.dataset.offsetAxis;
+            if (!state.equipmentOffsets[slot]) state.equipmentOffsets[slot] = {x:0,y:0};
+            state.equipmentOffsets[slot][axis] = parseInt(e.target.value) || 0;
+            render();
+        });
+    });
+}
+
+// ── Mapping Panel ──
+
+function updateMappingPanel() {
+    const panel = $('mapping-panel');
+    const loadedParts = Object.keys(state.originalImages);
+
+    if (loadedParts.length === 0) {
+        panel.innerHTML = '<div class="no-selection">Load a sprite first.</div>';
+        return;
+    }
+
+    let html = '<div class="prop-group"><h3>Body Part Reassignment</h3>';
+    html += '<div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;">Remap which texture image is used for each body slot.</div>';
+
+    loadedParts.forEach(slot => {
+        const currentSource = state.partMapping[slot] || slot;
+        const isRemapped = (state.partMapping[slot] && state.partMapping[slot] !== slot);
+        html += '<div class="mapping-row">';
+        html += '<span class="map-label">' + slot.replace(/_/g, ' ') + '</span>';
+        html += '<select data-map-slot="' + slot + '"' + (isRemapped ? ' class="remapped"' : '') + '>';
+        loadedParts.forEach(p => {
+            const sel = (currentSource === p) ? ' selected' : '';
+            html += '<option value="' + p + '"' + sel + '>' + p.replace(/_/g, ' ') + '</option>';
+        });
+        html += '</select>';
+        html += '</div>';
+    });
+    html += '</div>';
+
+    // Copy Body From section
+    html += '<div class="prop-group"><h3>Copy Body From Race</h3>';
+    html += '<div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;">Copy all body textures except head from another race.</div>';
+    html += '<div class="prop-row"><label>Source:</label><select id="copy-body-select">';
+    html += '<option value="">(select race)</option>';
+    for (const [id, name] of Object.entries(RACES)) {
+        if (name !== state.race) {
+            html += '<option value="' + name + '">' + name + '</option>';
+        }
+    }
+    html += '</select></div>';
+    html += '<div class="prop-row"><button id="btn-copy-body" style="background:var(--bg-input);color:var(--text);border:1px solid var(--border);padding:4px 12px;border-radius:3px;cursor:pointer;font-size:11px;">Copy Body</button></div>';
+    html += '</div>';
+
+    // Reset mappings button
+    html += '<div class="prop-group">';
+    html += '<button id="btn-reset-mapping" style="background:var(--accent);color:#fff;border:none;padding:6px 14px;border-radius:3px;cursor:pointer;font-size:11px;width:100%;">Reset All Mappings</button>';
+    html += '</div>';
+
+    panel.innerHTML = html;
+
+    // Wire up mapping selects
+    panel.querySelectorAll('select[data-map-slot]').forEach(sel => {
+        sel.addEventListener('change', (e) => {
+            pushUndo('remap ' + sel.dataset.mapSlot);
+            const slot = sel.dataset.mapSlot;
+            const source = e.target.value;
+            if (source === slot) {
+                delete state.partMapping[slot];
+                state.images[slot] = state.originalImages[slot];
+            } else {
+                state.partMapping[slot] = source;
+                state.images[slot] = state.originalImages[source];
+            }
+            sel.classList.toggle('remapped', source !== slot);
+            rebuildPartsList();
+            render();
+        });
+    });
+
+    // Copy body button
+    const copyBtn = $('btn-copy-body');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', copyBodyFromRace);
+    }
+
+    // Reset button
+    const resetBtn = $('btn-reset-mapping');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            pushUndo('reset mappings');
+            state.partMapping = {};
+            for (const part of Object.keys(state.originalImages)) {
+                state.images[part] = state.originalImages[part];
+            }
+            rebuildPartsList();
+            updateMappingPanel();
+            render();
+            toast('All mappings reset');
+        });
+    }
+}
+
+// ── Copy Body From Race ──
+
+async function copyBodyFromRace() {
+    const sourceRace = $('copy-body-select') ? $('copy-body-select').value : '';
+    if (!sourceRace) {
+        toast('Select a source race first');
+        return;
+    }
+
+    pushUndo('copy body from ' + sourceRace);
+    statusMsg.textContent = 'Copying body from ' + sourceRace + '...';
+
+    const bodySlots = ['torso', 'left_arm', 'right_arm', 'left_hand', 'right_hand',
+                       'left_leg', 'right_leg', 'left_foot', 'right_foot', 'tail', 'wings', 'accessory'];
+
+    let loaded = 0;
+    const promises = bodySlots.map(part => {
+        const imgUrl = '../Sprites/Characters/' + sourceRace + '/parts/' + sourceRace + '_S' + state.stage + '_' + part + '.png';
+        const img = new Image();
+        return new Promise(resolve => {
+            img.onload = () => {
+                state.originalImages[part] = img;
+                state.images[part] = img;
+                state.partMapping[part] = part; // mark as self since we replaced the original
+                loaded++;
+                resolve(true);
+            };
+            img.onerror = () => resolve(false);
+            img.src = imgUrl;
+        });
+    });
+
+    await Promise.all(promises);
+
+    rebuildPartsList();
+    updateMappingPanel();
+    render();
+    statusMsg.textContent = 'Copied ' + loaded + ' body parts from ' + sourceRace;
+    toast('Copied body from ' + sourceRace + ' (' + loaded + ' parts)');
+}
+
+// ── Animation ──
+
+function togglePlay() {
+    state.playing = !state.playing;
+    state.animDone = false;
+    $('btn-play').textContent = state.playing ? 'Pause' : 'Play';
+}
+
+function stopAnimation() {
+    state.playing = false;
+    state.animFrame = 0;
+    state.animTime = 0;
+    state.animDone = false;
+    $('btn-play').textContent = 'Play';
+    updateFrameInfo();
+    render();
+}
+
+function stepFrame(delta) {
+    const keyframes = ANIM_SETS[state.animType] || WALK_KEYFRAMES;
+    state.animFrame = ((state.animFrame + delta) % keyframes.length + keyframes.length) % keyframes.length;
+    state.animTime = state.animFrame;
+    state.animDone = false;
+    updateFrameInfo();
+    render();
+}
+
+function updateFrameInfo() {
+    const keyframes = ANIM_SETS[state.animType] || WALK_KEYFRAMES;
+    frameInfo.textContent = 'Frame: ' + state.animFrame + '/' + keyframes.length;
+}
+
+let lastTime = 0;
+function tick(time) {
+    if (state.playing && !state.animDone) {
+        const dt = (time - lastTime) / 1000;
+        const keyframes = ANIM_SETS[state.animType] || WALK_KEYFRAMES;
+        state.animTime += dt * state.speed * 4;
+        const newFrame = Math.floor(state.animTime) % keyframes.length;
+
+        // Check for non-looping end
+        if (!state.loop && Math.floor(state.animTime) >= keyframes.length) {
+            state.animFrame = keyframes.length - 1;
+            state.animDone = true;
+            state.playing = false;
+            $('btn-play').textContent = 'Play';
+        } else {
+            state.animFrame = newFrame;
+        }
+        updateFrameInfo();
+        render();
+    }
+    lastTime = time;
+    requestAnimationFrame(tick);
+}
+
+function getAnimatedTransform(partName, keyframes, frame, animTime) {
+    if (!keyframes) keyframes = ANIM_SETS[state.animType] || WALK_KEYFRAMES;
+    if (frame === undefined) frame = state.animFrame;
+    if (animTime === undefined) animTime = state.animTime;
+
+    const kf = keyframes[frame];
+    const nextFrame = keyframes[(frame + 1) % keyframes.length];
+    const t = animTime % 1;
+    const data = kf ? kf[partName] : null;
+    const ndata = nextFrame ? nextFrame[partName] : null;
+    if (!data) return { rot: 0, y: 0 };
+
+    const rot = (data.rot || 0) + ((ndata ? (ndata.rot || 0) : 0) - (data.rot || 0)) * t;
+    const y = (data.y || 0) + ((ndata ? (ndata.y || 0) : 0) - (data.y || 0)) * t;
+    return { rot: rot, y: y };
+}
+
+// ── Canvas Mouse Interaction ──
+
+const BASE_SCALE = 4;
+const CHAR_CENTER_X = 256;
+const CHAR_CENTER_Y = 256;
+
+function getScale() {
+    return BASE_SCALE * ZOOM_LEVELS[state.zoomLevel];
+}
+
+function getPartWorldPos(partName) {
+    const pd = state.parts[partName];
+    if (!pd) return { x: CHAR_CENTER_X, y: CHAR_CENTER_Y };
+
+    const SCALE = getScale();
+    const ax = pd.anchor.x;
+    const ay = pd.anchor.y;
+    const torsoAnim = state.playing ? getAnimatedTransform('torso') : { rot: 0, y: 0 };
+
+    const sx = CHAR_CENTER_X + (ax - 16) * SCALE;
+    const sy = CHAR_CENTER_Y - (ay - 16) * SCALE - (torsoAnim.y || 0) * SCALE;
+
+    return { x: sx, y: sy };
+}
+
+function onCanvasMouseDown(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+    const order = state.drawOrder[state.direction] || [];
+
+    // Check anchor points first
+    for (let i = order.length - 1; i >= 0; i--) {
+        const partName = order[i];
+        const pd = state.parts[partName];
+        if (!pd || !pd.visible || !state.images[partName]) continue;
+        const pos = getPartWorldPos(partName);
+        const dist = Math.sqrt((mx - pos.x) ** 2 + (my - pos.y) ** 2);
+        if (dist < 12) {
+            pushUndo('drag anchor');
+            state.selectedPart = partName;
+            state.dragging = {
+                part: partName,
+                startMX: mx, startMY: my,
+                startAX: pd.anchor.x, startAY: pd.anchor.y
+            };
+            rebuildPartsList();
+            updateActiveTab();
+            render();
+            return;
+        }
+    }
+
+    // Check sprite bounds
+    const SCALE = getScale();
+    for (let i = order.length - 1; i >= 0; i--) {
+        const partName = order[i];
+        const pd = state.parts[partName];
+        if (!pd || !pd.visible || !state.images[partName]) continue;
+        const img = state.images[partName];
+        const pos = getPartWorldPos(partName);
+        const hw = (img.width / 2) * SCALE;
+        const hh = (img.height / 2) * SCALE;
+        if (mx >= pos.x - hw && mx <= pos.x + hw && my >= pos.y - hh && my <= pos.y + hh) {
+            state.selectedPart = partName;
+            rebuildPartsList();
+            updateActiveTab();
+            render();
+            return;
+        }
+    }
+}
+
+function onCanvasMouseMove(e) {
+    if (!state.dragging) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+    const SCALE = getScale();
+
+    const d = state.dragging;
+    const dx = (mx - d.startMX) / SCALE;
+    const dy = -(my - d.startMY) / SCALE;
+    const pd = state.parts[d.part];
+    pd.anchor.x = Math.round(d.startAX + dx);
+    pd.anchor.y = Math.round(d.startAY + dy);
+
+    updateActiveTab();
+    render();
+}
+
+function onCanvasMouseUp() {
+    state.dragging = null;
+}
+
+// ── Equipment Rendering ──
+
+function findEquipItem(slot, id) {
+    if (!id) return null;
+    const items = EQUIPMENT_ITEMS[slot] || [];
+    return items.find(i => i.id === id) || null;
+}
+
+function drawEquipmentShape(cx, cy, item, scale) {
+    if (!item) return;
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    // Draw glow if present
+    if (item.glowColor) {
+        ctx.shadowColor = item.glowColor;
+        ctx.shadowBlur = 8 * scale;
+    }
+
+    ctx.fillStyle = item.color;
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 1;
+
+    const s = scale;
+    switch (item.shape) {
+        case 'sword':
+            // Blade
+            ctx.beginPath();
+            ctx.moveTo(0, -14 * s);
+            ctx.lineTo(2 * s, -12 * s);
+            ctx.lineTo(2 * s, 2 * s);
+            ctx.lineTo(-2 * s, 2 * s);
+            ctx.lineTo(-2 * s, -12 * s);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            // Guard
+            ctx.fillStyle = '#666';
+            ctx.fillRect(-4 * s, 2 * s, 8 * s, 2 * s);
+            // Grip
+            ctx.fillStyle = '#553311';
+            ctx.fillRect(-1.5 * s, 4 * s, 3 * s, 6 * s);
+            break;
+        case 'katana':
+            ctx.beginPath();
+            ctx.moveTo(0, -16 * s);
+            ctx.quadraticCurveTo(3 * s, -8 * s, 1.5 * s, 2 * s);
+            ctx.lineTo(-1.5 * s, 2 * s);
+            ctx.quadraticCurveTo(-1 * s, -8 * s, 0, -16 * s);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#444';
+            ctx.fillRect(-3 * s, 2 * s, 6 * s, 1.5 * s);
+            ctx.fillStyle = '#442211';
+            ctx.fillRect(-1 * s, 3.5 * s, 2 * s, 7 * s);
+            break;
+        case 'axe':
+            // Handle
+            ctx.fillStyle = '#664422';
+            ctx.fillRect(-1 * s, -2 * s, 2 * s, 14 * s);
+            // Head
+            ctx.fillStyle = item.color;
+            ctx.beginPath();
+            ctx.moveTo(0, -6 * s);
+            ctx.lineTo(6 * s, -2 * s);
+            ctx.lineTo(6 * s, 4 * s);
+            ctx.lineTo(0, 2 * s);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            break;
+        case 'staff':
+            ctx.fillStyle = '#553322';
+            ctx.fillRect(-1.5 * s, -6 * s, 3 * s, 18 * s);
+            // Orb
+            ctx.fillStyle = item.color;
+            ctx.beginPath();
+            ctx.arc(0, -8 * s, 3 * s, 0, Math.PI * 2);
+            ctx.fill();
+            if (item.glowColor) {
+                ctx.fillStyle = item.glowColor;
+                ctx.globalAlpha = 0.4;
+                ctx.beginPath();
+                ctx.arc(0, -8 * s, 5 * s, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+            break;
+        case 'cap':
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 8 * s, 4 * s, 0, Math.PI, 0);
+            ctx.fill();
+            ctx.stroke();
+            break;
+        case 'helm':
+            ctx.beginPath();
+            ctx.moveTo(-7 * s, 2 * s);
+            ctx.lineTo(-7 * s, -4 * s);
+            ctx.quadraticCurveTo(0, -10 * s, 7 * s, -4 * s);
+            ctx.lineTo(7 * s, 2 * s);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            break;
+        case 'crown':
+            ctx.beginPath();
+            ctx.moveTo(-6 * s, 2 * s);
+            ctx.lineTo(-6 * s, -2 * s);
+            ctx.lineTo(-4 * s, -6 * s);
+            ctx.lineTo(-2 * s, -2 * s);
+            ctx.lineTo(0, -8 * s);
+            ctx.lineTo(2 * s, -2 * s);
+            ctx.lineTo(4 * s, -6 * s);
+            ctx.lineTo(6 * s, -2 * s);
+            ctx.lineTo(6 * s, 2 * s);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            break;
+        case 'tunic':
+        case 'chainmail':
+        case 'plate':
+            // Simple chest overlay
+            ctx.globalAlpha = 0.5;
+            ctx.fillRect(-8 * s, -6 * s, 16 * s, 12 * s);
+            ctx.globalAlpha = 1;
+            ctx.strokeRect(-8 * s, -6 * s, 16 * s, 12 * s);
+            break;
+        case 'pants':
+        case 'greaves':
+            ctx.globalAlpha = 0.5;
+            ctx.fillRect(-6 * s, -4 * s, 12 * s, 10 * s);
+            ctx.globalAlpha = 1;
+            ctx.strokeRect(-6 * s, -4 * s, 12 * s, 10 * s);
+            break;
+        case 'boots':
+        case 'sabatons':
+            ctx.fillRect(-4 * s, -2 * s, 8 * s, 5 * s);
+            ctx.stroke();
+            break;
+        case 'gloves':
+        case 'gauntlets':
+            ctx.fillRect(-3 * s, -2 * s, 6 * s, 5 * s);
+            ctx.stroke();
+            break;
+        default:
+            ctx.fillRect(-4 * s, -4 * s, 8 * s, 8 * s);
+            break;
+    }
+    ctx.restore();
+}
+
+// ── Canvas Rendering ──
+
+function renderSprite(alpha, frameOverride, timeOverride) {
+    const SCALE = getScale();
+    const order = state.drawOrder[state.direction] || [];
+    const keyframes = ANIM_SETS[state.animType] || WALK_KEYFRAMES;
+    const frame = (frameOverride !== undefined) ? frameOverride : state.animFrame;
+    const aTime = (timeOverride !== undefined) ? timeOverride : state.animTime;
+    const torsoAnim = state.playing ? getAnimatedTransform('torso', keyframes, frame, aTime) : { rot: 0, y: 0 };
+
+    ctx.globalAlpha = alpha;
+
+    // Draw parts
+    for (const partName of order) {
+        const pd = state.parts[partName];
+        if (!pd || !pd.visible || !state.images[partName]) continue;
+        const img = state.images[partName];
+
+        const ax = pd.anchor.x;
+        const ay = pd.anchor.y;
+        const sx = CHAR_CENTER_X + (ax - 16) * SCALE;
+        const sy = CHAR_CENTER_Y - (ay - 16) * SCALE - (torsoAnim.y || 0) * SCALE;
+
+        const anim = state.playing ? getAnimatedTransform(partName, keyframes, frame, aTime) : { rot: 0, y: 0 };
+        const totalRot = (pd.rotation + (anim.rot || 0)) * Math.PI / 180;
+
+        ctx.save();
+        ctx.translate(sx, sy + (anim.y || 0) * SCALE);
+        ctx.rotate(totalRot);
+
+        const w = img.width * SCALE;
+        const h = img.height * SCALE;
+        ctx.drawImage(img, -w / 2, -h / 2, w, h);
+
+        // Highlight selected part
+        if (alpha >= 1 && partName === state.selectedPart) {
+            ctx.strokeStyle = PART_COLORS[partName] || '#fff';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.strokeRect(-w / 2 - 2, -h / 2 - 2, w + 4, h + 4);
+            ctx.setLineDash([]);
+        }
+
+        ctx.restore();
+    }
+
+    // Draw equipment overlays
+    if (alpha >= 1) {
+        for (const [slot, itemId] of Object.entries(state.equipmentLoadout)) {
+            if (!itemId) continue;
+            const item = findEquipItem(slot, itemId);
+            if (!item) continue;
+            const attachPart = EQUIP_ATTACH[slot];
+            if (!attachPart || !state.parts[attachPart]) continue;
+            const pd = state.parts[attachPart];
+            if (!pd.visible) continue;
+
+            const offset = state.equipmentOffsets[slot] || {x:0, y:0};
+            const pos = getPartWorldPos(attachPart);
+            const equipScale = SCALE / BASE_SCALE;
+
+            ctx.save();
+            drawEquipmentShape(pos.x + offset.x * SCALE, pos.y - offset.y * SCALE, item, equipScale);
+            ctx.restore();
+        }
+    }
+
+    ctx.globalAlpha = 1;
+}
+
+function render() {
+    const SCALE = getScale();
+    ctx.clearRect(0, 0, 512, 512);
+
+    // Checkerboard background
+    const checkSize = 16;
+    for (let y = 0; y < 512; y += checkSize) {
+        for (let x = 0; x < 512; x += checkSize) {
+            ctx.fillStyle = ((x + y) / checkSize) % 2 === 0 ? '#2a2a3e' : '#222238';
+            ctx.fillRect(x, y, checkSize, checkSize);
+        }
+    }
+
+    // Grid overlay
+    if (state.showGrid) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = 0.5;
+        const gridSize = 8 * ZOOM_LEVELS[state.zoomLevel];
+        for (let x = 0; x < 512; x += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, 512);
+            ctx.stroke();
+        }
+        for (let y = 0; y < 512; y += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(512, y);
+            ctx.stroke();
+        }
+    }
+
+    // Center crosshair
+    if (state.showCrosshair) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(256, 0); ctx.lineTo(256, 512);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, 256); ctx.lineTo(512, 256);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    if (Object.keys(state.parts).length === 0) return;
+
+    // Onion skinning - previous frame
+    if (state.onionSkin && state.playing) {
+        const keyframes = ANIM_SETS[state.animType] || WALK_KEYFRAMES;
+        const prevFrame = (state.animFrame - 1 + keyframes.length) % keyframes.length;
+        renderSprite(0.2, prevFrame, prevFrame);
+    }
+
+    // Main sprite render
+    renderSprite(1);
+
+    // Onion skinning - next frame
+    if (state.onionSkin && state.playing) {
+        const keyframes = ANIM_SETS[state.animType] || WALK_KEYFRAMES;
+        const nextFrame = (state.animFrame + 1) % keyframes.length;
+        renderSprite(0.2, nextFrame, nextFrame);
+    }
+
+    const order = state.drawOrder[state.direction] || [];
+    const showBones = $('chk-bones').checked;
+    const showAnchors = $('chk-anchors').checked;
+
+    // Draw bones
+    if (showBones) {
+        for (const partName of order) {
+            const pd = state.parts[partName];
+            if (!pd || !pd.visible) continue;
+            const parent = BONE_HIERARCHY[partName];
+            if (!parent || !state.parts[parent]) continue;
+
+            const childPos = getPartWorldPos(partName);
+            const parentPos = getPartWorldPos(parent);
+
+            ctx.beginPath();
+            ctx.moveTo(parentPos.x, parentPos.y);
+            ctx.lineTo(childPos.x, childPos.y);
+            ctx.strokeStyle = PART_COLORS[partName] || '#fff';
+            ctx.lineWidth = 1.5;
+            ctx.globalAlpha = 0.6;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    // Draw anchor points
+    if (showAnchors) {
+        for (const partName of order) {
+            const pd = state.parts[partName];
+            if (!pd || !pd.visible) continue;
+
+            const pos = getPartWorldPos(partName);
+            const color = PART_COLORS[partName] || '#fff';
+            const isSelected = partName === state.selectedPart;
+            const radius = isSelected ? 6 : 4;
+
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            if (isSelected) {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, radius + 3, 0, Math.PI * 2);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+    }
+}
+
+// ── Kick off ──
+init();
+</script>
+</body>
+</html>

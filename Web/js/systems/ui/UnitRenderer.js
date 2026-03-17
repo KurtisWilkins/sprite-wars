@@ -5,7 +5,7 @@
  * no gradients, no wobbly/sketchy lines, bold readable silhouettes.
  *
  * Draws a fully composited unit on a Canvas context:
- *   1. Base sprite via HumanoidSpriteSystem (with equipment layers)
+ *   1. Base sprite via SkeletalAnimationSystem (with equipment layers)
  *   2. Weapon overlay from the equipped weapon's theme sheet
  *   3. Armor tint / rarity glow border
  *   4. Element aura particles
@@ -13,7 +13,7 @@
  *   6. HP bar
  *   7. Level badge
  *
- * All sprite rendering uses HumanoidSpriteSystem — no legacy sprite
+ * All sprite rendering uses SkeletalAnimationSystem — no legacy sprite
  * image files are loaded or displayed.
  *
  * Used by SpriteCenterScene, DeploymentScene, and BattleScene.
@@ -21,8 +21,8 @@
 
 import { assetRegistry } from '../../data/AssetRegistry.js';
 import { SPRITE_RACES } from '../../data/SpriteData.js';
-import { EQUIPMENT } from '../../data/EquipmentData.js';
-import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
+import { EQUIPMENT, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
+import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js';
 
 // ── Element colors ──────────────────────────────────────────────────────────
 export const ELEMENT_COLORS = {
@@ -41,7 +41,7 @@ const RARITY_COLORS = {
     legendary: '#ffaa00',
 };
 
-// (Old character sheet constants removed — HumanoidSpriteSystem handles all rendering)
+// (Old character sheet constants removed — SkeletalAnimationSystem handles all rendering)
 
 // ── Animation timing ────────────────────────────────────────────────────────
 const IDLE_ANIM_SPEED = 2.5;     // frames per second for idle bob
@@ -233,7 +233,7 @@ export class UnitRenderer {
 
         // ── Weapon overlay ──────────────────────────────────────────
         // Weapon is already rendered as part of the composite sprite sheet
-        // by HumanoidSpriteSystem (drawn in _drawBaseSprite above).
+        // by SkeletalAnimationSystem (drawn in _drawBaseSprite above).
         // No separate overlay needed.
 
         // ── HP Bar ──────────────────────────────────────────────────
@@ -273,7 +273,7 @@ export class UnitRenderer {
     // ═══════════════════════════════════════════════════════════════════
 
     /**
-     * Draw the base race sprite using HumanoidSpriteSystem.
+     * Draw the base race sprite using SkeletalAnimationSystem.
      * Always uses the procedural renderer — equipment layers are composited
      * automatically when present, bare humanoid rendered when empty.
      */
@@ -284,11 +284,11 @@ export class UnitRenderer {
         const equipment = inst.equipment || {};
         const animFrame = Math.floor(time * 3) % 4;
 
-        // Always use HumanoidSpriteSystem which composites all 9 equipment
+        // Always use SkeletalAnimationSystem which composites all 9 equipment
         // slots (helmet, chest, boots, gloves, ring, amulet, crystal, weapon,
         // legs) as visual layers. When no equipment is present, renders a
         // bare humanoid with element-colored skin.
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             ctx, raceId, stage, direction, animFrame,
             cx, cy + halfSize, size,
             { equipment }
@@ -342,7 +342,7 @@ export class UnitRenderer {
         for (const slotKey of Object.keys(equipment)) {
             const eqId = equipment[slotKey];
             if (!eqId) continue;
-            const eqData = typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId);
+            const eqData = typeof eqId === 'object' ? eqId : findEquipmentWithExpansion(eqId);
             if (eqData && rarityRank[eqData.rarity] > rarityRank[bestRarity]) {
                 bestRarity = eqData.rarity;
             }
@@ -714,7 +714,7 @@ export class UnitRenderer {
     static _getEquipmentData(eqIdOrData) {
         if (!eqIdOrData) return null;
         if (typeof eqIdOrData === 'object') return eqIdOrData;
-        return EQUIPMENT.find(e => e.equipment_id === eqIdOrData) || null;
+        return findEquipmentWithExpansion(eqIdOrData) || null;
     }
 
     /**

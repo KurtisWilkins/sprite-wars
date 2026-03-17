@@ -15,8 +15,8 @@
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { CONSUMABLES, CRYSTALS } from '../data/ItemData.js';
-import { EQUIPMENT } from '../data/EquipmentData.js';
-import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { EQUIPMENT, getAllEquipmentWithExpansion } from '../data/EquipmentData.js';
+import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
 
 // ── Constants ───────────────────────────────────────────────────────────────
 const TABS = ['items', 'equipment', 'keyitems'];
@@ -72,7 +72,7 @@ for (const crystal of CRYSTALS) {
 }
 
 const EQUIPMENT_MAP = {};
-for (const eq of EQUIPMENT) {
+for (const eq of getAllEquipmentWithExpansion()) {
     EQUIPMENT_MAP[eq.equipment_id] = eq;
 }
 
@@ -121,6 +121,7 @@ export class BagScene extends Scene {
     // ═════════════════════════════════════════════════════════════════════
 
     async init() {
+        await SkeletalAnimationSystem.preloadAssets(this.engine.assets);
         this.initialized = true;
     }
 
@@ -818,7 +819,7 @@ export class BagScene extends Scene {
         // Build equipment object with just this one piece
         const previewEquip = {};
         previewEquip[def.slot_type] = def.equipment_id;
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             pCtx, 1, 1, 0, 0, 16, 32, 30, { equipment: previewEquip }
         );
         row.appendChild(previewCanvas);
@@ -930,18 +931,22 @@ export class BagScene extends Scene {
         });
         this._detailPanelEl.appendChild(closeBtn);
 
-        // Larger equipment sprite preview (48x48 canvas)
+        const detailPreviewWrap = document.createElement('div');
+        detailPreviewWrap.style.cssText = 'position:relative;width:56px;height:56px;margin:0 auto 8px auto;';
+
+        // Canvas with equipment rendering
         const detailPreviewCanvas = document.createElement('canvas');
         detailPreviewCanvas.width = 56;
         detailPreviewCanvas.height = 56;
-        detailPreviewCanvas.style.cssText = 'display:block;margin:0 auto 8px auto;';
+        detailPreviewCanvas.style.cssText = 'position:absolute;top:0;left:0;display:block;';
         const dpCtx = detailPreviewCanvas.getContext('2d');
         const detailPreviewEquip = {};
         detailPreviewEquip[def.slot_type] = def.equipment_id;
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             dpCtx, 1, 1, 0, 0, 28, 50, 48, { equipment: detailPreviewEquip }
         );
-        this._detailPanelEl.appendChild(detailPreviewCanvas);
+        detailPreviewWrap.appendChild(detailPreviewCanvas);
+        this._detailPanelEl.appendChild(detailPreviewWrap);
 
         // Equipment name
         const nameEl = document.createElement('div');

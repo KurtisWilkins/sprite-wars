@@ -21,8 +21,8 @@ import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
 import { ABILITIES } from '../data/AbilityData.js';
 import { LEARNSETS } from '../data/LearnsetData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
-import { EQUIPMENT } from '../data/EquipmentData.js';
-import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { EQUIPMENT, findEquipmentWithExpansion } from '../data/EquipmentData.js';
+import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function _getSpriteName(inst) {
@@ -340,7 +340,7 @@ export class SpriteCenterScene extends Scene {
                 const raceId = inst.raceId || inst.race_id || 1;
                 const stage = inst.evolutionStage || inst.evolution_stage || 1;
                 const equipment = inst.equipment || {};
-                HumanoidSpriteSystem.drawWithEquipment(
+                SkeletalAnimationSystem.drawWithEquipment(
                     ctx, raceId, stage,
                     this._equipPreviewDir, this._equipPreviewFrame,
                     128, 190, 180,
@@ -569,13 +569,16 @@ export class SpriteCenterScene extends Scene {
         posNum.textContent = `${index + 1}`;
         row.appendChild(posNum);
 
-        // Sprite preview canvas (rich composite via UnitRenderer)
+        // Sprite portrait (canvas rendering)
         const hp = inst.currentHp !== undefined ? inst.currentHp : (inst.maxHp || 100);
         const maxHp = inst.maxHp || 100;
+        const portraitWrap = document.createElement('div');
+        portraitWrap.style.cssText = 'width:52px;height:58px;flex-shrink:0;overflow:hidden;';
+
         const previewCanvas = document.createElement('canvas');
         previewCanvas.width = 52;
         previewCanvas.height = 58;
-        previewCanvas.style.cssText = 'width:52px;height:58px;flex-shrink:0;';
+        previewCanvas.style.cssText = 'width:52px;height:58px;';
         const pCtx = previewCanvas.getContext('2d');
         UnitRenderer.draw(pCtx, inst, 26, 26, 46, {
             time: this._time,
@@ -587,7 +590,8 @@ export class SpriteCenterScene extends Scene {
             showArmorGlow: true,
             showElementBadge: true,
         });
-        row.appendChild(previewCanvas);
+        portraitWrap.appendChild(previewCanvas);
+        row.appendChild(portraitWrap);
         this._previewCanvases.push({
             canvas: previewCanvas,
             inst,
@@ -765,7 +769,7 @@ export class SpriteCenterScene extends Scene {
             if (sprite) {
                 const inst = sprite.instance || sprite;
 
-                // Sprite preview canvas (rich composite via UnitRenderer)
+                // Sprite canvas rendering
                 const cellCanvas = document.createElement('canvas');
                 cellCanvas.width = 56;
                 cellCanvas.height = 60;
@@ -904,6 +908,25 @@ export class SpriteCenterScene extends Scene {
                     flex-direction:column;cursor:${seen ? 'pointer' : 'default'};
                 `;
 
+                // Skeletal canvas sprite for seen/caught forms
+                if (caught || seen) {
+                    const raceId = Math.ceil(formId / 3);
+                    const stage = ((formId - 1) % 3) + 1;
+                    const miniCanvas = document.createElement('canvas');
+                    miniCanvas.width = 64;
+                    miniCanvas.height = 64;
+                    miniCanvas.style.cssText = `width:36px;height:36px;image-rendering:pixelated;${seen && !caught ? 'filter:brightness(0.5);' : ''}`;
+                    const miniCtx = miniCanvas.getContext('2d');
+                    try {
+                        SkeletalAnimationSystem.drawWithEquipment(
+                            miniCtx, raceId, stage, 0, 0,
+                            32, 64, 56,
+                            { equipment: null }
+                        );
+                    } catch (_) { /* skeleton not loaded yet */ }
+                    formCell.appendChild(miniCanvas);
+                }
+
                 // Stage indicator
                 const stageLabel = document.createElement('div');
                 stageLabel.style.cssText = `font-size:0.55rem;color:${textColor};font-weight:600;`;
@@ -966,6 +989,23 @@ export class SpriteCenterScene extends Scene {
         formInfo.style.cssText = 'font-size:0.7rem;color:#aaa;margin-bottom:8px;';
         formInfo.textContent = `Form #${formId} | ${entry.caught ? 'Caught' : 'Seen'}`;
         this._detailPanelEl.appendChild(formInfo);
+
+        // Skeletal canvas sprite portrait (primary display in registry detail)
+        const raceId = Math.ceil(formId / 3);
+        const detailStage = ((formId - 1) % 3) + 1;
+        const detailCanvas = document.createElement('canvas');
+        detailCanvas.width = 128;
+        detailCanvas.height = 128;
+        detailCanvas.style.cssText = 'display:block;width:96px;height:96px;image-rendering:auto;margin:0 auto 10px auto;border-radius:8px;background:rgba(0,0,0,0.3);padding:4px;';
+        const detailCtx = detailCanvas.getContext('2d');
+        try {
+            SkeletalAnimationSystem.drawWithEquipment(
+                detailCtx, raceId, detailStage, 0, 0,
+                64, 128, 112,
+                { equipment: null }
+            );
+        } catch (_) { /* skeleton not loaded yet */ }
+        this._detailPanelEl.appendChild(detailCanvas);
 
         // Elements
         if (entry.elementTypes && entry.elementTypes.length > 0) {
@@ -1740,7 +1780,7 @@ export class SpriteCenterScene extends Scene {
         pCtx.imageSmoothingEnabled = true;
         const raceId = inst.raceId || inst.race_id || 1;
         const stage = inst.evolutionStage || inst.evolution_stage || 1;
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             pCtx, raceId, stage, 0, 0,
             128, 190, 180,
             { equipment }
@@ -1898,7 +1938,7 @@ export class SpriteCenterScene extends Scene {
         }
 
         const eqId = equipment[slotDef.key];
-        const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
+        const eqData = eqId ? (typeof eqId === 'object' ? eqId : findEquipmentWithExpansion(eqId)) : null;
         const rarityColor = eqData ? (RARITY_COLORS[eqData.rarity] || '#888') : '#555';
         const rarity = eqData ? (eqData.rarity || 'common') : null;
 
@@ -2078,7 +2118,7 @@ export class SpriteCenterScene extends Scene {
 
         for (const slot of equipSlots) {
             const eqId = equipment[slot.key];
-            const eqData = eqId ? (typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId)) : null;
+            const eqData = eqId ? (typeof eqId === 'object' ? eqId : findEquipmentWithExpansion(eqId)) : null;
             if (!eqData) continue;
 
             if (eqData.stat_bonuses) {
@@ -2230,7 +2270,7 @@ export class SpriteCenterScene extends Scene {
             // Entry can be a numeric ID or a full equipment object
             const eqId = typeof entry === 'number' ? entry : (entry.equipment_id || entry.equipmentId);
             const resolved = typeof entry === 'number'
-                ? EQUIPMENT.find(e => e.equipment_id === eqId)
+                ? findEquipmentWithExpansion(eqId)
                 : entry;
             if (!resolved) continue;
             if ((resolved.slot_type || '') !== slot.key) continue;
@@ -2334,7 +2374,7 @@ export class SpriteCenterScene extends Scene {
             cmCtx.imageSmoothingEnabled = true;
             const raceId = inst.raceId || inst.race_id || 1;
             const stg = inst.evolutionStage || inst.evolution_stage || 1;
-            HumanoidSpriteSystem.drawWithEquipment(
+            SkeletalAnimationSystem.drawWithEquipment(
                 cmCtx, raceId, stg, 0, 0, 24, 38, 38, { equipment: inst.equipment || {} }
             );
             curPreviewRow.appendChild(curMiniCanvas);
@@ -2459,7 +2499,7 @@ export class SpriteCenterScene extends Scene {
                 hypotheticalEquip[slot.key] = item.equipment_id || item;
                 const rId = inst.raceId || inst.race_id || 1;
                 const stge = inst.evolutionStage || inst.evolution_stage || 1;
-                HumanoidSpriteSystem.drawWithEquipment(
+                SkeletalAnimationSystem.drawWithEquipment(
                     mCtx, rId, stge, 0, 0, 20, 32, 34, { equipment: hypotheticalEquip }
                 );
                 topRow.appendChild(miniCanvas);
@@ -3028,7 +3068,7 @@ export class SpriteCenterScene extends Scene {
         inst.equipment = equipment;
 
         // Invalidate sprite cache for this unit
-        HumanoidSpriteSystem.invalidateCache(
+        SkeletalAnimationSystem.invalidateCache(
             inst.raceId || inst.race_id || 1,
             inst.evolutionStage || inst.evolution_stage || 1,
             equipment
@@ -3134,7 +3174,7 @@ export class SpriteCenterScene extends Scene {
         inst.equipment = equipment;
 
         // Invalidate sprite cache so the new equipment is rendered
-        HumanoidSpriteSystem.invalidateCache(
+        SkeletalAnimationSystem.invalidateCache(
             inst.raceId || inst.race_id || 1,
             inst.evolutionStage || inst.evolution_stage || 1,
             equipment

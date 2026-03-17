@@ -4,7 +4,7 @@
  *
  * Art Style: 2D mobile game cel-shaded style with chibi proportions.
  * Visual rendering (clean outlines, flat shading, chibi body) is handled by
- * RTSBattleRenderer + HumanoidSpriteSystem. This file provides the visual state
+ * RTSBattleRenderer + SkeletalAnimationSystem. This file provides the visual state
  * data (facing, walkFrame, hitFlashTimer, raceId, equipment) they consume.
  *
  * Each RTSUnit exists on a continuous 2D battlefield (not grid-locked).

@@ -15,7 +15,7 @@ import { eventBus, GameEvents } from '../core/EventBus.js';
 import { BattleGrid } from '../systems/battle/BattleGrid.js';
 import { SPRITE_RACES } from '../data/SpriteData.js';
 import { UnitRenderer, ELEMENT_COLORS as UR_ELEMENT_COLORS } from '../systems/ui/UnitRenderer.js';
-import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
 import { SpriteInspectPanel } from '../systems/ui/SpriteInspectPanel.js';
 
 function _getSpriteName(inst) {
@@ -101,7 +101,7 @@ export class DeploymentScene extends Scene {
     // ═══════════════════════════════════════════════════════════════════
 
     async init() {
-        await HumanoidSpriteSystem.preloadAssets(this.engine.assets).catch(() => {});
+        await SkeletalAnimationSystem.preloadAssets(this.engine.assets);
         this.initialized = true;
     }
 
@@ -341,7 +341,7 @@ export class DeploymentScene extends Scene {
         const equipment = inst.equipment || {};
         const animFrame = Math.floor(this._time * 2) % 4;
 
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             ctx, raceId, stage, 0, animFrame,
             centerX, centerY, size,
             { equipment }
@@ -389,7 +389,7 @@ export class DeploymentScene extends Scene {
         const animFrame = Math.floor(this._time * 2) % 4;
 
         ctx.globalAlpha = 0.75;
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             ctx, raceId, stage, 0, animFrame,
             centerX, centerY, size,
             { equipment }
@@ -424,7 +424,7 @@ export class DeploymentScene extends Scene {
         const animFrame = Math.floor(this._time * 2) % 4;
 
         ctx.globalAlpha = 0.75;
-        HumanoidSpriteSystem.drawWithEquipment(
+        SkeletalAnimationSystem.drawWithEquipment(
             ctx, raceId, stage, 0, animFrame,
             this._dragScreenX, this._dragScreenY + 4, GRID_CELL_SIZE - 2,
             { equipment }
@@ -835,6 +835,7 @@ export class DeploymentScene extends Scene {
                 onClick: () => this._selectRosterSprite(i),
             });
             card.style.margin = '2px 4px';
+            card.style.position = 'relative';
 
             this._rosterPanelEl.appendChild(card);
         }

@@ -410,6 +410,13 @@ func _create_team_entry(sprite_data: Dictionary) -> PanelContainer:
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var tex: Texture2D = sprite_data.get("texture", null)
+	if tex == null:
+		var form_id: int = sprite_data.get("form_id", 0)
+		if form_id > 0:
+			tex = SpriteTextureLoader.get_form_texture(form_id)
+		elif sprite_data.get("race_id", 0) > 0:
+			var stage: int = sprite_data.get("stage", 0)
+			tex = SpriteTextureLoader.get_race_texture(sprite_data.get("race_id", 0), stage)
 	if tex != null:
 		portrait.texture = tex
 	portrait_frame.add_child(portrait)
@@ -460,6 +467,10 @@ func _create_drag_visual(pos: Vector2) -> void:
 	_drag_visual.position = pos - Vector2(CELL_SIZE / 2.0, CELL_SIZE / 2.0)
 
 	var tex: Texture2D = _drag_sprite_data.get("texture", null)
+	if tex == null:
+		var form_id: int = _drag_sprite_data.get("form_id", 0)
+		if form_id > 0:
+			tex = SpriteTextureLoader.get_form_texture(form_id)
 	if tex != null:
 		_drag_visual.texture = tex
 
@@ -593,6 +604,10 @@ func _draw_placed_units() -> void:
 		tex_rect.add_to_group("deploy_grid_visual")
 
 		var tex: Texture2D = data.get("texture", null)
+		if tex == null:
+			var form_id: int = data.get("form_id", 0)
+			if form_id > 0:
+				tex = SpriteTextureLoader.get_form_texture(form_id)
 		if tex != null:
 			tex_rect.texture = tex
 
@@ -620,6 +635,10 @@ func _draw_enemy_preview() -> void:
 		tex_rect.modulate = Color(1.0, 0.5, 0.5, 0.55)
 
 		var tex: Texture2D = enemy_data.get("texture", null)
+		if tex == null:
+			var form_id: int = enemy_data.get("form_id", 0)
+			if form_id > 0:
+				tex = SpriteTextureLoader.get_form_texture(form_id)
 		if tex != null:
 			tex_rect.texture = tex
 
@@ -878,6 +897,10 @@ func _show_sprite_info(sprite_data: Dictionary) -> void:
 	var portrait: TextureRect = _info_panel.find_child("InfoPortrait", true, false)
 	if portrait != null:
 		var tex: Texture2D = sprite_data.get("texture", null)
+		if tex == null:
+			var form_id: int = sprite_data.get("form_id", 0)
+			if form_id > 0:
+				tex = SpriteTextureLoader.get_form_texture(form_id)
 		portrait.texture = tex
 
 	# -- Name --

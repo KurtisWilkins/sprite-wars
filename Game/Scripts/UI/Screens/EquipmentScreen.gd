@@ -237,6 +237,16 @@ func _create_equipment_slot(slot_type: String) -> PanelContainer:
 	type_label.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
 	vbox.add_child(type_label)
 
+	# Equipment icon TextureRect (populated in _refresh_display).
+	var icon_rect := TextureRect.new()
+	icon_rect.name = "IconRect"
+	icon_rect.custom_minimum_size = Vector2(48.0, 48.0)
+	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	icon_rect.visible = false
+	vbox.add_child(icon_rect)
+
 	var item_label := Label.new()
 	item_label.name = "ItemLabel"
 	item_label.text = "--"
@@ -404,7 +414,7 @@ const SLOT_EMOJIS: Dictionary = {
 
 ## Look up equipment data by ID from the EquipmentDatabase.
 func _lookup_equipment(equipment_id: int) -> Dictionary:
-	var all_equip: Array[Dictionary] = EquipmentDatabase.get_all_equipment()
+	var all_equip: Array[Dictionary] = EquipmentDatabase.get_all_equipment_with_expansion()
 	for equip in all_equip:
 		if int(equip.get("equipment_id", -1)) == equipment_id:
 			return equip
@@ -428,6 +438,9 @@ func _refresh_display() -> void:
 		if item_label == null:
 			continue
 
+		# Equipment icon in the slot.
+		var icon_rect: TextureRect = vbox.get_node_or_null("IconRect") as TextureRect
+
 		var item_id: int = _sprite_instance.equipment.get(slot_type, -1)
 		if item_id > 0:
 			var equip_data: Dictionary = _lookup_equipment(item_id)
@@ -438,6 +451,19 @@ func _refresh_display() -> void:
 				item_label.text = equip_name
 				item_label.add_theme_color_override("font_color", rarity_color)
 
+				# Load and display the equipment icon PNG.
+				if icon_rect != null:
+					var equip_icon_path: String = str(equip_data.get("icon_path", ""))
+					if not equip_icon_path.is_empty() and ResourceLoader.exists(equip_icon_path):
+						var equip_icon_tex: Texture2D = load(equip_icon_path) as Texture2D
+						if equip_icon_tex != null:
+							icon_rect.texture = equip_icon_tex
+							icon_rect.visible = true
+						else:
+							icon_rect.visible = false
+					else:
+						icon_rect.visible = false
+
 				# Update slot border to rarity color.
 				var style := panel.get_theme_stylebox("panel") as StyleBoxFlat
 				if style:
@@ -447,9 +473,13 @@ func _refresh_display() -> void:
 			else:
 				item_label.text = "Item #%d" % item_id
 				item_label.add_theme_color_override("font_color", Color.WHITE)
+				if icon_rect != null:
+					icon_rect.visible = false
 		else:
 			item_label.text = "--"
 			item_label.add_theme_color_override("font_color", Color(0.4, 0.4, 0.45))
+			if icon_rect != null:
+				icon_rect.visible = false
 
 		_highlight_slot(slot_type, slot_type == _selected_slot_type)
 

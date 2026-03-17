@@ -2268,3 +2268,29 @@ export const EQUIPMENT = [
 		source: "legendary_quest",
 	},
 ];
+
+// ══════════════════════════════════════════════════════════════════════
+// Equipment Expansion Integration (977 additional items from asset PNGs)
+// ══════════════════════════════════════════════════════════════════════
+
+import { EQUIPMENT_EXPANSION } from "./EquipmentExpansion.js";
+
+/**
+ * Get all equipment including expansion items (IDs 2001-2977).
+ * @returns {Equipment[]}
+ */
+export function getAllEquipmentWithExpansion() {
+	return [...EQUIPMENT, ...EQUIPMENT_EXPANSION];
+}
+
+/**
+ * Find any equipment by ID, including expansion items.
+ * @param {number} equipmentId
+ * @returns {Equipment|undefined}
+ */
+export function findEquipmentWithExpansion(equipmentId) {
+	if (equipmentId >= 2001) {
+		return EQUIPMENT_EXPANSION.find(e => e.equipment_id === equipmentId);
+	}
+	return EQUIPMENT.find(e => e.equipment_id === equipmentId);
+}

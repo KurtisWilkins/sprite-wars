@@ -11,8 +11,7 @@
  */
 import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
-import { SpriteSheetGenerator } from '../core/SpriteSheetGenerator.js';
-import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
 import { getTrainer } from '../data/TrainerData.js';
 import { ENCOUNTER_TABLES } from '../data/EncounterData.js';
 import { GlossaryScreen } from '../systems/ui/GlossaryScreen.js';
@@ -178,7 +177,6 @@ export class OverworldScene extends Scene {
             moving: false,
             animFrame: 0,
             animTimer: 0,
-            spriteImg: null,
         };
 
         // Camera (world coordinates of top-left corner, smoothed)
@@ -233,9 +231,6 @@ export class OverworldScene extends Scene {
         // Throttled position logging
         this._lastPosLogTime = 0;
 
-        // Generated walk-cycle sprite sheets from Units body types
-        this._generatedSpriteSheets = [];
-
         // Tile rendering cache — 128x128 off-screen canvases for high-quality tiles
         this._tileCache = new Map();
     }
@@ -243,40 +238,10 @@ export class OverworldScene extends Scene {
     // ── Lifecycle ──────────────────────────────────────────────────────────
 
     async init() {
-        // Load player sprite (256x256, 4 cols x 4 rows, 64x64 per frame)
-        try {
-            this._player.spriteImg = await this.engine.assets.loadImage(
-                'Sprites/Characters/Farmer1.png'
-            );
-        } catch (_) {
-            this._player.spriteImg = null;
-        }
+        // Preload PNG race sprites for SkeletalAnimationSystem rendering.
+        await SkeletalAnimationSystem.preloadAssets(this.engine.assets);
 
-        // Load Units body type sheet and generate walk-cycle sprite sheets with arms/legs
-        try {
-            const unitsSheet = await this.engine.assets.loadImage(
-                'Sprites/Units/newbodytypes (1).png'
-            );
-            if (unitsSheet) {
-                this._generatedSpriteSheets = SpriteSheetGenerator.generateFromSheet(unitsSheet);
-                // Convert first generated sheet to player sprite (if no character sprite loaded)
-                if (!this._player.spriteImg && this._generatedSpriteSheets.length > 0) {
-                    this._player.spriteImg = await SpriteSheetGenerator.toImage(
-                        this._generatedSpriteSheets[0]
-                    );
-                }
-            }
-        } catch (_) {
-            this._generatedSpriteSheets = [];
-        }
-
-        // Pre-calculate player sprite frame dimensions (same logic as NPCs).
-        if (this._player.spriteImg) {
-            this._player.spriteRows = 4;
-            this._player.spriteFrameH = this._player.spriteImg.height / 4;
-            this._player.spriteFrameW = this._player.spriteFrameH; // square frames
-            this._player.spriteCols = Math.floor(this._player.spriteImg.width / this._player.spriteFrameW);
-        }
+        // Player sprite rendering handled by SkeletalAnimationSystem (no legacy fallback needed)
 
         this.initialized = true;
     }
@@ -510,7 +475,7 @@ export class OverworldScene extends Scene {
 
         // Set up NPCs
         // Deterministic race assignments for NPC types so they render via
-        // HumanoidSpriteSystem (cel-shaded) instead of pixel-art sprite sheets.
+        // SkeletalAnimationSystem (cel-shaded) instead of pixel-art sprite sheets.
         const NPC_RACE_BY_TYPE = {
             talk:    [12, 6, 10, 15, 18, 20, 22],  // Human, Cat Man, Ghost, Monkey Man, Rat Man, Shark Man, Turtle Man
             heal:    [9, 17, 24],                    // Fish Man, Ork, Zombie
@@ -530,8 +495,6 @@ export class OverworldScene extends Scene {
                 name: npcDef.name || 'NPC',
                 x: (npcDef.gridX ?? 5) * TILE_SIZE + TILE_SIZE / 2,
                 y: (npcDef.gridY ?? 5) * TILE_SIZE + TILE_SIZE / 2,
-                spriteImg: null,
-                spritePath: npcDef.spritePath || null,
                 dialogue: npcDef.dialogue || ['...'],
                 facing: npcDef.facing || 'down',
                 type: npcType,
@@ -543,47 +506,7 @@ export class OverworldScene extends Scene {
             };
         });
 
-        // Load individual NPC sprites and auto-detect frame dimensions.
-        // Sprite sheets use 4 rows (down/left/right/up) with square frames.
-        // Supports various sheet sizes: 128x128 (32x32), 256x256 (64x64), 512x256 (64x64), etc.
-        let generatedSheetIdx = 0;
-        for (const npc of this._npcs) {
-            npc.spriteSheet = null;
-            npc.spriteFrameW = 64;
-            npc.spriteFrameH = 64;
-            npc.spriteCols = 4;
-            npc.spriteRows = 4;
-            // Skip sprite sheet loading for NPCs with raceId — they use HumanoidSpriteSystem
-            if (npc.raceId) continue;
-            if (npc.spritePath) {
-                try {
-                    npc.spriteSheet = await this.engine.assets.loadImage(npc.spritePath);
-                    if (npc.spriteSheet) {
-                        // Auto-detect frame size: 4 rows, square frames
-                        npc.spriteFrameH = npc.spriteSheet.height / 4;
-                        npc.spriteFrameW = npc.spriteFrameH;
-                        npc.spriteCols = Math.floor(npc.spriteSheet.width / npc.spriteFrameW);
-                        npc.spriteRows = 4;
-                    }
-                } catch (_) {
-                    npc.spriteSheet = null;
-                }
-            }
-            // Fallback: assign a generated walk-cycle sheet from Units body types
-            if (!npc.spriteSheet && this._generatedSpriteSheets.length > 0) {
-                const sheetCanvas = this._generatedSpriteSheets[generatedSheetIdx % this._generatedSpriteSheets.length];
-                try {
-                    npc.spriteSheet = await SpriteSheetGenerator.toImage(sheetCanvas);
-                    if (npc.spriteSheet) {
-                        npc.spriteFrameH = npc.spriteSheet.height / 4;
-                        npc.spriteFrameW = npc.spriteFrameH;
-                        npc.spriteCols = Math.floor(npc.spriteSheet.width / npc.spriteFrameW);
-                        npc.spriteRows = 4;
-                    }
-                } catch (_) { /* ignore */ }
-                generatedSheetIdx++;
-            }
-        }
+        // All NPC rendering handled by SkeletalAnimationSystem via raceId
 
         // Set up area transitions
         this._transitions = (this._mapData.transitions || []).map(t => ({
@@ -1021,17 +944,17 @@ export class OverworldScene extends Scene {
             collisionMap: collision,
             defaultSpawn: { x: 24, y: 24 },
             npcs: [
-                { id:'elder', name:'Temple Elder', gridX:24, gridY:23, type:'talk', facing:'down', spritePath:'Sprites/Characters/Priest.png', dialogue:['Welcome to Willowshade, young trainer!','Our town has grown into a fine settlement.','Head east through the cave to reach the Blazecore Sanctum.','Or venture south through the gate to explore the Verdant Route.','Build your team and grow stronger before challenging the temple guardian.'] },
-                { id:'healer', name:'Healer Mira', gridX:7, gridY:20, type:'heal', facing:'up', spritePath:'Sprites/Characters/Nun1.png', dialogue:['Oh dear, your Sprites look exhausted!','Rest here a moment... Let me tend to them.','There we go -- all healed up! Good luck out there!'] },
-                { id:'shopkeeper', name:'Merchant Grin', gridX:8, gridY:35, type:'shop', facing:'down', spritePath:'Sprites/Characters/Merchant1.png', dialogue:['Looking to buy supplies? You have come to the right place!','I stock potions, crystals, and other essentials.','Come back any time -- my door is always open!'] },
-                { id:'quest_guide', name:'Scout Renn', gridX:41, gridY:23, type:'quest', facing:'left', spritePath:'Sprites/Characters/Viking1.png', dialogue:['Blazecore Sanctum is through the cave to the east!','Fire-type Sprites lurk within. Their guardian is formidable.','I train here every day to prepare for the challenge.','If you bring me a Fire Gem, I can teach your Sprites fire resistance!'] },
-                { id:'mom', name:'Mom', gridX:7, gridY:8, type:'talk', facing:'down', spritePath:'Sprites/Characters/NobleLady1.png', dialogue:['Be careful out there, dear!','Remember to heal your Sprites at Mira\'s hut if they get hurt.','I\'ll always be here if you need me.'] },
-                { id:'father_byron', name:'Father Byron', gridX:35, gridY:35, type:'talk', facing:'up', spritePath:'Sprites/Characters/Priest.png', dialogue:['Blessings upon you, young trainer!','I have devoted my life to studying the bond between Sprites and their tamers.','There are 24 known Sprite races, each with three evolution stages.','That is 72 distinct forms to discover!','Head south to the Verdant Route for your first encounters.'] },
-                { id:'fisherman', name:'Old Fisher Tom', gridX:31, gridY:8, type:'talk', facing:'right', spritePath:'Sprites/Characters/Farmer1.png', dialogue:['The pond here is home to some rare Water-type Sprites.','I have been fishing these waters for thirty years.','Legend says there is a treasure on the small island out there...'] },
-                { id:'guard', name:'Gate Guard Hal', gridX:24, gridY:43, type:'talk', facing:'up', spritePath:'Sprites/Characters/Viking3.png', dialogue:['Beyond this gate lies the Verdant Route.','Wild Sprites roam freely out there. Make sure you are prepared!','Stock up on potions before heading out.'] },
-                { id:'blacksmith', name:'Smith Doran', gridX:6, gridY:44, type:'shop', facing:'up', spritePath:'Sprites/Characters/MinerLeader.png', dialogue:['Need equipment? I forge the finest gear in Willowshade.','Bring me raw materials and I can craft something special.'] },
-                { id:'trainer_pip', name:'Youngster Pip', gridX:22, gridY:40, type:'trainer', facing:'up', spritePath:'Sprites/Characters/RedBand_Kai/RedBand_Kai.png', dialogue:['I just got my first Sprite yesterday!','Wanna see how strong it is? Battle me!'], visionRange:4, visionDirection:{x:0,y:-1} },
-                { id:'trainer_fern', name:'Lass Fern', gridX:28, gridY:10, type:'trainer', facing:'left', spritePath:'Sprites/Characters/GoldenBraid_Celeste/GoldenBraid_Celeste.png', dialogue:['The Sprites near this pond are so graceful...','Oh! A challenger? My Water-types won\'t go easy on you!'], visionRange:3, visionDirection:{x:-1,y:0} },
+                { id:'elder', name:'Temple Elder', gridX:24, gridY:23, type:'talk', facing:'down', raceId:2, stage:2, dialogue:['Welcome to Willowshade, young trainer!','Our town has grown into a fine settlement.','Head east through the cave to reach the Blazecore Sanctum.','Or venture south through the gate to explore the Verdant Route.','Build your team and grow stronger before challenging the temple guardian.'] },
+                { id:'healer', name:'Healer Mira', gridX:7, gridY:20, type:'heal', facing:'up', raceId:1, stage:1, dialogue:['Oh dear, your Sprites look exhausted!','Rest here a moment... Let me tend to them.','There we go -- all healed up! Good luck out there!'] },
+                { id:'shopkeeper', name:'Merchant Grin', gridX:8, gridY:35, type:'shop', facing:'down', raceId:18, stage:2, dialogue:['Looking to buy supplies? You have come to the right place!','I stock potions, crystals, and other essentials.','Come back any time -- my door is always open!'] },
+                { id:'quest_guide', name:'Scout Renn', gridX:41, gridY:23, type:'quest', facing:'left', raceId:7, stage:1, dialogue:['Blazecore Sanctum is through the cave to the east!','Fire-type Sprites lurk within. Their guardian is formidable.','I train here every day to prepare for the challenge.','If you bring me a Fire Gem, I can teach your Sprites fire resistance!'] },
+                { id:'mom', name:'Mom', gridX:7, gridY:8, type:'talk', facing:'down', raceId:1, stage:2, dialogue:['Be careful out there, dear!','Remember to heal your Sprites at Mira\'s hut if they get hurt.','I\'ll always be here if you need me.'] },
+                { id:'father_byron', name:'Father Byron', gridX:35, gridY:35, type:'talk', facing:'up', raceId:2, stage:2, dialogue:['Blessings upon you, young trainer!','I have devoted my life to studying the bond between Sprites and their tamers.','There are 24 known Sprite races, each with three evolution stages.','That is 72 distinct forms to discover!','Head south to the Verdant Route for your first encounters.'] },
+                { id:'fisherman', name:'Old Fisher Tom', gridX:31, gridY:8, type:'talk', facing:'right', raceId:12, stage:1, dialogue:['The pond here is home to some rare Water-type Sprites.','I have been fishing these waters for thirty years.','Legend says there is a treasure on the small island out there...'] },
+                { id:'guard', name:'Gate Guard Hal', gridX:24, gridY:43, type:'talk', facing:'up', raceId:16, stage:1, dialogue:['Beyond this gate lies the Verdant Route.','Wild Sprites roam freely out there. Make sure you are prepared!','Stock up on potions before heading out.'] },
+                { id:'blacksmith', name:'Smith Doran', gridX:6, gridY:44, type:'shop', facing:'up', raceId:14, stage:2, dialogue:['Need equipment? I forge the finest gear in Willowshade.','Bring me raw materials and I can craft something special.'] },
+                { id:'trainer_pip', name:'Youngster Pip', gridX:22, gridY:40, type:'trainer', facing:'up', raceId:8, stage:1, dialogue:['I just got my first Sprite yesterday!','Wanna see how strong it is? Battle me!'], visionRange:4, visionDirection:{x:0,y:-1} },
+                { id:'trainer_fern', name:'Lass Fern', gridX:28, gridY:10, type:'trainer', facing:'left', raceId:12, stage:2, dialogue:['The Sprites near this pond are so graceful...','Oh! A challenger? My Water-types won\'t go easy on you!'], visionRange:3, visionDirection:{x:-1,y:0} },
             ],
             transitions: [
                 { gridX:45, gridY:24, width:2, height:2, targetRegion:'fire_temple', targetSpawn:{x:1,y:12} },
@@ -1108,8 +1031,8 @@ export class OverworldScene extends Scene {
             collisionMap: collision,
             defaultSpawn: { x: 16, y: 1 },
             npcs: [
-                { id:'trainer_kai', name:'Javelin Kai', gridX:14, gridY:6, type:'trainer', facing:'right', spritePath:'Sprites/Characters/Viking2.png', dialogue:['Hold it right there, rookie!','The wilds ahead are dangerous. Let me test if you are ready!'], visionRange:5, visionDirection:{x:-1,y:0} },
-                { id:'trainer_tim', name:'Bug Catcher Tim', gridX:6, gridY:5, type:'trainer', facing:'down', spritePath:'Sprites/Characters/Farmer3.png', dialogue:['Hey! You look like a new trainer!','Let me show you what my Bug-type Sprites can do!'], visionRange:4, visionDirection:{x:0,y:1} },
+                { id:'trainer_kai', name:'Javelin Kai', gridX:14, gridY:6, type:'trainer', facing:'right', raceId:7, stage:2, dialogue:['Hold it right there, rookie!','The wilds ahead are dangerous. Let me test if you are ready!'], visionRange:5, visionDirection:{x:-1,y:0} },
+                { id:'trainer_tim', name:'Bug Catcher Tim', gridX:6, gridY:5, type:'trainer', facing:'down', raceId:9, stage:1, dialogue:['Hey! You look like a new trainer!','Let me show you what my Bug-type Sprites can do!'], visionRange:4, visionDirection:{x:0,y:1} },
             ],
             transitions: [
                 { gridX:15, gridY:0, width:4, height:1, targetRegion:'starter_town', targetSpawn:{x:24,y:44} },
@@ -1230,7 +1153,8 @@ export class OverworldScene extends Scene {
                     gridY: 11,
                     type: 'talk',
                     facing: 'left',
-                    spritePath: 'Sprites/Characters/Cultist1.png',
+                    raceId: 3,
+                    stage: 1,
                     dialogue: [
                         'You dare enter the Blazecore Sanctum?',
                         'The guardian awaits at the northern chamber.',
@@ -1245,7 +1169,8 @@ export class OverworldScene extends Scene {
                     gridY: 22,
                     type: 'heal',
                     facing: 'up',
-                    spritePath: 'Sprites/Characters/Nun3.png',
+                    raceId: 4,
+                    stage: 1,
                     dialogue: [
                         'The flames spare those who show respect.',
                         'Rest here and regain your strength.',
@@ -2674,7 +2599,7 @@ export class OverworldScene extends Scene {
         const camY = Math.round(this._camera.y);
         const halfSize = PLAYER_SIZE / 2;
 
-        // Use AQ-style HumanoidSpriteSystem for the player character
+        // Use AQ-style SkeletalAnimationSystem for the player character
         const dirMap = { down: 0, left: 1, right: 2, up: 3 };
         const dir = dirMap[this._player.facing] || 0;
         const animFrame = this._player.moving ? (this._player.animFrame % 4) : 0;
@@ -2682,101 +2607,64 @@ export class OverworldScene extends Scene {
         const stage = this._player.stage || 1;
         const equipment = this._player.equipment || {};
 
-        try {
+        const ctx = renderer.ctx || renderer._ctx;
+        if (ctx) {
+            // Direct ctx calls need manual camera offset
+            const px = wx - camX;
+            const py = wy - camY;
+            ctx.imageSmoothingEnabled = true;
+            SkeletalAnimationSystem.drawWithEquipment(
+                ctx, raceId, stage, dir, animFrame,
+                px, py + halfSize * 0.3, PLAYER_SIZE,
+                { equipment }
+            );
+            ctx.imageSmoothingEnabled = true;
+            return;
+        }
+
+        // Minimal fallback: colored circle (no legacy sprite sheets)
+        renderer.drawCircle(wx, wy, halfSize, '#44aaff');
+        const d = DIR[this._player.facing] || DIR.down;
+        renderer.drawCircle(
+            wx + d.x * halfSize * 0.6,
+            wy + d.y * halfSize * 0.6,
+            3, '#ffffff'
+        );
+    }
+
+    _renderNpc(renderer, npc) {
+        // Use SkeletalAnimationSystem for NPCs with race data
+        if (npc.raceId) {
             const ctx = renderer.ctx || renderer._ctx;
             if (ctx) {
                 // Direct ctx calls need manual camera offset
-                const px = wx - camX;
-                const py = wy - camY;
+                const camX = Math.round(this._camera.x);
+                const camY = Math.round(this._camera.y);
+                const dirMap = { down: 0, left: 1, right: 2, up: 3 };
+                const dir = dirMap[npc.facing] || 0;
+                const animFrame = npc.moving ? ((npc.animFrame || 0) % 4) : 0;
+                const npcSize = NPC_DRAW_HALFSIZE * 2;
                 ctx.imageSmoothingEnabled = true;
-                HumanoidSpriteSystem.drawWithEquipment(
-                    ctx, raceId, stage, dir, animFrame,
-                    px, py + halfSize * 0.3, PLAYER_SIZE,
-                    { equipment }
+                SkeletalAnimationSystem.drawWithEquipment(
+                    ctx, npc.raceId, npc.stage || 1, dir, animFrame,
+                    npc.x - camX, npc.y - camY + NPC_DRAW_HALFSIZE * 0.3, npcSize,
+                    { equipment: npc.equipment || {} }
                 );
                 ctx.imageSmoothingEnabled = true;
                 return;
             }
-        } catch (_) { /* fall through to legacy rendering */ }
-
-        // Legacy fallback uses renderer methods which subtract camera internally
-        if (this._player.spriteImg && this._player.spriteImg.complete) {
-            const dirRow = { down: 0, left: 1, right: 2, up: 3 };
-            const row = dirRow[this._player.facing] || 0;
-            const numRows = this._player.spriteRows || 4;
-            const sh = this._player.spriteImg.height / numRows;
-            const sw = this._player.spriteFrameW || sh;
-            const numCols = this._player.spriteCols || Math.floor(this._player.spriteImg.width / sw) || 4;
-            const col = this._player.moving ? (this._player.animFrame % numCols) : 0;
-            renderer.drawSprite(
-                this._player.spriteImg,
-                col * sw, row * sh, sw, sh,
-                wx - halfSize, wy - halfSize, PLAYER_SIZE, PLAYER_SIZE
-            );
-        } else {
-            // Fallback: colored circle
-            renderer.drawCircle(wx, wy, halfSize, '#44aaff');
-            const d = DIR[this._player.facing] || DIR.down;
-            renderer.drawCircle(
-                wx + d.x * halfSize * 0.6,
-                wy + d.y * halfSize * 0.6,
-                3, '#ffffff'
-            );
-        }
-    }
-
-    _renderNpc(renderer, npc) {
-        // Try AQ-style HumanoidSpriteSystem rendering for NPCs with race data
-        if (npc.raceId) {
-            try {
-                const ctx = renderer.ctx || renderer._ctx;
-                if (ctx) {
-                    // Direct ctx calls need manual camera offset
-                    const camX = Math.round(this._camera.x);
-                    const camY = Math.round(this._camera.y);
-                    const dirMap = { down: 0, left: 1, right: 2, up: 3 };
-                    const dir = dirMap[npc.facing] || 0;
-                    const animFrame = npc.moving ? ((npc.animFrame || 0) % 4) : 0;
-                    const npcSize = NPC_DRAW_HALFSIZE * 2;
-                    ctx.imageSmoothingEnabled = true;
-                    HumanoidSpriteSystem.drawWithEquipment(
-                        ctx, npc.raceId, npc.stage || 1, dir, animFrame,
-                        npc.x - camX, npc.y - camY + NPC_DRAW_HALFSIZE * 0.3, npcSize,
-                        { equipment: npc.equipment || {} }
-                    );
-                    ctx.imageSmoothingEnabled = true;
-                    return;
-                }
-            } catch (_) { /* fall through to legacy */ }
         }
 
-        if (npc.spriteSheet && npc.spriteSheet.complete) {
-            const dirRow = { down: 0, left: 1, right: 2, up: 3 };
-            const row = dirRow[npc.facing] || 0;
-            const col = npc.moving ? ((npc.animFrame || 0) % (npc.spriteCols || 4)) : 0;
-            const fw = npc.spriteFrameW || (npc.spriteSheet.width / (npc.spriteCols || 4));
-            const fh = npc.spriteFrameH || (npc.spriteSheet.height / (npc.spriteRows || 4));
-            renderer.drawSprite(
-                npc.spriteSheet,
-                col * fw, row * fh, fw, fh,
-                npc.x - NPC_DRAW_HALFSIZE, npc.y - NPC_DRAW_HALFSIZE,
-                NPC_DRAW_HALFSIZE * 2, NPC_DRAW_HALFSIZE * 2
-            );
-        } else if (npc.spriteImg && npc.spriteImg.complete) {
-            renderer.drawImage(npc.spriteImg, npc.x - NPC_DRAW_HALFSIZE, npc.y - NPC_DRAW_HALFSIZE,
-                NPC_DRAW_HALFSIZE * 2, NPC_DRAW_HALFSIZE * 2);
-        } else {
-            // Fallback: colored circle by type
-            const colors = {
-                talk: '#e8a035',
-                heal: '#44cc44',
-                shop: '#cc44cc',
-                quest: '#4488ee',
-                trainer: '#e03535',
-            };
-            const color = colors[npc.type] || '#ffffff';
-            renderer.drawCircle(npc.x, npc.y, NPC_DRAW_HALFSIZE, color);
-        }
+        // Minimal fallback: colored circle by type (no legacy sprite sheets)
+        const colors = {
+            talk: '#e8a035',
+            heal: '#44cc44',
+            shop: '#cc44cc',
+            quest: '#4488ee',
+            trainer: '#e03535',
+        };
+        const color = colors[npc.type] || '#ffffff';
+        renderer.drawCircle(npc.x, npc.y, NPC_DRAW_HALFSIZE, color);
     }
 
     /**

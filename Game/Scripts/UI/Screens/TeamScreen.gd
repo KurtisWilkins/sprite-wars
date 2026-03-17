@@ -241,18 +241,23 @@ func _create_team_slot(index: int, sprite_data: SpriteInstance) -> PanelContaine
 		num_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		hbox.add_child(num_label)
 
-		# Portrait.
+		# Portrait with actual race sprite texture.
+		var portrait_bg := ColorRect.new()
+		portrait_bg.custom_minimum_size = PORTRAIT_SIZE
+		portrait_bg.color = Color(0.15, 0.15, 0.22, 1.0)
+		hbox.add_child(portrait_bg)
+
 		var portrait := TextureRect.new()
 		portrait.name = "Portrait"
 		portrait.custom_minimum_size = PORTRAIT_SIZE
 		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		portrait.set_anchors_preset(Control.PRESET_FULL_RECT)
 
-		# Placeholder color rect behind portrait.
-		var portrait_bg := ColorRect.new()
-		portrait_bg.custom_minimum_size = PORTRAIT_SIZE
-		portrait_bg.color = Color(0.15, 0.15, 0.22, 1.0)
-		hbox.add_child(portrait_bg)
+		var portrait_tex: Texture2D = SpriteTextureLoader.get_portrait_texture(sprite_data)
+		if portrait_tex != null:
+			portrait.texture = portrait_tex
+		portrait_bg.add_child(portrait)
 
 		# Info VBox.
 		var info := VBoxContainer.new()

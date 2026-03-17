@@ -10,8 +10,9 @@
  * designed for mobile-first layout. Screens are registered with ScreenManager.
  */
 import { eventBus, GameEvents } from '../../core/EventBus.js';
-import { HumanoidSpriteSystem } from '../rendering/HumanoidSpriteSystem.js';
-import { EQUIPMENT, SLOT_TYPES, RARITY_TIERS } from '../../data/EquipmentData.js';
+import { SkeletalAnimationSystem } from '../rendering/SkeletalAnimationSystem.js';
+import { EQUIPMENT, SLOT_TYPES, RARITY_TIERS, findEquipmentWithExpansion } from '../../data/EquipmentData.js';
+
 
 // -- Shared Style Constants ------------------------------------------------------
 
@@ -427,25 +428,35 @@ export class TeamScreen {
             numLabel.style.cssText = 'color:rgba(130,130,140,0.7);font-size:14px;min-width:30px;';
             slot.appendChild(numLabel);
 
-            // Portrait with equipment rendering
+            // Portrait container: race sprite image + canvas overlay with equipment
+            const portraitWrap = document.createElement('div');
+            Object.assign(portraitWrap.style, {
+                position: 'relative',
+                width: '56px', height: '56px',
+                flexShrink: '0',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                background: 'rgba(35,35,55,1)',
+            });
+
+            const sRaceId = spriteData.raceId || spriteData.race_id || 1;
+            const sStage = spriteData.evolutionStage || spriteData.evolution_stage || 1;
+            const sEquip = spriteData.equipment || {};
+
+            // Canvas with equipment rendering
             const portrait = document.createElement('canvas');
             portrait.width = 56;
             portrait.height = 56;
             Object.assign(portrait.style, {
                 width: '56px', height: '56px',
-                borderRadius: '8px',
-                flexShrink: '0',
                 imageRendering: 'crisp-edges',
-                background: 'rgba(35,35,55,1)',
             });
             const pCtx = portrait.getContext('2d');
-            const sRaceId = spriteData.raceId || spriteData.race_id || 1;
-            const sStage = spriteData.evolutionStage || spriteData.evolution_stage || 1;
-            const sEquip = spriteData.equipment || {};
-            HumanoidSpriteSystem.drawWithEquipment(
+            SkeletalAnimationSystem.drawWithEquipment(
                 pCtx, sRaceId, sStage, 0, 0, 28, 48, 50, { equipment: sEquip }
             );
-            slot.appendChild(portrait);
+            portraitWrap.appendChild(portrait);
+            slot.appendChild(portraitWrap);
 
             // Info column
             const info = document.createElement('div');
@@ -1110,13 +1121,13 @@ export class InventoryScreen {
         // Resolve equipment data: items might be IDs or full objects
         let resolvedItems = equipmentList.map(item => {
             if (typeof item === 'number') {
-                const found = EQUIPMENT.find(e => e.equipment_id === item);
+                const found = findEquipmentWithExpansion(item);
                 return found || null;
             }
             if (item && (item.equipment_id || item.equipmentId)) {
                 // If it's a partial object, try to enrich with static data
                 const eqId = item.equipment_id || item.equipmentId;
-                const staticData = EQUIPMENT.find(e => e.equipment_id === eqId);
+                const staticData = findEquipmentWithExpansion(eqId);
                 return staticData || item;
             }
             return item;
@@ -1244,15 +1255,29 @@ export class InventoryScreen {
         const topRow = document.createElement('div');
         topRow.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 4px;';
 
-        // Slot icon
+        // Equipment icon — prefer PNG asset, fall back to emoji
         const iconEl = document.createElement('span');
         iconEl.style.cssText = `
             font-size: 1.2rem; width: 32px; height: 32px;
             display: flex; align-items: center; justify-content: center;
             background: rgba(40,40,60,0.8); border-radius: 6px;
             border: 1px solid ${rarityColor}44; flex-shrink: 0;
+            overflow: hidden;
         `;
-        iconEl.textContent = slotIcon;
+        const eqIconPath = eqData.icon_path || eqData.iconPath;
+        if (eqIconPath) {
+            const eqIconImg = document.createElement('img');
+            eqIconImg.src = eqIconPath.replace(/^\.\.\//g, '');
+            Object.assign(eqIconImg.style, {
+                width: '100%', height: '100%',
+                objectFit: 'contain',
+                imageRendering: 'crisp-edges',
+            });
+            eqIconImg.onerror = () => { eqIconImg.style.display = 'none'; iconEl.textContent = slotIcon; };
+            iconEl.appendChild(eqIconImg);
+        } else {
+            iconEl.textContent = slotIcon;
+        }
         topRow.appendChild(iconEl);
 
         // Name + stars column
@@ -1403,7 +1428,7 @@ export class InventoryScreen {
             const displayName = sprite.nickname || `Sprite #${sprite.raceId || sprite.race_id || '?'}`;
             const currentEquip = sprite.equipment ? sprite.equipment[slotType] : null;
             const currentEqName = currentEquip
-                ? (EQUIPMENT.find(e => e.equipment_id === currentEquip) || {}).equipment_name || `Item #${currentEquip}`
+                ? (findEquipmentWithExpansion(currentEquip) || {}).equipment_name || `Item #${currentEquip}`
                 : 'Empty';
 
             const row = document.createElement('div');
@@ -1427,23 +1452,33 @@ export class InventoryScreen {
                 });
             }
 
-            // Portrait
+            // Portrait with race sprite background
+            const portraitWrap2 = document.createElement('div');
+            Object.assign(portraitWrap2.style, {
+                position: 'relative',
+                width: '44px', height: '44px',
+                flexShrink: '0',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                background: 'rgba(35,35,55,1)',
+            });
+
+            const sRaceId = sprite.raceId || sprite.race_id || 1;
+            const sStage = sprite.evolutionStage || sprite.evolution_stage || 1;
+
             const portrait = document.createElement('canvas');
             portrait.width = 44;
             portrait.height = 44;
             Object.assign(portrait.style, {
                 width: '44px', height: '44px',
-                borderRadius: '6px', flexShrink: '0',
                 imageRendering: 'crisp-edges',
-                background: 'rgba(35,35,55,1)',
             });
             const pCtx = portrait.getContext('2d');
-            const sRaceId = sprite.raceId || sprite.race_id || 1;
-            const sStage = sprite.evolutionStage || sprite.evolution_stage || 1;
-            HumanoidSpriteSystem.drawWithEquipment(
+            SkeletalAnimationSystem.drawWithEquipment(
                 pCtx, sRaceId, sStage, 0, 0, 22, 36, 40, { equipment: sprite.equipment || {} }
             );
-            row.appendChild(portrait);
+            portraitWrap2.appendChild(portrait);
+            row.appendChild(portraitWrap2);
 
             // Info
             const info = document.createElement('div');
@@ -1507,7 +1542,7 @@ export class InventoryScreen {
             }
             // Return old item to inventory
             if (oldEquipId) {
-                const oldEqData = EQUIPMENT.find(e => e.equipment_id === oldEquipId);
+                const oldEqData = findEquipmentWithExpansion(oldEquipId);
                 if (oldEqData) {
                     playerData.equipmentInventory.push(oldEqData);
                 }

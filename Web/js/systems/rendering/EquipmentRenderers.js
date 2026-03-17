@@ -1,6 +1,6 @@
 /**
  * EquipmentRenderers.js — Per-item unique cel-shaded rendering functions for all
- * equipment slot types. Called by HumanoidSpriteSystem to draw visually distinct
+ * equipment slot types. Called by SkeletalAnimationSystem to draw visually distinct
  * equipment overlays on 64×64 sprites (4x resolution: 256×256 effective).
  *
  * Art style: Smooth cel-shaded shapes with 1.5px outlines, rounded corners,
@@ -10,7 +10,7 @@
  * draws unique equipment based on the item's shape, colors, and effects.
  */
 
-// Direction constants (match HumanoidSpriteSystem)
+// Direction constants (match SkeletalAnimationSystem)
 const DIR_DOWN  = 0;
 const DIR_LEFT  = 1;
 const DIR_RIGHT = 2;

@@ -17,10 +17,10 @@ import { Scene } from '../core/SceneManager.js';
 import { eventBus, GameEvents } from '../core/EventBus.js';
 import { RTSBattleManager } from '../systems/battle/RTSBattleManager.js';
 import { RTSBattleRenderer } from '../systems/rendering/RTSBattleRenderer.js';
-import { HumanoidSpriteSystem } from '../systems/rendering/HumanoidSpriteSystem.js';
+import { SkeletalAnimationSystem } from '../systems/rendering/SkeletalAnimationSystem.js';
 import { SPRITE_RACES, EVOLUTION_FORMS } from '../data/SpriteData.js';
 import { ABILITIES } from '../data/AbilityData.js';
-import { EQUIPMENT } from '../data/EquipmentData.js';
+import { EQUIPMENT, findEquipmentWithExpansion } from '../data/EquipmentData.js';
 import { rollBattleLoot, formatLootForDisplay } from '../systems/battle/BattleLootSystem.js';
 import { SpriteInspectPanel } from '../systems/ui/SpriteInspectPanel.js';
 import { getWeaponProfile } from '../data/WeaponAnimationData.js';
@@ -136,7 +136,7 @@ export class RTSBattleScene extends Scene {
 
     async init() {
         // Preload humanoid sprite assets
-        await HumanoidSpriteSystem.preloadAssets(this.engine.assets).catch(() => {});
+        await SkeletalAnimationSystem.preloadAssets(this.engine.assets);
         this.initialized = true;
     }
 
@@ -210,7 +210,7 @@ export class RTSBattleScene extends Scene {
         this._selectedUnit = null;
         this._renderer.selectedUnit = null;
         this._renderer.clear();
-        HumanoidSpriteSystem.clearCache();
+        SkeletalAnimationSystem.onSceneChange();
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -876,7 +876,7 @@ export class RTSBattleScene extends Scene {
                     for (const slotKey of Object.keys(eq)) {
                         const eqId = eq[slotKey];
                         if (!eqId) continue;
-                        const eqData = typeof eqId === 'object' ? eqId : EQUIPMENT.find(e => e.equipment_id === eqId);
+                        const eqData = typeof eqId === 'object' ? eqId : findEquipmentWithExpansion(eqId);
                         if (!eqData || !eqData.stat_bonuses) continue;
 
                         // Calculate synergy multiplier

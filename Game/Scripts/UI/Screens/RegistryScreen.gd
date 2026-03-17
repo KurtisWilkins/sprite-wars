@@ -300,16 +300,27 @@ func _populate_list() -> void:
 				continue
 
 		var display_text: String
+		var item_icon: Texture2D = null
 		match status:
 			"caught":
 				display_text = "#%03d - Form %d" % [form_id, form_id]
 				caught_count += 1
+				# Load the actual race sprite as thumbnail.
+				item_icon = SpriteTextureLoader.get_form_texture(form_id)
 			"seen":
 				display_text = "#%03d - ???" % form_id
+				# Load sprite but it will display as silhouette via modulate.
+				item_icon = SpriteTextureLoader.get_form_texture(form_id)
 			_:
 				display_text = "#%03d - ?????" % form_id
 
-		sprite_list.add_item(display_text)
+		sprite_list.add_item(display_text, item_icon)
+		var item_idx: int = sprite_list.get_item_count() - 1
+		# Darken unseen/seen sprites as silhouettes.
+		if status == "seen":
+			sprite_list.set_item_icon_modulate(item_idx, Color(0.1, 0.1, 0.15, 1.0))
+		elif status == "unseen":
+			sprite_list.set_item_icon_modulate(item_idx, Color(0.05, 0.05, 0.08, 1.0))
 
 	completion_label.text = "Caught: %d / %d (%d%%)" % [
 		caught_count, TOTAL_FORMS,
@@ -333,6 +344,31 @@ func _on_sprite_selected(index: int) -> void:
 	_detail_class.text = "Class: Unknown"
 	_detail_stats.text = "Stats will be shown for caught Sprites."
 	_detail_lore.text = "Catch this Sprite to unlock its registry entry."
+
+	# Extract form_id from the display text (format: "#NNN - ...").
+	var form_id: int = -1
+	if text.begins_with("#") and text.length() >= 4:
+		form_id = int(text.substr(1, 3))
+
+	# Load sprite art into the detail panel.
+	if form_id > 0:
+		var form_tex: Texture2D = SpriteTextureLoader.get_form_texture(form_id)
+		if form_tex != null:
+			_detail_art.texture = form_tex
+			# Silhouette for unseen sprites.
+			var status: String = _get_form_status(form_id)
+			if status == "caught":
+				_detail_art.modulate = Color.WHITE
+			elif status == "seen":
+				_detail_art.modulate = Color(0.1, 0.1, 0.15, 1.0)
+			else:
+				_detail_art.modulate = Color(0.05, 0.05, 0.08, 1.0)
+		else:
+			_detail_art.texture = null
+			_detail_art.modulate = Color.WHITE
+	else:
+		_detail_art.texture = null
+		_detail_art.modulate = Color.WHITE
 
 
 func _on_back_pressed() -> void:
